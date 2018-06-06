@@ -19,12 +19,8 @@ public class OpenFile: StatDelegate {
     // This is to protect the info from being set externally
     var _info: StatInfo = StatInfo()
     public var info: StatInfo {
-        get {
-            if !_info.hasInfo { try? _info.getInfo() }
-            return _info
-        }
-        @available(*, unavailable)
-        set { _info = newValue }
+        try? _info.getInfo()
+        return _info
     }
 
     /**
@@ -47,7 +43,7 @@ public class OpenFile: StatDelegate {
 
         guard fileDescriptor != -1 else { throw OpenError.getError() }
 
-        info = StatInfo(fileDescriptor)
+        self._info = StatInfo(fileDescriptor)
     }
 
     public convenience init(_ path: FilePath, permissions: OpenFilePermissions, flags: OpenFileFlags..., mode: FileMode? = nil) throws {

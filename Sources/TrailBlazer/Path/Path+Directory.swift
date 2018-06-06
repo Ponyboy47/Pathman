@@ -5,7 +5,7 @@ public class DirectoryPath: _Path {
     // This is to protect the info from being set externally
     private var _info: StatInfo
     public var info: StatInfo {
-        if !_info.hasInfo { try? _info.getInfo() }
+        try? _info.getInfo()
         return _info
     }
 

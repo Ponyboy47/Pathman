@@ -8,6 +8,11 @@ import Darwin
 #endif
 
 class StatTests: XCTestCase {
+    var _stat = StatInfo("/tmp")
+    var stat: StatInfo {
+        try? _stat.getInfo()
+        return _stat
+    }
 
     func testInit() {
         let stat1 = StatInfo()
@@ -29,13 +34,71 @@ class StatTests: XCTestCase {
     }
 
     func testType() {
-        var stat1 = StatInfo("/tmp")
-        XCTAssertNoThrow(try stat1.getInfo())
-        XCTAssertEqual(stat1.type, .directory)
+        XCTAssertEqual(stat.type, .directory)
+    }
+
+    func testID() {
+        let _ = stat.id
+    }
+
+    func testInode() {
+        let _ = stat.inode
+    }
+
+    func testPermissions() {
+        let _ = stat.permissions
+    }
+
+    func testOwner() {
+        let _ = stat.owner
+    }
+
+    func testGroup() {
+        let _ = stat.group
+    }
+
+    func testSize() {
+        let _ = stat.size
+    }
+
+    func testDevice() {
+        let _ = stat.device
+    }
+
+    func testBlockSize() {
+        let _ = stat.blockSize
+    }
+
+    func testBlocks() {
+        let _ = stat.blocks
+    }
+
+    func testAccess() {
+        let _ = stat.lastAccess
+    }
+
+    func testModified() {
+        let _ = stat.lastModified
+    }
+
+    func testAttributeChange() {
+        let _ = stat.lastAttributeChange
     }
 
     static var allTests = [
         ("testInit", testInit),
         ("testType", testType),
+        ("testID", testID),
+        ("testInode", testInode),
+        ("testPermissions", testPermissions),
+        ("testOwner", testOwner),
+        ("testGroup", testGroup),
+        ("testSize", testSize),
+        ("testDevice", testDevice),
+        ("testBlockSize", testBlockSize),
+        ("testBlocks", testBlocks),
+        ("testAccess", testAccess),
+        ("testModified", testModified),
+        ("testAttributeChange", testAttributeChange),
     ]
 }

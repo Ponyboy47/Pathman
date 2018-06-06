@@ -12,7 +12,6 @@ public struct StatInfo: StatDescriptor, StatPath {
     var options: StatOptions
     var fileDescriptor: FileDescriptor?
     var buffer: stat = stat()
-    var hasInfo: Bool = false
 
     init() {
         path = nil
@@ -31,13 +30,11 @@ public struct StatInfo: StatDescriptor, StatPath {
         } else if let path = self.path {
             try StatInfo.update(path, options: options, &self.buffer)
         }
-        self.hasInfo = true
     }
 }
 
 protocol Stat {
     var buffer: stat { get set }
-    var hasInfo: Bool { get set }
 
     init(_ buffer: stat)
 
@@ -50,7 +47,7 @@ protocol Stat {
     /// The file permissions
     var permissions: FileMode { get }
     /// user ID of owner
-    var user: uid_t { get }
+    var owner: uid_t { get }
     /// group ID of owner
     var group: gid_t { get }
     /// device ID (if special file)
@@ -83,7 +80,7 @@ extension Stat {
     public var permissions: FileMode {
         return FileMode(rawValue: buffer.st_mode)
     }
-    public var user: uid_t {
+    public var owner: uid_t {
         return buffer.st_uid
     }
     public var group: gid_t {
@@ -145,7 +142,6 @@ extension StatDescriptor {
 
     public mutating func update() throws {
         try Self.update(fileDescriptor!, &buffer)
-        self.hasInfo = true
     }
 
     public init(_ fileDescriptor: FileDescriptor, buffer: stat = stat()) {
@@ -191,7 +187,6 @@ extension StatPath {
         var options = options
         options.insert(self.options)
         try Self.update(self.path!, options: options, &self.buffer)
-        self.hasInfo = true
     }
 
     public init(_ path: String, options: StatOptions = [], buffer: stat = stat()) {
@@ -257,8 +252,8 @@ public extension StatDelegate {
     public var permissions: FileMode {
         return info.permissions
     }
-    public var user: uid_t {
-        return info.user
+    public var owner: uid_t {
+        return info.owner
     }
     public var group: gid_t {
         return info.group
