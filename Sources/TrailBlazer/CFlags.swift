@@ -4,19 +4,79 @@ import Glibc
 import Darwin
 #endif
 
-public struct OpenFilePermissions: OptionSet {
+public struct OpenFilePermissions: Equatable, CustomStringConvertible {
     public let rawValue: Int32
+    public var description: String {
+        if self == .read {
+            return "\(type(of: self))(read)"
+        } else if self == .write {
+            return "\(type(of: self))(write)"
+        } else if self == .readWrite {
+            return "\(type(of: self))(readWrite)"
+        } else {
+            return "\(type(of: self))(unknown)"
+        }
+    }
 
     public static let read = OpenFilePermissions(rawValue: O_RDONLY)
     public static let write = OpenFilePermissions(rawValue: O_WRONLY)
-    public static let readAndWrite = OpenFilePermissions(rawValue: O_RDWR)
+    public static let readWrite = OpenFilePermissions(rawValue: O_RDWR)
 
-    public init(rawValue: Int32) {
+    private init(rawValue: Int32) {
         self.rawValue = rawValue
     }
+
+    public static func == (lhs: OpenFilePermissions, rhs: OpenFilePermissions) -> Bool {
+        return lhs.rawValue == rhs.rawValue
+    }
 }
-public struct OpenFileFlags: OptionSet {
+public struct OpenFileFlags: OptionSet, CustomStringConvertible {
     public let rawValue: Int32
+    public var description: String {
+        var flags: [String] = []
+
+        if contains(.append) {
+            flags.append("append")
+        }
+        if contains(.async) {
+            flags.append("async")
+        }
+        if contains(.closeOnExec) {
+            flags.append("closeOnExec")
+        }
+        if contains(.create) {
+            flags.append("create")
+        }
+        if contains(.directory) {
+            flags.append("directory")
+        }
+        if contains(.dsync) {
+            flags.append("dsync")
+        }
+        if contains(.excl) {
+            flags.append("excl")
+        }
+        if contains(.noCTTY) {
+            flags.append("noCTTY")
+        }
+        if contains(.noFollow) {
+            flags.append("noFollow")
+        }
+        if contains(.nonBlock) {
+            flags.append("nonBlock")
+        }
+        if contains(.nDelay) {
+            flags.append("nDelay")
+        }
+        if contains(.sync) {
+            flags.append("sync")
+        }
+        if contains(.truncate) {
+            flags.append("truncate")
+        }
+
+        return "\(type(of: self))(\(flags.joined(separator: ", ")))"
+    }
 
     public static let append = OpenFileFlags(rawValue: O_APPEND)
     public static let async = OpenFileFlags(rawValue: O_ASYNC)
@@ -37,9 +97,26 @@ public struct OpenFileFlags: OptionSet {
     }
 }
 
-public struct FilePermissions: OptionSet, ExpressibleByStringLiteral {
-    public let rawValue: UInt32
+public struct FilePermissions: OptionSet, ExpressibleByStringLiteral, ExpressibleByIntegerLiteral, CustomStringConvertible {
     public typealias ExtendedGraphemeClusterLiteralType = StringLiteralType
+    public typealias IntegerLiteralType = UInt32
+
+    public let rawValue: UInt32
+    public var description: String {
+        var perms: [String] = []
+
+        if contains(.read) {
+            perms.append("read")
+        }
+        if contains(.write) {
+            perms.append("write")
+        }
+        if contains(.execute) {
+            perms.append("execute")
+        }
+
+        return "\(type(of: self))(\(perms.joined(separator: ", ")))"
+    }
 
     public static let read = FilePermissions(rawValue: 0o4)
     public static let write = FilePermissions(rawValue: 0o2)
@@ -88,10 +165,17 @@ public struct FilePermissions: OptionSet, ExpressibleByStringLiteral {
     public init(stringLiteral value: StringLiteralType) {
         self.init(value)
     }
+
+    public init(integerLiteral value: IntegerLiteralType) {
+        self.init(rawValue: value)
+    }
 }
 
-public struct FileMode: OptionSet {
+public struct FileMode: OptionSet, CustomStringConvertible {
     public let rawValue: UInt32
+    public var description: String {
+        return "\(type(of: self))(owner: \(owner), group: \(group), others: \(others))"
+    }
 
     public var owner: FilePermissions {
         return FilePermissions(rawValue: rawValue >> 6)
