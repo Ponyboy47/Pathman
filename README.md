@@ -31,13 +31,14 @@ let genericString = GenericPath("/tmp")
 let genericArray = GenericPath(["/", "tmp"])
 let genericSlice = GenericPath(["/", "tmp", "test"].dropLast())
 
-// FilePaths and DirectoryPaths can be initialized the same as a GenericPath, but their initializers
-// are failable.
-// The initializers will fail if the path exists and does not match the expected type. If the path 
-// does not exist, then the object will be created successfully
+// FilePaths and DirectoryPaths can be initialized the same as a GenericPath,
+// but their initializers are failable.
+// The initializers will fail if the path exists and does not match the
+// expected type. If the path does not exist, then the object will be created
+// successfully
 
 // fails
-let file = FilePath("/tmp") else {
+guard let file = FilePath("/tmp") else {
     print("Path is not a file")
     return
 }
@@ -50,8 +51,9 @@ guard let directory = DirectoryPath("/tmp") else {
 
 Getting information about a path:
 ```swift
-// Paths conform to the StatDelegate protocol, which means that they use the `stat` utility to gather
-// information about the file (ie: size, ownership, modify time, etc)
+// Paths conform to the StatDelegate protocol, which means that they use the
+// `stat` utility to gather information about the file (ie: size, ownership,
+// modify time, etc)
 // NOTE: Only paths that exist will have information about them
 
 /// The system id of the path
