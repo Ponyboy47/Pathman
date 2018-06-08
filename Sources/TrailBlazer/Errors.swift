@@ -87,6 +87,22 @@ public enum CloseError: TrailBlazerError {
     }
 }
 
+public enum DupError: TrailBlazerError {
+    case unknown
+    case unopenedFileDescriptor
+    case interruptedBySignal
+    case noMoreProcessFileDescriptors
+
+    public static func getError() -> DupError {
+        switch ErrNo.lastError {
+        case .EBADF: return .unopenedFileDescriptor
+        case .EINTR: return .interruptedBySignal
+        case .EMFILE: return .noMoreProcessFileDescriptors
+        default: return .unknown
+        }
+    }
+}
+
 public enum StatError: TrailBlazerError {
     case unknown
     case permissionDenied

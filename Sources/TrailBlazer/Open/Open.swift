@@ -52,9 +52,10 @@ public class OpenFile: StatDelegate {
         try self.init(path, permissions: permissions, flags: attributes, mode: mode)
     }
 
-    public init(_ opened: OpenFile) {
+    public init(_ opened: OpenFile) throws {
         path = opened.path
-        fileDescriptor = opened.fileDescriptor
+        fileDescriptor = dup(opened.fileDescriptor)
+        guard fileDescriptor != -1 else { throw DupError.getError() }
         flags = opened.flags
         permissions = opened.permissions
     }
