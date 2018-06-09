@@ -171,10 +171,27 @@ public struct FilePermissions: OptionSet, ExpressibleByStringLiteral, Expressibl
     }
 }
 
-public struct FileMode: OptionSet, CustomStringConvertible {
+public struct FileMode: OptionSet, CustomStringConvertible, ExpressibleByIntegerLiteral {
+    public typealias IntegerLiteralType = UInt32
+
     public let rawValue: UInt32
+
+    // #if os(Linux)
+    public let uid: Bool = false
+    public let gid: Bool = false
+    public let sticky: Bool = false
+    // #endif
+
     public var description: String {
-        return "\(type(of: self))(owner: \(owner), group: \(group), others: \(others))"
+        var str = "\(type(of: self))(owner: \(owner), group: \(group), others: \(others)"
+
+        #if os(Linux)
+        str += ", uid: \(uid), gid: \(gid), sticky: \(sticky)"
+        #endif
+
+        str += ")"
+
+        return str
     }
 
     public var owner: FilePermissions {
@@ -190,36 +207,42 @@ public struct FileMode: OptionSet, CustomStringConvertible {
     public init(rawValue: UInt32) {
         self.rawValue = rawValue
     }
-    private init(owner: UInt32 = 0, group: UInt32 = 0, others: UInt32 = 0) {
-        self.init(rawValue: (owner << 6) | (group << 3) | others)
-    }
-    public init(owner: FilePermissions = [], group: FilePermissions = [], others: FilePermissions = []) {
-        self.init(owner: owner.rawValue, group: group.rawValue, others: others.rawValue)
+
+    public init(integerLiteral value: IntegerLiteralType) {
+        self.init(rawValue: value)
     }
 
-    public static func owner(_ perms: FilePermissions...) -> FileMode {
-        return FileMode(owner: perms.reduce(0, { $0 | $1.rawValue }))
+    private init(owner: UInt32 = 0, group: UInt32 = 0, others: UInt32 = 0, uid: Bool = false, gid: Bool = false, sticky: Bool = false) {
+        self.init(rawValue: (((uid ? 4 : 0) | (gid ? 2 : 0) | (sticky ? 1 : 0)) << 9) | (owner << 6) | (group << 3) | others)
     }
-    public static func group(_ perms: FilePermissions...) -> FileMode {
-        return FileMode(group: perms.reduce(0, { $0 | $1.rawValue }))
+
+    public init(owner: FilePermissions = [], group: FilePermissions = [], others: FilePermissions = [], uid: Bool = false, gid: Bool = false, sticky: Bool = false) {
+        self.init(owner: owner.rawValue, group: group.rawValue, others: others.rawValue, uid: uid, gid: gid, sticky: sticky)
     }
-    public static func others(_ perms: FilePermissions...) -> FileMode {
-        return FileMode(others: perms.reduce(0, { $0 | $1.rawValue }))
+
+    public static func owner(_ perms: FilePermissions..., uid: Bool = false, gid: Bool = false, sticky: Bool = false) -> FileMode {
+        return FileMode(owner: perms.reduce(0, { $0 | $1.rawValue }), uid: uid, gid: gid, sticky: sticky)
     }
-    public static func ownerGroup(_ perms: FilePermissions...) -> FileMode {
+    public static func group(_ perms: FilePermissions..., uid: Bool = false, gid: Bool = false, sticky: Bool = false) -> FileMode {
+        return FileMode(group: perms.reduce(0, { $0 | $1.rawValue }), uid: uid, gid: gid, sticky: sticky)
+    }
+    public static func others(_ perms: FilePermissions..., uid: Bool = false, gid: Bool = false, sticky: Bool = false) -> FileMode {
+        return FileMode(others: perms.reduce(0, { $0 | $1.rawValue }), uid: uid, gid: gid, sticky: sticky)
+    }
+    public static func ownerGroup(_ perms: FilePermissions..., uid: Bool = false, gid: Bool = false, sticky: Bool = false) -> FileMode {
         let raw = perms.reduce(0, { $0 | $1.rawValue })
-        return FileMode(owner: raw, group: raw)
+        return FileMode(owner: raw, group: raw, uid: uid, gid: gid, sticky: sticky)
     }
-    public static func ownerOthers(_ perms: FilePermissions...) -> FileMode {
+    public static func ownerOthers(_ perms: FilePermissions..., uid: Bool = false, gid: Bool = false, sticky: Bool = false) -> FileMode {
         let raw = perms.reduce(0, { $0 | $1.rawValue })
-        return FileMode(owner: raw, others: raw)
+        return FileMode(owner: raw, others: raw, uid: uid, gid: gid, sticky: sticky)
     }
-    public static func groupOthers(_ perms: FilePermissions...) -> FileMode {
+    public static func groupOthers(_ perms: FilePermissions..., uid: Bool = false, gid: Bool = false, sticky: Bool = false) -> FileMode {
         let raw = perms.reduce(0, { $0 | $1.rawValue })
-        return FileMode(group: raw, others: raw)
+        return FileMode(group: raw, others: raw, uid: uid, gid: gid, sticky: sticky)
     }
-    public static func ownerGroupOthers(_ perms: FilePermissions...) -> FileMode {
+    public static func ownerGroupOthers(_ perms: FilePermissions..., uid: Bool = false, gid: Bool = false, sticky: Bool = false) -> FileMode {
         let raw = perms.reduce(0, { $0 | $1.rawValue })
-        return FileMode(owner: raw, group: raw, others: raw)
+        return FileMode(owner: raw, group: raw, others: raw, uid: uid, gid: gid, sticky: sticky)
     }
 }
