@@ -13,7 +13,7 @@ public class GenericPath: _Path, ExpressibleByStringLiteral, ExpressibleByArrayL
     public internal(set) var path: String
 
     // This is to protect the info from being set externally
-    private var _info: StatInfo = StatInfo()
+    fileprivate var _info: StatInfo = StatInfo()
     public var info: StatInfo {
         try? _info.getInfo()
         return _info
@@ -91,3 +91,43 @@ public class GenericPath: _Path, ExpressibleByStringLiteral, ExpressibleByArrayL
         _info = StatInfo(path)
     }
 }
+
+// public class LinkedGenericPath: GenericPath, _LinkedPath {
+//     public typealias LinkType = GenericPath
+// 
+//     /// The stored path to use and manipulate
+//     public internal(set) var linkedTo: LinkType
+// 
+//     /// Initialize from an array of path elements
+//     public required init(_ components: [String]) {
+//         super.init(components)
+//     }
+// 
+//     public required init(_ str: String) {
+//         super.init(str)
+//     }
+// 
+//     public required init<PathType: Path>(_ path: PathType) {
+//         super.init(path)
+//     }
+// 
+//     /// Initialize from a string literal
+//     public required init(unicodeScalarLiteral value: UnicodeScalarLiteralType) {
+//         super.init(unicodeScalarLiteral: value)
+//     }
+// 
+//     /// Initialize from a string literal
+//     public required init(extendedGraphemeClusterLiteral value: ExtendedGraphemeClusterLiteralType) {
+//         super.init(extendedGraphemeClusterLiteral: value)
+//     }
+// 
+//     /// Initialize from a string literal
+//     public required init(stringLiteral value: StringLiteralType) {
+//         super.init(stringLiteral: value)
+//     }
+// 
+//     /// Initialize from a string array literal
+//     public required init(arrayLiteral components: ArrayLiteralElement...) {
+//         super.init(components)
+//     }
+// }

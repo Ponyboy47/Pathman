@@ -16,6 +16,18 @@ protocol _Path: Path {
     var path: String { get set }
 }
 
+// Used internally to ensure only this framework can modify the path
+protocol _LinkedPath: LinkedPath {
+    associatedtype LinkType: Path
+    /// The underlying path representation
+    var linkedTo: LinkType { get set }
+}
+
+public protocol LinkedPath: Path {
+    associatedtype LinkType: Path
+    var linkedTo: LinkType { get }
+}
+
 /// A protocol that describes a Path type and the attributes available to it
 public protocol Path: Hashable, CustomStringConvertible, StatDelegate {
     /// The underlying path representation

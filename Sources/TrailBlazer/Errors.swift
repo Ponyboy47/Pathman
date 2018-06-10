@@ -4,7 +4,10 @@ public protocol TrailBlazerError: Error {
     static func getError() -> Self
 }
 
-public enum OpenError: TrailBlazerError {
+// Creating files uses the open(2) call so it's errors are the same
+public typealias CreateFileError = OpenFileError
+
+public enum OpenFileError: TrailBlazerError {
     case unknown
     case permissionDenied
     case quotaReached
@@ -20,10 +23,10 @@ public enum OpenError: TrailBlazerError {
     case noMoreSystemFileDescriptors
     case pathnameTooLong
     case noDevice
-    case noRouteToPathname
+    case noRouteToPath
     case noKernelMemory
     case fileSystemFull
-    case notADirectory
+    case notDirectory
     case deviceNotOpened
     case noTempFS
     case readOnlyFileSystem
@@ -31,11 +34,11 @@ public enum OpenError: TrailBlazerError {
     case wouldBlock
     case createWithoutMode
 
-    public static func getError() -> OpenError {
+    public static func getError() -> OpenFileError {
 		return .getError(flags: [])
     }
 
-	public static func getError(flags: OpenFileFlags) -> OpenError {
+	public static func getError(flags: OpenFileFlags) -> OpenFileError {
         switch ErrNo.lastError {
         case .EACCES: return .permissionDenied
         case .EDQUOT: return .quotaReached
@@ -55,10 +58,10 @@ public enum OpenError: TrailBlazerError {
         case .ENAMETOOLONG: return .pathnameTooLong
         case .ENFILE: return .noMoreSystemFileDescriptors
         case .ENODEV: return .noDevice
-        case .ENOENT: return .noRouteToPathname
+        case .ENOENT: return .noRouteToPath
         case .ENOMEM: return .noKernelMemory
         case .ENOSPC: return .fileSystemFull
-        case .ENOTDIR: return .notADirectory
+        case .ENOTDIR: return .notDirectory
         case .ENXIO: return .deviceNotOpened
         case .EOPNOTSUPP: return .noTempFS
         case .EOVERFLOW: return .fileTooLarge
@@ -71,17 +74,47 @@ public enum OpenError: TrailBlazerError {
     }
 }
 
-public enum CloseError: TrailBlazerError {
+public enum CloseFileError: TrailBlazerError {
     case unknown
     case badFileDescriptor
     case interruptedBySignal
     case ioError
 
-    public static func getError() -> CloseError {
+    public static func getError() -> CloseFileError {
         switch ErrNo.lastError {
         case .EBADF: return .badFileDescriptor
         case .EINTR: return .interruptedBySignal
         case .EIO: return .ioError
+        default: return .unknown
+        }
+    }
+}
+
+public enum DeleteFileError: TrailBlazerError {
+    case unknown
+    case permissionDenied
+    case fileInUse
+    case badAddress
+    case ioError
+    case isDirectory
+    case tooManySymlinks
+    case pathnameTooLong
+    case noRouteToPath
+    case noKernelMemory
+    case readOnlyFileSystem
+
+    public static func getError() -> DeleteFileError {
+        switch ErrNo.lastError {
+        case .EACCES, .EPERM: return .permissionDenied
+        case .EBUSY: return .fileInUse
+        case .EFAULT: return .badAddress
+        case .EIO: return .ioError
+        case .EISDIR: return .isDirectory
+        case .ELOOP: return .tooManySymlinks
+        case .ENAMETOOLONG: return .pathnameTooLong
+        case .ENOENT, .ENOTDIR: return .noRouteToPath
+        case .ENOMEM: return .noKernelMemory
+        case .EROFS: return .readOnlyFileSystem
         default: return .unknown
         }
     }
@@ -103,6 +136,104 @@ public enum DupError: TrailBlazerError {
     }
 }
 
+public enum OpenDirectoryError: TrailBlazerError {
+    case unknown
+    case permissionDenied
+    case badFileDescriptor
+    case noMoreProcessFileDescriptors
+    case noMoreSystemFileDescriptors
+    case pathDoesNotExist
+    case outOfMemory
+    case notDirectory
+
+    public static func getError() -> OpenDirectoryError {
+        switch ErrNo.lastError {
+        case .EACCES: return .permissionDenied
+        case .EBADF: return .badFileDescriptor
+        case .EMFILE: return .noMoreProcessFileDescriptors
+        case .ENFILE: return .noMoreSystemFileDescriptors
+        case .ENOENT: return .pathDoesNotExist
+        case .ENOMEM: return .outOfMemory
+        case .ENOTDIR: return .notDirectory
+        default: return .unknown
+        }
+    }
+}
+
+public enum CloseDirectoryError: TrailBlazerError {
+    case unknown
+    case invalidDirectoryStream
+
+    public static func getError() -> CloseDirectoryError {
+        switch ErrNo.lastError {
+        case .EBADF: return .invalidDirectoryStream
+        default: return .unknown
+        }
+    }
+}
+
+public enum CreateDirectoryError: TrailBlazerError {
+    case unknown
+    case permissionDenied
+    case quotaReached
+    case pathExists
+    case badAddress
+    case tooManySymlinks
+    case pathnameTooLong
+    case noRouteToPath
+    case noKernelMemory
+    case fileSystemFull
+    case notDirectory
+    case readOnlyFileSystem
+
+    public static func getError() -> CreateDirectoryError {
+        switch ErrNo.lastError {
+        case .EACCES, .EPERM: return .permissionDenied
+        case .EDQUOT: return .quotaReached
+        case .EEXIST: return .pathExists
+        case .EFAULT: return .badAddress
+        case .ELOOP, .EMLINK: return .tooManySymlinks
+        case .ENAMETOOLONG: return .pathnameTooLong
+        case .ENOENT: return .noRouteToPath
+        case .ENOMEM: return .noKernelMemory
+        case .ENOSPC: return .fileSystemFull
+        case .ENOTDIR: return .notDirectory
+        case .EROFS: return .readOnlyFileSystem
+        default: return .unknown
+        }
+    }
+}
+
+public enum DeleteDirectoryError: TrailBlazerError {
+    case unknown
+    case permissionDenied
+    case directoryInUse
+    case badAddress
+    case relativePath
+    case tooManySymlinks
+    case pathnameTooLong
+    case noRouteToPath
+    case noKernelMemory
+    case directoryNotEmpty
+    case readOnlyFileSystem
+
+    public static func getError() -> DeleteDirectoryError {
+        switch ErrNo.lastError {
+        case .EACCES, .EPERM: return .permissionDenied
+        case .EBUSY: return .directoryInUse
+        case .EFAULT: return .badAddress
+        case .EINVAL: return .relativePath
+        case .ELOOP: return .tooManySymlinks
+        case .ENAMETOOLONG: return .pathnameTooLong
+        case .ENOENT, .ENOTDIR: return .noRouteToPath
+        case .ENOMEM: return .noKernelMemory
+        case .ENOTEMPTY: return .directoryNotEmpty
+        case .EROFS: return .readOnlyFileSystem
+        default: return .unknown
+        }
+    }
+}
+
 public enum StatError: TrailBlazerError {
     case unknown
     case permissionDenied
@@ -110,9 +241,9 @@ public enum StatError: TrailBlazerError {
     case badAddress
     case tooManySymlinks
     case pathnameTooLong
-    case noRouteToPathname
+    case noRouteToPath
     case outOfMemory
-    case notADirectory
+    case notDirectory
     case fileTooLarge
 
     public static func getError() -> StatError {
@@ -122,9 +253,9 @@ public enum StatError: TrailBlazerError {
         case .EFAULT: return .badAddress
         case .ELOOP: return .tooManySymlinks
         case .ENAMETOOLONG: return .pathnameTooLong
-        case .ENOENT: return .noRouteToPathname
+        case .ENOENT: return .noRouteToPath
         case .ENOMEM: return .outOfMemory
-        case .ENOTDIR: return .notADirectory
+        case .ENOTDIR: return .notDirectory
         case .EOVERFLOW: return .fileTooLarge
         default: return .unknown
         }
@@ -140,7 +271,7 @@ public enum PathError: TrailBlazerError {
     case pathnameTooLong
     case outOfMemory
     case pathDoesNotExist
-    case notADirectory
+    case notDirectory
 
 	public static func getError() -> PathError {
 		switch ErrNo.lastError {
@@ -151,7 +282,7 @@ public enum PathError: TrailBlazerError {
             case .ENAMETOOLONG: return .pathnameTooLong
             case .ENOMEM: return .outOfMemory
             case .ENOENT: return .pathDoesNotExist
-            case .ENOTDIR: return .notADirectory
+            case .ENOTDIR: return .notDirectory
             default: return .unknown
               }
 	}
@@ -168,11 +299,7 @@ public enum UserInfoError: TrailBlazerError {
 
 	public static func getError() -> UserInfoError {
           switch ErrNo.lastError {
-          case 0: fallthrough
-          case .ENOENT: fallthrough
-          case .ESRCH: fallthrough
-          case .EBADF: fallthrough
-          case .EPERM: return .userDoesNotExist
+          case 0, .ENOENT, .ESRCH, .EBADF, .EPERM: return .userDoesNotExist
           case .EINTR: return .interruptedBySignal
           case .EIO: return .ioError
           case .EMFILE: return .noMoreProcessFileDescriptors
@@ -195,8 +322,7 @@ public enum ReadError: TrailBlazerError {
 
 	public static func getError() -> ReadError {
           switch ErrNo.lastError {
-          case .EAGAIN: fallthrough
-          case .EWOULDBLOCK: return .wouldBlock
+          case .EAGAIN, .EWOULDBLOCK: return .wouldBlock
           case .EBADF: return .badFileDescriptor
           case .EFAULT: return .badBufferAddress
           case .EINTR: return .interruptedBySignal
@@ -219,8 +345,7 @@ public enum SeekError: TrailBlazerError {
 	public static func getError() -> SeekError {
         switch ErrNo.lastError {
         case .EBADF: return .fileDescriptorIsNotOpen
-        case .EINVAL: fallthrough
-        case .ENXIO: return .invalidOffset
+        case .EINVAL, .ENXIO: return .invalidOffset
         case .EOVERFLOW: return .offsetTooLarge
         case .ESPIPE: return .fileDescriptorIsNotFile
         default: return .unknown
@@ -237,7 +362,7 @@ public enum RealPathError: TrailBlazerError {
     case pathnameTooLong
     case outOfMemory
     case pathDoesNotExist
-    case notADirectory
+    case notDirectory
 
     public static func getError() -> RealPathError {
         switch ErrNo.lastError {
@@ -248,7 +373,7 @@ public enum RealPathError: TrailBlazerError {
         case .ENAMETOOLONG: return .pathnameTooLong
         case .ENOMEM: return .outOfMemory
         case .ENOENT: return .pathDoesNotExist
-        case .ENOTDIR: return .notADirectory
+        case .ENOTDIR: return .notDirectory
         default: return .unknown
         }
     }
@@ -280,8 +405,7 @@ public enum WriteError: TrailBlazerError {
 
     public static func getError() -> WriteError {
         switch ErrNo.lastError {
-        case .EAGAIN: fallthrough
-        case .EWOULDBLOCK: return .wouldBlock
+        case .EAGAIN, .EWOULDBLOCK: return .wouldBlock
         case .EBADF: return .badFileDescriptor
         case .EDESTADDRREQ: return .unconnectedSocket
         case .EDQUOT: return .quotaReached
