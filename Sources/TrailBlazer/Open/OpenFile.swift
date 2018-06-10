@@ -9,8 +9,6 @@ let cClose = Darwin.close
 #endif
 
 public class OpenFile: Openable {
-    public typealias PathType = FilePath
-
     public let path: FilePath
     private(set) var fileDescriptor: FileDescriptor = -1
     private(set) var permissions: OpenFilePermissions

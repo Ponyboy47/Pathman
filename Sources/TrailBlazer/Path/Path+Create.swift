@@ -5,24 +5,28 @@ import Darwin
 #endif
 
 public protocol CreateablePath {
-    associatedtype OpenableType: Openable
-    func create(mode: FileMode) throws -> OpenableType
+    @discardableResult func create(mode: FileMode) throws -> Openable
 }
 
 extension FilePath: CreateablePath {
-    public typealias OpenableType = OpenFile
+    @discardableResult
+    public func create(mode: FileMode) throws -> Openable {
+        return try create(permissions: .write, mode: mode)
+    }
 
     @discardableResult
-    public func create(mode: FileMode) throws -> OpenFile {
-        return try OpenFile(self, permissions: .write, flags: .create, .excl, mode: mode)
+    public func create(permissions: OpenFilePermissions, mode: FileMode) throws -> Openable {
+        if permissions == .write {
+            return try FileWriter(self, permissions: permissions, flags: .create, .excl, mode: mode)
+        }
+
+        return try FileReaderWriter(self, permissions: permissions, flags: .create, .excl, mode: mode)
     }
 }
 
 extension DirectoryPath: CreateablePath {
-    public typealias OpenableType = OpenDirectory
-
     @discardableResult
-    public func create(mode: FileMode) throws -> OpenDirectory {
+    public func create(mode: FileMode) throws -> Openable {
         let openDir = try OpenDirectory(self)
 
         guard mkdir(string, mode.rawValue) != -1 else {
@@ -30,11 +34,5 @@ extension DirectoryPath: CreateablePath {
         }
 
         return openDir
-    }
-}
-
-public extension Path {
-    public static func create<PathType: CreateablePath>(path: PathType, mode: FileMode) throws {
-        try path.create(mode: mode)
     }
 }

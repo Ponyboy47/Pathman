@@ -7,8 +7,6 @@ import Darwin
 #endif
 
 public class OpenDirectory: Openable {
-    public typealias PathType = DirectoryPath
-
     public let path: DirectoryPath
     private(set) var dir: OpaquePointer
 

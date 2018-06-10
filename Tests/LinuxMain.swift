@@ -7,4 +7,5 @@ XCTMain([
     testCase(PathTests.allTests),
     testCase(StatTests.allTests),
     testCase(OpenTests.allTests),
+    testCase(CreateDeleteTests.allTests),
 ])
