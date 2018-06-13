@@ -33,6 +33,7 @@ public enum OpenFileError: TrailBlazerError {
     case deviceBusy
     case wouldBlock
     case createWithoutMode
+    case invalidOrEmptyPermissions
 
     public static func getError() -> OpenFileError {
 		return .getError(flags: [])

@@ -1,19 +1,19 @@
 import Foundation
 #if os(Linux)
 import Glibc
-let cWrite = Glibc.write
+private let cWriteFile = Glibc.write
 #else
 import Darwin
-let cWrite = Darwin.write
+private let cWriteFile = Darwin.write
 #endif
 
-public protocol Writable: Seekable {
+public protocol Writable: Openable, Seekable {
     func write(_ buffer: Data, at offset: Offset) throws
     func write(_ string: String, at offset: Offset, using encoding: String.Encoding) throws
 }
 
 public extension Writable {
-    public func write(_ string: String, at offset: Offset = Offset(from: .current, size: 0), using encoding: String.Encoding = .utf8) throws {
+    public func write(_ string: String, at offset: Offset = Offset(from: .current, bytes: 0), using encoding: String.Encoding = .utf8) throws {
         guard let data = string.data(using: encoding) else {
             throw StringError.notConvertibleToData(using: encoding)
         }
@@ -21,25 +21,25 @@ public extension Writable {
     }
 }
 
-// Extension for FilePaths that allow the path to be written to
-public class FileWriter: OpenFile, Writable {
-    public var offset: Int = 0
-
-    public func write(_ buffer: Data, at offset: Offset = Offset(from: .current, size: 0)) throws {
-        if !flags.contains(.append) {
-            try seek(offset)
+extension Open: Writable where PathType == FilePath {
+    public func write(_ buffer: Data, at offset: Offset = Offset(from: .current, bytes: 0)) throws {
+        if let flags = self.flags {
+            if !flags.contains(.append) {
+                try seek(offset)
+            } else {
+                try seek(Offset(from: .end, bytes: 0))
+            }
         }
 
-        guard cWrite(fileDescriptor, [UInt8](buffer), buffer.count) != -1 else { throw WriteError.getError() }
+        guard cWriteFile(fileDescriptor, [UInt8](buffer), buffer.count) != -1 else { throw WriteError.getError() }
     }
 }
 
 public extension FilePath {
-    public var writer: FileWriter? { return try? FileWriter(self, permissions: .write) }
-    public func write(_ buffer: Data, at offset: Offset = Offset(from: .current, size: 0)) throws {
-        try FileWriter(self, permissions: .write).write(buffer, at: offset)
+    public func write(_ buffer: Data, at offset: Offset = Offset(from: .current, bytes: 0)) throws {
+        try Open(self, permissions: .write).write(buffer, at: offset)
     }
-    public func write(_ string: String, at offset: Offset = Offset(from: .current, size: 0), using encoding: String.Encoding = .utf8) throws {
-        try FileWriter(self, permissions: .write).write(string, at: offset, using: encoding)
+    public func write(_ string: String, at offset: Offset = Offset(from: .current, bytes: 0), using encoding: String.Encoding = .utf8) throws {
+        try Open(self, permissions: .write).write(string, at: offset, using: encoding)
     }
 }

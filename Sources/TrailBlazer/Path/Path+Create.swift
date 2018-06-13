@@ -4,35 +4,32 @@ import Glibc
 import Darwin
 #endif
 
-public protocol CreateablePath {
-    @discardableResult func create(mode: FileMode) throws -> Openable
+public protocol Creatable {
+    associatedtype CreatablePathType: Path
+    func create(mode: FileMode) throws -> Open<CreatablePathType>
 }
 
-extension FilePath: CreateablePath {
-    @discardableResult
-    public func create(mode: FileMode) throws -> Openable {
-        return try create(permissions: .write, mode: mode)
-    }
-
-    @discardableResult
-    public func create(permissions: OpenFilePermissions, mode: FileMode) throws -> Openable {
-        if permissions == .write {
-            return try FileWriter(self, permissions: permissions, flags: .create, .excl, mode: mode)
-        }
-
-        return try FileReaderWriter(self, permissions: permissions, flags: .create, .excl, mode: mode)
+extension FilePath: Creatable {
+    public typealias CreatablePathType = FilePath
+    public func create(mode: FileMode) throws -> Open<FilePath> {
+        return try open(permissions: .write, flags: .create, .excl, mode: mode)
     }
 }
 
-extension DirectoryPath: CreateablePath {
-    @discardableResult
-    public func create(mode: FileMode) throws -> Openable {
-        let openDir = try OpenDirectory(self)
-
+extension DirectoryPath: Creatable {
+    public typealias CreatablePathType = DirectoryPath
+    public func create(mode: FileMode) throws -> Open<DirectoryPath> {
         guard mkdir(string, mode.rawValue) != -1 else {
             throw CreateDirectoryError.getError()
         }
 
-        return openDir
+        return try Open(self)
+    }
+}
+
+extension Open: Creatable where PathType: Creatable {
+    public typealias CreatablePathType = PathType.CreatablePathType
+    public func create(mode: FileMode) throws -> Open<CreatablePathType> {
+        return try path.create(mode: mode)
     }
 }

@@ -29,6 +29,12 @@ public struct OpenFilePermissions: Equatable, CustomStringConvertible {
     public static func == (lhs: OpenFilePermissions, rhs: OpenFilePermissions) -> Bool {
         return lhs.rawValue == rhs.rawValue
     }
+
+    public func contains(_ perms: OpenFilePermissions) -> Bool {
+        guard self != .readWrite else { return true }
+
+        return self == perms
+    }
 }
 public struct OpenFileFlags: OptionSet, CustomStringConvertible {
     public let rawValue: Int32

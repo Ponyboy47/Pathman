@@ -11,10 +11,7 @@ class CreateDeleteTests: XCTestCase {
         }
 
         do {
-            guard let open = try (file.create(mode: .ownerGroupOthers(.read, .write)) as? FileWriter) else {
-                XCTFail("Failed to cast open file as FileWriter")
-                return
-            }
+            let open = try file.create(mode: .ownerGroupOthers(.read, .write))
             try open.write("Hello World")
         } catch {
             XCTFail("Failed to create/write to file with error \(error)")
@@ -31,9 +28,21 @@ class CreateDeleteTests: XCTestCase {
     }
 
     func createDirectory() {
+        guard let dir = DirectoryPath("/tmp/hijklmnop") else {
+            XCTFail("Path /tmp/hijklmnop exists and is not a directory")
+            return
+        }
+
+        XCTAssertNoThrow(try dir.create(mode: .ownerGroupOthers(.read, .write)))
     }
 
     func deleteDirectory() {
+        guard let dir = DirectoryPath("/tmp/hijklmnop") else {
+            XCTFail("Path /tmp/hijklmnop exists and is not a directory")
+            return
+        }
+
+        XCTAssertNoThrow(try dir.delete())
     }
 
     func deleteNonEmptyDirectory() {
@@ -42,5 +51,7 @@ class CreateDeleteTests: XCTestCase {
     static var allTests = [
         ("createFile", createFile),
         ("deleteFile", deleteFile),
+        ("createDirectory", createDirectory),
+        ("deleteDirectory", deleteDirectory),
     ]
 }

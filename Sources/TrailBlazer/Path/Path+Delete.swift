@@ -4,11 +4,11 @@ import Glibc
 import Darwin
 #endif
 
-public protocol Deleteable: Path {
+public protocol Deletable {
     func delete() throws
 }
 
-extension FilePath: Deleteable {
+extension FilePath: Deletable {
     public func delete() throws {
         guard unlink(string) != -1 else {
             throw DeleteFileError.getError()
@@ -16,10 +16,16 @@ extension FilePath: Deleteable {
     }
 }
 
-extension DirectoryPath: Deleteable {
+extension DirectoryPath: Deletable {
     public func delete() throws {
         guard rmdir(string) != -1 else {
             throw DeleteDirectoryError.getError()
         }
+    }
+}
+
+extension Open: Deletable where PathType: Deletable {
+    public func delete() throws {
+        try path.delete()
     }
 }

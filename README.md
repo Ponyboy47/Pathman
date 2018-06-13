@@ -107,5 +107,8 @@ More to come...
 - GenericPath (AKA all Paths)
   - [ ] Change path ownership
   - [ ] Change path permissions
+- OpenFile
+  - [ ] ReadWriteFile
 - Misc. Additions
   - [ ] Globbing
+  - [ ] LinkedPath
