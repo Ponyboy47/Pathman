@@ -53,11 +53,11 @@ protocol Stat {
     /// device ID (if special file)
     var device: dev_t { get }
     /// total size, in bytes
-    var size: Int { get }
+    var size: Int64 { get }
     /// blocksize for filesystem I/O
-    var blockSize: Int { get }
+    var blockSize: Int64 { get }
     /// number of 512B blocks allocated
-    var blocks: Int { get }
+    var blocks: Int64 { get }
 
     /// time of last access
     var lastAccess: Date { get }
@@ -65,6 +65,10 @@ protocol Stat {
     var lastModified: Date { get }
     /// time of last status change
     var lastAttributeChange: Date { get }
+    #if os(macOS)
+    /// time the file was created
+    var creation: Date { get }
+    #endif
 }
 
 extension Stat {
@@ -89,25 +93,42 @@ extension Stat {
     public var device: dev_t {
         return buffer.st_rdev
     }
-    public var size: Int {
-        return buffer.st_size
+    public var size: Int64 {
+        return Int64(buffer.st_size)
     }
-    public var blockSize: Int {
-        return buffer.st_blksize
+    public var blockSize: Int64 {
+        return Int64(buffer.st_blksize)
     }
-    public var blocks: Int {
-        return buffer.st_blocks
+    public var blocks: Int64 {
+        return Int64(buffer.st_blocks)
     }
 
     public var lastAccess: Date {
+        #if os(Linux)
         return Date(timeIntervalSince1970: Self.timespecToTimeInterval(buffer.st_atim))
+        #else
+        return Date(timeIntervalSince1970: Self.timespecToTimeInterval(buffer.st_atimespec))
+        #endif
     }
     public var lastModified: Date {
+        #if os(Linux)
         return Date(timeIntervalSince1970: Self.timespecToTimeInterval(buffer.st_mtim))
+        #else
+        return Date(timeIntervalSince1970: Self.timespecToTimeInterval(buffer.st_mtimespec))
+        #endif
     }
     public var lastAttributeChange: Date {
+        #if os(Linux)
         return Date(timeIntervalSince1970: Self.timespecToTimeInterval(buffer.st_ctim))
+        #else
+        return Date(timeIntervalSince1970: Self.timespecToTimeInterval(buffer.st_ctimespec))
+        #endif
     }
+    #if os(macOS)
+    public var creation: Date {
+        return Date(timeIntervalSince1970: Self.timespecToTimeInterval(buffer.st_birthtimespec))
+    }
+    #endif
 
     private static func timespecToTimeInterval(_ spec: timespec) -> TimeInterval {
         return TimeInterval(spec.tv_sec) + (Double(spec.tv_nsec) * pow(10.0,-9.0))
@@ -210,8 +231,15 @@ public struct StatOptions: OptionSet {
     }
 }
 
-public enum FileType: UInt32 {
-    public typealias RawValue = UInt32
+#if os(Linux)
+public typealias FileTypeAlias = UInt32
+#else
+public typealias FileTypeAlias = UInt16
+#endif
+
+public enum FileType: FileTypeAlias {
+    public typealias RawValue = FileTypeAlias
+
     case socket
     case link
     case regular
@@ -221,7 +249,7 @@ public enum FileType: UInt32 {
     case fifo
     public static let file: FileType = .regular
 
-    public init?(rawValue: UInt32) {
+    public init?(rawValue: RawValue) {
         switch rawValue & S_IFMT {
         case S_IFSOCK: self = .socket
         case S_IFLNK: self = .link
@@ -261,14 +289,14 @@ public extension StatDelegate {
     public var device: dev_t {
         return info.device
     }
-    public var size: Int {
-        return info.size
+    public var size: Int64 {
+        return Int64(info.size)
     }
-    public var blockSize: Int {
-        return info.blockSize
+    public var blockSize: Int64 {
+        return Int64(info.blockSize)
     }
-    public var blocks: Int {
-        return info.blocks
+    public var blocks: Int64 {
+        return Int64(info.blocks)
     }
 
     public var lastAccess: Date {
@@ -280,4 +308,9 @@ public extension StatDelegate {
     public var lastAttributeChange: Date {
         return info.lastAttributeChange
     }
+    #if os(macOS)
+    public var creation: Date {
+        return info.creation
+    }
+    #endif
 }

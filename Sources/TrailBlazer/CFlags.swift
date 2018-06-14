@@ -36,6 +36,7 @@ public struct OpenFilePermissions: Equatable, CustomStringConvertible {
         return self == perms
     }
 }
+
 public struct OpenFileFlags: OptionSet, CustomStringConvertible {
     public let rawValue: Int32
     public var description: String {
@@ -56,9 +57,6 @@ public struct OpenFileFlags: OptionSet, CustomStringConvertible {
         if contains(.directory) {
             flags.append("directory")
         }
-        if contains(.dsync) {
-            flags.append("dsync")
-        }
         if contains(.excl) {
             flags.append("excl")
         }
@@ -74,12 +72,30 @@ public struct OpenFileFlags: OptionSet, CustomStringConvertible {
         if contains(.nDelay) {
             flags.append("nDelay")
         }
-        if contains(.sync) {
-            flags.append("sync")
-        }
         if contains(.truncate) {
             flags.append("truncate")
         }
+        #if os(Linux)
+        if contains(.dsync) {
+            flags.append("dsync")
+        }
+        if contains(.sync) {
+            flags.append("sync")
+        }
+        #else
+        if contains(.sharedLock) {
+            flags.append("sharedLock")
+        }
+        if contains(.exclusiveLock) {
+            flags.append("exclusiveLock")
+        }
+        if contains(.symlink) {
+            flags.append("symlink")
+        }
+        if contains(.evtOnly) {
+            flags.append("evtOnly")
+        }
+        #endif
 
         return "\(type(of: self))(\(flags.joined(separator: ", ")))"
     }
@@ -89,14 +105,21 @@ public struct OpenFileFlags: OptionSet, CustomStringConvertible {
     public static let closeOnExec = OpenFileFlags(rawValue: O_CLOEXEC)
     public static let create = OpenFileFlags(rawValue: O_CREAT)
     public static let directory = OpenFileFlags(rawValue: O_DIRECTORY)
-    public static let dsync = OpenFileFlags(rawValue: O_DSYNC)
     public static let excl = OpenFileFlags(rawValue: O_EXCL)
     public static let noCTTY = OpenFileFlags(rawValue: O_NOCTTY)
     public static let noFollow = OpenFileFlags(rawValue: O_NOFOLLOW)
     public static let nonBlock = OpenFileFlags(rawValue: O_NONBLOCK)
     public static let nDelay = OpenFileFlags(rawValue: O_NDELAY)
-    public static let sync = OpenFileFlags(rawValue: O_SYNC)
     public static let truncate = OpenFileFlags(rawValue: O_TRUNC)
+    #if os(Linux)
+    public static let dsync = OpenFileFlags(rawValue: O_DSYNC)
+    public static let sync = OpenFileFlags(rawValue: O_SYNC)
+    #else
+    public static let sharedLock = OpenFileFlags(rawValue: O_SHLOCK)
+    public static let exclusiveLock = OpenFileFlags(rawValue: O_EXLOCK)
+    public static let symlink = OpenFileFlags(rawValue: O_SYMLINK)
+    public static let evtOnly = OpenFileFlags(rawValue: O_EVTONLY)
+    #endif
 
     public init(rawValue: Int32) {
         self.rawValue = rawValue
@@ -105,9 +128,13 @@ public struct OpenFileFlags: OptionSet, CustomStringConvertible {
 
 public struct FilePermissions: OptionSet, ExpressibleByStringLiteral, ExpressibleByIntegerLiteral, CustomStringConvertible {
     public typealias ExtendedGraphemeClusterLiteralType = StringLiteralType
+    #if os(Linux)
     public typealias IntegerLiteralType = UInt32
+    #else
+    public typealias IntegerLiteralType = UInt16
+    #endif
 
-    public let rawValue: UInt32
+    public let rawValue: IntegerLiteralType
     public var description: String {
         var perms: [String] = []
 
@@ -130,7 +157,7 @@ public struct FilePermissions: OptionSet, ExpressibleByStringLiteral, Expressibl
 
     public var hasNone: Bool { return !(contains(.read) || contains(.write) || contains(.execute)) }
 
-    public init(rawValue: UInt32 = 0) {
+    public init(rawValue: IntegerLiteralType = 0) {
         self.rawValue = rawValue
     }
 
@@ -142,7 +169,7 @@ public struct FilePermissions: OptionSet, ExpressibleByStringLiteral, Expressibl
         guard value.count == 3 else { self.init(); return }
 
         var value = value
-        var perms: UInt32 = 0
+        var perms: IntegerLiteralType = 0
 
         if (value.hasPrefix("r")) {
             perms |= 0o4
@@ -178,9 +205,13 @@ public struct FilePermissions: OptionSet, ExpressibleByStringLiteral, Expressibl
 }
 
 public struct FileMode: OptionSet, CustomStringConvertible, ExpressibleByIntegerLiteral {
+    #if os(Linux)
     public typealias IntegerLiteralType = UInt32
+    #else
+    public typealias IntegerLiteralType = UInt16
+    #endif
 
-    public let rawValue: UInt32
+    public let rawValue: IntegerLiteralType
 
     // #if os(Linux)
     public let uid: Bool = false
@@ -210,7 +241,7 @@ public struct FileMode: OptionSet, CustomStringConvertible, ExpressibleByInteger
         return FilePermissions(rawValue: rawValue)
     }
 
-    public init(rawValue: UInt32) {
+    public init(rawValue: IntegerLiteralType) {
         self.rawValue = rawValue
     }
 
@@ -218,7 +249,7 @@ public struct FileMode: OptionSet, CustomStringConvertible, ExpressibleByInteger
         self.init(rawValue: value)
     }
 
-    private init(owner: UInt32 = 0, group: UInt32 = 0, others: UInt32 = 0, uid: Bool = false, gid: Bool = false, sticky: Bool = false) {
+    private init(owner: IntegerLiteralType = 0, group: IntegerLiteralType = 0, others: IntegerLiteralType = 0, uid: Bool = false, gid: Bool = false, sticky: Bool = false) {
         self.init(rawValue: (((uid ? 4 : 0) | (gid ? 2 : 0) | (sticky ? 1 : 0)) << 9) | (owner << 6) | (group << 3) | others)
     }
 

@@ -15,9 +15,14 @@ public protocol Openable: StatDelegate {
 private var _permissions: [UUID: OpenFilePermissions] = [:]
 private var _flags: [UUID: OpenFileFlags] = [:]
 private var _modes: [UUID: FileMode] = [:]
-private var _dirs: [UUID: OpaquePointer] = [:]
 private var _buffers: [UUID: UnsafeMutablePointer<CChar>] = [:]
-private var _bufferSizes: [UUID: Int] = [:]
+private var _bufferSizes: [UUID: Int64] = [:]
+#if os(Linux)
+typealias DIRType = OpaquePointer
+#else
+typealias DIRType = UnsafeMutablePointer<DIR>
+#endif
+private var _dirs: [UUID: DIRType] = [:]
 
 public class Open<PathType: Path>: Openable {
     lazy var id: UUID = {
@@ -25,7 +30,7 @@ public class Open<PathType: Path>: Openable {
     }()
     public let path: PathType
     public internal(set) var fileDescriptor: FileDescriptor = -1
-    public var offset: Int = 0
+    public var offset: Int64 = 0
 
     var _info: StatInfo = StatInfo()
     public var info: StatInfo {
@@ -58,7 +63,7 @@ public class Open<PathType: Path>: Openable {
         }
     }
 
-    var dir: OpaquePointer? {
+    var dir: DIRType? {
         get {
             return _dirs[id]
         }
@@ -75,7 +80,7 @@ public class Open<PathType: Path>: Openable {
             _buffers[id] = newValue
         }
     }
-    var bufferSize: Int? {
+    var bufferSize: Int64? {
         get {
             return _bufferSizes[id]
         }
