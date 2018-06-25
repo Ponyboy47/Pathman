@@ -18,11 +18,12 @@ I hate going through Foundation's FileManager. I find it to be an ugly API with 
 ## Installation (SPM)
 Add this to your Package.swift dependencies:
 ```swift
-.package(url: "https://github.com/Ponyboy47/Trailblazer.git", from: "0.1.0")
+.package(url: "https://github.com/Ponyboy47/Trailblazer.git", from: "0.2.0")
 ```
 
 ## Usage
 
+### Paths
 There are 3 different Path types right now:
 GenericPath, FilePath, and DirectoryPath
 ```swift
@@ -49,7 +50,7 @@ guard let directory = DirectoryPath("/tmp") else {
 }
 ```
 
-Getting information about a path:
+### Path Information
 ```swift
 // Paths conform to the StatDelegate protocol, which means that they use the
 // `stat` utility to gather information about the file (ie: size, ownership,
@@ -96,19 +97,110 @@ path.lastModified
 path.lastAttributeChange
 ```
 
-More to come...
+### Opening Paths
+
+FilePaths:
+```swift
+guard let file = FilePath("/tmp/test") else {
+    fatalError("Path is not a file")
+}
+
+// You can either open the path directly...
+let openFile: OpenFile = try file.open(permissions: .read)
+
+// Or create an OpenFile from the path
+let openFile = try OpenFile(file, permissions: .read)
+```
+
+DirectoryPaths:
+```swift
+guard let dir = DirectoryPath("/tmp") else {
+    fatalError("Path is not a directory")
+}
+
+// You can either open the path directly...
+let openDir: OpenDirectory = try dir.open()
+
+// Or create an OpenDirectory from the path
+let openDir = try OpenDirectory(dir)
+```
+
+### Creating Paths
+
+This is the same for all paths. Just replace File with Directory to create a directory instead.
+```swift
+guard let file = FilePath("/tmp/test") else {
+    fatalError("Path is not a file")
+}
+
+let openFile: OpenFile = try file.create(mode: FileMode(owner: .readWriteExecute, group: .readWrite, other: .none))
+```
+
+### Deleting Paths
+
+This is the same for all paths
+```swift
+guard let file = FilePath("/tmp/test") else {
+    fatalError("Path is not a file")
+}
+
+try file.delete()
+```
+
+### Reading Files
+
+```swift
+guard let file = FilePath("/tmp/test") else {
+    fatalError("Path is not a file")
+}
+
+// Read the whole file
+let contents: String = file.read()
+
+// Read 1024 bytes
+let contents: String = file.read(bytes: 1024)
+
+// Read content as ascii characters instead of utf8
+let contents: String = file.read(encoding: .ascii)
+
+// Read to the end, but starting at 1024 bytes from the beginning of the file
+let contents: String = file.read(from: Offset(from: .beginning, bytes: 1024))
+
+// Read 64 bytes starting at 1024 bytes from the end using the ascii encoding
+let contents: String = file.read(from: Offset(from: .end, bytes: 1024), bytes: 64, encoding: .ascii)
+```
+
+NOTES:<br />
+The file offset is tracked and updated after each read. If you wish to read from the beginning again then pass an offset of `Offset(from: .beginning, bytes: 0)`.<br />
+If the file was opened using the `.append` flag then any offsets passed will be ignored and the file offset is moved to the end of the file before any write operations.<br />
+Each of the read operations also has a `Data` based function, so be sure the object you're storing into is explicitly typed with either `Data` or `String`. Otherwise you will have an ambiguous use-case.
+
+### Writing Files
+
+```swift
+guard let file = FilePath("/tmp/test") else {
+    fatalError("Path is not a file")
+}
+
+// Write a string at the current file position
+file.write("Hello world")
+
+// Write an ascii string at the end of the file
+file.write("Goodbye", at: Offset(from: .end, bytes: 0), using: .ascii)
+```
+NOTE: You can also pass a `Data` instance to the write function instead of a String and an encoding.
 
 ## To Do
 - FilePath
-  - [ ] Create new files
+  - [x] Create new files
 - DirectoryPath
   - [ ] Get directory contents
-  - [ ] Create new directories
+  - [x] Create new directories
+  - [ ] Delete directories
+  - [ ] Recursively delete directory
 - GenericPath (AKA all Paths)
   - [ ] Change path ownership
   - [ ] Change path permissions
-- OpenFile
-  - [ ] ReadWriteFile
 - Misc. Additions
   - [ ] Globbing
-  - [ ] LinkedPath
+  - [ ] LinkedPath (symlinks)
