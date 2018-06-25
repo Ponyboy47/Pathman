@@ -82,9 +82,24 @@ public class FilePath: _Path, Openable {
     @available(*, unavailable, message: "Cannot append to a FilePath")
     public static func + <PathType: Path>(lhs: FilePath, rhs: PathType) -> PathType { fatalError("Cannot append to a FilePath") }
 
+    /**
+    Opens the file if it is unopened, returns the opened file if using the same parameters, or closes the opened file and then opens it if the parameters are different
+
+    - Parameters:
+        - permissions: The permissions with which to open the file (.read, .write, or .readWrite)
+        - flags: The flags to use for opening the file (see open(2) man pages for info)
+        - mode: The FileMode if using the .create flag
+    - Throws: OpenFileError, CreateFileError, or CloseFileError
+    - Warning: Beware opening the same file multiple times with different options. To reduce the number of open file descriptors, a single file can only be opened once at a time. If you open the same path with different permissions or flags, then the previously opened instance will be closed before the new one is opened. ie: if youre going to use a path for reading and writing, then open it using the .readWrite permissions rather than first opening it for reading and then later opening it for writing
+    */
     public func open(options: OptionInt = 0, mode: FileMode? = nil) throws -> OpenFile {
+        // Check if the file is already opened
         if let open = openFiles[self] {
+            // If we're trying to open the same file with the same options, just return the already opened file
             guard options != open.options else { return open }
+
+            // If the options are different, close the open file so we can
+            // re-open it with the new options
             try open.close()
             openFiles.removeValue(forKey: self)
         }
@@ -123,6 +138,10 @@ public class FilePath: _Path, Openable {
     }
 
     public func close() throws {
+        // Remove the open file from the openFiles dict after we close it
+        defer {
+            openFiles.removeValue(forKey: self)
+        }
         guard cCloseFile(fileDescriptor) == 0 else {
             throw CloseFileError.getError()
         }

@@ -1,5 +1,7 @@
 import Cdirent
 
+private var openDirectories: [DirectoryPath: OpenDirectory] = [:]
+
 /// A Path to a directory
 public class DirectoryPath: _Path, Openable {
     public typealias OpenableType = DirectoryPath
@@ -93,16 +95,29 @@ public class DirectoryPath: _Path, Openable {
     public static func += (lhs: inout DirectoryPath, rhs: FilePath) {}
 
     public func open(options: OptionInt = 0, mode: FileMode? = nil) throws -> Open<DirectoryPath> {
+        // If the directory is already open, return it
+        if let openDir = openDirectories[self] {
+            return openDir
+        }
+
         dir = opendir(string)
 
         guard dir != nil else {
             throw OpenDirectoryError.getError()
         }
 
-        return Open(self)
+        // Add the newly opened directory to the openDirectories dict
+        let openDir = Open(self)
+        openDirectories[self] = openDir
+        return openDir
     }
 
     public func close() throws {
+        // Be sure to remove the open directory from the dict
+        defer {
+            openDirectories.removeValue(forKey: self)
+        }
+
         if let dir = self.dir {
             guard closedir(dir) != -1 else {
                 throw CloseDirectoryError.getError()

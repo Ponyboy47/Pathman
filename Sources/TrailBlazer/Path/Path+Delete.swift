@@ -4,7 +4,7 @@ import Glibc
 import Darwin
 #endif
 
-public protocol Deletable {
+public protocol Deletable: Creatable {
     func delete() throws
 }
 
