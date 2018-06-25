@@ -6,7 +6,7 @@ import Darwin
 
 extension Open: Seekable where PathType == FilePath {
     @discardableResult
-    public func seek(fromStart bytes: Int64) throws -> Int64 {
+    public func seek(fromStart bytes: OSInt) throws -> OSInt {
         guard offset != 0 && bytes != 0 else { return offset }
 
         let newOffset = lseek(fileDescriptor, bytes, SEEK_SET)
@@ -20,7 +20,7 @@ extension Open: Seekable where PathType == FilePath {
     }
 
     @discardableResult
-    public func seek(fromEnd bytes: Int64) throws -> Int64 {
+    public func seek(fromEnd bytes: OSInt) throws -> OSInt {
         let newOffset = lseek(fileDescriptor, bytes, SEEK_END)
 
         guard newOffset != -1 else {
@@ -32,7 +32,7 @@ extension Open: Seekable where PathType == FilePath {
     }
 
     @discardableResult
-    public func seek(fromCurrent bytes: Int64) throws -> Int64 {
+    public func seek(fromCurrent bytes: OSInt) throws -> OSInt {
         guard bytes != 0 else { return offset }
 
         let newOffset = lseek(fileDescriptor, bytes, SEEK_CUR)
@@ -46,13 +46,13 @@ extension Open: Seekable where PathType == FilePath {
     }
 
     @discardableResult
-    public func rewind() throws -> Int64 {
+    public func rewind() throws -> OSInt {
         return try seek(fromStart: 0)
     }
 
     #if os(macOS)
     @discardableResult
-    public func seek(toNextHoleFrom offset: Int64) throws -> Int64 {
+    public func seek(toNextHoleFrom offset: OSInt) throws -> OSInt {
         let newOffset = lseek(fileDescriptor, offset, SEEK_HOLE)
 
         guard newOffset != -1 else {
@@ -64,7 +64,7 @@ extension Open: Seekable where PathType == FilePath {
     }
 
     @discardableResult
-    public func seek(toNextDataFrom offset: Int64) throws -> Int64 {
+    public func seek(toNextDataFrom offset: OSInt) throws -> OSInt {
         let newOffset = lseek(fileDescriptor, offset, SEEK_DATA)
 
         guard newOffset != -1 else {

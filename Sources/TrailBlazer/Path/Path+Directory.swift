@@ -1,6 +1,17 @@
+import Cdirent
+
 /// A Path to a directory
-public class DirectoryPath: _Path {
+public class DirectoryPath: _Path, Openable {
+    public typealias OpenableType = DirectoryPath
+
     public internal(set) var path: String
+    public var fileDescriptor: FileDescriptor {
+        guard let dir = self.dir else { return -1 }
+        return dirfd(dir)
+    }
+    private var dir: DIRType?
+    public internal(set) var options: OptionInt = 0
+    public internal(set) var mode: FileMode? = nil
 
     // This is to protect the info from being set externally
     private var _info: StatInfo
@@ -80,4 +91,22 @@ public class DirectoryPath: _Path {
 
     @available(*, unavailable, message: "Appending FilePath to DirectoryPath results in a FilePath, but it is impossible to change the type of the left-hand object from a DirectoryPath to a FilePath")
     public static func += (lhs: inout DirectoryPath, rhs: FilePath) {}
+
+    public func open(options: OptionInt = 0, mode: FileMode? = nil) throws -> Open<DirectoryPath> {
+        dir = opendir(string)
+
+        guard dir != nil else {
+            throw OpenDirectoryError.getError()
+        }
+
+        return Open(self)
+    }
+
+    public func close() throws {
+        if let dir = self.dir {
+            guard closedir(dir) != -1 else {
+                throw CloseDirectoryError.getError()
+            }
+        }
+    }
 }

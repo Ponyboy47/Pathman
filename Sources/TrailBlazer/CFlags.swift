@@ -1,11 +1,17 @@
 #if os(Linux)
 import Glibc
+public typealias OSInt = Int
+public typealias OSUInt = UInt32
 #else
 import Darwin
+public typealias OSInt = Int64
+public typealias OSUInt = UInt16
 #endif
+public typealias OptionInt = Int32
+public typealias FileDescriptor = Int32
 
 public struct OpenFilePermissions: Equatable, CustomStringConvertible {
-    public let rawValue: Int32
+    public let rawValue: OptionInt
     public var description: String {
         if self == .read {
             return "\(type(of: self))(read)"
@@ -22,7 +28,7 @@ public struct OpenFilePermissions: Equatable, CustomStringConvertible {
     public static let write = OpenFilePermissions(rawValue: O_WRONLY)
     public static let readWrite = OpenFilePermissions(rawValue: O_RDWR)
 
-    private init(rawValue: Int32) {
+    private init(rawValue: OptionInt) {
         self.rawValue = rawValue
     }
 
@@ -38,7 +44,7 @@ public struct OpenFilePermissions: Equatable, CustomStringConvertible {
 }
 
 public struct OpenFileFlags: OptionSet, CustomStringConvertible {
-    public let rawValue: Int32
+    public let rawValue: OptionInt
     public var description: String {
         var flags: [String] = []
 
@@ -121,18 +127,14 @@ public struct OpenFileFlags: OptionSet, CustomStringConvertible {
     public static let evtOnly = OpenFileFlags(rawValue: O_EVTONLY)
     #endif
 
-    public init(rawValue: Int32) {
+    public init(rawValue: OptionInt) {
         self.rawValue = rawValue
     }
 }
 
 public struct FilePermissions: OptionSet, ExpressibleByStringLiteral, ExpressibleByIntegerLiteral, CustomStringConvertible {
     public typealias ExtendedGraphemeClusterLiteralType = StringLiteralType
-    #if os(Linux)
-    public typealias IntegerLiteralType = UInt32
-    #else
-    public typealias IntegerLiteralType = UInt16
-    #endif
+    public typealias IntegerLiteralType = OSUInt
 
     public let rawValue: IntegerLiteralType
     public var description: String {
@@ -205,11 +207,7 @@ public struct FilePermissions: OptionSet, ExpressibleByStringLiteral, Expressibl
 }
 
 public struct FileMode: OptionSet, CustomStringConvertible, ExpressibleByIntegerLiteral {
-    #if os(Linux)
-    public typealias IntegerLiteralType = UInt32
-    #else
-    public typealias IntegerLiteralType = UInt16
-    #endif
+    public typealias IntegerLiteralType = OSUInt
 
     public let rawValue: IntegerLiteralType
 

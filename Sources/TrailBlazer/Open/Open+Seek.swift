@@ -5,26 +5,26 @@ import Darwin
 #endif
 
 public protocol Seekable: class {
-    var offset: Int64 { get set }
+    var offset: OSInt { get set }
 
-    func seek(_ offset: Offset) throws -> Int64
+    func seek(_ offset: Offset) throws -> OSInt
 
-    func seek(fromStart bytes: Int64) throws -> Int64
-    func seek(fromEnd bytes: Int64) throws -> Int64
-    func seek(fromCurrent bytes: Int64) throws -> Int64
+    func seek(fromStart bytes: OSInt) throws -> OSInt
+    func seek(fromEnd bytes: OSInt) throws -> OSInt
+    func seek(fromCurrent bytes: OSInt) throws -> OSInt
     // These are available on macOS, but aren't in all Linux distros yet
     #if os(macOS)
-    func seek(toNextHoleFrom offset: Int64) throws -> Int64
-    func seek(toNextDataFrom offset: Int64) throws -> Int64
+    func seek(toNextHoleFrom offset: OSInt) throws -> OSInt
+    func seek(toNextDataFrom offset: OSInt) throws -> OSInt
     #endif
 
-    func rewind() throws -> Int64
+    func rewind() throws -> OSInt
 }
 
 public extension Seekable {
     @discardableResult
-    public func seek(_ offset: Offset) throws -> Int64 {
-        let newOffset: Int64
+    public func seek(_ offset: Offset) throws -> OSInt {
+        let newOffset: OSInt
 
         switch offset.from {
         case .beginning: newOffset = try seek(fromStart: offset.bytes)
@@ -44,7 +44,7 @@ public extension Seekable {
 
 public struct Offset {
     public struct OffsetType: RawRepresentable, Equatable {
-        public typealias RawValue = Int32
+        public typealias RawValue = OptionInt
         public let rawValue: RawValue
 
         public static let beginning = OffsetType(rawValue: SEEK_SET)
@@ -61,14 +61,14 @@ public struct Offset {
     }
 
     var from: OffsetType
-    var bytes: Int64
+    var bytes: OSInt
 
-    init(_ type: OffsetType, _ bytes: Int64) {
+    init(_ type: OffsetType, _ bytes: OSInt) {
         self.from = type
         self.bytes = bytes
     }
 
-    public init(from type: OffsetType, bytes: Int64) {
+    public init(from type: OffsetType, bytes: OSInt) {
         self.from = type
         self.bytes = bytes
     }

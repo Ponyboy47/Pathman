@@ -4,8 +4,8 @@ import Glibc
 import Darwin
 #endif
 
-public protocol Creatable {
-    associatedtype CreatablePathType: Path
+public protocol Creatable: Openable {
+    associatedtype CreatablePathType: Path & Openable
     func create(mode: FileMode) throws -> Open<CreatablePathType>
 }
 
@@ -23,7 +23,7 @@ extension DirectoryPath: Creatable {
             throw CreateDirectoryError.getError()
         }
 
-        return try Open(self)
+        return try self.open(mode: mode)
     }
 }
 

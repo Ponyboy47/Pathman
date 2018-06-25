@@ -23,12 +23,10 @@ public extension Writable {
 
 extension Open: Writable where PathType == FilePath {
     public func write(_ buffer: Data, at offset: Offset = Offset(from: .current, bytes: 0)) throws {
-        if let flags = self.flags {
-            if !flags.contains(.append) {
-                try seek(offset)
-            } else {
-                try seek(Offset(from: .end, bytes: 0))
-            }
+        if !OpenFileFlags(rawValue: options).contains(.append) {
+            try seek(offset)
+        } else {
+            try seek(Offset(from: .end, bytes: 0))
         }
 
         guard cWriteFile(fileDescriptor, [UInt8](buffer), buffer.count) != -1 else { throw WriteError.getError() }

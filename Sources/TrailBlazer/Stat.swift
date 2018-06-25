@@ -53,11 +53,11 @@ protocol Stat {
     /// device ID (if special file)
     var device: dev_t { get }
     /// total size, in bytes
-    var size: Int64 { get }
+    var size: OSInt { get }
     /// blocksize for filesystem I/O
-    var blockSize: Int64 { get }
+    var blockSize: OSInt { get }
     /// number of 512B blocks allocated
-    var blocks: Int64 { get }
+    var blocks: OSInt { get }
 
     /// time of last access
     var lastAccess: Date { get }
@@ -93,14 +93,14 @@ extension Stat {
     public var device: dev_t {
         return buffer.st_rdev
     }
-    public var size: Int64 {
-        return Int64(buffer.st_size)
+    public var size: OSInt {
+        return OSInt(buffer.st_size)
     }
-    public var blockSize: Int64 {
-        return Int64(buffer.st_blksize)
+    public var blockSize: OSInt {
+        return OSInt(buffer.st_blksize)
     }
-    public var blocks: Int64 {
-        return Int64(buffer.st_blocks)
+    public var blocks: OSInt {
+        return OSInt(buffer.st_blocks)
     }
 
     public var lastAccess: Date {
@@ -195,7 +195,7 @@ extension StatPath {
         - StatError.fileTooLarge: fileDescriptor refers to a file whose size, inode number, or number of blocks cannot be represented in, respectively, the types off_t, ino_t, or blkcnt_t.
     */
     public static func update(_ path: String, options: StatOptions = [], _ buffer: inout stat) throws {
-        let statResponse: Int32
+        let statResponse: OptionInt
         if options.contains(.getLinkInfo) {
             statResponse = lstat(path, &buffer)
         } else {
@@ -231,14 +231,8 @@ public struct StatOptions: OptionSet {
     }
 }
 
-#if os(Linux)
-public typealias FileTypeAlias = UInt32
-#else
-public typealias FileTypeAlias = UInt16
-#endif
-
-public enum FileType: FileTypeAlias {
-    public typealias RawValue = FileTypeAlias
+public enum FileType: OSUInt {
+    public typealias RawValue = OSUInt
 
     case socket
     case link
@@ -289,14 +283,14 @@ public extension StatDelegate {
     public var device: dev_t {
         return info.device
     }
-    public var size: Int64 {
-        return Int64(info.size)
+    public var size: OSInt {
+        return OSInt(info.size)
     }
-    public var blockSize: Int64 {
-        return Int64(info.blockSize)
+    public var blockSize: OSInt {
+        return OSInt(info.blockSize)
     }
-    public var blocks: Int64 {
-        return Int64(info.blocks)
+    public var blocks: OSInt {
+        return OSInt(info.blocks)
     }
 
     public var lastAccess: Date {
