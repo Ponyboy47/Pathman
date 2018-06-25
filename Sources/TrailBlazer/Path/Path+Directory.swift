@@ -113,15 +113,16 @@ public class DirectoryPath: _Path, Openable {
     }
 
     public func close() throws {
+        guard let dir = self.dir else { return }
+
         // Be sure to remove the open directory from the dict
         defer {
             openDirectories.removeValue(forKey: self)
+            self.dir = nil
         }
 
-        if let dir = self.dir {
-            guard closedir(dir) != -1 else {
-                throw CloseDirectoryError.getError()
-            }
+        guard closedir(dir) != -1 else {
+            throw CloseDirectoryError.getError()
         }
     }
 }

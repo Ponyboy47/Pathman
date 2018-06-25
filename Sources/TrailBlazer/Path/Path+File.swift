@@ -138,10 +138,14 @@ public class FilePath: _Path, Openable {
     }
 
     public func close() throws {
+        guard fileDescriptor != -1 else { return }
+
         // Remove the open file from the openFiles dict after we close it
         defer {
             openFiles.removeValue(forKey: self)
+            fileDescriptor = -1
         }
+
         guard cCloseFile(fileDescriptor) == 0 else {
             throw CloseFileError.getError()
         }

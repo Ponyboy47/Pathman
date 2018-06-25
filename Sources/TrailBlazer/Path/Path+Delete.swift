@@ -10,6 +10,9 @@ public protocol Deletable: Creatable {
 
 extension FilePath: Deletable {
     public func delete() throws {
+        guard exists else { return }
+        try close()
+
         guard unlink(string) != -1 else {
             throw DeleteFileError.getError()
         }
@@ -18,6 +21,9 @@ extension FilePath: Deletable {
 
 extension DirectoryPath: Deletable {
     public func delete() throws {
+        guard exists else { return }
+        try close()
+
         guard rmdir(string) != -1 else {
             throw DeleteDirectoryError.getError()
         }
