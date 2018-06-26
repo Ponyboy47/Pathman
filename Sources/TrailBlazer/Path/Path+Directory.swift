@@ -1,10 +1,19 @@
 import Cdirent
 
+#if os(Linux)
+typealias DIRType = OpaquePointer
+#else
+typealias DIRType = UnsafeMutablePointer<DIR>
+#endif
+
+public typealias DirectoryChildren = (files: [FilePath], directories: [DirectoryPath], other: [GenericPath])
+
 private var openDirectories: [DirectoryPath: OpenDirectory] = [:]
 
 /// A Path to a directory
-public class DirectoryPath: _Path, Openable {
+public class DirectoryPath: _Path, Openable, Sequence, IteratorProtocol {
     public typealias OpenableType = DirectoryPath
+    public typealias Element = GenericPath
 
     public internal(set) var path: String
     public var fileDescriptor: FileDescriptor {
@@ -12,6 +21,7 @@ public class DirectoryPath: _Path, Openable {
         return dirfd(dir)
     }
     private var dir: DIRType?
+    private var finishedTraversal: Bool = false
     public internal(set) var options: OptionInt = 0
     public internal(set) var mode: FileMode? = nil
 
@@ -70,6 +80,10 @@ public class DirectoryPath: _Path, Openable {
         }
     }
 
+    public static func + (lhs: DirectoryPath, rhs: String) -> GenericPath {
+        return lhs + GenericPath(rhs)
+    }
+
     public static func + <PathType: Path>(lhs: DirectoryPath, rhs: PathType) -> PathType {
         var newPath = lhs.string
         let right = rhs.string
@@ -94,6 +108,7 @@ public class DirectoryPath: _Path, Openable {
     @available(*, unavailable, message: "Appending FilePath to DirectoryPath results in a FilePath, but it is impossible to change the type of the left-hand object from a DirectoryPath to a FilePath")
     public static func += (lhs: inout DirectoryPath, rhs: FilePath) {}
 
+    @discardableResult
     public func open(options: OptionInt = 0, mode: FileMode? = nil) throws -> Open<DirectoryPath> {
         // If the directory is already open, return it
         if let openDir = openDirectories[self] {
@@ -124,5 +139,62 @@ public class DirectoryPath: _Path, Openable {
         guard closedir(dir) != -1 else {
             throw CloseDirectoryError.getError()
         }
+    }
+
+	public func children() throws -> DirectoryChildren {
+        return try recursiveChildren(to: 1)
+    }
+
+    public func recursiveChildren(depth: Int = -1) throws -> DirectoryChildren {
+        return try recursiveChildren(to: depth)
+    }
+
+    @discardableResult
+    func recursiveChildren(to depth: Int, at cur: Int = 0, children: DirectoryChildren = (files: [], directories: [], other: [])) throws -> DirectoryChildren {
+        if dir == nil {
+            try open()
+        }
+
+        guard depth == -1 || depth < cur else { return children }
+
+        var children = children
+
+        for path in self {
+            if let file = FilePath(path) {
+                children.files.append(file)
+            } else if let dir = DirectoryPath(path) {
+                children.directories.append(dir)
+                children = try dir.recursiveChildren(to: depth, at: cur + 1, children: children)
+            } else {
+                children.other.append(path)
+            }
+        }
+
+        return children
+    }
+
+    public func next() -> GenericPath? {
+        guard let dir = self.dir else { return nil }
+        if finishedTraversal {
+            rewinddir(dir)
+            finishedTraversal = false
+        }
+        guard let ent = readdir(dir) else {
+          finishedTraversal = true
+          return nil
+        }
+        return genPath(ent)
+    }
+
+    private func genPath(_ ent: UnsafeMutablePointer<dirent>) -> GenericPath {
+        let name = withUnsafeBytes(of: &ent.pointee.d_name) { (ptr) -> String in
+            let charPtr = ptr.baseAddress!.assumingMemoryBound(to: CChar.self)
+            return String(cString: charPtr)
+        }
+        return self + name
+    }
+
+    deinit {
+        try? close()
     }
 }

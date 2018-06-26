@@ -92,6 +92,7 @@ public class FilePath: _Path, Openable {
     - Throws: OpenFileError, CreateFileError, or CloseFileError
     - Warning: Beware opening the same file multiple times with different options. To reduce the number of open file descriptors, a single file can only be opened once at a time. If you open the same path with different permissions or flags, then the previously opened instance will be closed before the new one is opened. ie: if youre going to use a path for reading and writing, then open it using the .readWrite permissions rather than first opening it for reading and then later opening it for writing
     */
+    @discardableResult
     public func open(options: OptionInt = 0, mode: FileMode? = nil) throws -> OpenFile {
         // Check if the file is already opened
         if let open = openFiles[self] {
@@ -124,15 +125,18 @@ public class FilePath: _Path, Openable {
         return open
     }
 
+    @discardableResult
     public func open(permissions: OpenFilePermissions, flags: OpenFileFlags = [], mode: FileMode? = nil) throws -> OpenFile {
         return try open(options: permissions.rawValue | flags.rawValue, mode: mode)
     }
 
+    @discardableResult
     public func open(permissions: OpenFilePermissions, flags: [OpenFileFlags], mode: FileMode? = nil) throws -> OpenFile {
         let options = permissions.rawValue | flags.reduce(0) { return $0 | $1.rawValue }
         return try open(options: options, mode: mode)
     }
 
+    @discardableResult
     public func open(permissions: OpenFilePermissions, flags: OpenFileFlags..., mode: FileMode? = nil) throws -> OpenFile {
         return try open(permissions: permissions, flags: flags, mode: mode)
     }
@@ -149,5 +153,9 @@ public class FilePath: _Path, Openable {
         guard cCloseFile(fileDescriptor) == 0 else {
             throw CloseFileError.getError()
         }
+    }
+
+    deinit {
+        try? close()
     }
 }
