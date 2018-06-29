@@ -6,8 +6,12 @@ import Darwin
 
 extension Path {
     /// The home directory for the calling process's user
-    public var homeDirectory: DirectoryPath? {
-        return try? Self.getHomeDirectory()
+    public var home: DirectoryPath? {
+        return try? Self.getHome()
+    }
+    /// The home directory for the calling process's user
+    public static var home: DirectoryPath? {
+        return try? Self.getHome()
     }
     /**
     Returns the home directory for a specified user
@@ -21,8 +25,8 @@ extension Path {
         - UserInforError.noMoreSystemFileDescriptors
         - UserInforError.outOfMemory
     */
-    public func getHomeDirectory(_ username: String) throws -> DirectoryPath {
-        return try Self.getHomeDirectory(username)
+    public func getHome(_ username: String) throws -> DirectoryPath {
+        return try Self.getHome(username)
     }
     /**
     Returns the home directory for a specified user
@@ -36,9 +40,12 @@ extension Path {
         - UserInforError.noMoreSystemFileDescriptors
         - UserInforError.outOfMemory
     */
-    public static func getHomeDirectory(_ username: String) throws -> DirectoryPath {
+    public static func getHome(_ username: String) throws -> DirectoryPath {
         guard let info = getUserInfo(username) else { throw UserInfoError.getError() }
-        return DirectoryPath(String(cString: info.pw_dir))!
+        guard let dir = DirectoryPath(String(cString: info.pw_dir)) else {
+            throw UserInfoError.invalidHomeDirectory
+        }
+        return dir
     }
     /**
     Returns the home directory for a specified user
@@ -52,8 +59,8 @@ extension Path {
         - UserInforError.noMoreSystemFileDescriptors
         - UserInforError.outOfMemory
     */
-    public func getHomeDirectory(_ uid: uid_t = geteuid()) throws -> DirectoryPath {
-        return try Self.getHomeDirectory(uid)
+    public func getHome(_ uid: uid_t = geteuid()) throws -> DirectoryPath {
+        return try Self.getHome(uid)
     }
     /**
     Returns the home directory for a specified user
@@ -67,9 +74,12 @@ extension Path {
         - UserInforError.noMoreSystemFileDescriptors
         - UserInforError.outOfMemory
     */
-    public static func getHomeDirectory(_ uid: uid_t = geteuid()) throws -> DirectoryPath {
+    public static func getHome(_ uid: uid_t = geteuid()) throws -> DirectoryPath {
         guard let info = getUserInfo(uid) else { throw UserInfoError.getError() }
-        return DirectoryPath(String(cString: info.pw_dir))!
+        guard let dir = DirectoryPath(String(cString: info.pw_dir)) else {
+            throw UserInfoError.invalidHomeDirectory
+        }
+        return dir
     }
     /// Returns a passwd structure for the specified username
     static func getUserInfo(_ username: String) -> passwd? {

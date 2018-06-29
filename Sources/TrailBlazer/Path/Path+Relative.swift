@@ -9,8 +9,8 @@ extension Path {
     */
     public var relative: Self {
         var str = path
-        if let homeDirectory = homeDirectory?.string, str.hasPrefix(homeDirectory) {
-            str = str.replacingOccurrences(of: homeDirectory, with: "~")
+        if let home = home?.string, str.hasPrefix(home) {
+            str = str.replacingOccurrences(of: home, with: "~")
         } else if str.hasPrefix(Self.cwd.string) {
             str = str.replacingOccurrences(of: cwd.string, with: ".")
         }

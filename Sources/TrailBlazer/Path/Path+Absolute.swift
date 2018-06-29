@@ -42,7 +42,7 @@ extension Path {
         var str = path
 
         if str.hasPrefix("~") {
-            let home = try Self.getHomeDirectory()
+            let home = try Self.getHome()
             str = str.replacingOccurrences(of: "^~", with: home.string, options: .regularExpression)
         }
 
