@@ -21,7 +21,7 @@ public extension Writable {
     }
 }
 
-extension Open: Writable where PathType == FilePath {
+extension Open: Writable where PathType: FilePath {
     public func write(_ buffer: Data, at offset: Offset = Offset(from: .current, bytes: 0)) throws {
         if !OpenFileFlags(rawValue: options).contains(.append) {
             try seek(offset)
@@ -35,9 +35,9 @@ extension Open: Writable where PathType == FilePath {
 
 public extension FilePath {
     public func write(_ buffer: Data, at offset: Offset = Offset(from: .current, bytes: 0)) throws {
-        try Open(self, permissions: .write).write(buffer, at: offset)
+        try self.open(permissions: .write).write(buffer, at: offset)
     }
     public func write(_ string: String, at offset: Offset = Offset(from: .current, bytes: 0), using encoding: String.Encoding = .utf8) throws {
-        try Open(self, permissions: .write).write(string, at: offset, using: encoding)
+        try self.open(permissions: .write).write(string, at: offset, using: encoding)
     }
 }

@@ -4,7 +4,7 @@ import Glibc
 import Darwin
 #endif
 
-extension Open: Seekable where PathType == FilePath {
+extension Open: Seekable where PathType: FilePath {
     @discardableResult
     public func seek(fromStart bytes: OSInt) throws -> OSInt {
         guard offset != 0 && bytes != 0 else { return offset }

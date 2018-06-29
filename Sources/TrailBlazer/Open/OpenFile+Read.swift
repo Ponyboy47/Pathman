@@ -25,7 +25,7 @@ public extension Readable {
     }
 }
 
-extension Open: Readable where PathType == FilePath {
+extension Open: Readable where PathType: FilePath {
     public func read(from offset: Offset = Offset(from: .current, bytes: 0), bytes byteCount: OSInt? = nil) throws -> Data {
         try seek(offset)
 
@@ -49,9 +49,9 @@ extension Open: Readable where PathType == FilePath {
 
 public extension FilePath {
     public func read(from offset: Offset = Offset(from: .current, bytes: 0), bytes byteCount: OSInt? = nil) throws -> Data {
-        return try Open(self, permissions: .read).read(from: offset, bytes: byteCount)
+        return try self.open(permissions: .read).read(from: offset, bytes: byteCount)
     }
     public func read(from offset: Offset = Offset(from: .current, bytes: 0), bytes byteCount: OSInt? = nil, encoding: String.Encoding = .utf8) throws -> String? {
-        return try Open(self, permissions: .read).read(from: offset, bytes: byteCount, encoding: encoding)
+        return try self.open(permissions: .read).read(from: offset, bytes: byteCount, encoding: encoding)
     }
 }

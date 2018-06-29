@@ -12,6 +12,8 @@ class CreateDeleteTests: XCTestCase {
 
         do {
             let open = try file.create(mode: .ownerGroupOthers(.read, .write))
+            XCTAssertTrue(file.exists)
+            XCTAssertTrue(file.isFile)
             try open.write("Hello World")
         } catch {
             XCTFail("Failed to create/write to file with error \(error)")
@@ -34,6 +36,8 @@ class CreateDeleteTests: XCTestCase {
         }
 
         XCTAssertNoThrow(try dir.create(mode: .ownerGroupOthers(.read, .write)))
+        XCTAssertTrue(dir.exists)
+        XCTAssertTrue(dir.isDirectory)
     }
 
     func deleteDirectory() {

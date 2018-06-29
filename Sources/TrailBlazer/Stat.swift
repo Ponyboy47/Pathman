@@ -162,7 +162,10 @@ extension StatDescriptor {
     }
 
     public mutating func update() throws {
-        try Self.update(fileDescriptor!, &buffer)
+        guard let descriptor = fileDescriptor else {
+            throw StatError.badFileDescriptor
+        }
+        try Self.update(descriptor, &buffer)
     }
 
     public init(_ fileDescriptor: FileDescriptor, buffer: stat = stat()) {
@@ -207,7 +210,10 @@ extension StatPath {
     public mutating func update(options: StatOptions = []) throws {
         var options = options
         options.insert(self.options)
-        try Self.update(self.path!, options: options, &self.buffer)
+        guard let path = self.path else {
+            throw PathError.emptyPath
+        }
+        try Self.update(path, options: options, &self.buffer)
     }
 
     public init(_ path: String, options: StatOptions = [], buffer: stat = stat()) {
