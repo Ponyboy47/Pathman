@@ -51,6 +51,8 @@ public class Open<PathType: Path & Openable>: Openable {
 
     init(_ path: PathType) {
         self.path = path
+        self._info.fileDescriptor = self.fileDescriptor
+        self._info.path = path.path
     }
 
     @available(*, renamed: "PathType.open", message: "You should use the path's open function rather than calling this directly.")
@@ -66,4 +68,10 @@ public class Open<PathType: Path & Openable>: Openable {
         buffer?.deallocate()
 		try? close()
 	}
+}
+
+extension Open: Equatable where PathType: Equatable {
+    public static func == <OtherPathType: Path & Openable>(lhs: Open<PathType>, rhs: Open<OtherPathType>) -> Bool {
+        return lhs.path == rhs.path && lhs.fileDescriptor == rhs.fileDescriptor && lhs.options == rhs.options && lhs.mode == rhs.mode
+    }
 }

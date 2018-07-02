@@ -6,7 +6,24 @@ typealias DIRType = OpaquePointer
 typealias DIRType = UnsafeMutablePointer<DIR>
 #endif
 
-private var openDirectories: [DirectoryPath: OpenDirectory] = [:]
+private var _openDirectories: DateSortedDictionary<DirectoryPath, OpenDirectory> = [:]
+private var openDirectories: DateSortedDictionary<DirectoryPath, OpenDirectory> {
+    get { return _openDirectories }
+    set {
+        _openDirectories = newValue
+        if newValue.count > 100 {
+            let toCloseMax = 10
+            var toCloseCount = 0
+            for (path, _) in _openDirectories.ascending {
+                guard toCloseCount < toCloseMax else { break }
+                do {
+                    try path.close()
+                    toCloseCount += 1
+                } catch {}
+            }
+        }
+    }
+}
 
 /// A Path to a directory
 public class DirectoryPath: _Path, Openable, Sequence, IteratorProtocol {
@@ -101,8 +118,9 @@ public class DirectoryPath: _Path, Openable, Sequence, IteratorProtocol {
 
         // Be sure to remove the open directory from the dict
         defer {
-            openDirectories.removeValue(forKey: self)
+            // When this line was not first, it was not executed for some reason
             self.dir = nil
+            openDirectories.removeValue(forKey: self)
         }
 
         guard closedir(dir) != -1 else {
@@ -110,14 +128,36 @@ public class DirectoryPath: _Path, Openable, Sequence, IteratorProtocol {
         }
     }
 
+    /**
+     Retrieves and files or directories contained within the directory
+
+     - Throws: When it fails to open or close the directory
+    */
 	public func children(includeHidden: Bool = false) throws -> DirectoryChildren {
         return try recursiveChildren(to: 1, includeHidden: includeHidden)
     }
 
+
+    /**
+     Recursively iterates through and retrives all children in all subdirectories
+
+     - Parameter depth: How many subdirectories may be recursively traversed (-1 for infinite depth)
+     - Parameter includeHidden: Whether or not to include hidden files and traverse hidden directories
+     - Throws: When it fails to open or close any of the subdirectories
+     - WARNING: If the directory you're traversing is exceptionally large and/or deep, then this will take a very long time and will use a large amount of memory and you may run out of available file descriptors. Until I can figure out how to do this lazily, be careful with using infinite recursion (a depth of -1) or with depths greater than the available number of process descriptors.
+     */
     public func recursiveChildren(depth: Int = -1, includeHidden: Bool = false) throws -> DirectoryChildren {
         return try recursiveChildren(to: depth, includeHidden: includeHidden)
     }
 
+    /**
+     Recursively iterates through and retrives all children in all subdirectories
+
+     - Parameter depth: How many subdirectories may be recursively traversed (-1 for infinite depth)
+     - Parameter includeHidden: Whether or not to include hidden files and traverse hidden directories
+     - Throws: When it fails to open or close any of the subdirectories
+     - WARNING: If the directory you're traversing is exceptionally large and/or deep, then this will take a very long time and will use a large amount of memory and you may run out of available file descriptors. Until I can figure out how to do this lazily, be careful with using infinite recursion (a depth of -1) or with depths greater than the available number of process descriptors.
+     */
     @discardableResult
     private func recursiveChildren(to depth: Int, includeHidden: Bool) throws -> DirectoryChildren {
         var children: DirectoryChildren = DirectoryChildren()
@@ -126,7 +166,8 @@ public class DirectoryPath: _Path, Openable, Sequence, IteratorProtocol {
         let depth = depth - 1
 
         // Make sure the directory has been opened
-        if dir == nil {
+        let unopened = dir == nil
+        if unopened {
             try open()
         }
 
@@ -143,13 +184,18 @@ public class DirectoryPath: _Path, Openable, Sequence, IteratorProtocol {
                 // Make sure we're safe to go another level deep
                 if depth != 0 {
                     guard !["..", "."].contains(dir.lastComponent) else { continue }
-                    children += try dir.recursiveChildren(to: depth - 1, includeHidden: includeHidden)
+                    children += try dir.recursiveChildren(to: depth, includeHidden: includeHidden)
+                    if self.dir == nil {
+                        try open()
+                    }
                 }
             } else {
                 children.other.append(path)
             }
         }
-        print("Got children:\n\(children)")
+        if unopened {
+            try close()
+        }
 
         return children
     }

@@ -4,7 +4,7 @@ import Foundation
 
 class CreateDeleteTests: XCTestCase {
 
-    func createFile() {
+    func testCreateFile() {
         guard let file = FilePath("/tmp/abcdefg") else {
             XCTFail("Path /tmp/abcdefg exists and is not a file")
             return
@@ -20,7 +20,7 @@ class CreateDeleteTests: XCTestCase {
         }
     }
 
-    func deleteFile() {
+    func testDeleteFile() {
         guard let file = FilePath("/tmp/abcdefg") else {
             XCTFail("Path /tmp/abcdefg exists and is not a file")
             return
@@ -29,7 +29,7 @@ class CreateDeleteTests: XCTestCase {
         XCTAssertNoThrow(try file.delete())
     }
 
-    func createDirectory() {
+    func testCreateDirectory() {
         guard let dir = DirectoryPath("/tmp/hijklmnop") else {
             XCTFail("Path /tmp/hijklmnop exists and is not a directory")
             return
@@ -40,7 +40,7 @@ class CreateDeleteTests: XCTestCase {
         XCTAssertTrue(dir.isDirectory)
     }
 
-    func deleteDirectory() {
+    func testDeleteDirectory() {
         guard let dir = DirectoryPath("/tmp/hijklmnop") else {
             XCTFail("Path /tmp/hijklmnop exists and is not a directory")
             return
@@ -49,13 +49,13 @@ class CreateDeleteTests: XCTestCase {
         XCTAssertNoThrow(try dir.delete())
     }
 
-    func deleteNonEmptyDirectory() {
+    func testDeleteNonEmptyDirectory() {
     }
 
     static var allTests = [
-        ("createFile", createFile),
-        ("deleteFile", deleteFile),
-        ("createDirectory", createDirectory),
-        ("deleteDirectory", deleteDirectory),
+        ("testCreateFile", testCreateFile),
+        ("testDeleteFile", testDeleteFile),
+        ("testCreateDirectory", testCreateDirectory),
+        ("testDeleteDirectory", testDeleteDirectory),
     ]
 }

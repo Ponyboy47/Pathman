@@ -7,8 +7,8 @@ let cStat = Darwin.lstat
 #endif
 
 let pathSeparator: String = "/"
-var processRoot: DirectoryPath = DirectoryPath(pathSeparator)!
-var currentWorkingDirectory: DirectoryPath = DirectoryPath(String(cString: getcwd(nil, Int(PATH_MAX))))!
+fileprivate var processRoot: DirectoryPath = DirectoryPath(pathSeparator)!
+fileprivate var currentWorkingDirectory: DirectoryPath = DirectoryPath(String(cString: getcwd(nil, Int(PATH_MAX))))!
 
 // Used internally to ensure only this framework can modify the path
 protocol _Path: Path {
@@ -17,7 +17,7 @@ protocol _Path: Path {
 }
 
 /// A protocol that describes a Path type and the attributes available to it
-public protocol Path: Hashable, CustomStringConvertible, StatDelegate {
+public protocol Path: Hashable, Comparable, CustomStringConvertible, StatDelegate {
     /// The underlying path representation
     var path: String { get }
     /// A String representation of self
@@ -133,8 +133,14 @@ public extension Path {
     public static func == (lhs: Self, rhs: Self) -> Bool {
         return lhs.path == rhs.path
     }
-
     public static func == <PathType: Path>(lhs: Self, rhs: PathType) -> Bool {
         return lhs.path == rhs.path
+    }
+
+    public static func < (lhs: Self, rhs: Self) -> Bool {
+        return lhs.path < rhs.path
+    }
+    public static func < <PathType: Path>(lhs: Self, rhs: PathType) -> Bool {
+        return lhs.path < rhs.path
     }
 }

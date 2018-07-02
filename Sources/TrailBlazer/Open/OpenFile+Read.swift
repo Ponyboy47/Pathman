@@ -32,7 +32,7 @@ extension Open: Readable where PathType: FilePath {
         // Either read the specified number of bytes, or read the entire file
         let bytesToRead = byteCount ?? size
 
-        if (bufferSize ?? 0) < bytesToRead {
+        if (bufferSize ?? -1) != bytesToRead {
             buffer?.deallocate()
 		    buffer = UnsafeMutablePointer<CChar>.allocate(capacity: Int(bytesToRead))
             bufferSize = bytesToRead
