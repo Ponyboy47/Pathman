@@ -11,17 +11,7 @@ private var openDirectories: DateSortedDictionary<DirectoryPath, OpenDirectory> 
     get { return _openDirectories }
     set {
         _openDirectories = newValue
-        if newValue.count > 100 {
-            let toCloseMax = 10
-            var toCloseCount = 0
-            for (path, _) in _openDirectories.ascending {
-                guard toCloseCount < toCloseMax else { break }
-                do {
-                    try path.close()
-                    toCloseCount += 1
-                } catch {}
-            }
-        }
+        autoclose(_openDirectories, percentage: 0.1, conditions: .newer(than: .seconds(5), threshold: 0.25))
     }
 }
 

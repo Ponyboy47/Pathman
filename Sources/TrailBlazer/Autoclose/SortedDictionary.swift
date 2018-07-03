@@ -20,6 +20,18 @@ struct DateSortStruct<ValueType> {
     mutating func update() {
         used = Date()
     }
+
+    func date(for priority: SortPriority) -> Date {
+        switch priority {
+        case .added: return added
+        case .used: return used
+        }
+    }
+}
+
+enum SortPriority {
+    case added
+    case used
 }
 
 extension DateSortStruct: Equatable where ValueType: Equatable {
@@ -36,6 +48,7 @@ class DateSortedDictionary<KeyType, ValueType>: ExpressibleByDictionaryLiteral, 
 
     private var dict: [Int: DateSortStruct<ValueType>] = [:]
     private var indexes: [KeyType: Int] = [:]
+    var sortPriority: SortPriority = .added
 
     var startIndex: Index {
         return dict.isEmpty ? endIndex : 0
@@ -87,7 +100,7 @@ class DateSortedDictionary<KeyType, ValueType>: ExpressibleByDictionaryLiteral, 
     private func insert(key: KeyType, value: DateSortStruct<ValueType>) {
         if let index = indexes[key] {
             guard let val = dict[index] else {
-                fatalError("Key exists in indexes , but not in the sorted values valuesionary")
+                fatalError("Key exists in indexes, but not in the sorted values dictionary")
             }
 
             guard val != value else { return }
@@ -110,8 +123,15 @@ class DateSortedDictionary<KeyType, ValueType>: ExpressibleByDictionaryLiteral, 
 
     private func determineIndex(of value: DateSortStruct<ValueType>) -> Int {
         for (index, val) in dict {
-            if value.added < val.added {
-                return index
+            switch sortPriority {
+            case .added:
+                if value.added < val.added {
+                    return index
+                }
+            case .used:
+                if value.used < val.used {
+                    return index
+                }
             }
         }
         return values.count
@@ -141,6 +161,63 @@ class DateSortedDictionary<KeyType, ValueType>: ExpressibleByDictionaryLiteral, 
                 }
             }
         }
+    }
+
+    private enum Comparison {
+        case greater
+        case lesser
+    }
+
+    func matching(_ conditions: Conditions, priority: SortPriority = .added) -> [(KeyType, ValueType)] {
+        let thresholdCount: Int
+        let originalPriority = sortPriority
+        sortPriority = priority
+        let sorted: [(KeyType, ValueType)]
+        let date: Date
+        let comparison: Comparison
+        var matches: [(KeyType, ValueType)] = []
+
+        switch conditions {
+        case .older(let time, let threshold):
+            if threshold < 1.0 {
+                thresholdCount = Int(Double(count) * (threshold == -1.0 ? 1.0 : threshold))
+            } else {
+                thresholdCount = Int(threshold)
+            }
+            sorted = ascending
+            date = Date(timeInterval: time.timeInterval, since: Date())
+            comparison = .lesser
+        case .newer(let time, let threshold):
+            if threshold < 1.0 {
+                thresholdCount = Int(Double(count) * (threshold == -1.0 ? 1.0 : threshold))
+            } else {
+                thresholdCount = Int(threshold)
+            }
+            sorted = descending
+            date = Date(timeInterval: time.timeInterval, since: Date())
+            comparison = .greater
+        }
+        sortPriority = originalPriority
+        for (key, value) in sorted {
+            guard let index = indexes[key] else {
+                fatalError("Key exists in the sorted dictionary, but not in the indexes")
+            }
+            guard let item = dict[index] else {
+                fatalError("Key exists in indexes, but not in the dictionary")
+            }
+            let itemDate = item.date(for: priority)
+            switch comparison {
+            case .greater:
+                guard itemDate > date else { break }
+            case .lesser:
+                guard itemDate < date else { break }
+            }
+            matches.append((key, value))
+        }
+
+        guard matches.count >= thresholdCount else { return [] }
+
+        return matches
     }
 
     @discardableResult

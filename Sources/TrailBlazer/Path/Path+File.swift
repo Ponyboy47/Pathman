@@ -10,7 +10,14 @@ private let cOpenFileWithMode = Darwin.open(_:_:_:)
 private let cCloseFile = Darwin.close
 #endif
 
-private var openFiles: [FilePath: OpenFile] = [:]
+private var _openFiles: DateSortedDictionary<FilePath, OpenFile> = [:]
+private var openFiles: DateSortedDictionary<FilePath, OpenFile> {
+    get { return _openFiles }
+    set {
+        _openFiles = newValue
+        autoclose(_openFiles, percentage: 0.1, conditions: .newer(than: .seconds(5), threshold: 0.25))
+    }
+}
 
 /// A Path to a file
 public class FilePath: _Path, Openable {
