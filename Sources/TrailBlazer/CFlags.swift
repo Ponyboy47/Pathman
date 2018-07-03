@@ -248,7 +248,15 @@ public struct FileMode: OptionSet, CustomStringConvertible, ExpressibleByInteger
     }
 
     private init(owner: IntegerLiteralType = 0, group: IntegerLiteralType = 0, others: IntegerLiteralType = 0, uid: Bool = false, gid: Bool = false, sticky: Bool = false) {
-        self.init(rawValue: (((uid ? 4 : 0) | (gid ? 2 : 0) | (sticky ? 1 : 0)) << 9) | (owner << 6) | (group << 3) | others)
+        precondition((owner | group | others) != 0)
+        var rawValue: IntegerLiteralType = uid ? 4 : 0
+        rawValue |= gid ? 2 : 0
+        rawValue |= sticky ? 1 : 0
+        rawValue <<= 9
+        rawValue |= (owner << 6)
+        rawValue |= (group << 3)
+        rawValue |= others
+        self.init(rawValue: rawValue)
     }
 
     public init(owner: FilePermissions = [], group: FilePermissions = [], others: FilePermissions = [], uid: Bool = false, gid: Bool = false, sticky: Bool = false) {
