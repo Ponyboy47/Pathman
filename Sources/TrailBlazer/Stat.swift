@@ -43,7 +43,7 @@ protocol Stat {
     /// inode number
     var inode: ino_t { get }
     /// The type of the file
-    var type: FileType { get }
+    var type: FileType? { get }
     /// The file permissions
     var permissions: FileMode { get }
     /// user ID of owner
@@ -78,8 +78,8 @@ extension Stat {
     public var inode: ino_t {
         return buffer.st_ino
     }
-    public var type: FileType {
-        return FileType(rawValue: buffer.st_mode)!
+    public var type: FileType? {
+        return FileType(rawValue: buffer.st_mode)
     }
     public var permissions: FileMode {
         return FileMode(rawValue: buffer.st_mode)
@@ -238,8 +238,6 @@ public struct StatOptions: OptionSet {
 }
 
 public enum FileType: OSUInt {
-    public typealias RawValue = OSUInt
-
     case socket
     case link
     case regular
@@ -249,7 +247,7 @@ public enum FileType: OSUInt {
     case fifo
     public static let file: FileType = .regular
 
-    public init?(rawValue: RawValue) {
+    public init?(rawValue: OSUInt) {
         switch rawValue & S_IFMT {
         case S_IFSOCK: self = .socket
         case S_IFLNK: self = .link
@@ -274,7 +272,7 @@ public extension StatDelegate {
     public var inode: ino_t {
         return info.inode
     }
-    public var type: FileType {
+    public var type: FileType? {
         return info.type
     }
     public var permissions: FileMode {
