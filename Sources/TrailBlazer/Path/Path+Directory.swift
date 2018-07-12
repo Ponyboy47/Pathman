@@ -153,7 +153,7 @@ public class DirectoryPath: _Path, Openable, Sequence, IteratorProtocol {
         var children: DirectoryChildren = DirectoryChildren()
         // Make sure we're not below the specified depth
         guard depth != 0 else { return children }
-        let depth = depth - 1
+        let depth = depth == -1 ? depth : depth - 1
 
         // Make sure the directory has been opened
         let unopened = dir == nil
@@ -183,6 +183,9 @@ public class DirectoryPath: _Path, Openable, Sequence, IteratorProtocol {
                 children.other.append(path)
             }
         }
+
+        // If this directory was previously unopened and we only opened it for
+        // this operation, then we should go ahead and close it too
         if unopened {
             try close()
         }
