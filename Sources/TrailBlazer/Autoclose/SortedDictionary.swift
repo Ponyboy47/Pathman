@@ -40,28 +40,39 @@ extension DateSortStruct: Equatable where ValueType: Equatable {
     }
 }
 
-class DateSortedDictionary<KeyType, ValueType>: ExpressibleByDictionaryLiteral, Collection where KeyType: Hashable & Comparable, ValueType: Equatable {
+final class DateSortedDictionary<KeyType, ValueType>: ExpressibleByDictionaryLiteral, Collection where KeyType: Hashable & Comparable, ValueType: Equatable {
     typealias Key = KeyType
     typealias Value = ValueType
-    typealias Index = Int
+    typealias Index = _Index
     typealias Iterator = IndexingIterator<[(KeyType, ValueType)]>
+
+    struct _Index: Comparable {
+        fileprivate var offset: Int = 0
+
+        static func == (lhs: _Index, rhs: _Index) -> Bool {
+            return lhs.offset == rhs.offset
+        }
+        static func < (lhs: _Index, rhs: _Index) -> Bool {
+            return lhs.offset < rhs.offset
+        }
+    }
 
     private var dict: [Int: DateSortStruct<ValueType>] = [:]
     private var indexes: [KeyType: Int] = [:]
     var sortPriority: SortPriority = .added
 
-    var startIndex: Index {
-        return dict.isEmpty ? endIndex : 0
-    }
+    lazy var startIndex: Index = {
+        return Index(offset: 0)
+    }()
 
     var endIndex: Index {
-        return dict.count
+        return Index(offset: count)
     }
 
     var keys: [KeyType] {
         var keys: [KeyType] = []
         keys.reserveCapacity(indexes.count)
-        for (key, index) in indexes {
+        for (key, index) in indexes.lazy {
             keys.insert(key, at: index)
         }
         return keys
@@ -69,7 +80,7 @@ class DateSortedDictionary<KeyType, ValueType>: ExpressibleByDictionaryLiteral, 
     var values: [ValueType] {
         var values: [ValueType] = []
         values.reserveCapacity(dict.count)
-        for (index, value) in dict {
+        for (index, value) in dict.lazy {
             values.insert(value.value, at: index < values.endIndex ? index : values.endIndex)
         }
         return values
@@ -83,10 +94,15 @@ class DateSortedDictionary<KeyType, ValueType>: ExpressibleByDictionaryLiteral, 
         return Array(ascending.reversed())
     }
 
-    required init(dictionaryLiteral elements: (KeyType, ValueType)...) {
+    init(dictionaryLiteral elements: (KeyType, ValueType)...) {
         for element in elements {
             insert(element)
         }
+    }
+
+    init(using priority: SortPriority? = nil) {
+        guard let priority = priority else { return }
+        sortPriority = priority
     }
 
     func makeIterator() -> Iterator {
@@ -121,9 +137,10 @@ class DateSortedDictionary<KeyType, ValueType>: ExpressibleByDictionaryLiteral, 
         indexes.removeValue(forKey: key)
     }
 
-    private func determineIndex(of value: DateSortStruct<ValueType>) -> Int {
+    private func determineIndex(of value: DateSortStruct<ValueType>, sortedBy priority: SortPriority? = nil) -> Int {
+        let priority = priority ?? sortPriority
         for (index, val) in dict {
-            switch sortPriority {
+            switch priority {
             case .added:
                 if value.added < val.added {
                     return index
@@ -168,10 +185,9 @@ class DateSortedDictionary<KeyType, ValueType>: ExpressibleByDictionaryLiteral, 
         case lesser
     }
 
-    func matching(_ conditions: Conditions, priority: SortPriority = .added) -> [(KeyType, ValueType)] {
+    func matching(_ conditions: Conditions, priority: SortPriority? = nil) -> [(KeyType, ValueType)] {
         let thresholdCount: Int
-        let originalPriority = sortPriority
-        sortPriority = priority
+        let priority: SortPriority = priority ?? sortPriority
         let sorted: [(KeyType, ValueType)]
         let date: Date
         let comparison: Comparison
@@ -184,7 +200,7 @@ class DateSortedDictionary<KeyType, ValueType>: ExpressibleByDictionaryLiteral, 
             } else {
                 thresholdCount = Int(threshold)
             }
-            sorted = ascending
+            sorted = sort(using: priority).ascending
             date = Date(timeInterval: time.timeInterval, since: Date())
             comparison = .lesser
         case .newer(let time, let threshold):
@@ -193,11 +209,11 @@ class DateSortedDictionary<KeyType, ValueType>: ExpressibleByDictionaryLiteral, 
             } else {
                 thresholdCount = Int(threshold)
             }
-            sorted = descending
+            sorted = sort(using: priority).descending
             date = Date(timeInterval: time.timeInterval, since: Date())
             comparison = .greater
         }
-        sortPriority = originalPriority
+
         for (key, value) in sorted {
             guard let index = indexes[key] else {
                 fatalError("Key exists in the sorted dictionary, but not in the indexes")
@@ -230,6 +246,19 @@ class DateSortedDictionary<KeyType, ValueType>: ExpressibleByDictionaryLiteral, 
         return nil
     }
 
+    @discardableResult
+    private func sort(using priority: SortPriority? = nil) -> DateSortedDictionary<KeyType, ValueType> {
+        guard priority != sortPriority else { return self }
+        let new = DateSortedDictionary<KeyType, ValueType>()
+
+        for (key, index) in indexes {
+            let value = dict[index] !! "Key exists in the indexes dictionary, but not the values dict"
+            new.insert(key: key, value: value)
+        }
+
+        return new
+    }
+
     subscript(key: KeyType) -> ValueType? {
         get {
             guard let index = indexes[key] else { return nil }
@@ -250,26 +279,23 @@ class DateSortedDictionary<KeyType, ValueType>: ExpressibleByDictionaryLiteral, 
         return dict[index]?.value ?? value
     }
 
-    subscript(position: Int) -> (KeyType, ValueType) {
-        let key: KeyType
-        let value: ValueType
-
-        if let _key = indexes.first(where: { return $0.value == position })?.key {
-            key = _key
-        } else {
-            key = keys[position]
+    subscript(position: Index) -> (KeyType, ValueType) {
+        guard position < endIndex && position >= startIndex else {
+            fatalError("\(type(of: self)) index out of range")
         }
 
-        if let _value = dict[position]?.value {
-            value = _value
-        } else {
-            value = values[position]
+        var pos = startIndex
+        while pos < position {
+            pos = index(after: pos)
         }
 
-        return (key, value)
+        let val = dict[pos.offset] !! "Values dictionary was not sorted properly and an index does not exist"
+        let key = indexes.first(where: { $1 == pos.offset }) !! "Key exists in the values dictionary, but not the indexes"
+
+        return (key.key, val.value)
     }
 
-    func index(after i: Int) -> Int {
-        return i + 1
+    func index(after i: Index) -> Index {
+        return Index(offset: i.offset + 1)
     }
 }
