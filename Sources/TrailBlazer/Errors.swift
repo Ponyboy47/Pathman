@@ -331,6 +331,7 @@ public enum UserInfoError: TrailBlazerError {
     case noMoreProcessFileDescriptors
     case noMoreSystemFileDescriptors
     case outOfMemory
+    case invalidHomeDirectory
 
     public static func getError() -> UserInfoError {
         switch ErrNo.lastError {

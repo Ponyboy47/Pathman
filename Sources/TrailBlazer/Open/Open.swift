@@ -13,12 +13,6 @@ public protocol Openable: StatDelegate {
 
 private var _buffers: [UUID: UnsafeMutablePointer<CChar>] = [:]
 private var _bufferSizes: [UUID: OSInt] = [:]
-#if os(Linux)
-typealias DIRType = OpaquePointer
-#else
-typealias DIRType = UnsafeMutablePointer<DIR>
-#endif
-private var _dirs: [UUID: DIRType] = [:]
 
 public class Open<PathType: Path & Openable>: Openable {
     public typealias OpenableType = PathType.OpenableType
@@ -55,16 +49,14 @@ public class Open<PathType: Path & Openable>: Openable {
         }
     }
 
-    public init(_ path: PathType) {
+    init(_ path: PathType) {
         self.path = path
+        self._info.fileDescriptor = self.fileDescriptor
+        self._info.path = path.path
     }
 
-    public convenience init(_ path: PathType, options: OptionInt, mode: FileMode? = nil) throws {
-        self.init(path)
-        try open(options: options, mode: mode)
-    }
-
-    @discardableResult public func open(options: OptionInt, mode: FileMode? = nil) throws -> Open<OpenableType> {
+    @available(*, renamed: "PathType.open", message: "You should use the path's open function rather than calling this directly.")
+    public func open(options: OptionInt, mode: FileMode? = nil) throws -> Open<OpenableType> {
         return try path.open(options: options, mode: mode)
     }
 
@@ -76,4 +68,10 @@ public class Open<PathType: Path & Openable>: Openable {
         buffer?.deallocate()
 		try? close()
 	}
+}
+
+extension Open: Equatable where PathType: Equatable {
+    public static func == <OtherPathType: Path & Openable>(lhs: Open<PathType>, rhs: Open<OtherPathType>) -> Bool {
+        return lhs.path == rhs.path && lhs.fileDescriptor == rhs.fileDescriptor && lhs.options == rhs.options && lhs.mode == rhs.mode
+    }
 }

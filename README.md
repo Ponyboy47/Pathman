@@ -18,7 +18,7 @@ I hate going through Foundation's FileManager. I find it to be an ugly API with 
 ## Installation (SPM)
 Add this to your Package.swift dependencies:
 ```swift
-.package(url: "https://github.com/Ponyboy47/Trailblazer.git", from: "0.2.0")
+.package(url: "https://github.com/Ponyboy47/Trailblazer.git", from: "0.3.0")
 ```
 
 ## Usage
@@ -99,30 +99,22 @@ path.lastAttributeChange
 
 ### Opening Paths
 
-FilePaths:
+#### FilePaths:
 ```swift
 guard let file = FilePath("/tmp/test") else {
     fatalError("Path is not a file")
 }
 
-// You can either open the path directly...
 let openFile: OpenFile = try file.open(permissions: .read)
-
-// Or create an OpenFile from the path
-let openFile = try OpenFile(file, permissions: .read)
 ```
 
-DirectoryPaths:
+#### DirectoryPaths:
 ```swift
 guard let dir = DirectoryPath("/tmp") else {
     fatalError("Path is not a directory")
 }
 
-// You can either open the path directly...
 let openDir: OpenDirectory = try dir.open()
-
-// Or create an OpenDirectory from the path
-let openDir = try OpenDirectory(dir)
 ```
 
 ### Creating Paths
@@ -146,6 +138,16 @@ guard let file = FilePath("/tmp/test") else {
 
 try file.delete()
 ```
+
+Recursively delete Directories:
+```swift
+guard let dir = DirectoryPath("/tmp/test") else {
+    fatalError("Path is not a directory")
+}
+
+try dir.recursiveDelete()
+```
+NOTE: Be VERY cautious with this as it cannot be undone.
 
 ### Reading Files
 
@@ -190,17 +192,64 @@ file.write("Goodbye", at: Offset(from: .end, bytes: 0), using: .ascii)
 ```
 NOTE: You can also pass a `Data` instance to the write function instead of a String and an encoding.
 
+
+### Getting Directory Contents:
+
+Immediate children:
+```swift
+guard let dir = DirectoryPath("/tmp") else {
+    fatalError("Path is not a directiry")
+}
+
+let children = try dir.children()
+
+// This same operation is safe, assuming you've already opened the directory
+let openDir = try dir.open()
+let children = openDir.children()
+```
+
+Recursive Children:
+```swift
+guard let dir = DirectoryPath("/tmp") else {
+    fatalError("Path is not a directiry")
+}
+
+let children = try dir.recursiveChildren()
+
+// This operation is still unsafe, even if the directory is already opened (Because you still might have to open sub-directories, which is unsafe)
+let openDir = try dir.open()
+let children = try openDir.recursiveChildren()
+
+// You can optionally specify a depth to only get so many directories
+// This will go no more than 5 directories deep before returning
+let children = try dir.recursiveChildren(depth: 5)
+```
+
+Hidden Files:
+```swift
+// Both .children() and .recursiveChildren() support getting hidden files/directories (files that begin with a '.')
+let children = try dir.children(includeHidden: true)
+let children = try dir.recursiveChildren(depth: 5, includeHidden: true)
+```
+
 ## To Do
 - FilePath
   - [x] Create new files
 - DirectoryPath
-  - [ ] Get directory contents
+  - [x] Get directory contents
+  - [x] Get directory contents recursively
   - [x] Create new directories
-  - [ ] Delete directories
-  - [ ] Recursively delete directory
+  - [x] Delete directories
+  - [x] Recursively delete directory
 - GenericPath (AKA all Paths)
   - [ ] Change path ownership
   - [ ] Change path permissions
+  - [ ] Move paths
+  - [ ] Rename paths (move alias)
 - Misc. Additions
   - [ ] Globbing
   - [ ] LinkedPath (symlinks)
+  - [ ] SocketPath
+  - [ ] FIFOPath?
+  - [ ] BlockPath?
+  - [ ] CharacterPath?

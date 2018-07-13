@@ -35,3 +35,9 @@ extension Open: Deletable where PathType: Deletable {
         try path.delete()
     }
 }
+
+extension Open where PathType: DirectoryPath {
+    public func recursiveDelete() throws {
+        try path.recursiveDelete()
+    }
+}

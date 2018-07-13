@@ -43,7 +43,7 @@ protocol Stat {
     /// inode number
     var inode: ino_t { get }
     /// The type of the file
-    var type: FileType { get }
+    var type: FileType? { get }
     /// The file permissions
     var permissions: FileMode { get }
     /// user ID of owner
@@ -78,8 +78,8 @@ extension Stat {
     public var inode: ino_t {
         return buffer.st_ino
     }
-    public var type: FileType {
-        return FileType(rawValue: buffer.st_mode)!
+    public var type: FileType? {
+        return FileType(rawValue: buffer.st_mode)
     }
     public var permissions: FileMode {
         return FileMode(rawValue: buffer.st_mode)
@@ -162,7 +162,10 @@ extension StatDescriptor {
     }
 
     public mutating func update() throws {
-        try Self.update(fileDescriptor!, &buffer)
+        guard let descriptor = fileDescriptor else {
+            throw StatError.badFileDescriptor
+        }
+        try Self.update(descriptor, &buffer)
     }
 
     public init(_ fileDescriptor: FileDescriptor, buffer: stat = stat()) {
@@ -207,7 +210,10 @@ extension StatPath {
     public mutating func update(options: StatOptions = []) throws {
         var options = options
         options.insert(self.options)
-        try Self.update(self.path!, options: options, &self.buffer)
+        guard let path = self.path else {
+            throw PathError.emptyPath
+        }
+        try Self.update(path, options: options, &self.buffer)
     }
 
     public init(_ path: String, options: StatOptions = [], buffer: stat = stat()) {
@@ -232,8 +238,6 @@ public struct StatOptions: OptionSet {
 }
 
 public enum FileType: OSUInt {
-    public typealias RawValue = OSUInt
-
     case socket
     case link
     case regular
@@ -243,7 +247,7 @@ public enum FileType: OSUInt {
     case fifo
     public static let file: FileType = .regular
 
-    public init?(rawValue: RawValue) {
+    public init?(rawValue: OSUInt) {
         switch rawValue & S_IFMT {
         case S_IFSOCK: self = .socket
         case S_IFLNK: self = .link
@@ -268,7 +272,7 @@ public extension StatDelegate {
     public var inode: ino_t {
         return info.inode
     }
-    public var type: FileType {
+    public var type: FileType? {
         return info.type
     }
     public var permissions: FileMode {
