@@ -18,7 +18,7 @@ I hate going through Foundation's FileManager. I find it to be an ugly API with 
 ## Installation (SPM)
 Add this to your Package.swift dependencies:
 ```swift
-.package(url: "https://github.com/Ponyboy47/Trailblazer.git", from: "0.2.0")
+.package(url: "https://github.com/Ponyboy47/Trailblazer.git", from: "0.3.0")
 ```
 
 ## Usage
@@ -139,6 +139,16 @@ guard let file = FilePath("/tmp/test") else {
 try file.delete()
 ```
 
+Recursively delete Directories:
+```swift
+guard let dir = DirectoryPath("/tmp/test") else {
+    fatalError("Path is not a directory")
+}
+
+try dir.recursiveDelete()
+```
+NOTE: Be VERY cautious with this as it cannot be undone.
+
 ### Reading Files
 
 ```swift
@@ -226,11 +236,11 @@ let children = try dir.recursiveChildren(depth: 5, includeHidden: true)
 - FilePath
   - [x] Create new files
 - DirectoryPath
-  - [ ] Get directory contents
-  - [ ] Get directory contents recursively
+  - [x] Get directory contents
+  - [x] Get directory contents recursively
   - [x] Create new directories
-  - [ ] Delete directories
-  - [ ] Recursively delete directory
+  - [x] Delete directories
+  - [x] Recursively delete directory
 - GenericPath (AKA all Paths)
   - [ ] Change path ownership
   - [ ] Change path permissions
@@ -240,3 +250,6 @@ let children = try dir.recursiveChildren(depth: 5, includeHidden: true)
   - [ ] Globbing
   - [ ] LinkedPath (symlinks)
   - [ ] SocketPath
+  - [ ] FIFOPath?
+  - [ ] BlockPath?
+  - [ ] CharacterPath?
