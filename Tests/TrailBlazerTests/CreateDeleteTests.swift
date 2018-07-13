@@ -3,10 +3,17 @@ import Foundation
 @testable import TrailBlazer
 
 class CreateDeleteTests: XCTestCase {
+    private lazy var base: DirectoryPath = {
+        #if os(Linux)
+        return DirectoryPath.home!
+        #else
+        return DirectoryPath("/tmp")!
+        #endif
+    }()
 
     func testCreateFile() {
-        guard let file = FilePath("/tmp/abcdefg") else {
-            XCTFail("Path /tmp/abcdefg exists and is not a file")
+        guard let file = FilePath(base + "abcdefg.test") else {
+            XCTFail("Path \(base.string)/abcdefg.test exists and is not a file")
             return
         }
 
@@ -21,8 +28,8 @@ class CreateDeleteTests: XCTestCase {
     }
 
     func testDeleteFile() {
-        guard let file = FilePath("/tmp/abcdefg") else {
-            XCTFail("Path /tmp/abcdefg exists and is not a file")
+        guard let file = FilePath(base + "abcdefg.test") else {
+            XCTFail("Path \(base.string)/abcdefg.test exists and is not a file")
             return
         }
 
@@ -30,8 +37,8 @@ class CreateDeleteTests: XCTestCase {
     }
 
     func testCreateDirectory() {
-        guard let dir = DirectoryPath("/tmp/hijklmnop") else {
-            XCTFail("Path /tmp/hijklmnop exists and is not a directory")
+        guard let dir = DirectoryPath(base + "hijklmnop") else {
+            XCTFail("Path \(base.string)/hijklmnop exists and is not a directory")
             return
         }
 
@@ -41,8 +48,8 @@ class CreateDeleteTests: XCTestCase {
     }
 
     func testDeleteDirectory() {
-        guard let dir = DirectoryPath("/tmp/hijklmnop") else {
-            XCTFail("Path /tmp/hijklmnop exists and is not a directory")
+        guard let dir = DirectoryPath(base + "hijklmnop") else {
+            XCTFail("Path \(base.string)/hijklmnop exists and is not a directory")
             return
         }
 
@@ -50,6 +57,45 @@ class CreateDeleteTests: XCTestCase {
     }
 
     func testDeleteNonEmptyDirectory() {
+        guard let dir = DirectoryPath(base + "qrstuvwxyz") else {
+            XCTFail("Path \(base.string)/qrstuvwxyz exists and is not a directory")
+            return
+        }
+
+        try? dir.create(mode: .ownerGroupOthers(.read, .write, .execute))
+        XCTAssertTrue(dir.exists)
+
+        for num in 1...10 {
+            guard let file = FilePath(base + "qrstuvwxyz/\(num).test") else {
+                XCTFail("Path \(base.string)/qrstuvwxyz/\(num).test exists and is not a file")
+                return
+            }
+
+            do {
+                try file.create(mode: .ownerGroupOthers(.read, .write))
+                XCTAssertTrue(file.exists)
+                XCTAssertTrue(file.isFile)
+            } catch OpenFileError.pathExists {
+                continue
+            } catch {
+                XCTFail("Failed to create \(file) with error \(error)")
+                break
+            }
+        }
+
+        do {
+            try dir.delete()
+            XCTFail("Did not fail to delete nonEmpty directory")
+        } catch {}
+    }
+
+    func testDeleteDirectoryRecursive() {
+        guard let dir = DirectoryPath(base + "/qrstuvwxyz") else {
+            XCTFail("Path \(base.string)/qrstuvwxyz exists and is not a directory")
+            return
+        }
+
+        XCTAssertNoThrow(try dir.recursiveDelete())
     }
 
     static var allTests = [
@@ -57,5 +103,7 @@ class CreateDeleteTests: XCTestCase {
         ("testDeleteFile", testDeleteFile),
         ("testCreateDirectory", testCreateDirectory),
         ("testDeleteDirectory", testDeleteDirectory),
+        ("testDeleteNonEmptyDirectory", testDeleteNonEmptyDirectory),
+        ("testDeleteDirectoryRecursive", testDeleteDirectoryRecursive),
     ]
 }

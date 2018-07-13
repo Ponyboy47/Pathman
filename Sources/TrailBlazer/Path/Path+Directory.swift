@@ -193,6 +193,32 @@ public class DirectoryPath: _Path, Openable, Sequence, IteratorProtocol {
         return children
     }
 
+    public func recursiveDelete() throws {
+        guard exists else { return }
+
+        let unopened = dir == nil
+        if unopened {
+            try open()
+        }
+
+        for path in self {
+            if let file = FilePath(path) {
+                try file.delete()
+            } else if let dir = DirectoryPath(path) {
+                guard !["..", "."].contains(dir.lastComponent) else { continue }
+                try dir.recursiveDelete()
+            } else {
+                break
+            }
+        }
+
+        if unopened {
+            try close()
+        }
+
+        try delete()
+    }
+
     public func next() -> GenericPath? {
         guard let dir = self.dir else { return nil }
         if finishedTraversal {
