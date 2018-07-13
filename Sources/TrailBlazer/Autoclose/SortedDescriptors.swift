@@ -40,7 +40,7 @@ extension DateSortStruct: Equatable where ValueType: Equatable {
     }
 }
 
-final class DateSortedDictionary<KeyType, ValueType>: ExpressibleByDictionaryLiteral, Collection where KeyType: Hashable & Comparable, ValueType: Equatable {
+final class DateSortedDescriptors<KeyType, ValueType>: ExpressibleByDictionaryLiteral, Collection where KeyType: Hashable & Comparable & Openable, ValueType: Equatable {
     typealias Key = KeyType
     typealias Value = ValueType
     typealias Index = _Index
@@ -60,6 +60,7 @@ final class DateSortedDictionary<KeyType, ValueType>: ExpressibleByDictionaryLit
     private var dict: [Int: DateSortStruct<ValueType>] = [:]
     private var indexes: [KeyType: Int] = [:]
     var sortPriority: SortPriority = .added
+    var autoclose: (percentage: Double, conditions: Conditions, priority: SortPriority, min: Double, max: Double)? = nil
 
     lazy var startIndex: Index = {
         return Index(offset: 0)
@@ -69,10 +70,12 @@ final class DateSortedDictionary<KeyType, ValueType>: ExpressibleByDictionaryLit
         return Index(offset: count)
     }
 
+    var count: Int { return dict.count }
+
     var keys: [KeyType] {
         var keys: [KeyType] = []
         keys.reserveCapacity(indexes.count)
-        for (key, index) in indexes.lazy {
+        for (key, index) in indexes.sorted(by: { $0.value < $1.value }) {
             keys.insert(key, at: index)
         }
         return keys
@@ -80,7 +83,7 @@ final class DateSortedDictionary<KeyType, ValueType>: ExpressibleByDictionaryLit
     var values: [ValueType] {
         var values: [ValueType] = []
         values.reserveCapacity(dict.count)
-        for (index, value) in dict.lazy {
+        for (index, value) in dict.sorted(by: { $0.key < $1.key }) {
             values.insert(value.value, at: index < values.endIndex ? index : values.endIndex)
         }
         return values
@@ -91,7 +94,7 @@ final class DateSortedDictionary<KeyType, ValueType>: ExpressibleByDictionaryLit
     }
 
     var descending: [(KeyType, ValueType)] {
-        return Array(ascending.reversed())
+        return Array(zip(keys, values).reversed())
     }
 
     init(dictionaryLiteral elements: (KeyType, ValueType)...) {
@@ -115,9 +118,7 @@ final class DateSortedDictionary<KeyType, ValueType>: ExpressibleByDictionaryLit
 
     private func insert(key: KeyType, value: DateSortStruct<ValueType>) {
         if let index = indexes[key] {
-            guard let val = dict[index] else {
-                fatalError("Key exists in indexes, but not in the sorted values dictionary")
-            }
+            let val = dict[index] !! "Key exists in indexes, but not in the sorted values dictionary"
 
             guard val != value else { return }
             remove(key: key)
@@ -127,6 +128,10 @@ final class DateSortedDictionary<KeyType, ValueType>: ExpressibleByDictionaryLit
         shiftIndexes(by: 1, from: insertIndex)
         indexes[key] = insertIndex
         dict[insertIndex] = value
+
+        if let autoclose = autoclose {
+            TrailBlazer.autoclose(self, percentage: autoclose.percentage, conditions: autoclose.conditions, priority: autoclose.priority, min: autoclose.min, max: autoclose.max)
+        }
     }
 
     private func remove(key: KeyType) {
@@ -193,34 +198,36 @@ final class DateSortedDictionary<KeyType, ValueType>: ExpressibleByDictionaryLit
         let comparison: Comparison
         var matches: [(KeyType, ValueType)] = []
 
-        switch conditions {
-        case .older(let time, let threshold):
+        switch conditions.period {
+        case .older:
+            let threshold = conditions.threshold
             if threshold < 1.0 {
                 thresholdCount = Int(Double(count) * (threshold == -1.0 ? 1.0 : threshold))
             } else {
                 thresholdCount = Int(threshold)
             }
             sorted = sort(using: priority).ascending
-            date = Date(timeInterval: time.timeInterval, since: Date())
+            date = Date(timeInterval: conditions.time.timeInterval, since: Date())
             comparison = .lesser
-        case .newer(let time, let threshold):
+        case .newer:
+            let threshold = conditions.threshold
             if threshold < 1.0 {
                 thresholdCount = Int(Double(count) * (threshold == -1.0 ? 1.0 : threshold))
             } else {
-                thresholdCount = Int(threshold)
+                thresholdCount = Int(conditions.threshold)
             }
             sorted = sort(using: priority).descending
-            date = Date(timeInterval: time.timeInterval, since: Date())
+            date = Date(timeInterval: conditions.time.timeInterval, since: Date())
             comparison = .greater
         }
 
+        guard count >= conditions.minCount else { return [] }
+        guard count >= thresholdCount else { return [] }
+
         for (key, value) in sorted {
-            guard let index = indexes[key] else {
-                fatalError("Key exists in the sorted dictionary, but not in the indexes")
-            }
-            guard let item = dict[index] else {
-                fatalError("Key exists in indexes, but not in the dictionary")
-            }
+            let index = indexes[key] !! "Key exists in the sorted dictionary, but not in the indexes"
+            let item = dict[index] !! "Key exists in indexes, but not in the dictionary"
+
             let itemDate = item.date(for: priority)
             switch comparison {
             case .greater:
@@ -231,6 +238,7 @@ final class DateSortedDictionary<KeyType, ValueType>: ExpressibleByDictionaryLit
             matches.append((key, value))
         }
 
+        guard matches.count >= conditions.minCount else { return [] }
         guard matches.count >= thresholdCount else { return [] }
 
         return matches
@@ -247,9 +255,9 @@ final class DateSortedDictionary<KeyType, ValueType>: ExpressibleByDictionaryLit
     }
 
     @discardableResult
-    private func sort(using priority: SortPriority? = nil) -> DateSortedDictionary<KeyType, ValueType> {
+    private func sort(using priority: SortPriority? = nil) -> DateSortedDescriptors<KeyType, ValueType> {
         guard priority != sortPriority else { return self }
-        let new = DateSortedDictionary<KeyType, ValueType>()
+        let new = DateSortedDescriptors<KeyType, ValueType>()
 
         for (key, index) in indexes {
             let value = dict[index] !! "Key exists in the indexes dictionary, but not the values dict"
@@ -281,7 +289,7 @@ final class DateSortedDictionary<KeyType, ValueType>: ExpressibleByDictionaryLit
 
     subscript(position: Index) -> (KeyType, ValueType) {
         guard position < endIndex && position >= startIndex else {
-            fatalError("\(type(of: self)) index out of range")
+            fatalError("\(type(of: self)) index is out of range")
         }
 
         var pos = startIndex

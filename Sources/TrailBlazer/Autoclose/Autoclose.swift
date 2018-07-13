@@ -5,12 +5,12 @@
 //  Created by Jacob Williams on 7/3/18.
 //
 
-func autoclose<PathType: Openable & Hashable & Comparable, OpenType: Equatable>(_ dict: DateSortedDictionary<PathType, OpenType>, percentage: Double = -1.0, conditions: Conditions, priority: SortPriority = .added, min: Double = 0.0, max: Double = -1.0) {
+func autoclose<PathType: Openable & Hashable & Comparable, OpenType: Equatable>(_ dict: DateSortedDescriptors<PathType, OpenType>, percentage: Double = -1.0, conditions: Conditions, priority: SortPriority = .added, min: Double = 0.0, max: Double = -1.0) {
     let maxCount: Int = max == -1.0 ? dict.count : max < 1.0 ? Int(Double(dict.count) * max) : Int(max)
     let minCount: Int = min == -1.0 ? dict.count : min < 1.0 ? Int(Double(dict.count) * min) : Int(min)
     let percentageCount: Int = percentage == -1.0 ? dict.count : percentage < 1.0 ? Int(Double(dict.count) * percentage) : Int(percentage)
 
-    precondition(min < max)
+    precondition(min <= max)
     let max = Swift.max(maxCount, percentageCount)
 
     var closed = 0
@@ -44,7 +44,44 @@ enum Time {
         return -1.0 * interval
     }
 }
-enum Conditions {
-    case older(than: Time, threshold: Double)
-    case newer(than: Time, threshold: Double)
+
+struct Conditions {
+    enum Period {
+        case older
+        case newer
+    }
+
+    var period: Period
+    var time: Time
+    var threshold: Double = -1.0
+    var minCount: Int = 1
+
+    private init(period: Period, time: Time) {
+        self.period = period
+        self.time = time
+    }
+
+    private init(period: Period, time: Time, threshold: Double) {
+        self.init(period: period, time: time)
+        self.threshold = threshold
+    }
+
+    private init(period: Period, time: Time, minCount: Int) {
+        self.init(period: period, time: time)
+        self.minCount = minCount
+    }
+
+    private init(period: Period, time: Time, threshold: Double, minCount: Int) {
+        self.init(period: period, time: time)
+        self.threshold = threshold
+        self.minCount = minCount
+    }
+
+    static func older(than time: Time, threshold: Double = -1.0, minCount: Int = 1) -> Conditions {
+        return Conditions(period: .older, time: time, threshold: threshold, minCount: minCount)
+    }
+
+    static func newer(than time: Time, threshold: Double = -1.0, minCount: Int = 1) -> Conditions {
+        return Conditions(period: .newer, time: time, threshold: threshold, minCount: minCount)
+    }
 }

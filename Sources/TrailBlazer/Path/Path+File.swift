@@ -10,12 +10,20 @@ private let cOpenFileWithMode = Darwin.open(_:_:_:)
 private let cCloseFile = Darwin.close
 #endif
 
-private var _openFiles: DateSortedDictionary<FilePath, OpenFile> = [:]
-private var openFiles: DateSortedDictionary<FilePath, OpenFile> {
-    get { return _openFiles }
+private let fileConditions: Conditions = .newer(than: .seconds(5), threshold: 0.25, minCount: 50)
+
+private var _openFiles: DateSortedDescriptors<FilePath, OpenFile> = [:]
+private var openFiles: DateSortedDescriptors<FilePath, OpenFile> {
+    get {
+        if _openFiles.autoclose == nil {
+            _openFiles.autoclose = (percentage: 0.1, conditions: fileConditions, priority: .added, min: -1.0, max: -1.0)
+        }
+        return _openFiles
+    }
     set {
         _openFiles = newValue
-        autoclose(_openFiles, percentage: 0.1, conditions: .newer(than: .seconds(5), threshold: 0.25))
+        autoclose(_openFiles, percentage: 0.1, conditions: fileConditions)
+        _openFiles.autoclose = (percentage: 0.1, conditions: fileConditions, priority: .added, min: -1.0, max: -1.0)
     }
 }
 

@@ -6,12 +6,20 @@ typealias DIRType = OpaquePointer
 typealias DIRType = UnsafeMutablePointer<DIR>
 #endif
 
-private var _openDirectories: DateSortedDictionary<DirectoryPath, OpenDirectory> = [:]
-private var openDirectories: DateSortedDictionary<DirectoryPath, OpenDirectory> {
-    get { return _openDirectories }
+private let dirConditions: Conditions = .newer(than: .seconds(5), threshold: 0.25, minCount: 50)
+
+private var _openDirectories: DateSortedDescriptors<DirectoryPath, OpenDirectory> = [:]
+private var openDirectories: DateSortedDescriptors<DirectoryPath, OpenDirectory> {
+    get {
+        if _openDirectories.autoclose == nil {
+            _openDirectories.autoclose = (percentage: 0.1, conditions: dirConditions, priority: .added, min: -1.0, max: -1.0)
+        }
+        return _openDirectories
+    }
     set {
         _openDirectories = newValue
-        autoclose(_openDirectories, percentage: 0.1, conditions: .newer(than: .seconds(5), threshold: 0.25))
+        autoclose(_openDirectories, percentage: 0.1, conditions: dirConditions)
+        _openDirectories.autoclose = (percentage: 0.1, conditions: dirConditions, priority: .added, min: -1.0, max: -1.0)
     }
 }
 
