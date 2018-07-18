@@ -88,4 +88,12 @@ extension Path {
     static func getUserInfo(_ uid: uid_t) -> passwd? {
         return getpwuid(uid)?.pointee
     }
+
+    // Returns a group structure for the specified groupname
+    static func getGroupInfo(_ groupname: String) -> group? {
+        return getgrnam(groupname)?.pointee
+    }
+    static func getGroupInfo(_ gid: gid_t) -> group? {
+        return getgrgid(gid)?.pointee
+    }
 }

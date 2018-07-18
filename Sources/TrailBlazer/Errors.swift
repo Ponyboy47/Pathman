@@ -346,6 +346,28 @@ public enum UserInfoError: TrailBlazerError {
     }
 }
 
+public enum GroupInfoError: TrailBlazerError {
+    case unknown
+    case userDoesNotExist
+    case interruptedBySignal
+    case ioError
+    case noMoreProcessFileDescriptors
+    case noMoreSystemFileDescriptors
+    case outOfMemory
+
+    public static func getError() -> GroupInfoError {
+        switch ErrNo.lastError {
+        case 0, .ENOENT, .ESRCH, .EBADF, .EPERM: return .userDoesNotExist
+        case .EINTR: return .interruptedBySignal
+        case .EIO: return .ioError
+        case .EMFILE: return .noMoreProcessFileDescriptors
+        case .ENFILE: return .noMoreSystemFileDescriptors
+        case .ENOMEM: return .outOfMemory
+        default: return .unknown
+        }
+    }
+}
+
 public enum ReadError: TrailBlazerError {
     case unknown
     case wouldBlock
@@ -485,6 +507,36 @@ public enum WriteError: TrailBlazerError {
         case .ENETUNREACH: return .networkUnreachable
         case .ENXIO: return .deviceError
         #endif
+        default: return .unknown
+        }
+    }
+}
+
+public enum ChangeOwnershipError: TrailBlazerError {
+    case unknown
+    case permissionDenied
+    case badAddress
+    case tooManySymlinks
+    case pathnameTooLong
+    case pathDoesNotExist
+    case noKernelMemory
+    case pathComponentNotDirectory
+    case readOnlyFileSystem
+    case badFileDescriptor
+    case ioError
+
+    public static func getError() -> ChangeOwnershipError {
+        switch ErrNo.lastError {
+        case .EACCES, .EPERM: return .permissionDenied
+        case .EFAULT: return .badAddress
+        case .ELOOP: return .tooManySymlinks
+        case .ENAMETOOLONG: return .pathnameTooLong
+        case .ENOENT: return .pathDoesNotExist
+        case .ENOMEM: return .noKernelMemory
+        case .ENOTDIR: return .pathComponentNotDirectory
+        case .EROFS: return .readOnlyFileSystem
+        case .EBADF: return .badFileDescriptor
+        case .EIO: return .ioError
         default: return .unknown
         }
     }
