@@ -249,6 +249,37 @@ public class DirectoryPath: _Path, Openable, Sequence, IteratorProtocol {
         return self + name
     }
 
+    public func changeRecursive(owner uid: uid_t = ~0, group gid: gid_t = ~0) throws {
+        guard exists else { return }
+
+        try change(owner: uid, group: gid)
+
+        let unopened = dir == nil
+        if unopened {
+            try open()
+        }
+
+        for path in self {
+            if let dir = DirectoryPath(path) {
+                guard !["..", "."].contains(dir.lastComponent) else { continue }
+                try dir.changeRecursive(owner: uid, group: gid)
+            } else {
+                try path.change(owner: uid, group: gid)
+            }
+        }
+
+        if unopened {
+            try close()
+        }
+    }
+
+    public func changeRecursive(owner username: String? = nil, group groupname: String? = nil) throws {
+        let uid: uid_t = username == nil ? ~0 : DirectoryPath.getUserInfo(username!)?.pw_uid ?? ~0
+        let gid: gid_t = groupname == nil ? ~0 : DirectoryPath.getGroupInfo(groupname!)?.gr_gid ?? ~0
+
+        try changeRecursive(owner: uid, group: gid)
+    }
+
     public static func + (lhs: DirectoryPath, rhs: String) -> GenericPath {
         return lhs + GenericPath(rhs)
     }
@@ -282,55 +313,5 @@ public class DirectoryPath: _Path, Openable, Sequence, IteratorProtocol {
 
     deinit {
         try? close()
-    }
-}
-
-public struct DirectoryChildren: Equatable, CustomStringConvertible {
-    public fileprivate(set) var files: [FilePath]
-    public fileprivate(set) var directories: [DirectoryPath]
-    public fileprivate(set) var other: [GenericPath]
-
-    public var description: String {
-        var str: [String] = []
-        if !files.isEmpty {
-            str.append("files:\n\t\(files.map { $0.string } )")
-        }
-        if !directories.isEmpty {
-            str.append("directories:\n\t\(directories.map { $0.string } )")
-        }
-        if !other.isEmpty {
-            str.append("other:\n\t\(other.map { $0.string } )")
-        }
-        return str.joined(separator: "\n\n")
-    }
-
-    public var prettyPrint: String {
-        var str: [String] = []
-        if !files.isEmpty {
-            str.append("files:\n\t\(files.map({ $0.string }).joined(separator: "\n\t"))")
-        }
-        if !directories.isEmpty {
-            str.append("directories:\n\t\(directories.map({ $0.string }).joined(separator: "\n\t"))")
-        }
-        if !other.isEmpty {
-            str.append("other:\n\t\(other.map({ $0.string }).joined(separator: "\n\t"))")
-        }
-        return str.joined(separator: "\n\n")
-    }
-
-    init(files: [FilePath] = [], directories: [DirectoryPath] = [], other: [GenericPath] = []) {
-        self.files = files
-        self.directories = directories
-        self.other = other
-    }
-
-    public static func += (lhs: inout DirectoryChildren, rhs: DirectoryChildren) {
-        lhs.files += rhs.files
-        lhs.directories += rhs.directories
-        lhs.other += rhs.other
-    }
-
-    public static func == (lhs: DirectoryChildren, rhs: DirectoryChildren) -> Bool {
-        return lhs.files == rhs.files && lhs.directories == rhs.directories && lhs.other == rhs.other
     }
 }
