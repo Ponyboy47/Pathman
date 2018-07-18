@@ -16,7 +16,6 @@ private func getCWD() -> DirectoryPath {
 
 fileprivate var currentWorkingDirectory = getCWD()
 
-
 // Used internally to ensure only this framework can modify the path
 protocol _Path: Path {
     /// The underlying path representation
@@ -24,7 +23,7 @@ protocol _Path: Path {
 }
 
 /// A protocol that describes a Path type and the attributes available to it
-public protocol Path: Hashable, Comparable, CustomStringConvertible, StatDelegate {
+public protocol Path: Hashable, Comparable, CustomStringConvertible, Ownable {
     /// The underlying path representation
     var path: String { get }
     /// A String representation of self
@@ -140,5 +139,11 @@ public extension Path {
     }
     public static func < <PathType: Path>(lhs: Self, rhs: PathType) -> Bool {
         return lhs.path < rhs.path
+    }
+
+    public func change(owner uid: uid_t = ~0, group gid: gid_t = ~0) throws {
+        guard chown(string, uid, gid) == 0 else {
+            throw ChangeOwnershipError.getError()
+        }
     }
 }

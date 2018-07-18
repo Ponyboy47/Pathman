@@ -18,7 +18,7 @@ I hate going through Foundation's FileManager. I find it to be an ugly API with 
 ## Installation (SPM)
 Add this to your Package.swift dependencies:
 ```swift
-.package(url: "https://github.com/Ponyboy47/Trailblazer.git", from: "0.3.0")
+.package(url: "https://github.com/Ponyboy47/Trailblazer.git", from: "0.4.0")
 ```
 
 ## Usage
@@ -242,7 +242,7 @@ let children = try dir.recursiveChildren(depth: 5, includeHidden: true)
   - [x] Delete directories
   - [x] Recursively delete directory
 - GenericPath (AKA all Paths)
-  - [ ] Change path ownership
+  - [x] Change path ownership
   - [ ] Change path permissions
   - [ ] Move paths
   - [ ] Rename paths (move alias)

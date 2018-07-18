@@ -6,6 +6,7 @@ import Darwin
 
 public protocol Creatable: Openable {
     associatedtype CreatablePathType: Path & Openable
+    @discardableResult
     func create(mode: FileMode) throws -> Open<CreatablePathType>
 }
 
