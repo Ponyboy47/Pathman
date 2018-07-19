@@ -142,12 +142,16 @@ public extension Path {
     }
 
     public func change(owner uid: uid_t = ~0, group gid: gid_t = ~0) throws {
+        guard exists else { return }
+
         guard chown(string, uid, gid) == 0 else {
             throw ChangeOwnershipError.getError()
         }
     }
 
     public func change(permissions: FileMode) throws {
+        guard exists else { return }
+
         guard chmod(string, permissions.rawValue) == 0 else {
             throw ChangePermissionsError.getError()
         }
