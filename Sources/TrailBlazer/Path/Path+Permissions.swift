@@ -71,17 +71,17 @@ public extension Permissionable {
         let current = permissions
         try change(owner: current.owner, group: current.group, others: current.others, uid: uid, gid: gid, sticky: current.sticky)
     }
-    
+
     public func change(uid: Bool, sticky: Bool) throws {
         let current = permissions
         try change(owner: current.owner, group: current.group, others: current.others, uid: uid, gid: current.gid, sticky: sticky)
     }
- 
+
     public func change(gid: Bool, sticky: Bool) throws {
         let current = permissions
         try change(owner: current.owner, group: current.group, others: current.others, uid: current.uid, gid: gid, sticky: sticky)
     }
-    
+
     public func change(uid: Bool, gid: Bool, sticky: Bool) throws {
         let current = permissions
         try change(owner: current.owner, group: current.group, others: current.others, uid: uid, gid: gid, sticky: sticky)
