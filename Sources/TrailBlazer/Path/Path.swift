@@ -23,7 +23,7 @@ protocol _Path: Path {
 }
 
 /// A protocol that describes a Path type and the attributes available to it
-public protocol Path: Hashable, Comparable, CustomStringConvertible, Ownable {
+public protocol Path: Hashable, Comparable, CustomStringConvertible, Ownable, Permissionable {
     /// The underlying path representation
     var path: String { get }
     /// A String representation of self
@@ -144,6 +144,12 @@ public extension Path {
     public func change(owner uid: uid_t = ~0, group gid: gid_t = ~0) throws {
         guard chown(string, uid, gid) == 0 else {
             throw ChangeOwnershipError.getError()
+        }
+    }
+
+    public func change(permissions: FileMode) throws {
+        guard chmod(string, permissions.rawValue) == 0 else {
+            throw ChangePermissionsError.getError()
         }
     }
 }
