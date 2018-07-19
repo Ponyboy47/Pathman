@@ -541,3 +541,33 @@ public enum ChangeOwnershipError: TrailBlazerError {
         }
     }
 }
+
+public enum ChangePermissionsError: TrailBlazerError {
+    case unknown
+    case permissionDenied
+    case badAddress
+    case ioError
+    case tooManySymlinks
+    case pathnameTooLong
+    case pathDoesNotExist
+    case noKernelMemory
+    case pathComponentNotDirectory
+    case readOnlyFileSystem
+    case badFileDescriptor
+
+    public static func getError() -> ChangePermissionsError {
+        switch ErrNo.lastError {
+        case .EACCES, .EPERM: return .permissionDenied
+        case .EFAULT: return .badAddress
+        case .EIO: return .ioError
+        case .ELOOP: return .tooManySymlinks
+        case .ENAMETOOLONG: return .pathnameTooLong
+        case .ENOENT: return .pathDoesNotExist
+        case .ENOMEM: return .noKernelMemory
+        case .ENOTDIR: return .pathComponentNotDirectory
+        case .EROFS: return .readOnlyFileSystem
+        case .EBADF: return .badFileDescriptor
+        default: return .unknown
+        }
+    }
+}
