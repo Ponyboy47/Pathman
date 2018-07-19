@@ -14,7 +14,7 @@ public protocol Openable: StatDelegate {
 private var _buffers: [UUID: UnsafeMutablePointer<CChar>] = [:]
 private var _bufferSizes: [UUID: OSInt] = [:]
 
-public class Open<PathType: Path & Openable>: Openable, Ownable {
+public class Open<PathType: Path & Openable>: Openable, Ownable, Permissionable {
     public typealias OpenableType = PathType.OpenableType
 
     lazy var id: UUID = {
@@ -67,6 +67,12 @@ public class Open<PathType: Path & Openable>: Openable, Ownable {
     public func change(owner uid: uid_t = ~0, group gid: gid_t = ~0) throws {
         guard fchown(fileDescriptor, uid, gid) == 0 else {
             throw ChangeOwnershipError.getError()
+        }
+    }
+
+    public func change(permissions: FileMode) throws {
+        guard fchmod(fileDescriptor, permissions.rawValue) == 0 else {
+            throw ChangePermissionsError.getError()
         }
     }
 
