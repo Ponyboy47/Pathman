@@ -9,81 +9,31 @@ public extension Permissionable {
         set { try? change(permissions: newValue) }
     }
 
-    public func change(owner: FilePermissions, group: FilePermissions, others: FilePermissions, uid: Bool, gid: Bool, sticky: Bool) throws {
-        try change(permissions: FileMode(owner: owner, group: group, others: others, uid: uid, gid: gid, sticky: sticky))
+    public func change(owner: FilePermissions, group: FilePermissions, others: FilePermissions, bits: FileBits) throws {
+        try change(permissions: FileMode(owner: owner, group: group, others: others, bits: bits))
     }
 
-    public func change(owner perms: FilePermissions...) throws {
+    public func change(owner: FilePermissions? = nil, group: FilePermissions? = nil, others: FilePermissions? = nil, bits: FileBits? = nil) throws {
         let current = permissions
-        try change(owner: FilePermissions(rawValue: perms.reduce(0, { $0 | $1.rawValue })), group: current.group, others: current.others, uid: current.uid, gid: current.gid, sticky: current.sticky)
+        try change(owner: owner ?? current.owner, group: group ?? current.group, others: others ?? current.others, bits: bits ?? current.bits)
     }
 
-    public func change(group perms: FilePermissions...) throws {
+    public func change(ownerGroup perms: FilePermissions, others: FilePermissions? = nil, bits: FileBits? = nil) throws {
         let current = permissions
-        try change(owner: current.owner, group: FilePermissions(rawValue: perms.reduce(0, { $0 | $1.rawValue })), others: current.others, uid: current.uid, gid: current.gid, sticky: current.sticky)
+        try change(owner: perms, group: perms, others: current.others, bits: bits ?? current.bits)
     }
 
-    public func change(others perms: FilePermissions...) throws {
+    public func change(ownerOthers perms: FilePermissions, group: FilePermissions? = nil, bits: FileBits? = nil) throws {
         let current = permissions
-        try change(owner: current.owner, group: current.group, others: FilePermissions(rawValue: perms.reduce(0, { $0 | $1.rawValue })), uid: current.uid, gid: current.gid, sticky: current.sticky)
+        try change(owner: perms, group: group ?? current.group, others: perms, bits: bits ?? current.bits)
     }
 
-    public func change(ownerGroup perms: FilePermissions...) throws {
-        let perm = FilePermissions(rawValue: perms.reduce(0, { $0 | $1.rawValue }))
+    public func change(groupOthers perms: FilePermissions, owner: FilePermissions? = nil, bits: FileBits? = nil) throws {
         let current = permissions
-        try change(owner: perm, group: perm, others: current.others, uid: current.uid, gid: current.gid, sticky: current.sticky)
+        try change(owner: owner ?? current.owner, group: perms, others: perms, bits: bits ?? current.bits)
     }
 
-    public func change(ownerOthers perms: FilePermissions...) throws {
-        let perm = FilePermissions(rawValue: perms.reduce(0, { $0 | $1.rawValue }))
-        let current = permissions
-        try change(owner: perm, group: current.group, others: perm, uid: current.uid, gid: current.gid, sticky: current.sticky)
-    }
-
-    public func change(groupOthers perms: FilePermissions...) throws {
-        let perm = FilePermissions(rawValue: perms.reduce(0, { $0 | $1.rawValue }))
-        let current = permissions
-        try change(owner: current.owner, group: perm, others: perm, uid: current.uid, gid: current.gid, sticky: current.sticky)
-    }
-
-    public func change(ownerGroupOthers perms: FilePermissions...) throws {
-        let perm = FilePermissions(rawValue: perms.reduce(0, { $0 | $1.rawValue }))
-        let current = permissions
-        try change(owner: perm, group: perm, others: perm, uid: current.uid, gid: current.gid, sticky: current.sticky)
-    }
-
-    public func change(uid: Bool) throws {
-        let current = permissions
-        try change(owner: current.owner, group: current.group, others: current.others, uid: uid, gid: current.gid, sticky: current.sticky)
-    }
-
-    public func change(gid: Bool) throws {
-        let current = permissions
-        try change(owner: current.owner, group: current.group, others: current.others, uid: current.uid, gid: gid, sticky: current.sticky)
-    }
-
-    public func change(sticky: Bool) throws {
-        let current = permissions
-        try change(owner: current.owner, group: current.group, others: current.others, uid: current.uid, gid: current.gid, sticky: sticky)
-    }
-
-    public func change(uid: Bool, gid: Bool) throws {
-        let current = permissions
-        try change(owner: current.owner, group: current.group, others: current.others, uid: uid, gid: gid, sticky: current.sticky)
-    }
-
-    public func change(uid: Bool, sticky: Bool) throws {
-        let current = permissions
-        try change(owner: current.owner, group: current.group, others: current.others, uid: uid, gid: current.gid, sticky: sticky)
-    }
-
-    public func change(gid: Bool, sticky: Bool) throws {
-        let current = permissions
-        try change(owner: current.owner, group: current.group, others: current.others, uid: current.uid, gid: gid, sticky: sticky)
-    }
-
-    public func change(uid: Bool, gid: Bool, sticky: Bool) throws {
-        let current = permissions
-        try change(owner: current.owner, group: current.group, others: current.others, uid: uid, gid: gid, sticky: sticky)
+    public func change(ownerGroupOthers perms: FilePermissions, bits: FileBits? = nil) throws {
+        try change(owner: perms, group: perms, others: perms, bits: bits ?? permissions.bits)
     }
 }
