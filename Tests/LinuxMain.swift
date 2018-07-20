@@ -20,4 +20,5 @@ XCTMain([
     // part of (too much work to get the list of groups the process's user
     // is a part of)
     testCase(geteuid() == 0 ? ChownTests.allTests : []),
+    testCase(ChmodTests.allTests),
 ])

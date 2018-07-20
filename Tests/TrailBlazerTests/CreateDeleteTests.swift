@@ -18,7 +18,7 @@ class CreateDeleteTests: XCTestCase {
         }
 
         do {
-            let open = try file.create(mode: .ownerGroupOthers(.read, .write))
+            let open = try file.create(mode: .ownerGroupOthers(.readWrite))
             XCTAssertTrue(file.exists)
             XCTAssertTrue(file.isFile)
             try open.write("Hello World")
@@ -42,7 +42,7 @@ class CreateDeleteTests: XCTestCase {
             return
         }
 
-        XCTAssertNoThrow(try dir.create(mode: .ownerGroupOthers(.read, .write)))
+        XCTAssertNoThrow(try dir.create(mode: .ownerGroupOthers(.readWrite)))
         XCTAssertTrue(dir.exists)
         XCTAssertTrue(dir.isDirectory)
     }
@@ -62,7 +62,7 @@ class CreateDeleteTests: XCTestCase {
             return
         }
 
-        try? dir.create(mode: .ownerGroupOthers(.read, .write, .execute))
+        try? dir.create(mode: .ownerGroupOthers(.readWriteExecute))
         XCTAssertTrue(dir.exists)
 
         for num in 1...10 {
@@ -72,7 +72,7 @@ class CreateDeleteTests: XCTestCase {
             }
 
             do {
-                try file.create(mode: .ownerGroupOthers(.read, .write))
+                try file.create(mode: .ownerGroupOthers(.readWrite))
                 XCTAssertTrue(file.exists)
                 XCTAssertTrue(file.isFile)
             } catch OpenFileError.pathExists {

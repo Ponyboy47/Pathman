@@ -28,33 +28,25 @@ class FilePermissionsTests: XCTestCase {
     }
 
     func testReadWrite() {
-        var perms: FilePermissions = [.read, .write]
-        XCTAssertEqual(perms.rawValue, 0o6)
-        perms = FilePermissions(.read, .write)
+        let perms: FilePermissions = [.read, .write]
         XCTAssertEqual(perms.rawValue, 0o6)
         XCTAssertEqual(FilePermissions("rw-"), perms)
     }
 
     func testReadExecute() {
-        var perms: FilePermissions = [.read, .execute]
-        XCTAssertEqual(perms.rawValue, 0o5)
-        perms = FilePermissions(.read, .execute)
+        let perms: FilePermissions = [.read, .execute]
         XCTAssertEqual(perms.rawValue, 0o5)
         XCTAssertEqual(FilePermissions("r-x"), perms)
     }
 
     func testWriteExecute() {
-        var perms: FilePermissions = [.write, .execute]
-        XCTAssertEqual(perms.rawValue, 0o3)
-        perms = FilePermissions(.write, .execute)
+        let perms: FilePermissions = [.write, .execute]
         XCTAssertEqual(perms.rawValue, 0o3)
         XCTAssertEqual(FilePermissions("-wx"), perms)
     }
 
     func testReadWriteExecute() {
-        var perms: FilePermissions = [.read, .write, .execute]
-        XCTAssertEqual(perms.rawValue, 0o7)
-        perms = FilePermissions(.read, .write, .execute)
+        let perms: FilePermissions = [.read, .write, .execute]
         XCTAssertEqual(perms.rawValue, 0o7)
         XCTAssertEqual(FilePermissions("rwx"), perms)
     }

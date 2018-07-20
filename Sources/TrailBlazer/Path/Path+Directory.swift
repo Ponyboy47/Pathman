@@ -280,6 +280,58 @@ public class DirectoryPath: _Path, Openable, Sequence, IteratorProtocol {
         try changeRecursive(owner: uid, group: gid)
     }
 
+    public func changeRecursive(permissions: FileMode) throws {
+        guard exists else { return }
+
+        try change(permissions: permissions)
+
+        let unopened = dir == nil
+        if unopened {
+            try open()
+        }
+
+        for path in self {
+            if let dir = DirectoryPath(path) {
+                guard !["..", "."].contains(dir.lastComponent) else { continue }
+                try dir.changeRecursive(permissions: permissions)
+            } else {
+                try path.change(permissions: permissions)
+            }
+        }
+
+        if unopened {
+            try close()
+        }
+    }
+
+    public func changeRecursive(owner: FilePermissions, group: FilePermissions, others: FilePermissions, bits: FileBits) throws {
+        try changeRecursive(permissions: FileMode(owner: owner, group: group, others: others, bits: bits))
+    }
+
+    public func changeRecursive(owner: FilePermissions? = nil, group: FilePermissions? = nil, others: FilePermissions? = nil, bits: FileBits? = nil) throws {
+        let current = permissions
+        try changeRecursive(owner: owner ?? current.owner, group: group ?? current.group, others: others ?? current.others, bits: bits ?? current.bits)
+    }
+
+    public func changeRecursive(ownerGroup perms: FilePermissions, others: FilePermissions? = nil, bits: FileBits? = nil) throws {
+        let current = permissions
+        try changeRecursive(owner: perms, group: perms, others: current.others, bits: bits ?? current.bits)
+    }
+
+    public func changeRecursive(ownerOthers perms: FilePermissions, group: FilePermissions? = nil, bits: FileBits? = nil) throws {
+        let current = permissions
+        try changeRecursive(owner: perms, group: group ?? current.group, others: perms, bits: bits ?? current.bits)
+    }
+
+    public func changeRecursive(groupOthers perms: FilePermissions, owner: FilePermissions? = nil, bits: FileBits? = nil) throws {
+        let current = permissions
+        try changeRecursive(owner: owner ?? current.owner, group: perms, others: perms, bits: bits ?? current.bits)
+    }
+
+    public func changeRecursive(ownerGroupOthers perms: FilePermissions, bits: FileBits? = nil) throws {
+        try changeRecursive(owner: perms, group: perms, others: perms, bits: bits ?? permissions.bits)
+    }
+
     public static func + (lhs: DirectoryPath, rhs: String) -> GenericPath {
         return lhs + GenericPath(rhs)
     }
