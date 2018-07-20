@@ -33,7 +33,7 @@ class ChownTests: XCTestCase {
 
         if !file.exists {
             do {
-                try file.create(mode: .ownerGroupOthers(.read, .write, .execute))
+                try file.create(mode: .ownerGroupOthers(.all))
             } catch {
                 XCTFail("Failed to create test path => \(file)")
                 return
@@ -66,7 +66,7 @@ class ChownTests: XCTestCase {
 
         if !file.exists {
             do {
-                try file.create(mode: .ownerGroupOthers(.read, .write, .execute))
+                try file.create(mode: .ownerGroupOthers(.all))
             } catch {
                 XCTFail("Failed to create test path => \(file)")
                 return
@@ -100,7 +100,7 @@ class ChownTests: XCTestCase {
 
         if !file.exists {
             do {
-                try file.create(mode: .ownerGroupOthers(.read, .write, .execute))
+                try file.create(mode: .ownerGroupOthers(.all))
             } catch {
                 XCTFail("Failed to create test path => \(file)")
                 return
@@ -128,7 +128,7 @@ class ChownTests: XCTestCase {
 
         if !file.exists {
             do {
-                try file.create(mode: .ownerGroupOthers(.read, .write, .execute))
+                try file.create(mode: .ownerGroupOthers(.all))
             } catch {
                 XCTFail("Failed to create test path => \(file)")
                 return
