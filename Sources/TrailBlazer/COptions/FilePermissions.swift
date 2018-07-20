@@ -41,7 +41,7 @@ public struct FilePermissions: OptionSet, ExpressibleByStringLiteral, Expressibl
     public init(rawValue: IntegerLiteralType) {
         self.rawValue = rawValue
     }
- 
+
     public init(_ perms: FilePermissions...) {
         rawValue = perms.reduce(0, { $0 | $1.rawValue })
     }

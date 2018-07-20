@@ -18,7 +18,7 @@ I hate going through Foundation's FileManager. I find it to be an ugly API with 
 ## Installation (SPM)
 Add this to your Package.swift dependencies:
 ```swift
-.package(url: "https://github.com/Ponyboy47/Trailblazer.git", from: "0.4.0")
+.package(url: "https://github.com/Ponyboy47/Trailblazer.git", from: "0.5.0")
 ```
 
 ## Usage
@@ -40,13 +40,11 @@ let genericSlice = GenericPath(["/", "tmp", "test"].dropLast())
 
 // fails
 guard let file = FilePath("/tmp") else {
-    print("Path is not a file")
-    return
+    fatalError("Path is not a file")
 }
 // succeeds
 guard let directory = DirectoryPath("/tmp") else {
-    print("Path is not a directory")
-    return
+    fatalError("Path is not a directory")
 }
 ```
 
@@ -198,7 +196,7 @@ NOTE: You can also pass a `Data` instance to the write function instead of a Str
 Immediate children:
 ```swift
 guard let dir = DirectoryPath("/tmp") else {
-    fatalError("Path is not a directiry")
+    fatalError("Path is not a directory")
 }
 
 let children = try dir.children()
@@ -211,7 +209,7 @@ let children = openDir.children()
 Recursive Children:
 ```swift
 guard let dir = DirectoryPath("/tmp") else {
-    fatalError("Path is not a directiry")
+    fatalError("Path is not a directory")
 }
 
 let children = try dir.recursiveChildren()
@@ -232,6 +230,72 @@ let children = try dir.children(includeHidden: true)
 let children = try dir.recursiveChildren(depth: 5, includeHidden: true)
 ```
 
+### Changing Path Metadata:
+
+Ownership:
+```swift
+let path = GenericPath("/tmp")
+
+// Owner/Group can be changed separately or together
+try path.change(owner: "ponyboy47")
+try path.change(group: "ponyboy47")
+try path.change(owner: "ponyboy47", group: "ponyboy47")
+
+// You can also set them through the corresponding properties:
+// NOTE: Setting them this way is NOT guarenteed to succeed and any errors
+// thrown are ignored. If you need a reliant way to set path ownership then you
+// should call the `change` method directly
+path.owner = 0
+path.group = 1000
+path.ownerName = "root"
+path.groupName = "wheel"
+
+// If you have a DirectoryPath, then changes can be made recursively:
+guard let dir = DirectoryPath(path) else {
+    fatalError("Path is not a directory")
+}
+
+try dir.recursiveChange(owner: "ponyboy47")
+```
+
+Permissions:
+```swift
+let path = GenericPath("/tmp")
+
+// Owner/Group/Others permissions can each be changed separately or in any combination (permissions that are not specified are not changed)
+try path.change(owner: [.read, .write, .execute]) // Only changes the owner's permissions
+try path.change(group: .readWrite) // Only changes the group's permissions
+try path.change(others: .none) // Only changes other's permissions
+try path.change(ownerGroup: .all) // Only changes owner's and group's permissions
+try path.change(groupOthers: .read) // Only changes group's and other's permissions
+try path.change(ownerOthers: .writeExecute) // Only changes owner's and other's permissions
+try path.change(ownerGroupOthers: .all) // Changes all permissions
+
+// You can also change the uid, gid, and sticky bits
+try path.change(bits: .uid)
+try path.change(bits: .gid)
+try path.change(bits: .sticky)
+try path.change(bits: [.uid, .sticky])
+try path.change(bits: .all)
+
+// You can also set them through the permissions property:
+// NOTE: Setting them this way is NOT guarenteed to succeed and any errors
+// thrown are ignored. If you need a reliant way to set path ownership then you
+// should call the `change` method directly
+path.permissions = FileMode(owner: .readWriteExecute, group: .readWrite, others: .read)
+path.permissions.owner = .readWriteExecute
+path.permissions.group = .readWrite
+path.permissions.others = .read
+path.permissions.bits = .none
+
+// If you have a DirectoryPath, then changes can be made recursively:
+guard let dir = DirectoryPath(path) else {
+    fatalError("Path is not a directory")
+}
+
+try dir.recursiveChange(owner: .readWriteExecute, group: .readWrite, others: .read)
+```
+
 ## To Do
 - FilePath
   - [x] Create new files
@@ -243,7 +307,7 @@ let children = try dir.recursiveChildren(depth: 5, includeHidden: true)
   - [x] Recursively delete directory
 - GenericPath (AKA all Paths)
   - [x] Change path ownership
-  - [ ] Change path permissions
+  - [x] Change path permissions
   - [ ] Move paths
   - [ ] Rename paths (move alias)
 - Misc. Additions
@@ -253,3 +317,4 @@ let children = try dir.recursiveChildren(depth: 5, includeHidden: true)
   - [ ] FIFOPath?
   - [ ] BlockPath?
   - [ ] CharacterPath?
+- Investigate TypeErasure to see if it could benefit Paths and Open objects interact together more nicely
