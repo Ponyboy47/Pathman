@@ -18,22 +18,30 @@ class FileModeTests: XCTestCase {
     }
 
     func testOwnerReadWrite() {
-        let mode: FileMode = .owner(.read, .write)
+        var mode: FileMode = .owner([.read, .write])
+        XCTAssertEqual(mode.rawValue, 0o600)
+        mode = .owner(.readWrite)
         XCTAssertEqual(mode.rawValue, 0o600)
     }
 
     func testOwnerReadExecute() {
-        let mode: FileMode = .owner(.read, .execute)
+        var mode: FileMode = .owner([.read, .execute])
+        XCTAssertEqual(mode.rawValue, 0o500)
+        mode = .owner(.readExecute)
         XCTAssertEqual(mode.rawValue, 0o500)
     }
 
     func testOwnerWriteExecute() {
-        let mode: FileMode = .owner(.write, .execute)
+        var mode: FileMode = .owner([.write, .execute])
+        XCTAssertEqual(mode.rawValue, 0o300)
+        mode = .owner(.writeExecute)
         XCTAssertEqual(mode.rawValue, 0o300)
     }
 
     func testOwnerReadWriteExecute() {
-        let mode: FileMode = .owner(.read, .write, .execute)
+        var mode: FileMode = .owner([.read, .write, .execute])
+        XCTAssertEqual(mode.rawValue, 0o700)
+        mode = .owner(.readWriteExecute)
         XCTAssertEqual(mode.rawValue, 0o700)
     }
 
@@ -53,22 +61,30 @@ class FileModeTests: XCTestCase {
     }
 
     func testGroupReadWrite() {
-        let mode: FileMode = .group(.read, .write)
+        var mode: FileMode = .group([.read, .write])
+        XCTAssertEqual(mode.rawValue, 0o60)
+        mode = .group(.readWrite)
         XCTAssertEqual(mode.rawValue, 0o60)
     }
 
     func testGroupReadExecute() {
-        let mode: FileMode = .group(.read, .execute)
+        var mode: FileMode = .group([.read, .execute])
+        XCTAssertEqual(mode.rawValue, 0o50)
+        mode = .group(.readExecute)
         XCTAssertEqual(mode.rawValue, 0o50)
     }
 
     func testGroupWriteExecute() {
-        let mode: FileMode = .group(.write, .execute)
+        var mode: FileMode = .group([.write, .execute])
+        XCTAssertEqual(mode.rawValue, 0o30)
+        mode = .group(.writeExecute)
         XCTAssertEqual(mode.rawValue, 0o30)
     }
 
     func testGroupReadWriteExecute() {
-        let mode: FileMode = .group(.read, .write, .execute)
+        var mode: FileMode = .group([.read, .write, .execute])
+        XCTAssertEqual(mode.rawValue, 0o70)
+        mode = .group(.readWriteExecute)
         XCTAssertEqual(mode.rawValue, 0o70)
     }
 
@@ -88,22 +104,30 @@ class FileModeTests: XCTestCase {
     }
 
     func testOthersReadWrite() {
-        let mode: FileMode = .others(.read, .write)
+        var mode: FileMode = .others([.read, .write])
+        XCTAssertEqual(mode.rawValue, 0o6)
+        mode = .others(.readWrite)
         XCTAssertEqual(mode.rawValue, 0o6)
     }
 
     func testOthersReadExecute() {
-        let mode: FileMode = .others(.read, .execute)
+        var mode: FileMode = .others([.read, .execute])
+        XCTAssertEqual(mode.rawValue, 0o5)
+        mode = .others(.readExecute)
         XCTAssertEqual(mode.rawValue, 0o5)
     }
 
     func testOthersWriteExecute() {
-        let mode: FileMode = .others(.write, .execute)
+        var mode: FileMode = .others([.write, .execute])
+        XCTAssertEqual(mode.rawValue, 0o3)
+        mode = .others(.writeExecute)
         XCTAssertEqual(mode.rawValue, 0o3)
     }
 
     func testOthersReadWriteExecute() {
-        let mode: FileMode = .others(.read, .write, .execute)
+        var mode: FileMode = .others([.read, .write, .execute])
+        XCTAssertEqual(mode.rawValue, 0o7)
+        mode = .others(.readWriteExecute)
         XCTAssertEqual(mode.rawValue, 0o7)
     }
 
@@ -123,22 +147,30 @@ class FileModeTests: XCTestCase {
     }
 
     func testOwnerGroupReadWrite() {
-        let mode: FileMode = .ownerGroup(.read, .write)
+        var mode: FileMode = .ownerGroup([.read, .write])
+        XCTAssertEqual(mode.rawValue, 0o660)
+        mode = .ownerGroup(.readWrite)
         XCTAssertEqual(mode.rawValue, 0o660)
     }
 
     func testOwnerGroupReadExecute() {
-        let mode: FileMode = .ownerGroup(.read, .execute)
+        var mode: FileMode = .ownerGroup([.read, .execute])
+        XCTAssertEqual(mode.rawValue, 0o550)
+        mode = .ownerGroup(.readExecute)
         XCTAssertEqual(mode.rawValue, 0o550)
     }
 
     func testOwnerGroupWriteExecute() {
-        let mode: FileMode = .ownerGroup(.write, .execute)
+        var mode: FileMode = .ownerGroup([.write, .execute])
+        XCTAssertEqual(mode.rawValue, 0o330)
+        mode = .ownerGroup(.writeExecute)
         XCTAssertEqual(mode.rawValue, 0o330)
     }
 
     func testOwnerGroupReadWriteExecute() {
-        let mode: FileMode = .ownerGroup(.read, .write, .execute)
+        var mode: FileMode = .ownerGroup([.read, .write, .execute])
+        XCTAssertEqual(mode.rawValue, 0o770)
+        mode = .ownerGroup(.readWriteExecute)
         XCTAssertEqual(mode.rawValue, 0o770)
     }
 
@@ -158,22 +190,30 @@ class FileModeTests: XCTestCase {
     }
 
     func testOwnerOthersReadWrite() {
-        let mode: FileMode = .ownerOthers(.read, .write)
+        var mode: FileMode = .ownerOthers([.read, .write])
+        XCTAssertEqual(mode.rawValue, 0o606)
+        mode = .ownerOthers(.readWrite)
         XCTAssertEqual(mode.rawValue, 0o606)
     }
 
     func testOwnerOthersReadExecute() {
-        let mode: FileMode = .ownerOthers(.read, .execute)
+        var mode: FileMode = .ownerOthers([.read, .execute])
+        XCTAssertEqual(mode.rawValue, 0o505)
+        mode = .ownerOthers(.readExecute)
         XCTAssertEqual(mode.rawValue, 0o505)
     }
 
     func testOwnerOthersWriteExecute() {
-        let mode: FileMode = .ownerOthers(.write, .execute)
+        var mode: FileMode = .ownerOthers([.write, .execute])
+        XCTAssertEqual(mode.rawValue, 0o303)
+        mode = .ownerOthers(.writeExecute)
         XCTAssertEqual(mode.rawValue, 0o303)
     }
 
     func testOwnerOthersReadWriteExecute() {
-        let mode: FileMode = .ownerOthers(.read, .write, .execute)
+        var mode: FileMode = .ownerOthers([.read, .write, .execute])
+        XCTAssertEqual(mode.rawValue, 0o707)
+        mode = .ownerOthers(.readWriteExecute)
         XCTAssertEqual(mode.rawValue, 0o707)
     }
 
@@ -193,22 +233,30 @@ class FileModeTests: XCTestCase {
     }
 
     func testGroupOthersReadWrite() {
-        let mode: FileMode = .groupOthers(.read, .write)
+        var mode: FileMode = .groupOthers([.read, .write])
+        XCTAssertEqual(mode.rawValue, 0o66)
+        mode = .groupOthers(.readWrite)
         XCTAssertEqual(mode.rawValue, 0o66)
     }
 
     func testGroupOthersReadExecute() {
-        let mode: FileMode = .groupOthers(.read, .execute)
+        var mode: FileMode = .groupOthers([.read, .execute])
+        XCTAssertEqual(mode.rawValue, 0o55)
+        mode = .groupOthers(.readExecute)
         XCTAssertEqual(mode.rawValue, 0o55)
     }
 
     func testGroupOthersWriteExecute() {
-        let mode: FileMode = .groupOthers(.write, .execute)
+        var mode: FileMode = .groupOthers([.write, .execute])
+        XCTAssertEqual(mode.rawValue, 0o33)
+        mode = .groupOthers(.writeExecute)
         XCTAssertEqual(mode.rawValue, 0o33)
     }
 
     func testGroupOthersReadWriteExecute() {
-        let mode: FileMode = .groupOthers(.read, .write, .execute)
+        var mode: FileMode = .groupOthers([.read, .write, .execute])
+        XCTAssertEqual(mode.rawValue, 0o77)
+        mode = .groupOthers(.readWriteExecute)
         XCTAssertEqual(mode.rawValue, 0o77)
     }
 
@@ -228,22 +276,30 @@ class FileModeTests: XCTestCase {
     }
 
     func testOwnerGroupOthersReadWrite() {
-        let mode: FileMode = .ownerGroupOthers(.read, .write)
+        var mode: FileMode = .ownerGroupOthers([.read, .write])
+        XCTAssertEqual(mode.rawValue, 0o666)
+        mode = .ownerGroupOthers(.readWrite)
         XCTAssertEqual(mode.rawValue, 0o666)
     }
 
     func testOwnerGroupOthersReadExecute() {
-        let mode: FileMode = .ownerGroupOthers(.read, .execute)
+        var mode: FileMode = .ownerGroupOthers([.read, .execute])
+        XCTAssertEqual(mode.rawValue, 0o555)
+        mode = .ownerGroupOthers(.readExecute)
         XCTAssertEqual(mode.rawValue, 0o555)
     }
 
     func testOwnerGroupOthersWriteExecute() {
-        let mode: FileMode = .ownerGroupOthers(.write, .execute)
+        var mode: FileMode = .ownerGroupOthers([.write, .execute])
+        XCTAssertEqual(mode.rawValue, 0o333)
+        mode = .ownerGroupOthers(.writeExecute)
         XCTAssertEqual(mode.rawValue, 0o333)
     }
 
     func testOwnerGroupOthersReadWriteExecute() {
-        let mode: FileMode = .ownerGroupOthers(.read, .write, .execute)
+        var mode: FileMode = .ownerGroupOthers([.read, .write, .execute])
+        XCTAssertEqual(mode.rawValue, 0o777)
+        mode = .ownerGroupOthers(.readWriteExecute)
         XCTAssertEqual(mode.rawValue, 0o777)
     }
 
