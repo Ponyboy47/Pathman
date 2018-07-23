@@ -37,9 +37,9 @@ extension Path {
         guard isRelative else { return self }
 
         // realpath(3) fails if the path is null
-        guard !path.isEmpty else { return self }
+        guard !_path.isEmpty else { return self }
 
-        var str = path
+        var str = _path
 
         if str.hasPrefix("~") {
             let home = try Self.getHome()

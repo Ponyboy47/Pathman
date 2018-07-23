@@ -1,9 +1,11 @@
 #if os(Linux)
 import Glibc
 let cStat = Glibc.lstat
+let cRename = Glibc.rename
 #else
 import Darwin
 let cStat = Darwin.lstat
+let cRename = Darwin.rename
 #endif
 
 let pathSeparator: String = "/"
@@ -16,16 +18,10 @@ private func getCWD() -> DirectoryPath {
 
 fileprivate var currentWorkingDirectory = getCWD()
 
-// Used internally to ensure only this framework can modify the path
-protocol _Path: Path {
-    /// The underlying path representation
-    var path: String { get set }
-}
-
 /// A protocol that describes a Path type and the attributes available to it
-public protocol Path: Hashable, Comparable, CustomStringConvertible, Ownable, Permissionable {
+public protocol Path: Hashable, Comparable, CustomStringConvertible, Ownable, Permissionable, Movable {
     /// The underlying path representation
-    var path: String { get }
+    var _path: String { get set }
     /// A String representation of self
     var string: String { get }
     /// The character used to separate components of a path
@@ -72,24 +68,39 @@ public extension Path {
     }
 
     public var hashValue: Int {
-        return path.hashValue
+        return string.hashValue
     }
 
     public var string: String {
-        return path
+        return _path
     }
 
     /// The different elements that make up the path
     public var components: [String] {
         var comps = string.components(separatedBy: Self.separator)
-        if path.hasPrefix(Self.separator) {
+        if string.hasPrefix(Self.separator) {
             comps.insert(Self.separator, at: 0)
         }
         return comps.filter { !$0.isEmpty }
     }
     /// The last element of the path
-    public var lastComponent: String {
-        return components.last ?? ""
+    public var lastComponent: String? {
+        return components.last
+    }
+
+    public var lastComponentWithoutExtension: String? {
+        guard let last = lastComponent else { return nil }
+        return String(last.prefix(last.count - (`extension`?.count ?? 0)))
+    }
+
+    /// The extension of the path
+    public var `extension`: String? {
+        guard let last = lastComponent else { return nil }
+
+        let comps = last.components(separatedBy: ".")
+        guard comps.count > 1 else { return nil }
+
+        return comps.last!
     }
 
     /// The directy one level above the current Self's location
@@ -120,7 +131,7 @@ public extension Path {
         #else
         s = Darwin.stat()
         #endif
-        return cStat(path, &s) == 0
+        return cStat(string, &s) == 0
     }
 
     public var description: String {
@@ -128,17 +139,17 @@ public extension Path {
     }
 
     public static func == (lhs: Self, rhs: Self) -> Bool {
-        return lhs.path == rhs.path
+        return lhs.string == rhs.string
     }
     public static func == <PathType: Path>(lhs: Self, rhs: PathType) -> Bool {
-        return lhs.path == rhs.path
+        return lhs.string == rhs.string
     }
 
     public static func < (lhs: Self, rhs: Self) -> Bool {
-        return lhs.path < rhs.path
+        return lhs.string < rhs.string
     }
     public static func < <PathType: Path>(lhs: Self, rhs: PathType) -> Bool {
-        return lhs.path < rhs.path
+        return lhs.string < rhs.string
     }
 
     public func change(owner uid: uid_t = ~0, group gid: gid_t = ~0) throws {
@@ -155,5 +166,17 @@ public extension Path {
         guard chmod(string, permissions.rawValue) == 0 else {
             throw ChangePermissionsError.getError()
         }
+    }
+
+    public mutating func move<PathType: Path>(to newPath: PathType) throws {
+        guard self is PathType else {
+            throw MoveError.moveToDifferentPathType
+        }
+
+        guard cRename(string, newPath.string) == 0 else {
+            throw MoveError.getError()
+        }
+
+        _path = newPath.string
     }
 }

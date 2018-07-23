@@ -28,10 +28,10 @@ private var openFiles: DateSortedDescriptors<FilePath, OpenFile> {
 }
 
 /// A Path to a file
-public class FilePath: _Path, Openable {
+public class FilePath: Path, Openable {
     public typealias OpenableType = FilePath
 
-    public internal(set) var path: String
+    public var _path: String
     public internal(set) var fileDescriptor: FileDescriptor = -1
     public internal(set) var options: OptionInt = 0
     public internal(set) var mode: FileMode? = nil
@@ -48,11 +48,11 @@ public class FilePath: _Path, Openable {
 
     /// Initialize from an array of path elements
     public required init?(_ components: [String]) {
-        path = components.filter({ !$0.isEmpty && $0 != FilePath.separator}).joined(separator: GenericPath.separator)
+        _path = components.filter({ !$0.isEmpty && $0 != FilePath.separator}).joined(separator: GenericPath.separator)
         if let first = components.first, first == FilePath.separator {
-            path = first + path
+            _path = first + _path
         }
-        _info = StatInfo(path)
+        _info = StatInfo(_path)
 
         if exists {
             guard isFile else { return nil }
@@ -71,11 +71,11 @@ public class FilePath: _Path, Openable {
 
     public required init?(_ str: String) {
         if str.count > 1 && str.hasSuffix(FilePath.separator) {
-            path = String(str.dropLast())
+            _path = String(str.dropLast())
         } else {
-            path = str
+            _path = str
         }
-        _info = StatInfo(path)
+        _info = StatInfo(_path)
 
         if exists {
             guard isFile else { return nil }
@@ -86,7 +86,7 @@ public class FilePath: _Path, Openable {
         // Cannot initialize a file from a directory
         guard PathType.self != DirectoryPath.self else { return nil }
 
-        self.path = path.path
+        self._path = path._path
         self._info = path.info
 
         if exists {

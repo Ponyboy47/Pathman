@@ -32,12 +32,12 @@ extension DirectoryPath: Deletable {
 
 extension Open: Deletable where PathType: Deletable {
     public func delete() throws {
-        try path.delete()
+        try _path.delete()
     }
 }
 
 extension Open where PathType: DirectoryPath {
     public func recursiveDelete() throws {
-        try path.recursiveDelete()
+        try _path.recursiveDelete()
     }
 }

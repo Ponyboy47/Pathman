@@ -20,10 +20,10 @@ public class Open<PathType: Path & Openable>: Openable, Ownable, Permissionable 
     lazy var id: UUID = {
         return UUID()
     }()
-    public let path: PathType
-    public var fileDescriptor: FileDescriptor { return path.fileDescriptor }
-    public var options: OptionInt { return path.options }
-    public var mode: FileMode? { return path.mode }
+    public let _path: PathType
+    public var fileDescriptor: FileDescriptor { return _path.fileDescriptor }
+    public var options: OptionInt { return _path.options }
+    public var mode: FileMode? { return _path.mode }
     public var offset: OSInt = 0
 
     var _info: StatInfo = StatInfo()
@@ -50,18 +50,18 @@ public class Open<PathType: Path & Openable>: Openable, Ownable, Permissionable 
     }
 
     init(_ path: PathType) {
-        self.path = path
+        self._path = path
         self._info.fileDescriptor = self.fileDescriptor
-        self._info.path = path.path
+        self._info._path = path._path
     }
 
     @available(*, renamed: "PathType.open", message: "You should use the path's open function rather than calling this directly.")
     public func open(options: OptionInt, mode: FileMode? = nil) throws -> Open<OpenableType> {
-        return try path.open(options: options, mode: mode)
+        return try _path.open(options: options, mode: mode)
     }
 
     public func close() throws {
-        try path.close()
+        try _path.close()
     }
 
     public func change(owner uid: uid_t = ~0, group gid: gid_t = ~0) throws {
@@ -84,6 +84,6 @@ public class Open<PathType: Path & Openable>: Openable, Ownable, Permissionable 
 
 extension Open: Equatable where PathType: Equatable {
     public static func == <OtherPathType: Path & Openable>(lhs: Open<PathType>, rhs: Open<OtherPathType>) -> Bool {
-        return lhs.path == rhs.path && lhs.fileDescriptor == rhs.fileDescriptor && lhs.options == rhs.options && lhs.mode == rhs.mode
+        return lhs._path == rhs._path && lhs.fileDescriptor == rhs.fileDescriptor && lhs.options == rhs.options && lhs.mode == rhs.mode
     }
 }

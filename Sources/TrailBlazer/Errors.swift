@@ -590,6 +590,7 @@ public enum MoveError: TrailBlazerError {
     case newPathIsNonEmptyDirectory
     case readOnlyFileSystem
     case pathsOnDifferentFileSystems
+    case moveToDifferentPathType
 
     public static func getError() -> MoveError {
         switch ErrNo.lastError {
