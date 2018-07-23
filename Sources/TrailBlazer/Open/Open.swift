@@ -50,9 +50,9 @@ public class Open<PathType: Path & Openable>: Openable, Ownable, Permissionable 
     }
 
     init(_ path: PathType) {
-        self._path = path
-        self._info.fileDescriptor = self.fileDescriptor
-        self._info._path = path._path
+        _path = path
+        _info.fileDescriptor = self.fileDescriptor
+        _info._path = path._path
     }
 
     @available(*, renamed: "PathType.open", message: "You should use the path's open function rather than calling this directly.")

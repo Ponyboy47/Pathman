@@ -27,8 +27,8 @@ public struct StatInfo: StatDescriptor, StatPath {
     mutating func getInfo(options: StatOptions = []) throws {
         if let fd = self.fileDescriptor {
             try StatInfo.update(fd, &self.buffer)
-        } else if let _path = self._path {
-            try StatInfo.update(_path, options: options, &self.buffer)
+        } else if let path = _path {
+            try StatInfo.update(path, options: options, &self.buffer)
         }
     }
 }
@@ -210,7 +210,7 @@ extension StatPath {
     public mutating func update(options: StatOptions = []) throws {
         var options = options
         options.insert(self.options)
-        guard let path = self._path else {
+        guard let path = _path else {
             throw PathError.emptyPath
         }
         try Self.update(path, options: options, &self.buffer)
@@ -218,7 +218,7 @@ extension StatPath {
 
     public init(_ path: String, options: StatOptions = [], buffer: stat = stat()) {
         self.init(buffer)
-        self._path = path
+        _path = path
         self.options = options
     }
 

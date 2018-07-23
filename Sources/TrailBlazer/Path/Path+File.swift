@@ -82,12 +82,17 @@ public class FilePath: Path, Openable {
         }
     }
 
+    public init(_ path: FilePath) {
+        _path = path._path
+        _info = path.info
+    }
+
     public required init?<PathType: Path>(_ path: PathType) {
         // Cannot initialize a file from a directory
         guard PathType.self != DirectoryPath.self else { return nil }
 
-        self._path = path._path
-        self._info = path.info
+        _path = path._path
+        _info = path.info
 
         if exists {
             guard isFile else { return nil }

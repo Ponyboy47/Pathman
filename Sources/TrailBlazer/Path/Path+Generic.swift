@@ -48,7 +48,7 @@ public class GenericPath: Path, ExpressibleByStringLiteral, ExpressibleByArrayLi
     }
 
     public required init<PathType: Path>(_ path: PathType) {
-        self._path = path._path
+        _path = path._path
         _info = path.info
     }
 

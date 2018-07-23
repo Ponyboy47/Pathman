@@ -80,12 +80,17 @@ public class DirectoryPath: Path, Openable, Sequence, IteratorProtocol {
         }
     }
 
+    public init(_ path: DirectoryPath) {
+        _path = path._path
+        _info = path.info
+    }
+
     public required init?<PathType: Path>(_ path: PathType) {
         // Cannot initialize a directory from a file
         guard PathType.self != FilePath.self else { return nil }
 
-        self._path = path._path
-        self._info = path.info
+        _path = path._path
+        _info = path.info
 
         if exists {
             guard isDirectory else { return nil }
