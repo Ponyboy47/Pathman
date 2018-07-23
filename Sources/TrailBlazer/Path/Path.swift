@@ -169,8 +169,10 @@ public extension Path {
     }
 
     public mutating func move<PathType: Path>(to newPath: PathType) throws {
-        guard self is PathType else {
-            throw MoveError.moveToDifferentPathType
+        if !(newPath is GenericPath) {
+            guard self is PathType else {
+                throw MoveError.moveToDifferentPathType
+            }
         }
 
         guard cRename(string, newPath.string) == 0 else {
