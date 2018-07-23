@@ -21,4 +21,5 @@ XCTMain([
     // is a part of)
     testCase(geteuid() == 0 ? ChownTests.allTests : []),
     testCase(ChmodTests.allTests),
+    testCase(MoveTests.allTests),
 ])
