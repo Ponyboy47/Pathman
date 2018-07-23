@@ -18,7 +18,7 @@ I hate going through Foundation's FileManager. I find it to be an ugly API with 
 ## Installation (SPM)
 Add this to your Package.swift dependencies:
 ```swift
-.package(url: "https://github.com/Ponyboy47/Trailblazer.git", from: "0.5.0")
+.package(url: "https://github.com/Ponyboy47/Trailblazer.git", from: "0.6.0")
 ```
 
 ## Usage
@@ -296,6 +296,19 @@ guard let dir = DirectoryPath(path) else {
 try dir.recursiveChange(owner: .readWriteExecute, group: .readWrite, others: .read)
 ```
 
+### Moving Paths:
+
+```swift
+let path = GenericPath("/tmp/testFile")
+
+// Both of these things will move testFile from /tmp/testFile to ~/testFile
+try path.move(to: DirectoryPath.home! + "testFile")
+try path.move(into: DirectoryPath.home!)
+
+// This renames a file in place
+try path.rename(to: "newTestFile")
+```
+
 ## To Do
 - FilePath
   - [x] Create new files
@@ -308,8 +321,8 @@ try dir.recursiveChange(owner: .readWriteExecute, group: .readWrite, others: .re
 - GenericPath (AKA all Paths)
   - [x] Change path ownership
   - [x] Change path permissions
-  - [ ] Move paths
-  - [ ] Rename paths (move alias)
+  - [x] Move paths
+  - [x] Rename paths (move alias)
 - Misc. Additions
   - [ ] Globbing
   - [ ] LinkedPath (symlinks)
