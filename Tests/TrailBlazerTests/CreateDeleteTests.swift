@@ -62,7 +62,7 @@ class CreateDeleteTests: XCTestCase {
             return
         }
 
-        try? dir.create(mode: .ownerGroupOthers(.readWriteExecute))
+        XCTAssertNoThrow(try dir.create(mode: .ownerGroupOthers(.readWriteExecute)))
         XCTAssertTrue(dir.exists)
 
         for num in 1...10 {

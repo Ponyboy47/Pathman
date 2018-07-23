@@ -37,6 +37,6 @@ extension Open: Creatable where PathType: Creatable {
 
     @discardableResult
     public func create(mode: FileMode) throws -> Open<CreatablePathType> {
-        return try path.create(mode: mode)
+        return try _path.create(mode: mode)
     }
 }

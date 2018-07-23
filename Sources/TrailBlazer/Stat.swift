@@ -8,13 +8,13 @@ import Darwin
 #endif
 
 public struct StatInfo: StatDescriptor, StatPath {
-    var path: String?
+    var _path: String?
     var options: StatOptions
     var fileDescriptor: FileDescriptor?
     var buffer: stat = stat()
 
     init() {
-        path = nil
+        _path = nil
         options = []
         fileDescriptor = nil
     }
@@ -27,7 +27,7 @@ public struct StatInfo: StatDescriptor, StatPath {
     mutating func getInfo(options: StatOptions = []) throws {
         if let fd = self.fileDescriptor {
             try StatInfo.update(fd, &self.buffer)
-        } else if let path = self.path {
+        } else if let path = _path {
             try StatInfo.update(path, options: options, &self.buffer)
         }
     }
@@ -175,7 +175,7 @@ extension StatDescriptor {
 }
 
 protocol StatPath: Stat {
-    var path: String? { get set }
+    var _path: String? { get set }
     var options: StatOptions { get set }
     init<PathType: Path>(_ path: PathType, options: StatOptions, buffer: stat)
     init(_ path: String, options: StatOptions, buffer: stat)
@@ -210,7 +210,7 @@ extension StatPath {
     public mutating func update(options: StatOptions = []) throws {
         var options = options
         options.insert(self.options)
-        guard let path = self.path else {
+        guard let path = _path else {
             throw PathError.emptyPath
         }
         try Self.update(path, options: options, &self.buffer)
@@ -218,12 +218,12 @@ extension StatPath {
 
     public init(_ path: String, options: StatOptions = [], buffer: stat = stat()) {
         self.init(buffer)
-        self.path = path
+        _path = path
         self.options = options
     }
 
     public init<PathType: Path>(_ path: PathType, options: StatOptions = [], buffer: stat = stat()) {
-        self.init(path.path, options: options, buffer: buffer)
+        self.init(path._path, options: options, buffer: buffer)
     }
 }
 

@@ -16,19 +16,19 @@ class StatTests: XCTestCase {
 
     func testInit() {
         let stat1 = StatInfo()
-        XCTAssertNil(stat1.path)
+        XCTAssertNil(stat1._path)
         XCTAssertTrue(stat1.options.isEmpty)
         XCTAssertNil(stat1.fileDescriptor)
 
         let stat2 = StatInfo("/tmp")
-        XCTAssertNotNil(stat2.path)
+        XCTAssertNotNil(stat2._path)
         XCTAssertTrue(stat2.options.isEmpty)
         XCTAssertNil(stat2.fileDescriptor)
 
         let fd = open("/tmp", O_DIRECTORY)
         guard fd > 0 else { return }
         let stat3 = StatInfo(fd)
-        XCTAssertNil(stat3.path)
+        XCTAssertNil(stat3._path)
         XCTAssertTrue(stat3.options.isEmpty)
         XCTAssertNotNil(stat3.fileDescriptor)
     }

@@ -336,6 +336,7 @@ class ChmodTests: XCTestCase {
         XCTAssertTrue(others.canWrite)
         XCTAssertFalse(others.canExecute)
 
+        try? file.delete()
     }
 
     static var allTests = [

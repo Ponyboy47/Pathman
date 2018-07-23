@@ -571,3 +571,46 @@ public enum ChangePermissionsError: TrailBlazerError {
         }
     }
 }
+
+public enum MoveError: TrailBlazerError {
+    case unknown
+    case permissionDenied
+    case pathInUse
+    case quotaReached
+    case badAddress
+    case invalidNewPath
+    case newPathIsDirectory_OldPathIsNot
+    case tooManySymlinks
+    case symlinkLimitReached
+    case pathnameTooLong
+    case pathDoesNotExist
+    case noKernelMemory
+    case fileSystemFull
+    case pathComponentNotDirectory
+    case newPathIsNonEmptyDirectory
+    case readOnlyFileSystem
+    case pathsOnDifferentFileSystems
+    case moveToDifferentPathType
+
+    public static func getError() -> MoveError {
+        switch ErrNo.lastError {
+        case .EACCES, .EPERM: return .permissionDenied
+        case .EBUSY: return .pathInUse
+        case .EDQUOT: return .quotaReached
+        case .EFAULT: return .badAddress
+        case .EINVAL: return .invalidNewPath
+        case .EISDIR: return .newPathIsDirectory_OldPathIsNot
+        case .ELOOP: return .tooManySymlinks
+        case .EMLINK: return .symlinkLimitReached
+        case .ENAMETOOLONG: return .pathnameTooLong
+        case .ENOENT: return .pathDoesNotExist
+        case .ENOMEM: return .noKernelMemory
+        case .ENOSPC: return .fileSystemFull
+        case .ENOTDIR: return .pathComponentNotDirectory
+        case .ENOTEMPTY, .EEXIST: return .newPathIsNonEmptyDirectory
+        case .EROFS: return .readOnlyFileSystem
+        case .EXDEV: return .pathsOnDifferentFileSystems
+        default: return .unknown
+        }
+    }
+}

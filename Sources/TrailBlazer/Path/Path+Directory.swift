@@ -24,10 +24,10 @@ private var openDirectories: DateSortedDescriptors<DirectoryPath, OpenDirectory>
 }
 
 /// A Path to a directory
-public class DirectoryPath: _Path, Openable, Sequence, IteratorProtocol {
+public class DirectoryPath: Path, Openable, Sequence, IteratorProtocol {
     public typealias OpenableType = DirectoryPath
 
-    public internal(set) var path: String
+    public var _path: String
     public var fileDescriptor: FileDescriptor {
         guard let dir = self.dir else { return -1 }
         return dirfd(dir)
@@ -46,11 +46,11 @@ public class DirectoryPath: _Path, Openable, Sequence, IteratorProtocol {
 
     /// Initialize from an array of path elements
     public required init?(_ components: [String]) {
-        path = components.filter({ !$0.isEmpty && $0 != DirectoryPath.separator}).joined(separator: GenericPath.separator)
+        _path = components.filter({ !$0.isEmpty && $0 != DirectoryPath.separator}).joined(separator: GenericPath.separator)
         if let first = components.first, first == DirectoryPath.separator {
-            path = first + path
+            _path = first + _path
         }
-        _info = StatInfo(path)
+        _info = StatInfo(_path)
 
         if exists {
             guard isDirectory else { return nil }
@@ -69,23 +69,28 @@ public class DirectoryPath: _Path, Openable, Sequence, IteratorProtocol {
 
     public required init?(_ str: String) {
         if str.count > 1 && str.hasSuffix(DirectoryPath.separator) {
-            path = String(str.dropLast())
+            _path = String(str.dropLast())
         } else {
-            path = str
+            _path = str
         }
-        _info = StatInfo(path)
+        _info = StatInfo(_path)
 
         if exists {
             guard isDirectory else { return nil }
         }
     }
 
+    public init(_ path: DirectoryPath) {
+        _path = path._path
+        _info = path.info
+    }
+
     public required init?<PathType: Path>(_ path: PathType) {
         // Cannot initialize a directory from a file
         guard PathType.self != FilePath.self else { return nil }
 
-        self.path = path.path
-        self._info = path.info
+        _path = path._path
+        _info = path.info
 
         if exists {
             guard isDirectory else { return nil }
@@ -172,7 +177,7 @@ public class DirectoryPath: _Path, Openable, Sequence, IteratorProtocol {
         // Go through all the paths in the current directory and add them to the correct array
         for path in self {
             if !includeHidden {
-                guard !path.lastComponent.hasPrefix(".") else { continue }
+                guard !(path.lastComponent ?? "").hasPrefix(".") else { continue }
             }
 
             if let file = FilePath(path) {

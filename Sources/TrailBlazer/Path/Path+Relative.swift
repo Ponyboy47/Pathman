@@ -8,7 +8,7 @@ extension Path {
     longer points to the same place
     */
     public var relative: Self {
-        var str = path
+        var str = _path
         if let home = home?.string, str.hasPrefix(home) {
             str = str.replacingOccurrences(of: home, with: "~")
         } else if str.hasPrefix(Self.cwd.string) {
@@ -24,8 +24,8 @@ extension Path {
         guard !comps.isEmpty else { return false }
         guard !comps.contains("..") else { return true }
         for relativeItem in ["~", "."] {
-            guard !path.hasPrefix(relativeItem) else { return true }
+            guard !_path.hasPrefix(relativeItem) else { return true }
         }
-        return comps.first! != Self.separator && !path.hasPrefix(Self.root.path)
+        return comps.first! != Self.separator && !_path.hasPrefix(Self.root._path)
     }
 }
