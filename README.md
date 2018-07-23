@@ -154,20 +154,22 @@ guard let file = FilePath("/tmp/test") else {
     fatalError("Path is not a file")
 }
 
+// Any of the following examples could throw either an `OpenFileError` or a `ReadError`
+
 // Read the whole file
-let contents: String = file.read()
+let contents: String = try file.read()
 
 // Read 1024 bytes
-let contents: String = file.read(bytes: 1024)
+let contents: String = try file.read(bytes: 1024)
 
 // Read content as ascii characters instead of utf8
-let contents: String = file.read(encoding: .ascii)
+let contents: String = try file.read(encoding: .ascii)
 
 // Read to the end, but starting at 1024 bytes from the beginning of the file
-let contents: String = file.read(from: Offset(from: .beginning, bytes: 1024))
+let contents: String = try file.read(from: Offset(from: .beginning, bytes: 1024))
 
 // Read 64 bytes starting at 1024 bytes from the end using the ascii encoding
-let contents: String = file.read(from: Offset(from: .end, bytes: 1024), bytes: 64, encoding: .ascii)
+let contents: String = try file.read(from: Offset(from: .end, bytes: 1024), bytes: 64, encoding: .ascii)
 ```
 
 NOTES:<br />
@@ -182,11 +184,13 @@ guard let file = FilePath("/tmp/test") else {
     fatalError("Path is not a file")
 }
 
+// Any of the following examples could throw either an `OpenFileError` or a `WriteError`
+
 // Write a string at the current file position
-file.write("Hello world")
+try file.write("Hello world")
 
 // Write an ascii string at the end of the file
-file.write("Goodbye", at: Offset(from: .end, bytes: 0), using: .ascii)
+try file.write("Goodbye", at: Offset(from: .end, bytes: 0), using: .ascii)
 ```
 NOTE: You can also pass a `Data` instance to the write function instead of a String and an encoding.
 
