@@ -57,6 +57,10 @@ extension Path {
 
         guard let realpath = realpath(str, nil) else { throw RealPathError.getError() }
 
+        // When realpath(3) is passed a nil buffer argument, the memory is
+        // dynamically allocated and must be deallocated
+        defer { realpath.deallocate() }
+
         return Self(String(cString: realpath))!
     }
 }
