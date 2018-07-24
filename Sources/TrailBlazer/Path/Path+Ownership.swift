@@ -25,7 +25,7 @@ public extension Ownable {
 
     public var ownerName: String? {
         get {
-            guard let username = GenericPath.getUserInfo(owner)?.pw_name else { return nil }
+            guard let username = getUserInfo(owner)?.pw_name else { return nil }
             return String(cString: username)
         }
         set {
@@ -35,7 +35,7 @@ public extension Ownable {
     }
     public var groupName: String? {
         get {
-            guard let groupname = GenericPath.getGroupInfo(group)?.gr_name else { return nil }
+            guard let groupname = getGroupInfo(group)?.gr_name else { return nil }
             return String(cString: groupname)
         }
         set {
@@ -49,14 +49,14 @@ public extension Ownable {
         let gid: gid_t
 
         if let username = username {
-            guard let _uid = GenericPath.getUserInfo(username)?.pw_uid else { throw UserInfoError.getError() }
+            guard let _uid = getUserInfo(username)?.pw_uid else { throw UserInfoError.getError() }
             uid = _uid
         } else {
             uid = ~0
         }
 
         if let groupname = groupname {
-            guard let _gid = GenericPath.getGroupInfo(groupname)?.gr_gid else { throw GroupInfoError.getError() }
+            guard let _gid = getGroupInfo(groupname)?.gr_gid else { throw GroupInfoError.getError() }
             gid = _gid
         } else {
             gid = ~0
