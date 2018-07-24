@@ -25,7 +25,7 @@ private func getInitialUMask() -> UMask {
     let mask = FileMode(rawValue: cUmask(FileMode.allPermissions.rawValue))
 
     // Reset the mask back to it's original value
-    defer { cUmask(mask.rawValue) }
+    defer { let _ = cUmask(mask.rawValue) }
 
     return mask
 }
