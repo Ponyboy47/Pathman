@@ -14,6 +14,28 @@ public func glob(pattern: String, flags: GlobFlags = [], errorClosure: GlobError
     guard globResult == 0 else { throw GlobError.getError(globResult) }
 }
 
+extension Path {
+    public static func glob(pattern: String, flags: GlobFlags = [], errorClosure: GlobError.ErrorHandler? = nil) throws -> Glob {
+        return try glob(pattern: pattern, flags: flags, errorClosure: errorClosure)
+    }
+
+    public static func glob(pattern: String, flags: GlobFlags = [], errorClosure: GlobError.ErrorHandler? = nil, glob: inout Glob) throws {
+        let globResult = cGlob(pattern, flags.rawValue, errorClosure, &glob._glob)
+        guard globResult == 0 else { throw GlobError.getError(globResult) }
+    }
+}
+
+extension DirectoryPath {
+    public func glob(pattern: String, flags: GlobFlags = [], errorClosure: GlobError.ErrorHandler? = nil) throws -> Glob {
+        return try glob(pattern: (self + pattern).string, flags: flags, errorClosure: errorClosure)
+    }
+
+    public func glob(pattern: String, flags: GlobFlags = [], errorClosure: GlobError.ErrorHandler? = nil, glob: inout Glob) throws {
+        let globResult = cGlob((self + pattern).string, flags.rawValue, errorClosure, &glob._glob)
+        guard globResult == 0 else { throw GlobError.getError(globResult) }
+    }
+}
+
 public class Glob {
     fileprivate var _glob: glob_t = glob_t()
 
