@@ -45,8 +45,22 @@ public extension Ownable {
     }
 
     public func change(owner username: String? = nil, group groupname: String? = nil) throws {
-        let uid: uid_t = username != nil ? GenericPath.getUserInfo(username!)?.pw_uid ?? ~0 : ~0
-        let gid: gid_t = groupname != nil ? GenericPath.getGroupInfo(groupname!)?.gr_gid ?? ~0 : ~0
+        let uid: uid_t
+        let gid: gid_t
+
+        if let username = username {
+            guard let _uid = GenericPath.getUserInfo(username)?.pw_uid else { throw UserInfoError.getError() }
+            uid = _uid
+        } else {
+            uid = ~0
+        }
+
+        if let groupname = groupname {
+            guard let _gid = GenericPath.getGroupInfo(groupname)?.gr_gid else { throw GroupInfoError.getError() }
+            gid = _gid
+        } else {
+            gid = ~0
+        }
 
         try change(owner: uid, group: gid)
     }
