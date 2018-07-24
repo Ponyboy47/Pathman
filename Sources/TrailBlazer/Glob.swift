@@ -16,23 +16,21 @@ public func glob(pattern: String, flags: GlobFlags = [], errorClosure: GlobError
 
 extension Path {
     public static func glob(pattern: String, flags: GlobFlags = [], errorClosure: GlobError.ErrorHandler? = nil) throws -> Glob {
-        return try glob(pattern: pattern, flags: flags, errorClosure: errorClosure)
+        return try TrailBlazer.glob(pattern: pattern, flags: flags, errorClosure: errorClosure)
     }
 
     public static func glob(pattern: String, flags: GlobFlags = [], errorClosure: GlobError.ErrorHandler? = nil, glob: inout Glob) throws {
-        let globResult = cGlob(pattern, flags.rawValue, errorClosure, &glob._glob)
-        guard globResult == 0 else { throw GlobError.getError(globResult) }
+        try TrailBlazer.glob(pattern: pattern, flags: flags, errorClosure: errorClosure, glob: &glob)
     }
 }
 
 extension DirectoryPath {
     public func glob(pattern: String, flags: GlobFlags = [], errorClosure: GlobError.ErrorHandler? = nil) throws -> Glob {
-        return try glob(pattern: (self + pattern).string, flags: flags, errorClosure: errorClosure)
+        return try TrailBlazer.glob(pattern: (self + pattern).string, flags: flags, errorClosure: errorClosure)
     }
 
     public func glob(pattern: String, flags: GlobFlags = [], errorClosure: GlobError.ErrorHandler? = nil, glob: inout Glob) throws {
-        let globResult = cGlob((self + pattern).string, flags.rawValue, errorClosure, &glob._glob)
-        guard globResult == 0 else { throw GlobError.getError(globResult) }
+        try TrailBlazer.glob(pattern: (self + pattern).string, flags: flags, errorClosure: errorClosure, glob: &glob)
     }
 }
 
