@@ -1,9 +1,3 @@
-#if os(Linux)
-import Glibc
-#else
-import Darwin
-#endif
-
 /// A type used to express filesystem paths
 public class GenericPath: Path, ExpressibleByStringLiteral, ExpressibleByArrayLiteral {
 	public typealias ExtendedGraphemeClusterLiteralType = StringLiteralType
