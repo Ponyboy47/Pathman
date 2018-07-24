@@ -14,6 +14,7 @@ let package = Package(
     dependencies: [
         .package(url: "https://github.com/Ponyboy47/ErrNo", from: "0.4.1"),
         .package(url: "https://github.com/Ponyboy47/Cdirent", from: "0.1.0"),
+        .package(url: "https://github.com/Ponyboy47/Cglob", from: "0.1.0"),
         .package(url: "https://github.com/kareman/SwiftShell", from: "4.1.0"),
     ],
     targets: [
@@ -21,7 +22,7 @@ let package = Package(
         // Targets can depend on other targets in this package, and on products in packages which this package depends on.
         .target(
             name: "TrailBlazer",
-            dependencies: ["ErrNo", "Cdirent"]),
+            dependencies: ["ErrNo", "Cdirent", "Cglob"]),
         .testTarget(
             name: "TrailBlazerTests",
             dependencies: ["TrailBlazer", "SwiftShell"]),

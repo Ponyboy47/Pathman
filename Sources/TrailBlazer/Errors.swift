@@ -1,4 +1,5 @@
 import ErrNo
+import Cglob
 
 public protocol TrailBlazerError: Error {
     static func getError() -> Self
@@ -612,5 +613,28 @@ public enum MoveError: TrailBlazerError {
         case .EXDEV: return .pathsOnDifferentFileSystems
         default: return .unknown
         }
+    }
+}
+
+public enum GlobError: TrailBlazerError {
+    public typealias ErrorHandler = (@convention(c) (UnsafePointer<CChar>?, OptionInt) -> OptionInt)
+    case unknown
+    case outOfMemory
+    case readError
+    case noMatches
+
+    public static func getError() -> GlobError {
+        return .unknown
+    }
+    public static func getError(_ returnVal: OptionInt) -> GlobError {
+        if returnVal == GLOB_NOSPACE {
+            return .outOfMemory
+        } else if returnVal == GLOB_ABORTED {
+            return .readError
+        } else if returnVal == GLOB_NOMATCH {
+            return .noMatches
+        }
+
+        return .unknown
     }
 }
