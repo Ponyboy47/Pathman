@@ -99,7 +99,8 @@ public class DirectoryPath: Path, Openable, Sequence, IteratorProtocol {
 
     @discardableResult
     public func open(options: OptionInt = 0, mode: FileMode? = nil) throws -> Open<DirectoryPath> {
-        // If the directory is already open, return it
+        // If the directory is already open, return it. Unlike FilePaths, the
+        // options/mode are irrelevant for opening directories
         if let openDir = openDirectories[self] {
             return openDir
         }
