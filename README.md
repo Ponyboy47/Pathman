@@ -19,7 +19,7 @@ I hate going through Foundation's FileManager. I find it to be an ugly API with 
 ## Installation (SPM)
 Add this to your Package.swift dependencies:
 ```swift
-.package(url: "https://github.com/Ponyboy47/Trailblazer.git", from: "0.6.1")
+.package(url: "https://github.com/Ponyboy47/Trailblazer.git", from: "0.7.0")
 ```
 
 ## Usage
@@ -221,6 +221,10 @@ let children = try dir.children()
 // This same operation is safe, assuming you've already opened the directory
 let openDir = try dir.open()
 let children = openDir.children()
+
+print(children.files)
+print(children.directories)
+print(children.other)
 ```
 
 #### Recursive Children:
@@ -234,6 +238,10 @@ let children = try dir.recursiveChildren()
 // This operation is still unsafe, even if the directory is already opened (Because you still might have to open sub-directories, which is unsafe)
 let openDir = try dir.open()
 let children = try openDir.recursiveChildren()
+
+print(children.files)
+print(children.directories)
+print(children.other)
 
 // You can optionally specify a depth to only get so many directories
 // This will go no more than 5 directories deep before returning
@@ -326,6 +334,28 @@ try path.move(into: DirectoryPath.home!)
 try path.rename(to: "newTestFile")
 ```
 
+### Globbing:
+
+```swift
+let globData = try glob(pattern: "/tmp/*")
+
+// Just like getting a directories children:
+print(globData.files)
+print(globData.directories)
+print(globData.other)
+
+// You can also glob from a DirectoryPath
+guard let home = DirectoryPath.home else {
+    fatalError("Failed to get home directory")
+}
+
+let globData = try home.glob("*.swift")
+
+print(globData.files)
+print(globData.directories)
+print(globData.other)
+```
+
 ## To Do
 - FilePath
   - [x] Create new files
@@ -341,7 +371,7 @@ try path.rename(to: "newTestFile")
   - [x] Move paths
   - [x] Rename paths (move alias)
 - Misc. Additions
-  - [ ] Globbing
+  - [x] Globbing
   - [ ] LinkedPath (symlinks)
   - [ ] SocketPath
   - [ ] FIFOPath?
