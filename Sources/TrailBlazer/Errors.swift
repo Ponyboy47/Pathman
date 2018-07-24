@@ -617,7 +617,7 @@ public enum MoveError: TrailBlazerError {
 }
 
 public enum GlobError: TrailBlazerError {
-    public typealias ErrorHandler = (_ errorPath: String, _ errno: OSInt) -> OSInt
+    public typealias ErrorHandler = (@convention(c) (UnsafePointer<CChar>?, OptionInt) -> OptionInt)
     case unknown
     case outOfMemory
     case readError
@@ -626,7 +626,7 @@ public enum GlobError: TrailBlazerError {
     public static func getError() -> GlobError {
         return .unknown
     }
-    public static func getError(_ returnVal: OSInt) -> GlobError {
+    public static func getError(_ returnVal: OptionInt) -> GlobError {
         if returnVal == GLOB_NOSPACE {
             return .outOfMemory
         } else if returnVal == GLOB_ABORTED {
