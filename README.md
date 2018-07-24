@@ -1,24 +1,25 @@
 # TrailBlazer
 
-A type-safe file path library for Apple's Swift language.
+A type-safe path library for Apple's Swift language.
 
+## Motivation
 I hate going through Foundation's FileManager. I find it to be an ugly API with inconsistent results when used cross platform (Linux support/stability is important to most of the things I use Swift for), and it lacks the type-safety and ease-of-use that most Swift API's are expected to have. So I built TrailBlazer! The first type-safe swift path library built around the lower level C API's (everything else out there is really just a wrapper around Foundation's FileManager).
 
 ## Goals
 - Type safety
-  - File paths are different that directory paths
+  - File paths are different that directory paths and should be treated as such
 - Extensibility
-  - Everything is based around protocols so that others could create new path types (ie: socket files)
+  - Everything is based around protocols so that others can create new path types (ie: socket files)
 - Error Handling
-  - There are an extensive number of errors so that when something goes wrong you can get the most relevant error message possible
+  - There are an extensive number of errors so that when something goes wrong you can get the most relevant error message possible (see Errors.swift)
 - Minimal Foundation
-  - I avoid using Foundation as much as possible, because it is not as stable on Linux as it is on Apple platforms
-  - Currently, I only use Foundation for the Data and Date types
+  - I avoid using Foundation as much as possible, because it is not as stable on Linux as it is on Apple platforms and the results for some APIs are inconsistent between Linux and macOS
+  - Currently, I only use Foundation for the `Data` and `Date` types
 
 ## Installation (SPM)
 Add this to your Package.swift dependencies:
 ```swift
-.package(url: "https://github.com/Ponyboy47/Trailblazer.git", from: "0.6.0")
+.package(url: "https://github.com/Ponyboy47/Trailblazer.git", from: "0.6.1")
 ```
 
 ## Usage
@@ -34,6 +35,7 @@ let genericSlice = GenericPath(["/", "tmp", "test"].dropLast())
 
 // FilePaths and DirectoryPaths can be initialized the same as a GenericPath,
 // but their initializers are failable.
+
 // The initializers will fail if the path exists and does not match the
 // expected type. If the path does not exist, then the object will be created
 // successfully
@@ -42,6 +44,7 @@ let genericSlice = GenericPath(["/", "tmp", "test"].dropLast())
 guard let file = FilePath("/tmp") else {
     fatalError("Path is not a file")
 }
+
 // succeeds
 guard let directory = DirectoryPath("/tmp") else {
     fatalError("Path is not a directory")
@@ -103,7 +106,11 @@ guard let file = FilePath("/tmp/test") else {
     fatalError("Path is not a file")
 }
 
-let openFile: OpenFile = try file.open(permissions: .read)
+let openFile: OpenFile = try file.open(permissions: .readWrite)
+
+// Open files can be written to or read from (depending on the permissions used above)
+let content: String = try openFile.read()
+try openFile.write(content)
 ```
 
 #### DirectoryPaths:
@@ -113,11 +120,17 @@ guard let dir = DirectoryPath("/tmp") else {
 }
 
 let openDir: OpenDirectory = try dir.open()
+
+// Open directories can be traversed
+let children = openDir.children()
+
+// Recursively traversing directories requires opening sub-directories and may throw errors
+let recursiveChildren = try openDir.recursiveChildren()
 ```
 
 ### Creating Paths
 
-This is the same for all paths. Just replace File with Directory to create a directory instead.
+This is the same for all paths
 ```swift
 guard let file = FilePath("/tmp/test") else {
     fatalError("Path is not a file")
@@ -145,7 +158,7 @@ guard let dir = DirectoryPath("/tmp/test") else {
 
 try dir.recursiveDelete()
 ```
-NOTE: Be VERY cautious with this as it cannot be undone.
+NOTE: Be VERY cautious with this as it cannot be undone (just like `rm -rf`).
 
 ### Reading Files
 
@@ -197,7 +210,7 @@ NOTE: You can also pass a `Data` instance to the write function instead of a Str
 
 ### Getting Directory Contents:
 
-Immediate children:
+#### Immediate children:
 ```swift
 guard let dir = DirectoryPath("/tmp") else {
     fatalError("Path is not a directory")
@@ -210,7 +223,7 @@ let openDir = try dir.open()
 let children = openDir.children()
 ```
 
-Recursive Children:
+#### Recursive Children:
 ```swift
 guard let dir = DirectoryPath("/tmp") else {
     fatalError("Path is not a directory")
@@ -227,7 +240,7 @@ let children = try openDir.recursiveChildren()
 let children = try dir.recursiveChildren(depth: 5)
 ```
 
-Hidden Files:
+#### Hidden Files:
 ```swift
 // Both .children() and .recursiveChildren() support getting hidden files/directories (files that begin with a '.')
 let children = try dir.children(includeHidden: true)
@@ -236,7 +249,7 @@ let children = try dir.recursiveChildren(depth: 5, includeHidden: true)
 
 ### Changing Path Metadata:
 
-Ownership:
+#### Ownership:
 ```swift
 let path = GenericPath("/tmp")
 
@@ -262,7 +275,7 @@ guard let dir = DirectoryPath(path) else {
 try dir.recursiveChange(owner: "ponyboy47")
 ```
 
-Permissions:
+#### Permissions:
 ```swift
 let path = GenericPath("/tmp")
 
@@ -334,4 +347,4 @@ try path.rename(to: "newTestFile")
   - [ ] FIFOPath?
   - [ ] BlockPath?
   - [ ] CharacterPath?
-- Investigate TypeErasure to see if it could benefit Paths and Open objects interact together more nicely
+- [ ] Investigate TypeErasure to see if it could benefit Paths and Open objects interact together more nicely
