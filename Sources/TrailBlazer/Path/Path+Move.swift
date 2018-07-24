@@ -25,7 +25,6 @@ public extension Movable {
         guard let last = lastComponent else { return }
         let newPath = dir + last
         try move(to: newPath)
-        _path = newPath._path
     }
 
     public mutating func rename(to newName: String) throws {

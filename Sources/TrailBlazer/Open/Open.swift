@@ -1,4 +1,8 @@
-import Foundation
+#if os(Linux)
+import Glibc
+#else
+import Darwin
+#endif
 
 public protocol Openable: StatDelegate {
     associatedtype OpenableType: Path & Openable
@@ -11,15 +15,12 @@ public protocol Openable: StatDelegate {
     func close() throws
 }
 
-private var _buffers: [UUID: UnsafeMutablePointer<CChar>] = [:]
-private var _bufferSizes: [UUID: OSInt] = [:]
+private var _buffers: [Int: UnsafeMutablePointer<CChar>] = [:]
+private var _bufferSizes: [Int: OSInt] = [:]
 
 public class Open<PathType: Path & Openable>: Openable, Ownable, Permissionable {
     public typealias OpenableType = PathType.OpenableType
 
-    lazy var id: UUID = {
-        return UUID()
-    }()
     public let _path: PathType
     public var fileDescriptor: FileDescriptor { return _path.fileDescriptor }
     public var options: OptionInt { return _path.options }
@@ -34,18 +35,18 @@ public class Open<PathType: Path & Openable>: Openable, Ownable, Permissionable 
 
     var buffer: UnsafeMutablePointer<CChar>? {
         get {
-            return _buffers[id]
+            return _buffers[_path.hashValue]
         }
         set {
-            _buffers[id] = newValue
+            _buffers[_path.hashValue] = newValue
         }
     }
     var bufferSize: OSInt? {
         get {
-            return _bufferSizes[id]
+            return _bufferSizes[_path.hashValue]
         }
         set {
-            _bufferSizes[id] = newValue
+            _bufferSizes[_path.hashValue] = newValue
         }
     }
 

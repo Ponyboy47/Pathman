@@ -52,6 +52,10 @@ public struct FileMode: OptionSet, CustomStringConvertible, ExpressibleByInteger
         }
     }
 
+    public static let all: FileMode = FileMode(rawValue: 0o7777)
+    public static let allPermissions: FileMode = FileMode(rawValue: 0o0777)
+    public static let allBits: FileMode = FileMode(rawValue: 0o7000)
+
     public init(rawValue: IntegerLiteralType) {
         self.rawValue = rawValue
     }
@@ -92,6 +96,10 @@ public struct FileMode: OptionSet, CustomStringConvertible, ExpressibleByInteger
     }
     public static func ownerGroupOthers(_ perms: FilePermissions, bits: FileBits = .none) -> FileMode {
         return FileMode(owner: perms.rawValue, group: perms.rawValue, others: perms.rawValue, bits: bits.rawValue)
+    }
+
+    public func checkAgainstUMask() -> FileMode {
+        return FileMode(rawValue: (~umask.rawValue) & rawValue)
     }
 }
 

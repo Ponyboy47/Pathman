@@ -169,6 +169,8 @@ public extension Path {
     }
 
     public mutating func move<PathType: Path>(to newPath: PathType) throws {
+        guard exists else { return }
+
         if !(newPath is GenericPath) {
             guard self is PathType else {
                 throw MoveError.moveToDifferentPathType

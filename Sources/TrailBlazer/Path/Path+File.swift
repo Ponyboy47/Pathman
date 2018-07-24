@@ -116,8 +116,13 @@ public class FilePath: Path, Openable {
     public func open(options: OptionInt = 0, mode: FileMode? = nil) throws -> OpenFile {
         // Check if the file is already opened
         if let open = openFiles[self] {
-            // If we're trying to open the same file with the same options, just return the already opened file
-            guard options != open.options else { return open }
+            // If the last open had at least the options we need now, just return the already opened file
+            guard (open.options & options) != options else { return open }
+
+            // If the last open had a mode that at least contains the new mode, just return the already opened file
+            if let _m2 = mode {
+                guard self.mode == nil || !self.mode!.contains(_m2) else { return open }
+            }
 
             // If the options are different, close the open file so we can
             // re-open it with the new options

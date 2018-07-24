@@ -99,7 +99,8 @@ public class DirectoryPath: Path, Openable, Sequence, IteratorProtocol {
 
     @discardableResult
     public func open(options: OptionInt = 0, mode: FileMode? = nil) throws -> Open<DirectoryPath> {
-        // If the directory is already open, return it
+        // If the directory is already open, return it. Unlike FilePaths, the
+        // options/mode are irrelevant for opening directories
         if let openDir = openDirectories[self] {
             return openDir
         }
@@ -279,8 +280,22 @@ public class DirectoryPath: Path, Openable, Sequence, IteratorProtocol {
     }
 
     public func changeRecursive(owner username: String? = nil, group groupname: String? = nil) throws {
-        let uid: uid_t = username == nil ? ~0 : DirectoryPath.getUserInfo(username!)?.pw_uid ?? ~0
-        let gid: gid_t = groupname == nil ? ~0 : DirectoryPath.getGroupInfo(groupname!)?.gr_gid ?? ~0
+        let uid: uid_t
+        let gid: gid_t
+
+        if let username = username {
+            guard let _uid = getUserInfo(username)?.pw_uid else { throw UserInfoError.getError() }
+            uid = _uid
+        } else {
+            uid = ~0
+        }
+
+        if let groupname = groupname {
+            guard let _gid = getGroupInfo(groupname)?.gr_gid else { throw GroupInfoError.getError() }
+            gid = _gid
+        } else {
+            gid = ~0
+        }
 
         try changeRecursive(owner: uid, group: gid)
     }
