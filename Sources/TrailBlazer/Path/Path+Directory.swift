@@ -137,7 +137,7 @@ public class DirectoryPath: Path, Openable, Sequence, IteratorProtocol {
 
      - Throws: When it fails to open or close the directory
     */
-	public func children(includeHidden: Bool = false) throws -> DirectoryChildren {
+	public func children(includeHidden: Bool = false) throws -> PathCollection {
         return try recursiveChildren(to: 1, includeHidden: includeHidden)
     }
 
@@ -150,7 +150,7 @@ public class DirectoryPath: Path, Openable, Sequence, IteratorProtocol {
      - Throws: When it fails to open or close any of the subdirectories
      - WARNING: If the directory you're traversing is exceptionally large and/or deep, then this will take a very long time and will use a large amount of memory and you may run out of available file descriptors. Until I can figure out how to do this lazily, be careful with using infinite recursion (a depth of -1) or with depths greater than the available number of process descriptors.
      */
-    public func recursiveChildren(depth: Int = -1, includeHidden: Bool = false) throws -> DirectoryChildren {
+    public func recursiveChildren(depth: Int = -1, includeHidden: Bool = false) throws -> PathCollection {
         return try recursiveChildren(to: depth, includeHidden: includeHidden)
     }
 
@@ -163,8 +163,8 @@ public class DirectoryPath: Path, Openable, Sequence, IteratorProtocol {
      - WARNING: If the directory you're traversing is exceptionally large and/or deep, then this will take a very long time and will use a large amount of memory and you may run out of available file descriptors. Until I can figure out how to do this lazily, be careful with using infinite recursion (a depth of -1) or with depths greater than the available number of process descriptors.
      */
     @discardableResult
-    private func recursiveChildren(to depth: Int, includeHidden: Bool) throws -> DirectoryChildren {
-        var children: DirectoryChildren = DirectoryChildren()
+    private func recursiveChildren(to depth: Int, includeHidden: Bool) throws -> PathCollection {
+        var children: PathCollection = PathCollection()
         // Make sure we're not below the specified depth
         guard depth != 0 else { return children }
         let depth = depth == -1 ? depth : depth - 1
@@ -247,9 +247,10 @@ public class DirectoryPath: Path, Openable, Sequence, IteratorProtocol {
     }
 
     private func genPath(_ ent: UnsafeMutablePointer<dirent>) -> GenericPath {
-        let name = withUnsafeBytes(of: &ent.pointee.d_name) { (ptr) -> String in
-            guard let charPtr = ptr.baseAddress?.assumingMemoryBound(to: CChar.self) else { return "" }
-            return String(cString: charPtr)
+        let name = withUnsafePointer(to: &ent.pointee.d_name) { (ptr) -> String in
+            return ptr.withMemoryRebound(to: CChar.self, capacity: MemoryLayout.size(ofValue: ent.pointee.d_name)) {
+                return String(cString: $0)
+            }
         }
 
         return self + name

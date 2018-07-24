@@ -38,17 +38,26 @@ public class Glob {
     fileprivate var _glob: glob_t = glob_t()
 
     var count: UInt { return _glob.gl_pathc }
-    var matches: [String] {
-        var matches: [String] = []
+    var matches: PathCollection {
+        let children = PathCollection()
 
         var item = _glob.gl_pathv
         for _ in 0...count {
             guard let pointee = item?.pointee else { break }
-            matches.append(String(cString: pointee))
+            let path = String(cString: pointee)
+
+            if let file = FilePath(path) {
+                children.files.append(file)
+            } else if let dir = DirectoryPath(path) {
+                children.directories.append(dir)
+            } else {
+                children.other.append(GenericPath(path))
+            }
+
             item = item?.successor()
         }
 
-        return matches
+        return children
     }
     var offset: UInt { return _glob.gl_offs }
     var closedir: (@convention(c) (UnsafeMutableRawPointer?) -> ()) {
