@@ -4,6 +4,7 @@ public class PathCollection: Equatable, CustomStringConvertible {
     public internal(set) var other: [GenericPath]
 
     public var isEmpty: Bool { return files.isEmpty && directories.isEmpty && other.isEmpty }
+    public var count: Int { return files.count + directories.count + other.count }
 
     public var description: String {
         var str: [String] = []
