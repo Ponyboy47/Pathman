@@ -1,9 +1,18 @@
+/** An object containing a collection of files, directories, and other paths
+    from some kind of traversal or enumeration (ie: globbing or getting
+    directory children)
+*/
 public class PathCollection: Equatable, CustomStringConvertible {
+    /// The file paths
     public internal(set) var files: [FilePath]
+    /// The directory paths
     public internal(set) var directories: [DirectoryPath]
+    /// Other paths
     public internal(set) var other: [GenericPath]
 
+    /// Whether or not this collection is empty
     public var isEmpty: Bool { return files.isEmpty && directories.isEmpty && other.isEmpty }
+    /// The number of paths stored in this collection
     public var count: Int { return files.count + directories.count + other.count }
 
     public var description: String {
@@ -20,18 +29,25 @@ public class PathCollection: Equatable, CustomStringConvertible {
         return str.joined(separator: "\n\n")
     }
 
+    /** Initializer
+        - Parameter files: The FilePaths to begin with as a part of this collection
+        - Parameter directories: The DirectoryPaths to begin with as a part of this collection
+        - Parameter other: The remaining Paths to begin with as a part of this collection
+    */
     init(files: [FilePath] = [], directories: [DirectoryPath] = [], other: [GenericPath] = []) {
         self.files = files
         self.directories = directories
         self.other = other
     }
 
+    /// Combines the items from one PathCollection into this PathCollection
     public static func += (lhs: inout PathCollection, rhs: PathCollection) {
         lhs.files += rhs.files
         lhs.directories += rhs.directories
         lhs.other += rhs.other
     }
 
+    /// Whether or not two PathCollections are equivalent
     public static func == (lhs: PathCollection, rhs: PathCollection) -> Bool {
         return lhs.files == rhs.files && lhs.directories == rhs.directories && lhs.other == rhs.other
     }
