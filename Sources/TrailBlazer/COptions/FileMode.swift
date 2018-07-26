@@ -1,51 +1,31 @@
-public struct FileMode: OptionSet, CustomStringConvertible, ExpressibleByIntegerLiteral {
+public struct FileMode: OptionSet, ExpressibleByIntegerLiteral {
     public typealias IntegerLiteralType = OSUInt
 
     public private(set)var rawValue: IntegerLiteralType
 
-    public var description: String {
-        var str = "\(type(of: self))(owner: \(owner), group: \(group), others: \(others)"
-
-        #if os(Linux)
-        str += ", uid: \(bits.uid), gid: \(bits.gid), sticky: \(bits.sticky)"
-        #endif
-
-        str += ")"
-
-        return str
-    }
-
     public var bits: FileBits {
-        get {
-            return FileBits(rawValue: (rawValue >> 9) & 0o7)
-        }
+        get { return FileBits(rawValue: (rawValue >> 9) & 0o7) }
         set {
             rawValue &= 0o0777
             rawValue |= newValue.rawValue << 9
         }
     }
     public var owner: FilePermissions {
-        get {
-            return FilePermissions(rawValue: (rawValue >> 6) & 0o7)
-        }
+        get { return FilePermissions(rawValue: (rawValue >> 6) & 0o7) }
         set {
             rawValue &= 0o7077
             rawValue |= newValue.rawValue << 6
         }
     }
     public var group: FilePermissions {
-        get {
-            return FilePermissions(rawValue: (rawValue >> 3) & 0o7)
-        }
+        get { return FilePermissions(rawValue: (rawValue >> 3) & 0o7) }
         set {
             rawValue &= 0o7707
             rawValue |= newValue.rawValue << 3
         }
     }
     public var others: FilePermissions {
-        get {
-            return FilePermissions(rawValue: rawValue & 0o7)
-        }
+        get { return FilePermissions(rawValue: rawValue & 0o7) }
         set {
             rawValue &= 0o7770
             rawValue |= newValue.rawValue
@@ -103,3 +83,16 @@ public struct FileMode: OptionSet, CustomStringConvertible, ExpressibleByInteger
     }
 }
 
+extension FileMode: CustomStringConvertible {
+    public var description: String {
+        var str = "\(type(of: self))(owner: \(owner), group: \(group), others: \(others)"
+
+        #if os(Linux)
+        str += ", uid: \(bits.uid), gid: \(bits.gid), sticky: \(bits.sticky)"
+        #endif
+
+        str += ")"
+
+        return str
+    }
+}

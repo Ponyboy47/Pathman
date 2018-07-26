@@ -1,26 +1,8 @@
-public struct FilePermissions: OptionSet, ExpressibleByStringLiteral, ExpressibleByIntegerLiteral, CustomStringConvertible {
+public struct FilePermissions: OptionSet, ExpressibleByStringLiteral, ExpressibleByIntegerLiteral {
     public typealias ExtendedGraphemeClusterLiteralType = StringLiteralType
     public typealias IntegerLiteralType = OSUInt
 
     public private(set)var rawValue: IntegerLiteralType
-    public var description: String {
-        var perms: [String] = []
-
-        if canRead {
-            perms.append("read")
-        }
-        if canWrite {
-            perms.append("write")
-        }
-        if canExecute {
-            perms.append("execute")
-        }
-        if perms.isEmpty {
-            perms.append("none")
-        }
-
-        return "\(type(of: self))(\(perms.joined(separator: ", ")), rawValue: \(rawValue))"
-    }
 
     public static let all: FilePermissions = 0o7
     public static let read: FilePermissions =  0o4
@@ -81,5 +63,26 @@ public struct FilePermissions: OptionSet, ExpressibleByStringLiteral, Expressibl
 
     public init(integerLiteral value: IntegerLiteralType) {
         self.init(rawValue: value)
+    }
+}
+
+extension FilePermissions: CustomStringConvertible {
+    public var description: String {
+        var perms: [String] = []
+
+        if canRead {
+            perms.append("read")
+        }
+        if canWrite {
+            perms.append("write")
+        }
+        if canExecute {
+            perms.append("execute")
+        }
+        if perms.isEmpty {
+            perms.append("none")
+        }
+
+        return "\(type(of: self))(\(perms.joined(separator: ", ")), rawValue: \(rawValue))"
     }
 }

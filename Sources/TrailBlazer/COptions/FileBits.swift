@@ -2,24 +2,6 @@ public struct FileBits: OptionSet, ExpressibleByIntegerLiteral {
     public typealias IntegerLiteralType = OSUInt
 
     public let rawValue: IntegerLiteralType
-    public var description: String {
-        var bits: [String] = []
-
-        if contains(.uid) {
-            bits.append("uid")
-        }
-        if contains(.gid) {
-            bits.append("gid")
-        }
-        if contains(.sticky) {
-            bits.append("sticky")
-        }
-        if bits.isEmpty {
-            bits.append("none")
-        }
-
-        return "\(type(of: self))(\(bits.joined(separator: ", ")))"
-    }
 
     public var uid: Bool {
         return contains(.uid)
@@ -53,5 +35,26 @@ public struct FileBits: OptionSet, ExpressibleByIntegerLiteral {
 
     public init(integerLiteral value: IntegerLiteralType) {
         self.init(rawValue: value)
+    }
+}
+
+extension FileBits: CustomStringConvertible {
+    public var description: String {
+        var bits: [String] = []
+
+        if contains(.uid) {
+            bits.append("uid")
+        }
+        if contains(.gid) {
+            bits.append("gid")
+        }
+        if contains(.sticky) {
+            bits.append("sticky")
+        }
+        if bits.isEmpty {
+            bits.append("none")
+        }
+
+        return "\(type(of: self))(\(bits.joined(separator: ", ")))"
     }
 }
