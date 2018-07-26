@@ -378,3 +378,5 @@ print(globData.other)
   - [ ] BlockPath?
   - [ ] CharacterPath?
 - [ ] Investigate TypeErasure to see if it could benefit Paths and Open objects interact together more nicely
+- [ ] Investigate ARC best-practices and see if memory usage/performance/correctness can be improved
+  - https://docs.swift.org/swift-book/LanguageGuide/AutomaticReferenceCounting.html
