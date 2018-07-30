@@ -370,6 +370,7 @@ print(globData.other)
   - [x] Change path permissions
   - [x] Move paths
   - [x] Rename paths (move alias)
+  - [x] URL conversion
 - Misc. Additions
   - [x] Globbing
   - [ ] LinkedPath (symlinks)
@@ -380,3 +381,5 @@ print(globData.other)
 - [ ] Investigate TypeErasure to see if it could benefit Paths and Open objects interact together more nicely
 - [ ] Investigate ARC best-practices and see if memory usage/performance/correctness can be improved
   - https://docs.swift.org/swift-book/LanguageGuide/AutomaticReferenceCounting.html
+- [ ] Investigate improved Hashable conformances
+  - https://developer.apple.com/documentation/swift/adopting_common_protocols

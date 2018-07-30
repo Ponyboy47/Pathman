@@ -1,3 +1,5 @@
+import Foundation
+
 #if os(Linux)
 import Glibc
 let cStat = Glibc.lstat
@@ -133,6 +135,8 @@ public extension Path {
         #endif
         return cStat(string, &s) == 0
     }
+
+    public var url: URL { return URL(fileURLWithPath: _path, isDirectory: isDirectory) }
 
     public var description: String {
         return "\(Swift.type(of: self))(\(string))"

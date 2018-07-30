@@ -1,3 +1,5 @@
+import Foundation
+
 #if os(Linux)
 import Glibc
 #else
@@ -32,6 +34,8 @@ public class Open<PathType: Path & Openable>: Openable, Ownable, Permissionable 
         try? _info.getInfo()
         return _info
     }
+
+    public var url: URL { return _path.url }
 
     var buffer: UnsafeMutablePointer<CChar>? {
         get {
