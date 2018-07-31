@@ -4,8 +4,35 @@ import Glibc
 import Darwin
 #endif
 
-public struct OpenFilePermissions: Equatable, CustomStringConvertible {
-    public let rawValue: OptionInt
+public struct OpenFilePermissions: Equatable, ExpressibleByIntegerLiteral {
+    public typealias IntegerLiteralType = OptionInt
+    public let rawValue: IntegerLiteralType
+
+    /// Allow read-only access when opening a file
+    public static let read = OpenFilePermissions(rawValue: O_RDONLY)
+    /// Allow write-only access when opening a file
+    public static let write = OpenFilePermissions(rawValue: O_WRONLY)
+    /// Allow both read and write access when opening a file
+    public static let readWrite = OpenFilePermissions(rawValue: O_RDWR)
+
+    private init(rawValue: IntegerLiteralType) {
+        self.rawValue = rawValue
+    }
+
+    public init(integerLiteral value: IntegerLiteralType) {
+        self.init(rawValue: value)
+    }
+
+    public static func == (lhs: OpenFilePermissions, rhs: OpenFilePermissions) -> Bool {
+        return lhs.rawValue == rhs.rawValue
+    }
+
+    public func contains(_ perms: OpenFilePermissions) -> Bool {
+        return (rawValue & perms.rawValue) == perms.rawValue
+    }
+}
+
+extension OpenFilePermissions: CustomStringConvertible {
     public var description: String {
         if self == .read {
             return "\(type(of: self))(read)"
@@ -16,23 +43,5 @@ public struct OpenFilePermissions: Equatable, CustomStringConvertible {
         } else {
             return "\(type(of: self))(unknown)"
         }
-    }
-
-    public static let read = OpenFilePermissions(rawValue: O_RDONLY)
-    public static let write = OpenFilePermissions(rawValue: O_WRONLY)
-    public static let readWrite = OpenFilePermissions(rawValue: O_RDWR)
-
-    private init(rawValue: OptionInt) {
-        self.rawValue = rawValue
-    }
-
-    public static func == (lhs: OpenFilePermissions, rhs: OpenFilePermissions) -> Bool {
-        return lhs.rawValue == rhs.rawValue
-    }
-
-    public func contains(_ perms: OpenFilePermissions) -> Bool {
-        guard self != .readWrite else { return true }
-
-        return self == perms
     }
 }
