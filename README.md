@@ -371,6 +371,7 @@ print(globData.other)
   - [x] Move paths
   - [x] Rename paths (move alias)
   - [x] URL conversion
+  - [ ] Get/generate temporary files
 - Misc. Additions
   - [x] Globbing
   - [ ] LinkedPath (symlinks)
