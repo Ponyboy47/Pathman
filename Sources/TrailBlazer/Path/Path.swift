@@ -20,6 +20,16 @@ private func getCWD() -> DirectoryPath {
 
 fileprivate var currentWorkingDirectory = getCWD()
 
+public func pathExists(_ path: String) -> Bool {
+    var s: stat
+    #if os(Linux)
+    s = Glibc.stat()
+    #else
+    s = Darwin.stat()
+    #endif
+    return cStat(path, &s) == 0
+}
+
 /// A protocol that describes a Path type and the attributes available to it
 public protocol Path: Hashable, Comparable, CustomStringConvertible, Ownable, Permissionable, Movable {
     /// The underlying path representation
@@ -28,9 +38,6 @@ public protocol Path: Hashable, Comparable, CustomStringConvertible, Ownable, Pe
     var string: String { get }
     /// The character used to separate components of a path
     static var separator: String { get }
-
-    /// Whether or not the path exists (or is accessible)
-    var exists: Bool { get }
 
     init?(_ str: String)
     init?<PathType: Path>(_ path: PathType)
@@ -127,13 +134,7 @@ public extension Path {
 
     /// Whether or not the path exists (or is accessible)
     public var exists: Bool {
-        var s: stat
-        #if os(Linux)
-        s = Glibc.stat()
-        #else
-        s = Darwin.stat()
-        #endif
-        return cStat(string, &s) == 0
+        return pathExists(_path)
     }
 
     public var url: URL { return URL(fileURLWithPath: _path, isDirectory: isDirectory) }

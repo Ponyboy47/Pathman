@@ -412,6 +412,7 @@ public enum RealPathError: TrailBlazerError {
     case ioError
     case tooManySymlinks
     case pathnameTooLong
+    case pathComponentTooLong
     case outOfMemory
     case pathDoesNotExist
     case pathComponentNotDirectory

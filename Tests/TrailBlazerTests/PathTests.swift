@@ -145,7 +145,7 @@ class PathTests: XCTestCase {
         XCTAssertNotEqual(relative1, relative1.absolute)
         XCTAssertNotEqual(relative2, relative2.absolute)
         XCTAssertNotEqual(relative3, relative3.absolute)
-        XCTAssertTrue(relative1.absolute.isAbsolute)
+        XCTAssertTrue(relative1.absolute?.isAbsolute ?? true)
     }
 
     func testRelative() {
@@ -156,7 +156,7 @@ class PathTests: XCTestCase {
         XCTAssertTrue(relative1.isRelative)
         XCTAssertTrue(relative2.isRelative)
         XCTAssertTrue(relative3.isRelative)
-        XCTAssertEqual(relative1, relative1.absolute.relative)
+        XCTAssertEqual(relative1, relative1.absolute?.relative ?? relative1)
     }
 
     static var allTests = [
