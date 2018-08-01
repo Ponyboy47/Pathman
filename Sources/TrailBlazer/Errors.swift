@@ -147,7 +147,6 @@ public enum OpenDirectoryError: TrailBlazerError {
     case pathDoesNotExist
     case outOfMemory
     case pathNotDirectory
-    case pathExists
 
     public static func getError() -> OpenDirectoryError {
         switch ErrNo.lastError {

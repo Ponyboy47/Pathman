@@ -78,28 +78,28 @@ extension FilePath: Creatable {
     - Parameter mode: The FileMode (permissions) to use for the newly created path
     - Parameter ignoreUMask: Whether or not to try and change the process's umask to guarentee that the FileMode is what you want (I've noticed that by default on Ubuntu, others' write access is disabled in the umask. Setting this to true should allow you to overcome this limitation)
 
-    - Throws: `OpenFileError.permissionDenied` when write access is not allowed to the path or if search permissions were denied on one of the components of the path
-    - Throws: `OpenFileError.quotaReached` when the file does not exist and the user's quota of disk blocks or inodes on the filesystem has been exhausted
-    - Throws: `OpenFileError.badAddress` when the path points to a location outside your accessible address space
-    - Throws: `OpenFileError.interruptedBySignal` when the call was interrupted by a signal handler
-    - Throws: `OpenFileError.tooManySymlinks` when too many symlinks were encountered while resolving the path name
-    - Throws: `OpenFileError.noProcessFileDescriptors` when the calling process has no more available file descriptors
-    - Throws: `OpenFileError.noSystemFileDescriptors` when the entire system has no more available file descriptors
-    - Throws: `OpenFileError.pathnameTooLong` when the path exceeds PATH_MAX number of characters
-    - Throws: `OpenFileError.noDevice` when the path points to a special file and no corresponding device exists
-    - Throws: `OpenFileError.noRouteToPath` when the path cannot be resolved
-    - Throws: `OpenFileError.noKernelMemory` when there is no memory available for creating the path
-    - Throws: `OpenFileError.fileSystemFull` when there is no available disk space for creating the path
-    - Throws: `OpenFileError.pathComponentNotDirectory` when a component of the path is not a directory
-    - Throws: `OpenFileError.readOnlyFileSystem` when the filesystem is in read only mode and cannot create the path
-    - Throws: `OpenFileError.pathBusy` when the path is an executable image which is currently being executed
-    - Throws: `OpenFileError.lockedDevice` when the device where path exists is locked from writing
-    - Throws: `OpenFileError.ioErrorCreatingPath` when an I/O error occurred while creating the inode for the path
-    - Throws: `OpenFileError.pathExists` when creating a path that already exists
+    - Throws: `CreateFileError.permissionDenied` when write access is not allowed to the path or if search permissions were denied on one of the components of the path
+    - Throws: `CreateFileError.quotaReached` when the user's quota of disk blocks or inodes on the filesystem has been exhausted
+    - Throws: `CreateFileError.badAddress` when the path points to a location outside your accessible address space
+    - Throws: `CreateFileError.interruptedBySignal` when the call was interrupted by a signal handler
+    - Throws: `CreateFileError.tooManySymlinks` when too many symlinks were encountered while resolving the path name
+    - Throws: `CreateFileError.noProcessFileDescriptors` when the calling process has no more available file descriptors
+    - Throws: `CreateFileError.noSystemFileDescriptors` when the entire system has no more available file descriptors
+    - Throws: `CreateFileError.pathnameTooLong` when the path exceeds PATH_MAX number of characters
+    - Throws: `CreateFileError.noDevice` when the path points to a special file and no corresponding device exists
+    - Throws: `CreateFileError.noRouteToPath` when the path cannot be resolved
+    - Throws: `CreateFileError.noKernelMemory` when there is no memory available for creating the path
+    - Throws: `CreateFileError.fileSystemFull` when there is no available disk space for creating the path
+    - Throws: `CreateFileError.pathComponentNotDirectory` when a component of the path is not a directory
+    - Throws: `CreateFileError.readOnlyFileSystem` when the filesystem is in read only mode and cannot create the path
+    - Throws: `CreateFileError.pathBusy` when the path is an executable image which is currently being executed
+    - Throws: `CreateFileError.lockedDevice` when the device where path exists is locked from writing
+    - Throws: `CreateFileError.ioErrorCreatingPath` when an I/O error occurred while creating the inode for the path
+    - Throws: `CreateFileError.pathExists` when creating a path that already exists
     */
     @discardableResult
     public func create(mode: FileMode, ignoreUMask: Bool = false) throws -> Open<FilePath> {
-        guard !exists else { throw OpenFileError.pathExists }
+        guard !exists else { throw CreateFileError.pathExists }
 
         if ignoreUMask {
             setUMask(for: mode)
@@ -123,17 +123,23 @@ extension DirectoryPath: Creatable {
     - Parameter mode: The FileMode (permissions) to use for the newly created path
     - Parameter ignoreUMask: Whether or not to try and change the process's umask to guarentee that the FileMode is what you want (I've noticed that by default on Ubuntu, others' write access is disabled in the umask. Setting this to true should allow you to overcome this limitation)
 
-    - Throws: `OpenDirectoryError.permissionDenied` when the calling process does not have access to the path location
-    - Throws: `OpenDirectoryError.noProcessFileDescriptors` when the calling process has no more available file descriptors
-    - Throws: `OpenDirectoryError.noSystemFileDescriptors` when the entire system has no more available file descriptors
-    - Throws: `OpenDirectoryError.pathDoesNotExist` when opening an empty path or if the directory does not exist
-    - Throws: `OpenDirectoryError.outOfMemory` when there is not enough memory available to create the directory
-    - Throws: `OpenDirectoryError.pathNotDirectory` when the path exists already and it is not a directory
-    - Throws: `OpenDirectoryError.pathExists` when creating a path that already exists
+    - Throws: `CreateDirectoryError.permissionDenied` when the calling process does not have access to the path location
+    - Throws: `CreateDirectoryError.quotaReached` when the user's quota of disk blocks or inodes on the filesystem has been exhausted
+    - Throws: `CreateDirectoryError.pathExists` when creating a path that already exists
+    - Throws: `CreateDirectoryError.badAddress` when the path points to a location outside your accessible address space
+    - Throws: `CreateDirectoryError.tooManySymlinks` when too many symlinks were encountered while resolving the path name
+    - Throws: `CreateDirectoryError.pathnameTooLong` when the path exceeds PATH_MAX number of characters
+    - Throws: `CreateDirectoryError.noRouteToPath` when the path cannot be resolved
+    - Throws: `CreateDirectoryError.noKernelMemory` when there is no memory available for creating the path
+    - Throws: `CreateDirectoryError.fileSystemFull` when there is no available disk space for creating the path
+    - Throws: `CreateDirectoryError.pathComponentNotDirectory` when a component of the path is not a directory
+    - Throws: `CreateDirectoryError.readOnlyFileSystem` when the filesystem is in read only mode and cannot create the path
+    - Throws: `CreateDirectoryError.ioError` when an I/O error occurred while creating the inode for the pathIsRootDirectory
+    - Throws: `CreateDirectoryError.pathIsRootDirectory` when the path points to the user's root directory
     */
     @discardableResult
     public func create(mode: FileMode, ignoreUMask: Bool = false) throws -> Open<DirectoryPath> {
-        guard !exists else { throw OpenDirectoryError.pathExists }
+        guard !exists else { throw CreateDirectoryError.pathExists }
 
         if ignoreUMask {
             setUMask(for: mode)
