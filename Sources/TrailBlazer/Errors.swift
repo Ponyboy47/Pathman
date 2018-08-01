@@ -8,6 +8,7 @@ public protocol TrailBlazerError: Error {
 }
 
 // Creating files uses the open(2) call so it's errors are the same
+/// Errors thrown when a FilePath is created (see open(2))
 public typealias CreateFileError = OpenFileError
 
 /// Errors thrown when a FilePath is opened (see open(2))
@@ -23,8 +24,8 @@ public enum OpenFileError: TrailBlazerError {
     case improperUseOfDirectory
     case shouldNotFollowSymlinks
     case tooManySymlinks
-    case noMoreProcessFileDescriptors
-    case noMoreSystemFileDescriptors
+    case noProcessFileDescriptors
+    case noSystemFileDescriptors
     case pathnameTooLong
     case noDevice
     case noRouteToPath
@@ -32,16 +33,14 @@ public enum OpenFileError: TrailBlazerError {
     case fileSystemFull
     case pathComponentNotDirectory
     case deviceNotOpened
-    case noTempFS
     case readOnlyFileSystem
-    case deviceBusy
+    case pathBusy
     case wouldBlock
     case createWithoutMode
-    case invalidOrEmptyPermissions
+    case operationNotSupported
     #if os(macOS)
     case lockedDevice
     case ioErrorCreatingPath
-    case operationNotSupported
     #endif
 
     public static func getError() -> OpenFileError {
@@ -64,25 +63,24 @@ public enum OpenFileError: TrailBlazerError {
             } else {
                 return .tooManySymlinks
             }
-        case .EMFILE: return .noMoreProcessFileDescriptors
+        case .EMFILE: return .noProcessFileDescriptors
         case .ENAMETOOLONG: return .pathnameTooLong
-        case .ENFILE: return .noMoreSystemFileDescriptors
+        case .ENFILE: return .noSystemFileDescriptors
         case .ENODEV: return .noDevice
         case .ENOENT: return .noRouteToPath
         case .ENOMEM: return .noKernelMemory
         case .ENOSPC: return .fileSystemFull
         case .ENOTDIR: return .pathComponentNotDirectory
         case .ENXIO: return .deviceNotOpened
-        case .EOPNOTSUPP: return .noTempFS
         case .EOVERFLOW: return .fileTooLarge
         case .EPERM: return .permissionDenied
         case .EROFS: return .readOnlyFileSystem
-        case .ETXTBSY: return .deviceBusy
+        case .ETXTBSY: return .pathBusy
         case .EWOULDBLOCK: return .wouldBlock
+        case .EOPNOTSUPP: return .operationNotSupported
         #if os(macOS)
         case .EAGAIN: return .lockedDevice
         case .EIO: return .ioErrorCreatingPath
-        case .EOPNOTSUPP: return .operationNotSupported
         #endif
         default: return .unknown
         }
@@ -143,22 +141,24 @@ public enum DeleteFileError: TrailBlazerError {
 public enum OpenDirectoryError: TrailBlazerError {
     case unknown
     case permissionDenied
-    case badFileDescriptor
-    case noMoreProcessFileDescriptors
-    case noMoreSystemFileDescriptors
+    // case badFileDescriptor
+    case noProcessFileDescriptors
+    case noSystemFileDescriptors
     case pathDoesNotExist
     case outOfMemory
-    case pathComponentNotDirectory
+    case pathNotDirectory
+    case pathExists
 
     public static func getError() -> OpenDirectoryError {
         switch ErrNo.lastError {
         case .EACCES: return .permissionDenied
-        case .EBADF: return .badFileDescriptor
-        case .EMFILE: return .noMoreProcessFileDescriptors
-        case .ENFILE: return .noMoreSystemFileDescriptors
+        // This would only occur for the fopendir(2) C API call, which is not being used
+        // case .EBADF: return .badFileDescriptor
+        case .EMFILE: return .noProcessFileDescriptors
+        case .ENFILE: return .noSystemFileDescriptors
         case .ENOENT: return .pathDoesNotExist
         case .ENOMEM: return .outOfMemory
-        case .ENOTDIR: return .pathComponentNotDirectory
+        case .ENOTDIR: return .pathNotDirectory
         default: return .unknown
         }
     }
@@ -298,8 +298,8 @@ public enum UserInfoError: TrailBlazerError {
     case userDoesNotExist
     case interruptedBySignal
     case ioError
-    case noMoreProcessFileDescriptors
-    case noMoreSystemFileDescriptors
+    case noProcessFileDescriptors
+    case noSystemFileDescriptors
     case outOfMemory
     case invalidHomeDirectory
 
@@ -308,8 +308,8 @@ public enum UserInfoError: TrailBlazerError {
         case 0, .ENOENT, .ESRCH, .EBADF, .EPERM: return .userDoesNotExist
         case .EINTR: return .interruptedBySignal
         case .EIO: return .ioError
-        case .EMFILE: return .noMoreProcessFileDescriptors
-        case .ENFILE: return .noMoreSystemFileDescriptors
+        case .EMFILE: return .noProcessFileDescriptors
+        case .ENFILE: return .noSystemFileDescriptors
         case .ENOMEM: return .outOfMemory
         default: return .unknown
         }
@@ -322,8 +322,8 @@ public enum GroupInfoError: TrailBlazerError {
     case userDoesNotExist
     case interruptedBySignal
     case ioError
-    case noMoreProcessFileDescriptors
-    case noMoreSystemFileDescriptors
+    case noProcessFileDescriptors
+    case noSystemFileDescriptors
     case outOfMemory
 
     public static func getError() -> GroupInfoError {
@@ -331,8 +331,8 @@ public enum GroupInfoError: TrailBlazerError {
         case 0, .ENOENT, .ESRCH, .EBADF, .EPERM: return .userDoesNotExist
         case .EINTR: return .interruptedBySignal
         case .EIO: return .ioError
-        case .EMFILE: return .noMoreProcessFileDescriptors
-        case .ENFILE: return .noMoreSystemFileDescriptors
+        case .EMFILE: return .noProcessFileDescriptors
+        case .ENFILE: return .noSystemFileDescriptors
         case .ENOMEM: return .outOfMemory
         default: return .unknown
         }
@@ -387,7 +387,7 @@ public enum SeekError: TrailBlazerError {
     case offsetTooLarge
     case fileDescriptorIsNotFile
     #if os(macOS)
-    case noMoreData
+    case noData
     #endif
 
     public static func getError() -> SeekError {
@@ -397,7 +397,7 @@ public enum SeekError: TrailBlazerError {
         case .EOVERFLOW: return .offsetTooLarge
         case .ESPIPE: return .fileDescriptorIsNotFile
         #if os(macOS)
-        case .ENXIO: return .noMoreData
+        case .ENXIO: return .noData
         #endif
         default: return .unknown
         }
