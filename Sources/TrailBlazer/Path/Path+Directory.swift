@@ -6,9 +6,19 @@ typealias DIRType = OpaquePointer
 typealias DIRType = UnsafeMutablePointer<DIR>
 #endif
 
+/*
+Recently modified the recursive functions to only have one directory open at
+a time. This should prevent the need for the whole autoclose code (and its
+overhead)
+
+/// The conditions under which large amounts of rapidly opened directories
+/// are automatically closed (to prevent using up all the process's/system's
+/// available file descriptors)
 private let dirConditions: Conditions = .newer(than: .seconds(5), threshold: 0.25, minCount: 50)
 
+/// The date sorted collection of open directories
 private var _openDirectories: DateSortedDescriptors<DirectoryPath, OpenDirectory> = [:]
+/// The date sorted collection of open directories
 private var openDirectories: DateSortedDescriptors<DirectoryPath, OpenDirectory> {
     get {
         if _openDirectories.autoclose == nil {
@@ -18,10 +28,17 @@ private var openDirectories: DateSortedDescriptors<DirectoryPath, OpenDirectory>
     }
     set {
         _openDirectories = newValue
-        autoclose(_openDirectories, percentage: 0.1, conditions: dirConditions)
-        _openDirectories.autoclose = (percentage: 0.1, conditions: dirConditions, priority: .added, min: -1.0, max: -1.0)
+        // See if we should close any recently opened directories
+        // NOTE: The openDirectories object calls autoclose when inserting
+        // new items, but this is used when completely reassigning
+        // openDirectories
+        autoclose(openDirectories, percentage: 0.1, conditions: dirConditions)
     }
 }
+*/
+
+/// A dictionary of all the open directories
+private var openDirectories: [DirectoryPath: OpenDirectory] = [:]
 
 /// A Path to a directory
 public class DirectoryPath: Path, Openable, Sequence, IteratorProtocol {
@@ -29,12 +46,26 @@ public class DirectoryPath: Path, Openable, Sequence, IteratorProtocol {
 
     public var _path: String
     public var fileDescriptor: FileDescriptor {
+        // Opened directories result in a DIR struct, rather than a straight
+        // file descriptor. The dirfd(3) C API call takes a DIR pointer and
+        // returns its associated file descriptor
+
+        // Make sure we have opened the directory, otherwise return -1
         guard let dir = self.dir else { return -1 }
+
+        // Either returns the file descriptor or -1 if there was an error
         return dirfd(dir)
     }
+
+    /// Opening a directory returns a pointer to a DIR struct
     private var dir: DIRType?
+    /// Directories need to be rewound after being traversed. This tracks
+    /// whether or not we need to rewind a directory
     private var finishedTraversal: Bool = false
+
+    /// The options used to open a directory (Ignored)
     public internal(set) var options: OptionInt = 0
+    /// The mode used to open a directory (Ignored)
     public internal(set) var mode: FileMode? = nil
 
     // This is to protect the info from being set externally
@@ -80,23 +111,33 @@ public class DirectoryPath: Path, Openable, Sequence, IteratorProtocol {
         }
     }
 
+    /**
+    Initialize from another DirectoryPath (copy constructor)
+
+    - Parameter path: The path to copy
+    */
     public init(_ path: DirectoryPath) {
         _path = path._path
         _info = path.info
     }
 
-    public required init?<PathType: Path>(_ path: PathType) {
-        // Cannot initialize a directory from a file
-        guard PathType.self != FilePath.self else { return nil }
+    /**
+    Initialize from another Path
+
+    - Parameter path: The path to copy
+    */
+    public required init?(_ path: GenericPath) {
+        // Cannot initialize a directory from a non-directory type
+        if path.exists {
+            guard path.isDirectory else { return nil }
+        }
 
         _path = path._path
         _info = path.info
-
-        if exists {
-            guard isDirectory else { return nil }
-        }
     }
 
+    /**
+    */
     @discardableResult
     public func open(options: OptionInt = 0, mode: FileMode? = nil) throws -> Open<DirectoryPath> {
         // If the directory is already open, return it. Unlike FilePaths, the
@@ -167,13 +208,12 @@ public class DirectoryPath: Path, Openable, Sequence, IteratorProtocol {
         var children: PathCollection = PathCollection()
         // Make sure we're not below the specified depth
         guard depth != 0 else { return children }
-        let depth = depth == -1 ? depth : depth - 1
+        let depth = depth - 1
 
         // Make sure the directory has been opened
         let unopened = dir == nil
-        if unopened {
-            try open()
-        }
+        // If the directory is already open, this just returns the opened directory
+        try open()
 
         // Go through all the paths in the current directory and add them to the correct array
         for path in self {
@@ -185,14 +225,6 @@ public class DirectoryPath: Path, Openable, Sequence, IteratorProtocol {
                 children.files.append(file)
             } else if let dir = DirectoryPath(path) {
                 children.directories.append(dir)
-                // Make sure we're safe to go another level deep
-                if depth != 0 {
-                    guard !["..", "."].contains(dir.lastComponent) else { continue }
-                    children += try dir.recursiveChildren(to: depth, includeHidden: includeHidden)
-                    if self.dir == nil {
-                        try open()
-                    }
-                }
             } else {
                 children.other.append(path)
             }
@@ -202,6 +234,13 @@ public class DirectoryPath: Path, Openable, Sequence, IteratorProtocol {
         // this operation, then we should go ahead and close it too
         if unopened {
             try close()
+        }
+
+        if depth != 0 {
+            let dirs = children.directories
+            for dir in dirs {
+                children += try dir.recursiveChildren(to: depth, includeHidden: includeHidden)
+            }
         }
 
         return children

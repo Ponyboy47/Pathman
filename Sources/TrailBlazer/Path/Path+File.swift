@@ -10,9 +10,20 @@ private let cOpenFileWithMode = Darwin.open(_:_:_:)
 private let cCloseFile = Darwin.close
 #endif
 
+/*
+Recently modified the recursive directory functions so that they only have one
+directory open at a time, eliminating the need to autoclose directories if many
+are opened in rapid succession. As such, I am removing the overhead of
+storing/checking open files.
+
+/// The conditions under which large amounts of rapidly opened files are
+/// automatically closed (to prevent using up all the process's/system's
+/// available file descriptors)
 private let fileConditions: Conditions = .newer(than: .seconds(5), threshold: 0.25, minCount: 50)
 
+/// The date sorted collection of open files
 private var _openFiles: DateSortedDescriptors<FilePath, OpenFile> = [:]
+/// The date sorted collection of open files
 private var openFiles: DateSortedDescriptors<FilePath, OpenFile> {
     get {
         if _openFiles.autoclose == nil {
@@ -22,10 +33,16 @@ private var openFiles: DateSortedDescriptors<FilePath, OpenFile> {
     }
     set {
         _openFiles = newValue
-        autoclose(_openFiles, percentage: 0.1, conditions: fileConditions)
-        _openFiles.autoclose = (percentage: 0.1, conditions: fileConditions, priority: .added, min: -1.0, max: -1.0)
+        // See if we should close any recently opened files
+        // NOTE: The openFiles object calls autoclose when inserting new items,
+        // but this is used when completely reassigning openFiles
+        autoclose(openFiles, percentage: 0.1, conditions: fileConditions)
     }
 }
+*/
+
+/// A dictionary of all the open files
+private var openFiles: [FilePath: OpenFile] = [:]
 
 /// A Path to a file
 public class FilePath: Path, Openable {
@@ -82,35 +99,73 @@ public class FilePath: Path, Openable {
         }
     }
 
+    /**
+    Initialize from another FilePath (copy constructor)
+
+    - Parameter  path: The path to copy
+    */
     public init(_ path: FilePath) {
         _path = path._path
         _info = path.info
     }
 
-    public required init?<PathType: Path>(_ path: PathType) {
-        // Cannot initialize a file from a directory
-        guard PathType.self != DirectoryPath.self else { return nil }
+    /**
+    Initialize from GenericPath
+
+    If the path is a directory then this initializer fails
+
+    - Parameter path: The path to copy
+    */
+    public required init?(_ path: GenericPath) {
+        // Cannot initialize a file from a non-file type
+        if path.exists {
+            guard path.isFile else { return nil }
+        }
 
         _path = path._path
         _info = path.info
-
-        if exists {
-            guard isFile else { return nil }
-        }
     }
 
     @available(*, unavailable, message: "Cannot append to a FilePath")
     public static func + <PathType: Path>(lhs: FilePath, rhs: PathType) -> PathType { fatalError("Cannot append to a FilePath") }
 
     /**
-    Opens the file if it is unopened, returns the opened file if using the same parameters, or closes the opened file and then opens it if the parameters are different
+    Opens the file
 
     - Parameters:
-        - permissions: The permissions with which to open the file (.read, .write, or .readWrite)
-        - flags: The flags to use for opening the file (see open(2) man pages for info)
-        - mode: The FileMode if using the .create flag
-    - Throws: OpenFileError, CreateFileError, or CloseFileError
-    - Warning: Beware opening the same file multiple times with different options. To reduce the number of open file descriptors, a single file can only be opened once at a time. If you open the same path with different permissions or flags, then the previously opened instance will be closed before the new one is opened. ie: if youre going to use a path for reading and writing, then open it using the .readWrite permissions rather than first opening it for reading and then later opening it for writing
+        - options: The raw OpenFilePermissions + OpenFileFlags value to use with the C open(2) API call
+        - mode: The permissions to use if creating a file
+
+    - Throws: `OpenFileError.permissionDenied` when write access is not allowed to the path or if search permissions were denied on one of the components of the path
+    - Throws: `OpenFileError.quotaReached` when the file does not exist and the user's quota of disk blocks or inodes on the filesystem has been exhausted
+    - Throws: `OpenFileError.pathExists` when creating a path that already exists
+    - Throws: `OpenFileError.badAddress` when the path points to a location outside your accessible address space
+    - Throws: `OpenFileError.fileTooLarge` when the path is a file that is too large to be opened. Generally occurs on a 32-bit platform when opening a file whose size is larger than a 32-bit integer
+    - Throws: `OpenFileError.interruptedBySignal` when the call was interrupted by a signal handler
+    - Throws: `OpenFileError.invalidFlags` when an invalid value is specified in the `options`. May also mean the `.direct` flag was used and this system does not support it
+    - Throws: `OpenFileError.shouldNotFollowSymlinks` when the `.noFollow` flag was used and a symlink was discovered to be part of the path's components
+    - Throws: `OpenFileError.tooManySymlinks` when too many symlinks were encountered while resolving the path name
+    - Throws: `OpenFileError.noProcessFileDescriptors` when the calling process has no more available file descriptors
+    - Throws: `OpenFileError.noSystemFileDescriptors` when the entire system has no more available file descriptors
+    - Throws: `OpenFileError.pathnameTooLong` when the path exceeds `PATH_MAX` number of characters
+    - Throws: `OpenFileError.noDevice` when the path points to a special file and no corresponding device exists
+    - Throws: `OpenFileError.noRouteToPath` when the path cannot be resolved
+    - Throws: `OpenFileError.noKernelMemory` when there is no memory available
+    - Throws: `OpenFileError.fileSystemFull` when there is no available disk space
+    - Throws: `OpenFileError.pathComponentNotDirectory` when a component of the path is not a directory
+    - Throws: `OpenFileError.readOnlyFileSystem` when the filesystem is in read only mode
+    - Throws: `OpenFileError.pathBusy` when the path is an executable image which is currently being executed
+    - Throws: `OpenFileError.wouldBlock` when the `.nonBlock` flag was used and an incompatible lease is held on the file (see fcntl(2))
+    - Throws: `OpenFileError.createWithoutMode` when creating a path and the mode is nil
+    - Throws: `OpenFileError.lockedDevice` when the device where path exists is locked from writing
+    - Throws: `OpenFileError.ioErrorCreatingPath` (macOS only) when an I/O error occurred while creating the inode for the path
+    - Throws: `OpenFileError.operationNotSupported` (macOS only) when the `.sharedLock` or `.exclusiveLock` flags were specified and the underlying filesystem doesn't support locking or the path is a socket and opening a socket is not supported yet
+    - Throws: `CloseFileError.badFileDescriptor` when the underlying file descriptor being closed is already closed or is not a valid file descriptor
+    - Throws: `CloseFileError.interruptedBySignal` when the call was interrupted by a signal handler
+    - Throws: `CloseFileError.ioError` when an I/O error occurred
+
+    - Warning: Beware opening the same file multiple times with non-overlapping options/permissions. In order to reduce the number of open file descriptors, a single file can only be opened once at a time. If you open the same path with different permissions or flags, then the previously opened instance will be closed before the new one is opened. ie: if youre going to use a path for reading and writing, then open it using the `.readWrite` permissions rather than first opening it with `.read` and then later opening it with `.write`
+    - Note: A `CloseFileError` will only be thrown if the file has previously been opened and is now being reopened with non-overlapping `options` as the previous open. So we first will close the old open file and then open it with the new options
     */
     @discardableResult
     public func open(options: OptionInt = 0, mode: FileMode? = nil) throws -> OpenFile {
@@ -150,23 +205,148 @@ public class FilePath: Path, Openable {
         return open
     }
 
+    /**
+    Opens the file
+
+    - Parameters:
+        - permissions: The permissions to be used with the open file. (`.read`, `.write`, or `.readWrite`)
+        - flags: The flags with which to open the file
+        - mode: The permissions to use if creating a file
+
+    - Throws: `OpenFileError.permissionDenied` when write access is not allowed to the path or if search permissions were denied on one of the components of the path
+    - Throws: `OpenFileError.quotaReached` when the file does not exist and the user's quota of disk blocks or inodes on the filesystem has been exhausted
+    - Throws: `OpenFileError.pathExists` when creating a path that already exists
+    - Throws: `OpenFileError.badAddress` when the path points to a location outside your accessible address space
+    - Throws: `OpenFileError.fileTooLarge` when the path is a file that is too large to be opened. Generally occurs on a 32-bit platform when opening a file whose size is larger than a 32-bit integer
+    - Throws: `OpenFileError.interruptedBySignal` when the call was interrupted by a signal handler
+    - Throws: `OpenFileError.invalidFlags` when an invalid value is specified in the `options`. May also mean the `.direct` flag was used and this system does not support it
+    - Throws: `OpenFileError.shouldNotFollowSymlinks` when the `.noFollow` flag was used and a symlink was discovered to be part of the path's components
+    - Throws: `OpenFileError.tooManySymlinks` when too many symlinks were encountered while resolving the path name
+    - Throws: `OpenFileError.noProcessFileDescriptors` when the calling process has no more available file descriptors
+    - Throws: `OpenFileError.noSystemFileDescriptors` when the entire system has no more available file descriptors
+    - Throws: `OpenFileError.pathnameTooLong` when the path exceeds `PATH_MAX` number of characters
+    - Throws: `OpenFileError.noDevice` when the path points to a special file and no corresponding device exists
+    - Throws: `OpenFileError.noRouteToPath` when the path cannot be resolved
+    - Throws: `OpenFileError.noKernelMemory` when there is no memory available
+    - Throws: `OpenFileError.fileSystemFull` when there is no available disk space
+    - Throws: `OpenFileError.pathComponentNotDirectory` when a component of the path is not a directory
+    - Throws: `OpenFileError.readOnlyFileSystem` when the filesystem is in read only mode
+    - Throws: `OpenFileError.pathBusy` when the path is an executable image which is currently being executed
+    - Throws: `OpenFileError.wouldBlock` when the `.nonBlock` flag was used and an incompatible lease is held on the file (see fcntl(2))
+    - Throws: `OpenFileError.createWithoutMode` when creating a path and the mode is nil
+    - Throws: `OpenFileError.lockedDevice` when the device where path exists is locked from writing
+    - Throws: `OpenFileError.ioErrorCreatingPath` (macOS only) when an I/O error occurred while creating the inode for the path
+    - Throws: `OpenFileError.operationNotSupported` (macOS only) when the `.sharedLock` or `.exclusiveLock` flags were specified and the underlying filesystem doesn't support locking or the path is a socket and opening a socket is not supported yet
+    - Throws: `CloseFileError.badFileDescriptor` when the underlying file descriptor being closed is already closed or is not a valid file descriptor
+    - Throws: `CloseFileError.interruptedBySignal` when the call was interrupted by a signal handler
+    - Throws: `CloseFileError.ioError` when an I/O error occurred
+
+    - Warning: Beware opening the same file multiple times with non-overlapping options/permissions. In order to reduce the number of open file descriptors, a single file can only be opened once at a time. If you open the same path with different permissions or flags, then the previously opened instance will be closed before the new one is opened. ie: if youre going to use a path for reading and writing, then open it using the `.readWrite` permissions rather than first opening it with `.read` and then later opening it with `.write`
+    - Note: A `CloseFileError` will only be thrown if the file has previously been opened and is now being reopened with non-overlapping `options` as the previous open. So we first will close the old open file and then open it with the new options
+    */
     @discardableResult
     public func open(permissions: OpenFilePermissions, flags: OpenFileFlags = [], mode: FileMode? = nil) throws -> OpenFile {
         return try open(options: permissions.rawValue | flags.rawValue, mode: mode)
     }
 
+    /**
+    Opens the file
+
+    - Parameters:
+        - permissions: The permissions to be used with the open file. (`.read`, `.write`, or `.readWrite`)
+        - flags: The flags with which to open the file
+        - mode: The permissions to use if creating a file
+
+    - Throws: `OpenFileError.permissionDenied` when write access is not allowed to the path or if search permissions were denied on one of the components of the path
+    - Throws: `OpenFileError.quotaReached` when the file does not exist and the user's quota of disk blocks or inodes on the filesystem has been exhausted
+    - Throws: `OpenFileError.pathExists` when creating a path that already exists
+    - Throws: `OpenFileError.badAddress` when the path points to a location outside your accessible address space
+    - Throws: `OpenFileError.fileTooLarge` when the path is a file that is too large to be opened. Generally occurs on a 32-bit platform when opening a file whose size is larger than a 32-bit integer
+    - Throws: `OpenFileError.interruptedBySignal` when the call was interrupted by a signal handler
+    - Throws: `OpenFileError.invalidFlags` when an invalid value is specified in the `options`. May also mean the `.direct` flag was used and this system does not support it
+    - Throws: `OpenFileError.shouldNotFollowSymlinks` when the `.noFollow` flag was used and a symlink was discovered to be part of the path's components
+    - Throws: `OpenFileError.tooManySymlinks` when too many symlinks were encountered while resolving the path name
+    - Throws: `OpenFileError.noProcessFileDescriptors` when the calling process has no more available file descriptors
+    - Throws: `OpenFileError.noSystemFileDescriptors` when the entire system has no more available file descriptors
+    - Throws: `OpenFileError.pathnameTooLong` when the path exceeds `PATH_MAX` number of characters
+    - Throws: `OpenFileError.noDevice` when the path points to a special file and no corresponding device exists
+    - Throws: `OpenFileError.noRouteToPath` when the path cannot be resolved
+    - Throws: `OpenFileError.noKernelMemory` when there is no memory available
+    - Throws: `OpenFileError.fileSystemFull` when there is no available disk space
+    - Throws: `OpenFileError.pathComponentNotDirectory` when a component of the path is not a directory
+    - Throws: `OpenFileError.readOnlyFileSystem` when the filesystem is in read only mode
+    - Throws: `OpenFileError.pathBusy` when the path is an executable image which is currently being executed
+    - Throws: `OpenFileError.wouldBlock` when the `.nonBlock` flag was used and an incompatible lease is held on the file (see fcntl(2))
+    - Throws: `OpenFileError.createWithoutMode` when creating a path and the mode is nil
+    - Throws: `OpenFileError.lockedDevice` when the device where path exists is locked from writing
+    - Throws: `OpenFileError.ioErrorCreatingPath` (macOS only) when an I/O error occurred while creating the inode for the path
+    - Throws: `OpenFileError.operationNotSupported` (macOS only) when the `.sharedLock` or `.exclusiveLock` flags were specified and the underlying filesystem doesn't support locking or the path is a socket and opening a socket is not supported yet
+    - Throws: `CloseFileError.badFileDescriptor` when the underlying file descriptor being closed is already closed or is not a valid file descriptor
+    - Throws: `CloseFileError.interruptedBySignal` when the call was interrupted by a signal handler
+    - Throws: `CloseFileError.ioError` when an I/O error occurred
+
+    - Warning: Beware opening the same file multiple times with non-overlapping options/permissions. In order to reduce the number of open file descriptors, a single file can only be opened once at a time. If you open the same path with different permissions or flags, then the previously opened instance will be closed before the new one is opened. ie: if youre going to use a path for reading and writing, then open it using the `.readWrite` permissions rather than first opening it with `.read` and then later opening it with `.write`
+    - Note: A `CloseFileError` will only be thrown if the file has previously been opened and is now being reopened with non-overlapping `options` as the previous open. So we first will close the old open file and then open it with the new options
+    */
     @discardableResult
     public func open(permissions: OpenFilePermissions, flags: [OpenFileFlags], mode: FileMode? = nil) throws -> OpenFile {
         let options = permissions.rawValue | flags.reduce(0) { return $0 | $1.rawValue }
         return try open(options: options, mode: mode)
     }
 
+    /**
+    Opens the file
+
+    - Parameters:
+        - permissions: The permissions to be used with the open file. (`.read`, `.write`, or `.readWrite`)
+        - flags: The flags with which to open the file
+        - mode: The permissions to use if creating a file
+
+    - Throws: `OpenFileError.permissionDenied` when write access is not allowed to the path or if search permissions were denied on one of the components of the path
+    - Throws: `OpenFileError.quotaReached` when the file does not exist and the user's quota of disk blocks or inodes on the filesystem has been exhausted
+    - Throws: `OpenFileError.pathExists` when creating a path that already exists
+    - Throws: `OpenFileError.badAddress` when the path points to a location outside your accessible address space
+    - Throws: `OpenFileError.fileTooLarge` when the path is a file that is too large to be opened. Generally occurs on a 32-bit platform when opening a file whose size is larger than a 32-bit integer
+    - Throws: `OpenFileError.interruptedBySignal` when the call was interrupted by a signal handler
+    - Throws: `OpenFileError.invalidFlags` when an invalid value is specified in the `options`. May also mean the `.direct` flag was used and this system does not support it
+    - Throws: `OpenFileError.shouldNotFollowSymlinks` when the `.noFollow` flag was used and a symlink was discovered to be part of the path's components
+    - Throws: `OpenFileError.tooManySymlinks` when too many symlinks were encountered while resolving the path name
+    - Throws: `OpenFileError.noProcessFileDescriptors` when the calling process has no more available file descriptors
+    - Throws: `OpenFileError.noSystemFileDescriptors` when the entire system has no more available file descriptors
+    - Throws: `OpenFileError.pathnameTooLong` when the path exceeds `PATH_MAX` number of characters
+    - Throws: `OpenFileError.noDevice` when the path points to a special file and no corresponding device exists
+    - Throws: `OpenFileError.noRouteToPath` when the path cannot be resolved
+    - Throws: `OpenFileError.noKernelMemory` when there is no memory available
+    - Throws: `OpenFileError.fileSystemFull` when there is no available disk space
+    - Throws: `OpenFileError.pathComponentNotDirectory` when a component of the path is not a directory
+    - Throws: `OpenFileError.readOnlyFileSystem` when the filesystem is in read only mode
+    - Throws: `OpenFileError.pathBusy` when the path is an executable image which is currently being executed
+    - Throws: `OpenFileError.wouldBlock` when the `.nonBlock` flag was used and an incompatible lease is held on the file (see fcntl(2))
+    - Throws: `OpenFileError.createWithoutMode` when creating a path and the mode is nil
+    - Throws: `OpenFileError.lockedDevice` when the device where path exists is locked from writing
+    - Throws: `OpenFileError.ioErrorCreatingPath` (macOS only) when an I/O error occurred while creating the inode for the path
+    - Throws: `OpenFileError.operationNotSupported` (macOS only) when the `.sharedLock` or `.exclusiveLock` flags were specified and the underlying filesystem doesn't support locking or the path is a socket and opening a socket is not supported yet
+    - Throws: `CloseFileError.badFileDescriptor` when the underlying file descriptor being closed is already closed or is not a valid file descriptor
+    - Throws: `CloseFileError.interruptedBySignal` when the call was interrupted by a signal handler
+    - Throws: `CloseFileError.ioError` when an I/O error occurred
+
+    - Warning: Beware opening the same file multiple times with non-overlapping options/permissions. In order to reduce the number of open file descriptors, a single file can only be opened once at a time. If you open the same path with different permissions or flags, then the previously opened instance will be closed before the new one is opened. ie: if youre going to use a path for reading and writing, then open it using the `.readWrite` permissions rather than first opening it with `.read` and then later opening it with `.write`
+    - Note: A `CloseFileError` will only be thrown if the file has previously been opened and is now being reopened with non-overlapping `options` as the previous open. So we first will close the old open file and then open it with the new options
+    */
     @discardableResult
     public func open(permissions: OpenFilePermissions, flags: OpenFileFlags..., mode: FileMode? = nil) throws -> OpenFile {
         return try open(permissions: permissions, flags: flags, mode: mode)
     }
 
+    /**
+    Closes the file (if previously opened)
+
+    - Throws: `CloseFileError.badFileDescriptor` when the underlying file descriptor being closed is already closed or is not a valid file descriptor
+    - Throws: `CloseFileError.interruptedBySignal` when the call was interrupted by a signal handler
+    - Throws: `CloseFileError.ioError` when an I/O error occurred
+    */
     public func close() throws {
+        // File is not open
         guard fileDescriptor != -1 else { return }
 
         // Remove the open file from the openFiles dict after we close it
@@ -180,6 +360,7 @@ public class FilePath: Path, Openable {
         }
     }
 
+    // Be sure to close any open files on deconstruction
     deinit {
         try? close()
     }

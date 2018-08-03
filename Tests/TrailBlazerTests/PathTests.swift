@@ -27,12 +27,14 @@ class PathTests: XCTestCase {
         XCTAssertEqual(GenericPath(FilePath("/tmp/flabbergasted")!).string, "/tmp/flabbergasted")
 
         XCTAssertEqual(DirectoryPath(GenericPath("/tmp"))!.string, "/tmp")
-        XCTAssertEqual(DirectoryPath(DirectoryPath("/tmp")!)!.string, "/tmp")
-        XCTAssertNil(DirectoryPath(FilePath("/tmp/flabbergasted")!))
+        XCTAssertEqual(DirectoryPath(DirectoryPath("/tmp")!).string, "/tmp")
+        // Disallowed now
+        // XCTAssertNil(DirectoryPath(FilePath("/tmp/flabbergasted")!))
 
         XCTAssertEqual(FilePath(GenericPath("/tmp/flabbergasted"))!.string, "/tmp/flabbergasted")
-        XCTAssertNil(FilePath(DirectoryPath("/tmp")!))
-        XCTAssertEqual(FilePath(FilePath("/tmp/flabbergasted")!)!.string, "/tmp/flabbergasted")
+        // Disallowed now
+        // XCTAssertNil(FilePath(DirectoryPath("/tmp")!))
+        XCTAssertEqual(FilePath(FilePath("/tmp/flabbergasted")!).string, "/tmp/flabbergasted")
     }
 
     func testArrayInit() {

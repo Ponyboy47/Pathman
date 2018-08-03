@@ -40,7 +40,7 @@ public protocol Path: Hashable, Comparable, CustomStringConvertible, Ownable, Pe
     static var separator: String { get }
 
     init?(_ str: String)
-    init?<PathType: Path>(_ path: PathType)
+    init?(_ path: GenericPath)
     init?(_ components: [String])
 }
 
