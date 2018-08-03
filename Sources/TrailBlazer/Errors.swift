@@ -21,7 +21,7 @@ public enum OpenFileError: TrailBlazerError {
     case fileTooLarge
     case interruptedBySignal
     case invalidFlags
-    case improperUseOfDirectory
+    // case improperUseOfDirectory
     case shouldNotFollowSymlinks
     case tooManySymlinks
     case noProcessFileDescriptors
@@ -56,7 +56,9 @@ public enum OpenFileError: TrailBlazerError {
         case .EFBIG: return .fileTooLarge
         case .EINTR: return .interruptedBySignal
         case .EINVAL: return .invalidFlags
-        case .EISDIR: return .improperUseOfDirectory
+        // This should only occur when opening a directory and since this is
+        // restricted to opening files it _shouldn't_ ever occur
+        // case .EISDIR: return .improperUseOfDirectory
         case .ELOOP:
             if flags.contains(.noFollow) {
                 return .shouldNotFollowSymlinks
@@ -104,11 +106,14 @@ public enum CloseFileError: TrailBlazerError {
     }
 }
 
-/// Errors thrown when a FilePath is deleted (see unlink(2))
-public enum DeleteFileError: TrailBlazerError {
+/// Errors thrown when a FilePath is deleted
+public typealias DeleteFileError = UnlinkError
+
+/// Errors thrown when a path is unlinked (see unlink(2))
+public enum UnlinkError: TrailBlazerError {
     case unknown
     case permissionDenied
-    case fileInUse
+    case pathInUse
     case badAddress
     case ioError
     case isDirectory
@@ -119,10 +124,10 @@ public enum DeleteFileError: TrailBlazerError {
     case noKernelMemory
     case readOnlyFileSystem
 
-    public static func getError() -> DeleteFileError {
+    public static func getError() -> UnlinkError {
         switch ErrNo.lastError {
         case .EACCES, .EPERM: return .permissionDenied
-        case .EBUSY: return .fileInUse
+        case .EBUSY: return .pathInUse
         case .EFAULT: return .badAddress
         case .EIO: return .ioError
         case .EISDIR: return .isDirectory
