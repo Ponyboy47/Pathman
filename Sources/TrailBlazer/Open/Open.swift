@@ -20,7 +20,7 @@ public protocol Openable: StatDelegate {
 private var _buffers: [Int: UnsafeMutablePointer<CChar>] = [:]
 private var _bufferSizes: [Int: OSInt] = [:]
 
-public class Open<PathType: Path & Openable>: Openable, Ownable, Permissionable {
+open class Open<PathType: Path & Openable>: Openable, Ownable, Permissionable {
     public typealias OpenableType = PathType.OpenableType
 
     public let _path: PathType

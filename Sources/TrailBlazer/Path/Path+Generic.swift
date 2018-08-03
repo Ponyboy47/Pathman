@@ -1,5 +1,5 @@
 /// A type used to express filesystem paths
-public class GenericPath: Path, ExpressibleByStringLiteral, ExpressibleByArrayLiteral {
+open class GenericPath: Path, ExpressibleByStringLiteral, ExpressibleByArrayLiteral {
 	public typealias ExtendedGraphemeClusterLiteralType = StringLiteralType
     public typealias ArrayLiteralElement = String
 

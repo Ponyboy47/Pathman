@@ -68,6 +68,13 @@ public class DirectoryPath: Path, Openable, Sequence, IteratorProtocol {
     /// The mode used to open a directory (Ignored)
     public internal(set) var mode: FileMode? = nil
 
+    /// The currently opened directory (if it has been opened previously)
+    /// Warning: The setter may be removed in a later release
+    public var opened: OpenDirectory? {
+        get { return openDirectories[self] }
+        set { openDirectories[self] = newValue }
+    }
+
     // This is to protect the info from being set externally
     private var _info: StatInfo
     public var info: StatInfo {
@@ -142,7 +149,7 @@ public class DirectoryPath: Path, Openable, Sequence, IteratorProtocol {
     public func open(options: OptionInt = 0, mode: FileMode? = nil) throws -> Open<DirectoryPath> {
         // If the directory is already open, return it. Unlike FilePaths, the
         // options/mode are irrelevant for opening directories
-        if let openDir = openDirectories[self] {
+        if let openDir = opened {
             return openDir
         }
 
@@ -154,7 +161,7 @@ public class DirectoryPath: Path, Openable, Sequence, IteratorProtocol {
 
         // Add the newly opened directory to the openDirectories dict
         let openDir = Open(self)
-        openDirectories[self] = openDir
+        opened = openDir
         return openDir
     }
 

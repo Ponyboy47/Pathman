@@ -45,7 +45,7 @@ private var openFiles: DateSortedDescriptors<FilePath, OpenFile> {
 private var openFiles: [FilePath: OpenFile] = [:]
 
 /// A Path to a file
-public class FilePath: Path, Openable {
+open class FilePath: Path, Openable {
     public typealias OpenableType = FilePath
 
     public var _path: String
@@ -54,7 +54,11 @@ public class FilePath: Path, Openable {
     public internal(set) var mode: FileMode? = nil
 
     /// The currently opened file (if it has been opened previously)
-    public var opened: OpenFile? { return openFiles[self] }
+    /// Warning: The setter may be removed in a later release
+    public var opened: OpenFile? {
+        get { return openFiles[self] }
+        set { openFiles[self] = newValue }
+    }
 
     // This is to protect the info from being set externally
     private var _info: StatInfo = StatInfo()
@@ -168,9 +172,9 @@ public class FilePath: Path, Openable {
     - Note: A `CloseFileError` will only be thrown if the file has previously been opened and is now being reopened with non-overlapping `options` as the previous open. So we first will close the old open file and then open it with the new options
     */
     @discardableResult
-    public func open(options: OptionInt = 0, mode: FileMode? = nil) throws -> OpenFile {
+    open func open(options: OptionInt = 0, mode: FileMode? = nil) throws -> OpenFile {
         // Check if the file is already opened
-        if let open = openFiles[self] {
+        if let open = opened {
             // If the last open had at least the options we need now, just return the already opened file
             guard (open.options & options) != options else { return open }
 
@@ -201,7 +205,7 @@ public class FilePath: Path, Openable {
         self.mode = mode
 
         let open = OpenFile(self)
-        openFiles[self] = open
+        opened = open
         return open
     }
 
@@ -345,7 +349,7 @@ public class FilePath: Path, Openable {
     - Throws: `CloseFileError.interruptedBySignal` when the call was interrupted by a signal handler
     - Throws: `CloseFileError.ioError` when an I/O error occurred
     */
-    public func close() throws {
+    open func close() throws {
         // File is not open
         guard fileDescriptor != -1 else { return }
 
