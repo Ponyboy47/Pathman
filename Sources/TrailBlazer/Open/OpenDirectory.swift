@@ -43,15 +43,13 @@ public extension Open where PathType: DirectoryPath {
         let gid: gid_t
 
         if let username = username {
-            guard let _uid = getUserInfo(username)?.pw_uid else { throw UserInfoError.getError() }
-            uid = _uid
+            uid = try getUserInfo(username).pw_uid
         } else {
             uid = ~0
         }
 
         if let groupname = groupname {
-            guard let _gid = getGroupInfo(groupname)?.gr_gid else { throw GroupInfoError.getError() }
-            gid = _gid
+            gid = try getGroupInfo(groupname).gr_gid
         } else {
             gid = ~0
         }

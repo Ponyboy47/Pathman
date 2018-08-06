@@ -447,7 +447,7 @@ public class DirectoryPath: Path, Openable, Sequence, IteratorProtocol {
     Recursively changes the owner and group of all files and subdirectories
 
     - Parameter owner: The username of the owner of the path
-    - Parameter group: The group name of the group with permissions to access the path
+    - Parameter group: The name of the group with permissions to access the path
 
     - Throws: `ChangeOwnershipError.permissionDenied` when the calling process does not have the proper permissions to modify path ownership
     - Throws: `ChangeOwnershipError.badAddress` when the path points to a location outside your addressible address space
@@ -458,21 +458,31 @@ public class DirectoryPath: Path, Openable, Sequence, IteratorProtocol {
     - Throws: `ChangeOwnershipError.pathComponentNotDirectory` when a component of the path is not a directory
     - Throws: `ChangeOwnershipError.readOnlyFileSystem` when the file system is in read-only mode
     - Throws: `ChangeOwnershipError.ioError` when an I/O error occurred during the API call
+    - Throws: `UserInfoError.userDoesNotExist` when there was no user found with the specified username
+    - Throws: `UserInfoError.interruptedBySignal` when the API call was interrupted by a signal handler
+    - Throws: `UserInfoError.ioError` when an I/O error occurred during the API call
+    - Throws: `UserInfoError.noMoreProcessFileDescriptors` when the process has no more available file descriptors
+    - Throws: `UserInfoError.noMoreSystemFileDescriptors` when the system has no more available file descriptors
+    - Throws: `UserInfoError.outOfMemory` when there is insufficient memory to allocate the underlying C passwd struct
+    - Throws: `GroupInfoError.groupDoesNotExist` when there was no group found with the specified name
+    - Throws: `GroupInfoError.interruptedBySignal` when the API call was interrupted by a signal handler
+    - Throws: `GroupInfoError.ioError` when an I/O error occurred during the API call
+    - Throws: `GroupInfoError.noMoreProcessFileDescriptors` when the process has no more available file descriptors
+    - Throws: `GroupInfoError.noMoreSystemFileDescriptors` when the system has no more available file descriptors
+    - Throws: `GroupInfoError.outOfMemory` when there is insufficient memory to allocate the underlying C group struct
     */
     public func changeRecursive(owner username: String? = nil, group groupname: String? = nil) throws {
         let uid: uid_t
         let gid: gid_t
 
         if let username = username {
-            guard let _uid = getUserInfo(username)?.pw_uid else { throw UserInfoError.getError() }
-            uid = _uid
+            uid = try getUserInfo(username).pw_uid
         } else {
             uid = ~0
         }
 
         if let groupname = groupname {
-            guard let _gid = getGroupInfo(groupname)?.gr_gid else { throw GroupInfoError.getError() }
-            gid = _gid
+            gid = try getGroupInfo(groupname).gr_gid
         } else {
             gid = ~0
         }
