@@ -368,6 +368,7 @@ print(globData.other)
 - GenericPath (AKA all Paths)
   - [x] Change path ownership
   - [x] Change path permissions
+    - [ ] Allow octal numeric strings to be used for changing permissions
   - [x] Move paths
   - [x] Rename paths (move alias)
   - [x] URL conversion
