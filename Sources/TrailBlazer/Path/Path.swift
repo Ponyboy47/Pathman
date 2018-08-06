@@ -128,15 +128,20 @@ public extension Path {
 
     /// The directory one level above the current Self's location
     public var parent: DirectoryPath {
-        // If we'd be removing the last component then return either the
-        // processRoot or the currentWorkingDirectory, depending on whether or
-        // not the path is absolute
-        guard components.count > 1 else {
-            return isAbsolute ? processRoot : currentWorkingDirectory
-        }
+        get {
+            // If we'd be removing the last component then return either the
+            // processRoot or the currentWorkingDirectory, depending on whether or
+            // not the path is absolute
+            guard components.count > 1 else {
+                return isAbsolute ? processRoot : currentWorkingDirectory
+            }
 
-        // Drop the lastComponent and rebuild the path
-        return DirectoryPath(components.dropLast())!
+            // Drop the lastComponent and rebuild the path
+            return DirectoryPath(components.dropLast())!
+        }
+        set {
+            try? move(into: newValue)
+        }
     }
 
     /// Whether or not the path is a directory

@@ -1,22 +1,13 @@
+/// Paths that can be moved
 public protocol Movable {
-    var _path: String { get set }
-    /// The directy one level above the current Self's location
+    /// The directory one level above the current Self's location
     var parent: DirectoryPath { get set }
-    var components: [String] { get }
+    /// The last element of the path
     var lastComponent: String? { get }
     mutating func move<PathType: Path>(to newPath: PathType) throws
 }
 
 public extension Movable {
-    public var parent: DirectoryPath {
-        get {
-            return DirectoryPath(components.dropLast())!
-        }
-        set {
-            try? self.move(into: newValue)
-        }
-    }
-
     public mutating func move(to newPath: String) throws {
         try move(to: GenericPath(newPath))
     }
