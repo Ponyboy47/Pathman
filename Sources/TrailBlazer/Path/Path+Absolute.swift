@@ -42,15 +42,6 @@ extension Path {
             _path = _path.replacingOccurrences(of: "^~", with: home.string, options: .regularExpression)
         }
 
-        // realpath(3) fails if the path is longer than PATH_MAX characters
-        guard _path.count < PATH_MAX else { throw RealPathError.pathnameTooLong }
-
-        // realpath(3) fails if any of the path components are longer than NAME_MAX characters
-        guard components.reduce(true, { $0 ? $1.count <= NAME_MAX : false }) else { throw RealPathError.pathComponentTooLong }
-
-        // realpath(3) fails if the path does not exist
-        guard exists else { return }
-
         guard let realpath = realpath(_path, nil) else { throw RealPathError.getError() }
 
         // When realpath(3) is passed a nil buffer argument, the memory is
@@ -88,17 +79,6 @@ extension Path {
         if str.hasPrefix("~") {
             let home = try getHome()
             str = str.replacingOccurrences(of: "^~", with: home.string, options: .regularExpression)
-        }
-
-        // realpath(3) fails if the path is longer than PATH_MAX characters
-        guard str.count < PATH_MAX else { throw RealPathError.pathnameTooLong }
-
-        // realpath(3) fails if any of the path components are longer than NAME_MAX characters
-        guard str.components(separatedBy: Self.separator).reduce(true, { $0 ? $1.count <= NAME_MAX : false }) else { throw RealPathError.pathComponentTooLong }
-
-        // realpath(3) fails if the path does not exist
-        guard pathExists(str) else {
-            return Self(str) !! "In the time since this \(Self.self) object was created, a path of a different type has been created at the same location (\(str))."
         }
 
         guard let realpath = realpath(str, nil) else { throw RealPathError.getError() }

@@ -181,6 +181,11 @@ public enum CloseDirectoryError: TrailBlazerError {
     }
 }
 
+/// Thrown when a path is set to be deleted (via a recursiveDelete of a DirectoryPath) and it is not a deletable path
+public enum GenericDeleteError: Error {
+    case cannotDeleteGenericPath(GenericPath)
+}
+
 /// Errors thrown when a DirectoryPath is created (see mkdir(2))
 public enum CreateDirectoryError: TrailBlazerError {
     case unknown

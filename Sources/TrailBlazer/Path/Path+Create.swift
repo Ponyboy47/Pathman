@@ -1,8 +1,10 @@
 #if os(Linux)
 import Glibc
+/// The C function for setting a process's umask
 let cUmask = Glibc.umask
 #else
 import Darwin
+/// The C function for setting a process's umask
 let cUmask = Darwin.umask
 #endif
 

@@ -1,12 +1,18 @@
 #if os(Linux)
 import Glibc
+/// The C function that opens a file
 private let cOpenFile = Glibc.open(_:_:)
+/// The C function that opens a file with the mode argument
 private let cOpenFileWithMode = Glibc.open(_:_:_:)
+/// The C function that closes an open file descriptor
 private let cCloseFile = Glibc.close
 #else
 import Darwin
+/// The C function that opens a file
 private let cOpenFile = Darwin.open(_:_:)
+/// The C function that opens a file with the mode argument
 private let cOpenFileWithMode = Darwin.open(_:_:_:)
+/// The C function that closes an open file descriptor
 private let cCloseFile = Darwin.close
 #endif
 
@@ -139,6 +145,7 @@ open class FilePath: Path, Openable {
     - Parameters:
         - options: The raw OpenFilePermissions + OpenFileFlags value to use with the C open(2) API call
         - mode: The permissions to use if creating a file
+    - Returns: The opened file
 
     - Throws: `OpenFileError.permissionDenied` when write access is not allowed to the path or if search permissions were denied on one of the components of the path
     - Throws: `OpenFileError.quotaReached` when the file does not exist and the user's quota of disk blocks or inodes on the filesystem has been exhausted
@@ -216,6 +223,7 @@ open class FilePath: Path, Openable {
         - permissions: The permissions to be used with the open file. (`.read`, `.write`, or `.readWrite`)
         - flags: The flags with which to open the file
         - mode: The permissions to use if creating a file
+    - Returns: The opened file
 
     - Throws: `OpenFileError.permissionDenied` when write access is not allowed to the path or if search permissions were denied on one of the components of the path
     - Throws: `OpenFileError.quotaReached` when the file does not exist and the user's quota of disk blocks or inodes on the filesystem has been exhausted
@@ -260,6 +268,7 @@ open class FilePath: Path, Openable {
         - permissions: The permissions to be used with the open file. (`.read`, `.write`, or `.readWrite`)
         - flags: The flags with which to open the file
         - mode: The permissions to use if creating a file
+    - Returns: The opened file
 
     - Throws: `OpenFileError.permissionDenied` when write access is not allowed to the path or if search permissions were denied on one of the components of the path
     - Throws: `OpenFileError.quotaReached` when the file does not exist and the user's quota of disk blocks or inodes on the filesystem has been exhausted
@@ -305,6 +314,7 @@ open class FilePath: Path, Openable {
         - permissions: The permissions to be used with the open file. (`.read`, `.write`, or `.readWrite`)
         - flags: The flags with which to open the file
         - mode: The permissions to use if creating a file
+    - Returns: The opened file
 
     - Throws: `OpenFileError.permissionDenied` when write access is not allowed to the path or if search permissions were denied on one of the components of the path
     - Throws: `OpenFileError.quotaReached` when the file does not exist and the user's quota of disk blocks or inodes on the filesystem has been exhausted
