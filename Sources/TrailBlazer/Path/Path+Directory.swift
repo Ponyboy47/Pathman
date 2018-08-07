@@ -206,6 +206,8 @@ public class DirectoryPath: Path, Openable, Sequence, IteratorProtocol {
     /**
     Retrieves and files or directories contained within the directory
 
+    - Parameter includeHidden: Whether to include any hidden files in the returned PathCollection
+
     - Returns: A PathCollection of all the files, directories, and other paths that are contained in self
     - Note: Opens the directory if it is unopened and will close it afterwards if the directory was only opened for this API call
 
@@ -422,6 +424,12 @@ public class DirectoryPath: Path, Openable, Sequence, IteratorProtocol {
     - Throws: `ChangeOwnershipError.pathComponentNotDirectory` when a component of the path is not a directory
     - Throws: `ChangeOwnershipError.readOnlyFileSystem` when the file system is in read-only mode
     - Throws: `ChangeOwnershipError.ioError` when an I/O error occurred during the API call
+    - Throws: `OpenDirectoryError.permissionDenied` when the calling process does not have access to the path
+    - Throws: `OpenDirectoryError.noProcessFileDescriptors` when the process has used all of its available file descriptors
+    - Throws: `OpenDirectoryError.noSystemFileDescriptors` when the entire system has run out of available file descriptors
+    - Throws: `OpenDirectoryError.pathDoesNotExist` when the path does not exist
+    - Throws: `OpenDirectoryError.outOfMemory` when there is not enough available memory to open the directory
+    - Throws: `OpenDirectoryError.pathNotDirectory` when the path you're trying to open exists and is not a directory. This should only occur if your DirectoryPath object was created before the path existed and then the path was created as a non-directory path type
     */
     public func changeRecursive(owner uid: uid_t = ~0, group gid: gid_t = ~0) throws {
         try change(owner: uid, group: gid)
@@ -470,6 +478,12 @@ public class DirectoryPath: Path, Openable, Sequence, IteratorProtocol {
     - Throws: `GroupInfoError.noMoreProcessFileDescriptors` when the process has no more available file descriptors
     - Throws: `GroupInfoError.noMoreSystemFileDescriptors` when the system has no more available file descriptors
     - Throws: `GroupInfoError.outOfMemory` when there is insufficient memory to allocate the underlying C group struct
+    - Throws: `OpenDirectoryError.permissionDenied` when the calling process does not have access to the path
+    - Throws: `OpenDirectoryError.noProcessFileDescriptors` when the process has used all of its available file descriptors
+    - Throws: `OpenDirectoryError.noSystemFileDescriptors` when the entire system has run out of available file descriptors
+    - Throws: `OpenDirectoryError.pathDoesNotExist` when the path does not exist
+    - Throws: `OpenDirectoryError.outOfMemory` when there is not enough available memory to open the directory
+    - Throws: `OpenDirectoryError.pathNotDirectory` when the path you're trying to open exists and is not a directory. This should only occur if your DirectoryPath object was created before the path existed and then the path was created as a non-directory path type
     */
     public func changeRecursive(owner username: String? = nil, group groupname: String? = nil) throws {
         let uid: uid_t
@@ -504,6 +518,12 @@ public class DirectoryPath: Path, Openable, Sequence, IteratorProtocol {
     - Throws: `ChangePermissionsError.noKernelMemory` when there is insufficient memory to change the path's permissions
     - Throws: `ChangePermissionsError.pathComponentNotDirectory` when a component of the path is not a directory
     - Throws: `ChangePermissionsError.readOnlyFileSystem` when the file system is in read-only mode
+    - Throws: `OpenDirectoryError.permissionDenied` when the calling process does not have access to the path
+    - Throws: `OpenDirectoryError.noProcessFileDescriptors` when the process has used all of its available file descriptors
+    - Throws: `OpenDirectoryError.noSystemFileDescriptors` when the entire system has run out of available file descriptors
+    - Throws: `OpenDirectoryError.pathDoesNotExist` when the path does not exist
+    - Throws: `OpenDirectoryError.outOfMemory` when there is not enough available memory to open the directory
+    - Throws: `OpenDirectoryError.pathNotDirectory` when the path you're trying to open exists and is not a directory. This should only occur if your DirectoryPath object was created before the path existed and then the path was created as a non-directory path type
     */
     public func changeRecursive(permissions: FileMode) throws {
         try change(permissions: permissions)
@@ -545,6 +565,12 @@ public class DirectoryPath: Path, Openable, Sequence, IteratorProtocol {
     - Throws: `ChangePermissionsError.noKernelMemory` when there is insufficient memory to change the path's permissions
     - Throws: `ChangePermissionsError.pathComponentNotDirectory` when a component of the path is not a directory
     - Throws: `ChangePermissionsError.readOnlyFileSystem` when the file system is in read-only mode
+    - Throws: `OpenDirectoryError.permissionDenied` when the calling process does not have access to the path
+    - Throws: `OpenDirectoryError.noProcessFileDescriptors` when the process has used all of its available file descriptors
+    - Throws: `OpenDirectoryError.noSystemFileDescriptors` when the entire system has run out of available file descriptors
+    - Throws: `OpenDirectoryError.pathDoesNotExist` when the path does not exist
+    - Throws: `OpenDirectoryError.outOfMemory` when there is not enough available memory to open the directory
+    - Throws: `OpenDirectoryError.pathNotDirectory` when the path you're trying to open exists and is not a directory. This should only occur if your DirectoryPath object was created before the path existed and then the path was created as a non-directory path type
     */
     public func changeRecursive(owner: FilePermissions, group: FilePermissions, others: FilePermissions, bits: FileBits) throws {
         try changeRecursive(permissions: FileMode(owner: owner, group: group, others: others, bits: bits))
@@ -568,6 +594,12 @@ public class DirectoryPath: Path, Openable, Sequence, IteratorProtocol {
     - Throws: `ChangePermissionsError.noKernelMemory` when there is insufficient memory to change the path's permissions
     - Throws: `ChangePermissionsError.pathComponentNotDirectory` when a component of the path is not a directory
     - Throws: `ChangePermissionsError.readOnlyFileSystem` when the file system is in read-only mode
+    - Throws: `OpenDirectoryError.permissionDenied` when the calling process does not have access to the path
+    - Throws: `OpenDirectoryError.noProcessFileDescriptors` when the process has used all of its available file descriptors
+    - Throws: `OpenDirectoryError.noSystemFileDescriptors` when the entire system has run out of available file descriptors
+    - Throws: `OpenDirectoryError.pathDoesNotExist` when the path does not exist
+    - Throws: `OpenDirectoryError.outOfMemory` when there is not enough available memory to open the directory
+    - Throws: `OpenDirectoryError.pathNotDirectory` when the path you're trying to open exists and is not a directory. This should only occur if your DirectoryPath object was created before the path existed and then the path was created as a non-directory path type
     */
     public func changeRecursive(owner: FilePermissions? = nil, group: FilePermissions? = nil, others: FilePermissions? = nil, bits: FileBits? = nil) throws {
         let current = permissions
@@ -591,6 +623,12 @@ public class DirectoryPath: Path, Openable, Sequence, IteratorProtocol {
     - Throws: `ChangePermissionsError.noKernelMemory` when there is insufficient memory to change the path's permissions
     - Throws: `ChangePermissionsError.pathComponentNotDirectory` when a component of the path is not a directory
     - Throws: `ChangePermissionsError.readOnlyFileSystem` when the file system is in read-only mode
+    - Throws: `OpenDirectoryError.permissionDenied` when the calling process does not have access to the path
+    - Throws: `OpenDirectoryError.noProcessFileDescriptors` when the process has used all of its available file descriptors
+    - Throws: `OpenDirectoryError.noSystemFileDescriptors` when the entire system has run out of available file descriptors
+    - Throws: `OpenDirectoryError.pathDoesNotExist` when the path does not exist
+    - Throws: `OpenDirectoryError.outOfMemory` when there is not enough available memory to open the directory
+    - Throws: `OpenDirectoryError.pathNotDirectory` when the path you're trying to open exists and is not a directory. This should only occur if your DirectoryPath object was created before the path existed and then the path was created as a non-directory path type
     */
     public func changeRecursive(ownerGroup perms: FilePermissions, others: FilePermissions? = nil, bits: FileBits? = nil) throws {
         let current = permissions
@@ -614,6 +652,12 @@ public class DirectoryPath: Path, Openable, Sequence, IteratorProtocol {
     - Throws: `ChangePermissionsError.noKernelMemory` when there is insufficient memory to change the path's permissions
     - Throws: `ChangePermissionsError.pathComponentNotDirectory` when a component of the path is not a directory
     - Throws: `ChangePermissionsError.readOnlyFileSystem` when the file system is in read-only mode
+    - Throws: `OpenDirectoryError.permissionDenied` when the calling process does not have access to the path
+    - Throws: `OpenDirectoryError.noProcessFileDescriptors` when the process has used all of its available file descriptors
+    - Throws: `OpenDirectoryError.noSystemFileDescriptors` when the entire system has run out of available file descriptors
+    - Throws: `OpenDirectoryError.pathDoesNotExist` when the path does not exist
+    - Throws: `OpenDirectoryError.outOfMemory` when there is not enough available memory to open the directory
+    - Throws: `OpenDirectoryError.pathNotDirectory` when the path you're trying to open exists and is not a directory. This should only occur if your DirectoryPath object was created before the path existed and then the path was created as a non-directory path type
     */
     public func changeRecursive(ownerOthers perms: FilePermissions, group: FilePermissions? = nil, bits: FileBits? = nil) throws {
         let current = permissions
@@ -637,6 +681,12 @@ public class DirectoryPath: Path, Openable, Sequence, IteratorProtocol {
     - Throws: `ChangePermissionsError.noKernelMemory` when there is insufficient memory to change the path's permissions
     - Throws: `ChangePermissionsError.pathComponentNotDirectory` when a component of the path is not a directory
     - Throws: `ChangePermissionsError.readOnlyFileSystem` when the file system is in read-only mode
+    - Throws: `OpenDirectoryError.permissionDenied` when the calling process does not have access to the path
+    - Throws: `OpenDirectoryError.noProcessFileDescriptors` when the process has used all of its available file descriptors
+    - Throws: `OpenDirectoryError.noSystemFileDescriptors` when the entire system has run out of available file descriptors
+    - Throws: `OpenDirectoryError.pathDoesNotExist` when the path does not exist
+    - Throws: `OpenDirectoryError.outOfMemory` when there is not enough available memory to open the directory
+    - Throws: `OpenDirectoryError.pathNotDirectory` when the path you're trying to open exists and is not a directory. This should only occur if your DirectoryPath object was created before the path existed and then the path was created as a non-directory path type
     */
     public func changeRecursive(groupOthers perms: FilePermissions, owner: FilePermissions? = nil, bits: FileBits? = nil) throws {
         let current = permissions
@@ -659,6 +709,12 @@ public class DirectoryPath: Path, Openable, Sequence, IteratorProtocol {
     - Throws: `ChangePermissionsError.noKernelMemory` when there is insufficient memory to change the path's permissions
     - Throws: `ChangePermissionsError.pathComponentNotDirectory` when a component of the path is not a directory
     - Throws: `ChangePermissionsError.readOnlyFileSystem` when the file system is in read-only mode
+    - Throws: `OpenDirectoryError.permissionDenied` when the calling process does not have access to the path
+    - Throws: `OpenDirectoryError.noProcessFileDescriptors` when the process has used all of its available file descriptors
+    - Throws: `OpenDirectoryError.noSystemFileDescriptors` when the entire system has run out of available file descriptors
+    - Throws: `OpenDirectoryError.pathDoesNotExist` when the path does not exist
+    - Throws: `OpenDirectoryError.outOfMemory` when there is not enough available memory to open the directory
+    - Throws: `OpenDirectoryError.pathNotDirectory` when the path you're trying to open exists and is not a directory. This should only occur if your DirectoryPath object was created before the path existed and then the path was created as a non-directory path type
     */
     public func changeRecursive(ownerGroupOthers perms: FilePermissions, bits: FileBits? = nil) throws {
         try changeRecursive(owner: perms, group: perms, others: perms, bits: bits ?? permissions.bits)
