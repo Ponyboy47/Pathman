@@ -12,7 +12,7 @@ extension Path {
         if let home = home?.string, str.hasPrefix(home) {
             str = str.replacingOccurrences(of: home, with: "~")
         } else if str.hasPrefix(Self.cwd.string) {
-            str = str.replacingOccurrences(of: cwd.string, with: ".")
+            str.replaceSubrange(str.range(of: Self.cwd.string)!, with: ".")
         }
 
         return Self(str)!

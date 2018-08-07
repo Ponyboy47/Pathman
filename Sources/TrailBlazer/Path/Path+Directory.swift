@@ -601,7 +601,7 @@ public class DirectoryPath: Path, Openable, Sequence, IteratorProtocol {
     Recursively changes the permissions on all paths
 
     - Parameters:
-        - owner: The permissions for the owner of the path and everyone else
+        - ownerOthers: The permissions for the owner of the path and everyone else
         - group: The permissions for members of the group with access to the path
         - bits: The gid, uid, and sticky bits of the path
 
