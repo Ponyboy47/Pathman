@@ -1,3 +1,4 @@
+/// Options when making the stat API calls
 public struct StatOptions: OptionSet {
     public let rawValue: Int
 

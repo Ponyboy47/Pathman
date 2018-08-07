@@ -1,7 +1,9 @@
 #if os(Linux)
 import Glibc
+let cRealpath = Glibc.realpath
 #else
 import Darwin
+let cRealpath = Darwin.realpath
 #endif
 
 extension Path {
@@ -39,10 +41,10 @@ extension Path {
 
         if _path.hasPrefix("~") {
             let home = try getHome()
-            _path = _path.replacingOccurrences(of: "^~", with: home.string, options: .regularExpression)
+            _path.replaceSubrange(..<_path.startIndex.advanced(by: 1), with: home.string)
         }
 
-        guard let realpath = realpath(_path, nil) else { throw RealPathError.getError() }
+        let realpath = try cRealpath(_path, nil) ?! RealPathError.getError()
 
         // When realpath(3) is passed a nil buffer argument, the memory is
         // dynamically allocated and must be deallocated
@@ -78,10 +80,10 @@ extension Path {
 
         if str.hasPrefix("~") {
             let home = try getHome()
-            str = str.replacingOccurrences(of: "^~", with: home.string, options: .regularExpression)
+            str.replaceSubrange(..<str.startIndex.advanced(by: 1), with: home.string)
         }
 
-        guard let realpath = realpath(str, nil) else { throw RealPathError.getError() }
+        let realpath = try cRealpath(str, nil) ?! RealPathError.getError()
 
         // When realpath(3) is passed a nil buffer argument, the memory is
         // dynamically allocated and must be deallocated

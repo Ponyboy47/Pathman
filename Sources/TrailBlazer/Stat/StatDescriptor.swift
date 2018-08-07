@@ -36,9 +36,7 @@ extension StatDescriptor {
     - Throws: `StatError.fileTooLarge` when the file descriptor refers to a file whose size, inode number, or number of blocks cannot be represented in, respectively, the types off_t, ino_t, or blkcnt_t
     */
     public mutating func update() throws {
-        guard let descriptor = fileDescriptor else {
-            throw StatError.badFileDescriptor
-        }
+        let descriptor = try fileDescriptor ?! StatError.badFileDescriptor
         try Self.update(descriptor, _buffer)
     }
 

@@ -14,9 +14,7 @@ public protocol Writable: Openable, Seekable {
 
 public extension Writable {
     public func write(_ string: String, at offset: Offset = Offset(from: .current, bytes: 0), using encoding: String.Encoding = .utf8) throws {
-        guard let data = string.data(using: encoding) else {
-            throw StringError.notConvertibleToData(using: encoding)
-        }
+        let data = try string.data(using: encoding) ?! StringError.notConvertibleToData(using: encoding)
         try write(data, at: offset)
     }
 }

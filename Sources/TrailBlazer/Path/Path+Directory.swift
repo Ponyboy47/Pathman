@@ -698,10 +698,7 @@ public class DirectoryPath: Path, Openable, Sequence, IteratorProtocol {
             newPath += right
         }
 
-        guard let new = PathType(newPath) else {
-            fatalError("Failed to instantiate \(PathType.self) from \(Swift.type(of: newPath)) '\(newPath)'")
-        }
-        return new
+        return PathType(newPath) !! "Failed to instantiate \(PathType.self) from \(Swift.type(of: newPath)) '\(newPath)'"
     }
 
     /**

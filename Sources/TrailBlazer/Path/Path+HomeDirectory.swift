@@ -30,10 +30,7 @@ Returns the home directory for a specified user
 */
 func getHome(_ username: String) throws -> DirectoryPath {
     let info = try getUserInfo(username)
-    guard let dir = DirectoryPath(String(cString: info.pw_dir)) else {
-        throw UserInfoError.invalidHomeDirectory
-    }
-    return dir
+    return try DirectoryPath(String(cString: info.pw_dir)) ?! UserInfoError.invalidHomeDirectory
 }
 /**
 Returns the home directory for a specified user
@@ -50,10 +47,7 @@ Returns the home directory for a specified user
 */
 func getHome(_ uid: uid_t = geteuid()) throws -> DirectoryPath {
     let info = try getUserInfo(uid)
-    guard let dir = DirectoryPath(String(cString: info.pw_dir)) else {
-        throw UserInfoError.invalidHomeDirectory
-    }
-    return dir
+    return try DirectoryPath(String(cString: info.pw_dir)) ?! UserInfoError.invalidHomeDirectory
 }
 
 /**
@@ -73,8 +67,7 @@ func getUserInfo(_ username: String) throws -> passwd {
     // getpwnam(2) documentation says "If one wants to check errno after
     // the call, it should be set to zero before the call."
     errno = 0
-    guard let info = getpwnam(username)?.pointee else { throw UserInfoError.getError() }
-    return info
+    return try getpwnam(username)?.pointee ?! UserInfoError.getError()
 }
 
 /**
@@ -94,8 +87,7 @@ func getUserInfo(_ uid: uid_t) throws -> passwd {
     // getpwuid(2) documentation says "If one wants to check errno after
     // the call, it should be set to zero before the call."
     errno = 0
-    guard let info = getpwuid(uid)?.pointee else { throw UserInfoError.getError() }
-    return info
+    return try getpwuid(uid)?.pointee ?! UserInfoError.getError()
 }
 
 /**
@@ -115,8 +107,7 @@ func getGroupInfo(_ groupname: String) throws -> group {
     // getgrnam(2) documentation says "If one wants to check errno after
     // the call, it should be set to zero before the call."
     errno = 0
-    guard let info = getgrnam(groupname)?.pointee else { throw GroupInfoError.getError() }
-    return info
+    return try getgrnam(groupname)?.pointee ?! GroupInfoError.getError()
 }
 
 /**
@@ -136,6 +127,5 @@ func getGroupInfo(_ gid: gid_t) throws -> group {
     // getgrgid(2) documentation says "If one wants to check errno after
     // the call, it should be set to zero before the call."
     errno = 0
-    guard let info = getgrgid(gid)?.pointee else { throw GroupInfoError.getError() }
-    return info
+    return try getgrgid(gid)?.pointee ?! GroupInfoError.getError()
 }

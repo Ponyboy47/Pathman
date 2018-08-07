@@ -59,9 +59,7 @@ extension StatPath {
     public mutating func update(options: StatOptions = []) throws {
         var options = options
         options.insert(self.options)
-        guard let path = _path else {
-            throw RealPathError.emptyPath
-        }
+        let path = try _path ?! RealPathError.emptyPath
         try Self.update(path, options: options, _buffer)
     }
 

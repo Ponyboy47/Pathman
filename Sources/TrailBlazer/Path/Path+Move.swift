@@ -59,7 +59,7 @@ public extension Movable {
     - Throws: `MoveError.moveToDifferentPathType` when the current path and the newPath are not the same PathType
     */
     public mutating func move(into dir: DirectoryPath) throws {
-        guard let last = lastComponent else { throw MoveError.pathDoesNotExist }
+        let last = try lastComponent ?! MoveError.pathDoesNotExist
         let newPath = dir + last
         try move(to: newPath)
     }
