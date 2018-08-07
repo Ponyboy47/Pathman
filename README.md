@@ -3,23 +3,28 @@
 A type-safe path library for Apple's Swift language.
 
 ## Motivation
-I hate going through Foundation's FileManager. I find it to be an ugly API with inconsistent results when used cross platform (Linux support/stability is important to most of the things I use Swift for), and it lacks the type-safety and ease-of-use that most Swift API's are expected to have. So I built TrailBlazer! The first type-safe swift path library built around the lower level C API's (everything else out there is really just a wrapper around Foundation's FileManager).
+I am not a big fan of Foundation's `FileManager`. I find it to be an ugly API that has inconsistent results when used cross-platform (Linux support/stability is important to most of the things for which I use Swift), and it lacks the type-safety and ease-of-use that most Swift API's are expected to have (`FileAttributeKey` anyone?). So I built TrailBlazer! The first type-safe swift path library built around the lower level C API's (everything else out there is really just a wrapper around `FileManager`).
 
 ## Goals
 - Type safety
   - File paths are different that directory paths and should be treated as such
 - Extensibility
-  - Everything is based around protocols so that others can create new path types (ie: socket files)
+  - Everything is based around protocols or extensible classes so that others can create new path types (ie: socket files)
 - Error Handling
   - There are an extensive number of errors so that when something goes wrong you can get the most relevant error message possible (see Errors.swift)
+    - No more dealing with obscure `NSError`s when `FileManager` throws
 - Minimal Foundation
   - I avoid using Foundation as much as possible, because it is not as stable on Linux as it is on Apple platforms and the results for some APIs are inconsistent between Linux and macOS
-  - Currently, I only use Foundation for the `Data` and `Date` types
+  - Currently, I only use Foundation for the `Data`, `Date`, and `URL` types
+- Ease of Use
+  - No clunky interface just to get attributes of a path
+    - Was anyone ever a fan of `FileAttributeKey`s?
+- Expose low-level control with high-level safety built-in
 
 ## Installation (SPM)
 Add this to your Package.swift dependencies:
 ```swift
-.package(url: "https://github.com/Ponyboy47/Trailblazer.git", from: "0.7.0")
+.package(url: "https://github.com/Ponyboy47/Trailblazer.git", from: "0.8.0")
 ```
 
 ## Usage
@@ -64,16 +69,16 @@ path.id
 /// The inode of the path
 path.inode
 
-/// The type of the file
+/// The type of the path
 path.type
 
-/// The permissions of the file
+/// The permissions of the path
 path.permissions
 
-/// The user id of the user that owns the file
+/// The user id of the user that owns the path
 path.owner
 
-/// The group id of the user that owns the file
+/// The group id of the user that owns the path
 path.group
 
 /// The device id (if special file)
@@ -88,14 +93,17 @@ path.blockSize
 /// The number of 512B block allocated
 path.blocks
 
-/// The last time the file was accessed
+/// The last time the path was accessed
 path.lastAccess
 
-/// The last time the file was modified
+/// The last time the path was modified
 path.lastModified
 
-/// The last time the file had a status change
+/// The last time the path had a status change
 path.lastAttributeChange
+
+/// The time when the path was created (macOS only)
+path.creation
 ```
 
 ### Opening Paths
@@ -141,6 +149,7 @@ let openFile: OpenFile = try file.create(mode: FileMode(owner: .readWriteExecute
 
 ### Deleting Paths
 
+#### The current path only:
 This is the same for all paths
 ```swift
 guard let file = FilePath("/tmp/test") else {
@@ -150,7 +159,7 @@ guard let file = FilePath("/tmp/test") else {
 try file.delete()
 ```
 
-Recursively delete Directories:
+#### Recursively delete directories:
 ```swift
 guard let dir = DirectoryPath("/tmp/test") else {
     fatalError("Path is not a directory")
@@ -227,7 +236,7 @@ print(children.directories)
 print(children.other)
 ```
 
-#### Recursive Children:
+#### Recursive children:
 ```swift
 guard let dir = DirectoryPath("/tmp") else {
     fatalError("Path is not a directory")
