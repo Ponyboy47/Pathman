@@ -395,17 +395,17 @@ public enum SeekError: TrailBlazerError {
     case invalidOffset
     case offsetTooLarge
     case fileDescriptorIsNotFile
-    #if os(macOS)
+    #if SEEK_DATA && SEEK_HOLE
     case noData
     #endif
 
     public static func getError() -> SeekError {
         switch ErrNo.lastError {
         case .EBADF: return .fileDescriptorIsNotOpen
-        case .EINVAL, .ENXIO: return .invalidOffset
+        case .EINVAL: return .invalidOffset
         case .EOVERFLOW: return .offsetTooLarge
         case .ESPIPE: return .fileDescriptorIsNotFile
-        #if os(macOS)
+        #if SEEK_DATA && SEEK_HOLE
         case .ENXIO: return .noData
         #endif
         default: return .unknown

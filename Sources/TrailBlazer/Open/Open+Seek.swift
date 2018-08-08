@@ -4,7 +4,11 @@ import Glibc
 import Darwin
 #endif
 
+/// Protocol declaration for types that contain an offset which points to a
+/// byte location in the file and may be moved around
 public protocol Seekable: class {
+    /// The location in the path from where reading and writing begin. Measured
+    /// in bytes from the beginning of the path
     var offset: OSInt { get set }
 
     func seek(_ offset: Offset) throws -> OSInt
@@ -12,8 +16,9 @@ public protocol Seekable: class {
     func seek(fromStart bytes: OSInt) throws -> OSInt
     func seek(fromEnd bytes: OSInt) throws -> OSInt
     func seek(fromCurrent bytes: OSInt) throws -> OSInt
-    // These are available on macOS, but aren't in all Linux distros yet
-    #if os(macOS)
+    // These are available on the following filesystems:
+    // Btrfs, OCFS, XFS, ext4, tmpfs, and the macOS filesystem
+    #if SEEK_DATA && SEEK_HOLE
     func seek(toNextHoleFrom offset: OSInt) throws -> OSInt
     func seek(toNextDataFrom offset: OSInt) throws -> OSInt
     #endif
@@ -30,7 +35,7 @@ public extension Seekable {
         case .beginning: newOffset = try seek(fromStart: offset.bytes)
         case .end: newOffset = try seek(fromEnd: offset.bytes)
         case .current: newOffset = try seek(fromCurrent: offset.bytes)
-        #if os(macOS)
+        #if SEEK_DATA && SEEK_HOLE
         case .data: newOffset = try seek(toNextDataFrom: offset.bytes)
         case .hole: newOffset = try seek(toNextHoleFrom: offset.bytes)
         #endif
@@ -50,7 +55,7 @@ public struct Offset {
         public static let beginning = OffsetType(rawValue: SEEK_SET)
         public static let end = OffsetType(rawValue: SEEK_END)
         public static let current = OffsetType(rawValue: SEEK_CUR)
-        #if os(macOS)
+        #if SEEK_DATA && SEEK_HOLE
         public static let data = OffsetType(rawValue: SEEK_DATA)
         public static let hole = OffsetType(rawValue: SEEK_HOLE)
         #endif

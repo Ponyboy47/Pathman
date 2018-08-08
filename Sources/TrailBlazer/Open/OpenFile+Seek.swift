@@ -89,7 +89,7 @@ extension Open: Seekable where PathType: FilePath {
         return try seek(fromStart: 0)
     }
 
-    #if os(macOS)
+    #if SEEK_DATA && SEEK_HOLE
     /**
     Moves the file offset to the next hole in the file greater than the specified offset number of bytes (as measured from the beginning of the file)
 
