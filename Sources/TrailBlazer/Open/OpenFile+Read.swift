@@ -28,12 +28,12 @@ public extension Readable {
     - Parameter encoding: The encoding used to store data in the file
     - Returns: A String of the data read from the file
 
-    - Throws: `ReadFileError.wouldBlock` when the file was opened with the `.nonBlock` flag and the read operation would block
-    - Throws: `ReadFileError.badFileDescriptor` when the underlying file descriptor is invalid or not opened
-    - Throws: `ReadFileError.badBufferAddress` when the buffer points to a location outside you accessible address space
-    - Throws: `ReadFileError.interruptedBySignal` when the API call was interrupted by a signal handler
-    - Throws: `ReadFileError.cannotReadFileDescriptor` when the underlying file descriptor is attached to a path which is unsuitable for reading or the file was opened with the `.direct` flag and either the buffer addres, the byteCount, or the offset are not suitably aligned
-    - Throws: `ReadFileError.ioError` when an I/O error occured during the API call
+    - Throws: `ReadError.wouldBlock` when the file was opened with the `.nonBlock` flag and the read operation would block
+    - Throws: `ReadError.badFileDescriptor` when the underlying file descriptor is invalid or not opened
+    - Throws: `ReadError.badBufferAddress` when the buffer points to a location outside you accessible address space
+    - Throws: `ReadError.interruptedBySignal` when the API call was interrupted by a signal handler
+    - Throws: `ReadError.cannotReadFileDescriptor` when the underlying file descriptor is attached to a path which is unsuitable for reading or the file was opened with the `.direct` flag and either the buffer addres, the byteCount, or the offset are not suitably aligned
+    - Throws: `ReadError.ioError` when an I/O error occured during the API call
     - Throws: `OpenFileError.permissionDenied` when write access is not allowed to the path or if search permissions were denied on one of the components of the path
     - Throws: `OpenFileError.quotaReached` when the file does not exist and the user's quota of disk blocks or inodes on the filesystem has been exhausted
     - Throws: `OpenFileError.pathExists` when creating a path that already exists
@@ -76,12 +76,12 @@ extension Open: Readable where PathType: FilePath {
     - Parameter byteCount: The number of bytes to read from the file
     - Returns: The Data read from the file
 
-    - Throws: `ReadFileError.wouldBlock` when the file was opened with the `.nonBlock` flag and the read operation would block
-    - Throws: `ReadFileError.badFileDescriptor` when the underlying file descriptor is invalid or not opened
-    - Throws: `ReadFileError.badBufferAddress` when the buffer points to a location outside you accessible address space
-    - Throws: `ReadFileError.interruptedBySignal` when the API call was interrupted by a signal handler
-    - Throws: `ReadFileError.cannotReadFileDescriptor` when the underlying file descriptor is attached to a path which is unsuitable for reading or the file was opened with the `.direct` flag and either the buffer addres, the byteCount, or the offset are not suitably aligned
-    - Throws: `ReadFileError.ioError` when an I/O error occured during the API call
+    - Throws: `ReadError.wouldBlock` when the file was opened with the `.nonBlock` flag and the read operation would block
+    - Throws: `ReadError.badFileDescriptor` when the underlying file descriptor is invalid or not opened
+    - Throws: `ReadError.badBufferAddress` when the buffer points to a location outside you accessible address space
+    - Throws: `ReadError.interruptedBySignal` when the API call was interrupted by a signal handler
+    - Throws: `ReadError.cannotReadFileDescriptor` when the underlying file descriptor is attached to a path which is unsuitable for reading or the file was opened with the `.direct` flag and either the buffer addres, the byteCount, or the offset are not suitably aligned
+    - Throws: `ReadError.ioError` when an I/O error occured during the API call
     */
     public func read(from offset: Offset = Offset(from: .current, bytes: 0), bytes byteCount: OSInt? = nil) throws -> Data {
         try seek(offset)
@@ -117,12 +117,12 @@ public extension FilePath {
     - Parameter byteCount: The number of bytes to read from the file
     - Returns: The Data read from the file
 
-    - Throws: `ReadFileError.wouldBlock` when the file was opened with the `.nonBlock` flag and the read operation would block
-    - Throws: `ReadFileError.badFileDescriptor` when the underlying file descriptor is invalid or not opened
-    - Throws: `ReadFileError.badBufferAddress` when the buffer points to a location outside you accessible address space
-    - Throws: `ReadFileError.interruptedBySignal` when the API call was interrupted by a signal handler
-    - Throws: `ReadFileError.cannotReadFileDescriptor` when the underlying file descriptor is attached to a path which is unsuitable for reading or the file was opened with the `.direct` flag and either the buffer addres, the byteCount, or the offset are not suitably aligned
-    - Throws: `ReadFileError.ioError` when an I/O error occured during the API call
+    - Throws: `ReadError.wouldBlock` when the file was opened with the `.nonBlock` flag and the read operation would block
+    - Throws: `ReadError.badFileDescriptor` when the underlying file descriptor is invalid or not opened
+    - Throws: `ReadError.badBufferAddress` when the buffer points to a location outside you accessible address space
+    - Throws: `ReadError.interruptedBySignal` when the API call was interrupted by a signal handler
+    - Throws: `ReadError.cannotReadFileDescriptor` when the underlying file descriptor is attached to a path which is unsuitable for reading or the file was opened with the `.direct` flag and either the buffer addres, the byteCount, or the offset are not suitably aligned
+    - Throws: `ReadError.ioError` when an I/O error occured during the API call
     - Throws: `OpenFileError.permissionDenied` when write access is not allowed to the path or if search permissions were denied on one of the components of the path
     - Throws: `OpenFileError.quotaReached` when the file does not exist and the user's quota of disk blocks or inodes on the filesystem has been exhausted
     - Throws: `OpenFileError.pathExists` when creating a path that already exists
@@ -158,7 +158,7 @@ public extension FilePath {
         }
 
         // Open the file ourselves (and close it when we're done)
-        let opened = try self.open(permissions: .read)
+        let opened = try open(permissions: .read)
         defer { try? opened.close() }
         return try opened.read(from: offset, bytes: byteCount)
     }
@@ -171,12 +171,12 @@ public extension FilePath {
     - Parameter encoding: The encoding used to store data in the file
     - Returns: A String of the data read from the file
 
-    - Throws: `ReadFileError.wouldBlock` when the file was opened with the `.nonBlock` flag and the read operation would block
-    - Throws: `ReadFileError.badFileDescriptor` when the underlying file descriptor is invalid or not opened
-    - Throws: `ReadFileError.badBufferAddress` when the buffer points to a location outside you accessible address space
-    - Throws: `ReadFileError.interruptedBySignal` when the API call was interrupted by a signal handler
-    - Throws: `ReadFileError.cannotReadFileDescriptor` when the underlying file descriptor is attached to a path which is unsuitable for reading or the file was opened with the `.direct` flag and either the buffer addres, the byteCount, or the offset are not suitably aligned
-    - Throws: `ReadFileError.ioError` when an I/O error occured during the API call
+    - Throws: `ReadError.wouldBlock` when the file was opened with the `.nonBlock` flag and the read operation would block
+    - Throws: `ReadError.badFileDescriptor` when the underlying file descriptor is invalid or not opened
+    - Throws: `ReadError.badBufferAddress` when the buffer points to a location outside you accessible address space
+    - Throws: `ReadError.interruptedBySignal` when the API call was interrupted by a signal handler
+    - Throws: `ReadError.cannotReadFileDescriptor` when the underlying file descriptor is attached to a path which is unsuitable for reading or the file was opened with the `.direct` flag and either the buffer addres, the byteCount, or the offset are not suitably aligned
+    - Throws: `ReadError.ioError` when an I/O error occured during the API call
     - Throws: `OpenFileError.permissionDenied` when write access is not allowed to the path or if search permissions were denied on one of the components of the path
     - Throws: `OpenFileError.quotaReached` when the file does not exist and the user's quota of disk blocks or inodes on the filesystem has been exhausted
     - Throws: `OpenFileError.pathExists` when creating a path that already exists
@@ -212,7 +212,7 @@ public extension FilePath {
         }
 
         // Open the file ourselves (and close it when we're done)
-        let opened = try self.open(permissions: .read)
+        let opened = try open(permissions: .read)
         defer { try? opened.close() }
         return try opened.read(from: offset, bytes: byteCount, encoding: encoding)
     }
