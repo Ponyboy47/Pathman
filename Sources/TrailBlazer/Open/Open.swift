@@ -6,27 +6,37 @@ import Glibc
 import Darwin
 #endif
 
+/// Protocol declaration for types that can be opened
 public protocol Openable: StatDelegate {
     associatedtype OpenableType: Path & Openable
 
+    /// The underlying file descriptor of the opened path
     var fileDescriptor: FileDescriptor { get }
+    /// The raw value of the options used to open the path
     var options: OptionInt { get }
+    /// The mode used when creating the file (if the `.create` option was used)
     var mode: FileMode? { get }
 
+    /// Opens the path, sets the `fileDescriptor`, and returns the newly opened path
     func open(options: OptionInt, mode: FileMode?) throws -> Open<OpenableType>
+    /// Closes the opened `fileDescriptor`
     func close() throws
 }
 
+/// Contains the buffer used for reading from a path
 private var _buffers: [Int: UnsafeMutablePointer<CChar>] = [:]
+/// Tracks the sizes of the read buffers
 private var _bufferSizes: [Int: OSInt] = [:]
 
 open class Open<PathType: Path & Openable>: Openable, Ownable, Permissionable {
     public typealias OpenableType = PathType.OpenableType
 
+    /// The path of which this object is the open representation
     public let _path: PathType
     public var fileDescriptor: FileDescriptor { return _path.fileDescriptor }
     public var options: OptionInt { return _path.options }
     public var mode: FileMode? { return _path.mode }
+    /// The offset position of the path
     public var offset: OSInt = 0
 
     var _info: StatInfo = StatInfo()
@@ -37,6 +47,7 @@ open class Open<PathType: Path & Openable>: Openable, Ownable, Permissionable {
 
     public var url: URL { return _path.url }
 
+    /// The buffer used to store data read from a path
     var buffer: UnsafeMutablePointer<CChar>? {
         get {
             return _buffers[_path.hashValue]
@@ -45,6 +56,7 @@ open class Open<PathType: Path & Openable>: Openable, Ownable, Permissionable {
             _buffers[_path.hashValue] = newValue
         }
     }
+    /// The size of the buffer used to store read data
     var bufferSize: OSInt? {
         get {
             return _bufferSizes[_path.hashValue]

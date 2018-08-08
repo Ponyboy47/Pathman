@@ -48,17 +48,23 @@ public extension Seekable {
     }
 }
 
-/// 
+/// Information needed for seeking within a path
 public struct Offset {
+    /// The type of seeking to be performed
     public struct OffsetType: RawRepresentable, Equatable {
         public typealias RawValue = OptionInt
         public let rawValue: RawValue
 
+        /// Seek from the beginning of a path
         public static let beginning = OffsetType(rawValue: SEEK_SET)
+        /// Seek from the end of a path
         public static let end = OffsetType(rawValue: SEEK_END)
+        /// Seek from the current offset of a path
         public static let current = OffsetType(rawValue: SEEK_CUR)
         #if SEEK_DATA && SEEK_HOLE
+        /// Seek to the next data section of a path
         public static let data = OffsetType(rawValue: SEEK_DATA)
+        /// Seek to the next hole in the data of a path
         public static let hole = OffsetType(rawValue: SEEK_HOLE)
         #endif
 
@@ -67,7 +73,9 @@ public struct Offset {
         }
     }
 
+    /// The type of seeking to be performed
     var type: OffsetType
+    /// Either the number of bytes to seek or the offset to begin seeking from
     var bytes: OSInt
 
     init(_ type: OffsetType, _ bytes: OSInt) {
