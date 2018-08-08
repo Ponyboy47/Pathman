@@ -62,7 +62,7 @@ public extension Readable {
     - Throws: `CloseFileError.interruptedBySignal` when the call was interrupted by a signal handler
     - Throws: `CloseFileError.ioError` when an I/O error occurred
     */
-    public func read(from offset: Offset = Offset(from: .current, bytes: 0), bytes byteCount: OSInt? = nil, encoding: String.Encoding = .utf8) throws -> String? {
+    public func read(from offset: Offset = Offset(type: .current, bytes: 0), bytes byteCount: OSInt? = nil, encoding: String.Encoding = .utf8) throws -> String? {
         let data = try read(from: offset, bytes: byteCount)
         return String(data: data, encoding: encoding)
     }
@@ -83,7 +83,7 @@ extension Open: Readable where PathType: FilePath {
     - Throws: `ReadError.cannotReadFileDescriptor` when the underlying file descriptor is attached to a path which is unsuitable for reading or the file was opened with the `.direct` flag and either the buffer addres, the byteCount, or the offset are not suitably aligned
     - Throws: `ReadError.ioError` when an I/O error occured during the API call
     */
-    public func read(from offset: Offset = Offset(from: .current, bytes: 0), bytes byteCount: OSInt? = nil) throws -> Data {
+    public func read(from offset: Offset = Offset(type: .current, bytes: 0), bytes byteCount: OSInt? = nil) throws -> Data {
         try seek(offset)
 
         // Either read the specified number of bytes, or read the entire file
@@ -151,7 +151,7 @@ public extension FilePath {
     - Throws: `CloseFileError.interruptedBySignal` when the call was interrupted by a signal handler
     - Throws: `CloseFileError.ioError` when an I/O error occurred
     */
-    public func read(from offset: Offset = Offset(from: .current, bytes: 0), bytes byteCount: OSInt? = nil) throws -> Data {
+    public func read(from offset: Offset = Offset(type: .current, bytes: 0), bytes byteCount: OSInt? = nil) throws -> Data {
         // If the file is already opened with read permissions, then use the same opened file to read right now
         if let opened = self.opened, !OpenFilePermissions(rawValue: opened.options).contains(.read) {
             return try opened.read(from: offset, bytes: byteCount)
@@ -205,7 +205,7 @@ public extension FilePath {
     - Throws: `CloseFileError.interruptedBySignal` when the call was interrupted by a signal handler
     - Throws: `CloseFileError.ioError` when an I/O error occurred
     */
-    public func read(from offset: Offset = Offset(from: .current, bytes: 0), bytes byteCount: OSInt? = nil, encoding: String.Encoding = .utf8) throws -> String? {
+    public func read(from offset: Offset = Offset(type: .current, bytes: 0), bytes byteCount: OSInt? = nil, encoding: String.Encoding = .utf8) throws -> String? {
         // If the file is already opened with read permissions, then use the same opened file to read right now
         if let opened = self.opened, !OpenFilePermissions(rawValue: opened.options).contains(.read) {
             return try opened.read(from: offset, bytes: byteCount, encoding: encoding)

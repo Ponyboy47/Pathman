@@ -32,7 +32,7 @@ public extension Writable {
     - Throws: `WriteError.fileSystemFull` when the file system is full
     - Throws: `WriteError.permissionDenied` when the operation was prevented because of a file seal (see fcntl(2))
     */
-    public func write(_ string: String, at offset: Offset = Offset(from: .current, bytes: 0), using encoding: String.Encoding = .utf8) throws {
+    public func write(_ string: String, at offset: Offset = Offset(type: .current, bytes: 0), using encoding: String.Encoding = .utf8) throws {
         let data = try string.data(using: encoding) ?! StringError.notConvertibleToData(using: encoding)
         try write(data, at: offset)
     }
@@ -54,11 +54,11 @@ extension Open: Writable where PathType: FilePath {
     - Throws: `WriteError.fileSystemFull` when the file system is full
     - Throws: `WriteError.permissionDenied` when the operation was prevented because of a file seal (see fcntl(2))
     */
-    public func write(_ buffer: Data, at offset: Offset = Offset(from: .current, bytes: 0)) throws {
+    public func write(_ buffer: Data, at offset: Offset = Offset(type: .current, bytes: 0)) throws {
         if !OpenFileFlags(rawValue: options).contains(.append) {
             try seek(offset)
         } else {
-            try seek(Offset(from: .end, bytes: 0))
+            try seek(Offset(type: .end, bytes: 0))
         }
 
         guard cWriteFile(fileDescriptor, [UInt8](buffer), buffer.count) != -1 else { throw WriteError.getError() }
@@ -108,7 +108,7 @@ public extension FilePath {
     - Throws: `CloseFileError.interruptedBySignal` when the call was interrupted by a signal handler
     - Throws: `CloseFileError.ioError` when an I/O error occurred
     */
-    public func write(_ buffer: Data, at offset: Offset = Offset(from: .current, bytes: 0)) throws {
+    public func write(_ buffer: Data, at offset: Offset = Offset(type: .current, bytes: 0)) throws {
         if let opened = self.opened, OpenFilePermissions(rawValue: opened.options).contains(.write) {
             return try opened.write(buffer, at: offset)
         }
@@ -161,7 +161,7 @@ public extension FilePath {
     - Throws: `CloseFileError.interruptedBySignal` when the call was interrupted by a signal handler
     - Throws: `CloseFileError.ioError` when an I/O error occurred
     */
-    public func write(_ string: String, at offset: Offset = Offset(from: .current, bytes: 0), using encoding: String.Encoding = .utf8) throws {
+    public func write(_ string: String, at offset: Offset = Offset(type: .current, bytes: 0), using encoding: String.Encoding = .utf8) throws {
         if let opened = self.opened, OpenFilePermissions(rawValue: opened.options).contains(.write) {
             return try opened.write(string, at: offset, using: encoding)
         }

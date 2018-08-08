@@ -19,25 +19,26 @@ public protocol Seekable: class {
     // These are available on the following filesystems:
     // Btrfs, OCFS, XFS, ext4, tmpfs, and the macOS filesystem
     #if SEEK_DATA && SEEK_HOLE
-    func seek(toNextHoleFrom offset: OSInt) throws -> OSInt
-    func seek(toNextDataFrom offset: OSInt) throws -> OSInt
+    func seek(toNextHoleAfter offset: OSInt) throws -> OSInt
+    func seek(toNextDataAfter offset: OSInt) throws -> OSInt
     #endif
 
     func rewind() throws -> OSInt
 }
 
 public extension Seekable {
+    /// Seeks using the specified offset
     @discardableResult
     public func seek(_ offset: Offset) throws -> OSInt {
         let newOffset: OSInt
 
-        switch offset.from {
+        switch offset.type {
         case .beginning: newOffset = try seek(fromStart: offset.bytes)
         case .end: newOffset = try seek(fromEnd: offset.bytes)
         case .current: newOffset = try seek(fromCurrent: offset.bytes)
         #if SEEK_DATA && SEEK_HOLE
-        case .data: newOffset = try seek(toNextDataFrom: offset.bytes)
-        case .hole: newOffset = try seek(toNextHoleFrom: offset.bytes)
+        case .data: newOffset = try seek(toNextDataAfter: offset.bytes)
+        case .hole: newOffset = try seek(toNextHoleAfter: offset.bytes)
         #endif
         default: throw SeekError.unknownOffsetType
         }
@@ -47,6 +48,7 @@ public extension Seekable {
     }
 }
 
+/// 
 public struct Offset {
     public struct OffsetType: RawRepresentable, Equatable {
         public typealias RawValue = OptionInt
@@ -65,16 +67,16 @@ public struct Offset {
         }
     }
 
-    var from: OffsetType
+    var type: OffsetType
     var bytes: OSInt
 
     init(_ type: OffsetType, _ bytes: OSInt) {
-        self.from = type
+        self.type = type
         self.bytes = bytes
     }
 
-    public init(from type: OffsetType, bytes: OSInt) {
-        self.from = type
+    public init(type: OffsetType, bytes: OSInt) {
+        self.type = type
         self.bytes = bytes
     }
 }
