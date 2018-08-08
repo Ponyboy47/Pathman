@@ -1,6 +1,7 @@
 /// A swift wrapper around the C mode_t type, which is used to hold/manipulate information about a Path's permissions
-public struct FileMode: OptionSet, ExpressibleByIntegerLiteral {
+public struct FileMode: OptionSet, ExpressibleByIntegerLiteral, ExpressibleByStringLiteral {
     public typealias IntegerLiteralType = OSUInt
+    public typealias ExtendedGraphemeClusterLiteralType = StringLiteralType
 
     public private(set)var rawValue: IntegerLiteralType
 
@@ -50,6 +51,47 @@ public struct FileMode: OptionSet, ExpressibleByIntegerLiteral {
 
     public init(integerLiteral value: IntegerLiteralType) {
         self.init(rawValue: value)
+    }
+
+    /**
+        Initialize from a Unix permissions string (-rwxrwxrwx)
+    */
+    public init(_ value: String) {
+        self.init(rawValue: 0)
+        guard [9, 10].contains(value.count) else { return }
+
+        var value = value
+        if value.count == 10 {
+            value = String(value.dropFirst())
+        }
+
+        var raw: IntegerLiteralType = 0
+        for (index, char) in value.enumerated() {
+            if index % 3 == 0 {
+                rawValue |= raw << (9 - index)
+                raw = 0
+            }
+
+            switch char {
+            case "r": raw |= 0o4
+            case "w": raw |= 0o2
+            case "x": raw |= 0o1
+            default: continue
+            }
+        }
+        rawValue |= raw
+    }
+
+    public init(unicodeScalarLiteral value: UnicodeScalarLiteralType) {
+        self.init(value)
+    }
+
+    public init(extendedGraphemeClusterLiteral value: ExtendedGraphemeClusterLiteralType) {
+        self.init(value)
+    }
+
+    public init(stringLiteral value: StringLiteralType) {
+        self.init(value)
     }
 
     private init(owner: IntegerLiteralType = 0, group: IntegerLiteralType = 0, others: IntegerLiteralType = 0, bits: IntegerLiteralType = 0) {

@@ -24,7 +24,7 @@ I am not a big fan of Foundation's `FileManager`. Foundation in general has inco
 ## Installation (SPM)
 Add this to your Package.swift dependencies:
 ```swift
-.package(url: "https://github.com/Ponyboy47/Trailblazer.git", from: "0.8.0")
+.package(url: "https://github.com/Ponyboy47/Trailblazer.git", from: "0.8.1")
 ```
 
 ## Usage
@@ -377,7 +377,7 @@ print(globData.other)
 - GenericPath (AKA all Paths)
   - [x] Change path ownership
   - [x] Change path permissions
-    - [ ] Allow octal numeric strings to be used for changing permissions
+    - [x] Allow octal numeric strings to be used for changing permissions
   - [x] Move paths
   - [x] Rename paths (move alias)
   - [x] URL conversion
