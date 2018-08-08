@@ -22,7 +22,8 @@ let package = Package(
         // Targets can depend on other targets in this package, and on products in packages which this package depends on.
         .target(
             name: "TrailBlazer",
-            dependencies: ["ErrNo", "Cdirent", "Cglob"]),
+            dependencies: ["ErrNo", "Cdirent", "Cglob"],
+            exclude: ["Utilities/Autoclose"]),
         .testTarget(
             name: "TrailBlazerTests",
             dependencies: ["TrailBlazer", "SwiftShell"]),
