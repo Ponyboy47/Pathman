@@ -1,13 +1,17 @@
 import ErrNo
 import Cglob
 
+/// The Error type used by anything that throws in this library
 public protocol TrailBlazerError: Error {
+    /// A function used to return the Error based on the ErrNo
     static func getError() -> Self
 }
 
 // Creating files uses the open(2) call so it's errors are the same
+/// Errors thrown when a FilePath is created (see open(2))
 public typealias CreateFileError = OpenFileError
 
+/// Errors thrown when a FilePath is opened (see open(2))
 public enum OpenFileError: TrailBlazerError {
     case unknown
     case permissionDenied
@@ -17,11 +21,11 @@ public enum OpenFileError: TrailBlazerError {
     case fileTooLarge
     case interruptedBySignal
     case invalidFlags
-    case improperUseOfDirectory
+    // case improperUseOfDirectory
     case shouldNotFollowSymlinks
     case tooManySymlinks
-    case noMoreProcessFileDescriptors
-    case noMoreSystemFileDescriptors
+    case noProcessFileDescriptors
+    case noSystemFileDescriptors
     case pathnameTooLong
     case noDevice
     case noRouteToPath
@@ -29,16 +33,14 @@ public enum OpenFileError: TrailBlazerError {
     case fileSystemFull
     case pathComponentNotDirectory
     case deviceNotOpened
-    case noTempFS
     case readOnlyFileSystem
-    case deviceBusy
+    case pathBusy
     case wouldBlock
     case createWithoutMode
-    case invalidOrEmptyPermissions
+    case operationNotSupported
     #if os(macOS)
     case lockedDevice
     case ioErrorCreatingPath
-    case operationNotSupported
     #endif
 
     public static func getError() -> OpenFileError {
@@ -54,38 +56,40 @@ public enum OpenFileError: TrailBlazerError {
         case .EFBIG: return .fileTooLarge
         case .EINTR: return .interruptedBySignal
         case .EINVAL: return .invalidFlags
-        case .EISDIR: return .improperUseOfDirectory
+        // This should only occur when opening a directory and since this is
+        // restricted to opening files it _shouldn't_ ever occur
+        // case .EISDIR: return .improperUseOfDirectory
         case .ELOOP:
             if flags.contains(.noFollow) {
                 return .shouldNotFollowSymlinks
             } else {
                 return .tooManySymlinks
             }
-        case .EMFILE: return .noMoreProcessFileDescriptors
+        case .EMFILE: return .noProcessFileDescriptors
         case .ENAMETOOLONG: return .pathnameTooLong
-        case .ENFILE: return .noMoreSystemFileDescriptors
+        case .ENFILE: return .noSystemFileDescriptors
         case .ENODEV: return .noDevice
         case .ENOENT: return .noRouteToPath
         case .ENOMEM: return .noKernelMemory
         case .ENOSPC: return .fileSystemFull
         case .ENOTDIR: return .pathComponentNotDirectory
         case .ENXIO: return .deviceNotOpened
-        case .EOPNOTSUPP: return .noTempFS
         case .EOVERFLOW: return .fileTooLarge
         case .EPERM: return .permissionDenied
         case .EROFS: return .readOnlyFileSystem
-        case .ETXTBSY: return .deviceBusy
+        case .ETXTBSY: return .pathBusy
         case .EWOULDBLOCK: return .wouldBlock
+        case .EOPNOTSUPP: return .operationNotSupported
         #if os(macOS)
         case .EAGAIN: return .lockedDevice
         case .EIO: return .ioErrorCreatingPath
-        case .EOPNOTSUPP: return .operationNotSupported
         #endif
         default: return .unknown
         }
     }
 }
 
+/// Errors thrown when a FilePath is closed (see close(2))
 public enum CloseFileError: TrailBlazerError {
     case unknown
     case badFileDescriptor
@@ -102,10 +106,14 @@ public enum CloseFileError: TrailBlazerError {
     }
 }
 
-public enum DeleteFileError: TrailBlazerError {
+/// Errors thrown when a FilePath is deleted
+public typealias DeleteFileError = UnlinkError
+
+/// Errors thrown when a path is unlinked (see unlink(2))
+public enum UnlinkError: TrailBlazerError {
     case unknown
     case permissionDenied
-    case fileInUse
+    case pathInUse
     case badAddress
     case ioError
     case isDirectory
@@ -116,10 +124,10 @@ public enum DeleteFileError: TrailBlazerError {
     case noKernelMemory
     case readOnlyFileSystem
 
-    public static func getError() -> DeleteFileError {
+    public static func getError() -> UnlinkError {
         switch ErrNo.lastError {
         case .EACCES, .EPERM: return .permissionDenied
-        case .EBUSY: return .fileInUse
+        case .EBUSY: return .pathInUse
         case .EFAULT: return .badAddress
         case .EIO: return .ioError
         case .EISDIR: return .isDirectory
@@ -134,46 +142,33 @@ public enum DeleteFileError: TrailBlazerError {
     }
 }
 
-public enum DupError: TrailBlazerError {
-    case unknown
-    case unopenedFileDescriptor
-    case interruptedBySignal
-    case noMoreProcessFileDescriptors
-
-    public static func getError() -> DupError {
-        switch ErrNo.lastError {
-        case .EBADF: return .unopenedFileDescriptor
-        case .EINTR: return .interruptedBySignal
-        case .EMFILE: return .noMoreProcessFileDescriptors
-        default: return .unknown
-        }
-    }
-}
-
+/// Errors thrown when a DirectoryPath is opened (see opendir(3))
 public enum OpenDirectoryError: TrailBlazerError {
     case unknown
     case permissionDenied
-    case badFileDescriptor
-    case noMoreProcessFileDescriptors
-    case noMoreSystemFileDescriptors
+    // case badFileDescriptor
+    case noProcessFileDescriptors
+    case noSystemFileDescriptors
     case pathDoesNotExist
     case outOfMemory
-    case pathComponentNotDirectory
+    case pathNotDirectory
 
     public static func getError() -> OpenDirectoryError {
         switch ErrNo.lastError {
         case .EACCES: return .permissionDenied
-        case .EBADF: return .badFileDescriptor
-        case .EMFILE: return .noMoreProcessFileDescriptors
-        case .ENFILE: return .noMoreSystemFileDescriptors
+        // This would only occur for the fopendir(2) C API call, which is not being used
+        // case .EBADF: return .badFileDescriptor
+        case .EMFILE: return .noProcessFileDescriptors
+        case .ENFILE: return .noSystemFileDescriptors
         case .ENOENT: return .pathDoesNotExist
         case .ENOMEM: return .outOfMemory
-        case .ENOTDIR: return .pathComponentNotDirectory
+        case .ENOTDIR: return .pathNotDirectory
         default: return .unknown
         }
     }
 }
 
+/// Errors thrown when a DirectoryPath is closed (see closedir(3))
 public enum CloseDirectoryError: TrailBlazerError {
     case unknown
     case invalidDirectoryStream
@@ -186,6 +181,12 @@ public enum CloseDirectoryError: TrailBlazerError {
     }
 }
 
+/// Thrown when a path is set to be deleted (via a recursiveDelete of a DirectoryPath) and it is not a deletable path
+public enum GenericDeleteError: Error {
+    case cannotDeleteGenericPath(GenericPath)
+}
+
+/// Errors thrown when a DirectoryPath is created (see mkdir(2))
 public enum CreateDirectoryError: TrailBlazerError {
     case unknown
     case permissionDenied
@@ -226,6 +227,7 @@ public enum CreateDirectoryError: TrailBlazerError {
     }
 }
 
+/// Errors thrown when a DirectoryPath is deleted (see rmdir(2))
 public enum DeleteDirectoryError: TrailBlazerError {
     case unknown
     case permissionDenied
@@ -264,6 +266,7 @@ public enum DeleteDirectoryError: TrailBlazerError {
     }
 }
 
+/// Errors thrown getting path information (see stat(2))
 public enum StatError: TrailBlazerError {
     case unknown
     case permissionDenied
@@ -298,39 +301,14 @@ public enum StatError: TrailBlazerError {
     }
 }
 
-public enum PathError: TrailBlazerError {
-    case unknown
-    case permissionDenied
-    case emptyPath
-    case ioError
-    case tooManySymlinks
-    case pathnameTooLong
-    case outOfMemory
-    case pathDoesNotExist
-    case pathComponentNotDirectory
-
-    public static func getError() -> PathError {
-        switch ErrNo.lastError {
-        case .EACCES: return .permissionDenied
-        case .EINVAL: return .emptyPath
-        case .EIO: return .ioError
-        case .ELOOP: return .tooManySymlinks
-        case .ENAMETOOLONG: return .pathnameTooLong
-        case .ENOMEM: return .outOfMemory
-        case .ENOENT: return .pathDoesNotExist
-        case .ENOTDIR: return .pathComponentNotDirectory
-        default: return .unknown
-        }
-    }
-}
-
+/// Errors thrown while getting information about a user (see getpwnam(2) or getpwuid(2))
 public enum UserInfoError: TrailBlazerError {
     case unknown
     case userDoesNotExist
     case interruptedBySignal
     case ioError
-    case noMoreProcessFileDescriptors
-    case noMoreSystemFileDescriptors
+    case noProcessFileDescriptors
+    case noSystemFileDescriptors
     case outOfMemory
     case invalidHomeDirectory
 
@@ -339,21 +317,22 @@ public enum UserInfoError: TrailBlazerError {
         case 0, .ENOENT, .ESRCH, .EBADF, .EPERM: return .userDoesNotExist
         case .EINTR: return .interruptedBySignal
         case .EIO: return .ioError
-        case .EMFILE: return .noMoreProcessFileDescriptors
-        case .ENFILE: return .noMoreSystemFileDescriptors
+        case .EMFILE: return .noProcessFileDescriptors
+        case .ENFILE: return .noSystemFileDescriptors
         case .ENOMEM: return .outOfMemory
         default: return .unknown
         }
     }
 }
 
+/// Errors thrown while getting information about a group (see getgrnam(2) or getgrgid(2))
 public enum GroupInfoError: TrailBlazerError {
     case unknown
     case userDoesNotExist
     case interruptedBySignal
     case ioError
-    case noMoreProcessFileDescriptors
-    case noMoreSystemFileDescriptors
+    case noProcessFileDescriptors
+    case noSystemFileDescriptors
     case outOfMemory
 
     public static func getError() -> GroupInfoError {
@@ -361,14 +340,15 @@ public enum GroupInfoError: TrailBlazerError {
         case 0, .ENOENT, .ESRCH, .EBADF, .EPERM: return .userDoesNotExist
         case .EINTR: return .interruptedBySignal
         case .EIO: return .ioError
-        case .EMFILE: return .noMoreProcessFileDescriptors
-        case .ENFILE: return .noMoreSystemFileDescriptors
+        case .EMFILE: return .noProcessFileDescriptors
+        case .ENFILE: return .noSystemFileDescriptors
         case .ENOMEM: return .outOfMemory
         default: return .unknown
         }
     }
 }
 
+/// Errors thrown by trying to read a fileDescriptor (see read(2))
 public enum ReadError: TrailBlazerError {
     case unknown
     case wouldBlock
@@ -407,6 +387,7 @@ public enum ReadError: TrailBlazerError {
     }
 }
 
+/// Errors thrown by trying to seek to an offset for a fileDescriptor (see seek(2))
 public enum SeekError: TrailBlazerError {
     case unknown
     case unknownOffsetType
@@ -414,24 +395,25 @@ public enum SeekError: TrailBlazerError {
     case invalidOffset
     case offsetTooLarge
     case fileDescriptorIsNotFile
-    #if os(macOS)
-    case noMoreData
+    #if SEEK_DATA && SEEK_HOLE
+    case noData
     #endif
 
     public static func getError() -> SeekError {
         switch ErrNo.lastError {
         case .EBADF: return .fileDescriptorIsNotOpen
-        case .EINVAL, .ENXIO: return .invalidOffset
+        case .EINVAL: return .invalidOffset
         case .EOVERFLOW: return .offsetTooLarge
         case .ESPIPE: return .fileDescriptorIsNotFile
-        #if os(macOS)
-        case .ENXIO: return .noMoreData
+        #if SEEK_DATA && SEEK_HOLE
+        case .ENXIO: return .noData
         #endif
         default: return .unknown
         }
     }
 }
 
+/// Errors thrown while expanding relative paths or symlinks (see realpath(3))
 public enum RealPathError: TrailBlazerError {
     case unknown
     case permissionDenied
@@ -439,6 +421,7 @@ public enum RealPathError: TrailBlazerError {
     case ioError
     case tooManySymlinks
     case pathnameTooLong
+    case pathComponentTooLong
     case outOfMemory
     case pathDoesNotExist
     case pathComponentNotDirectory
@@ -458,6 +441,7 @@ public enum RealPathError: TrailBlazerError {
     }
 }
 
+/// Errors thrown during String conversions from Data
 public enum StringError: TrailBlazerError {
     case unknown
     case notConvertibleToData(using: String.Encoding)
@@ -467,6 +451,7 @@ public enum StringError: TrailBlazerError {
     }
 }
 
+/// Errors thrown by trying to write to a fileDescriptor (see write(2))
 public enum WriteError: TrailBlazerError {
     case unknown
     case wouldBlock
@@ -513,6 +498,7 @@ public enum WriteError: TrailBlazerError {
     }
 }
 
+/// Errors thrown while changing Path ownership (see chown(2))
 public enum ChangeOwnershipError: TrailBlazerError {
     case unknown
     case permissionDenied
@@ -543,6 +529,7 @@ public enum ChangeOwnershipError: TrailBlazerError {
     }
 }
 
+/// Errors thrown while changing the permissions on a Path (see chmod(2))
 public enum ChangePermissionsError: TrailBlazerError {
     case unknown
     case permissionDenied
@@ -573,6 +560,7 @@ public enum ChangePermissionsError: TrailBlazerError {
     }
 }
 
+/// Errors thrown by moving or renaming a Path (see rename(2))
 public enum MoveError: TrailBlazerError {
     case unknown
     case permissionDenied
@@ -616,6 +604,7 @@ public enum MoveError: TrailBlazerError {
     }
 }
 
+/// Errors thrown by globbing (see glob(3))
 public enum GlobError: TrailBlazerError {
     public typealias ErrorHandler = (@convention(c) (UnsafePointer<CChar>?, OptionInt) -> OptionInt)
     case unknown

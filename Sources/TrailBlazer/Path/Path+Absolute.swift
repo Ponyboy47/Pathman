@@ -1,16 +1,15 @@
-import ErrNo
-
 #if os(Linux)
 import Glibc
+let cRealpath = Glibc.realpath
 #else
 import Darwin
+let cRealpath = Darwin.realpath
 #endif
 
 extension Path {
-    /// The full canonicalized path. Will only be nil if the calling process
-    /// does not have access to the path or if a system error occurs
-    public var absolute: Self! {
-        return try! self.expand()
+    /// The full canonicalized path
+    public var absolute: Self? {
+        return try? self.expanded()
     }
 
     /// Whether or not the current path is absolute
@@ -19,48 +18,78 @@ extension Path {
     }
 
     /**
-    Expands all symbolic links and resolves references to ~/, /./, /../ and extra
+    Mutates self and expands all symbolic links and resolves references to ~/, /./, /../ and extra
     '/' characters to produce a canonicalized absolute pathname.
 
     - Throws:
-        - RealSelfError.permissionDenied: Read or search permission was denied for a component of the path prefix.
-        - RealSelfError.emptySelf: (Shouldn't ever occur) path is NULL.
-        - RealSelfError.ioError: An I/O error occurred while reading from the filesystem.
-        - RealSelfError.tooManySymlinks: Too many symbolic links were encountered in translating the pathname.
-        - RealSelfError.pathnameTooLong: (Shouldn't ever occur) A component of a pathname exceeded NAME_MAX characters, or an entire pathname exceeded PATH_MAX characters.
-        - RealSelfError.outOfMemory: Out of memory.
-        - RealSelfError.pathDoesNotExist: The named file does not exist.
-        - RealSelfError.notADirectory: A component of the path prefix is not a directory.
+        - RealPathError.permissionDenied: Read or search permission was denied for a component of the path prefix.
+        - RealPathError.emptyPath: path is NULL (AKA empty).
+        - RealPathError.ioError: An I/O error occurred while reading from the filesystem.
+        - RealPathError.tooManySymlinks: Too many symbolic links were encountered in translating the pathname.
+        - RealPathError.pathnameTooLong: The entire pathname exceeded PATH_MAX characters.
+        - RealPathError.pathComponentTooLong: A component of a pathname exceeded NAME_MAX characters
+        - RealPathError.outOfMemory: Out of memory.
+        - RealPathError.pathDoesNotExist: The named file does not exist.
+        - RealPathError.notADirectory: A component of the path prefix is not a directory.
     */
-    public func expand() throws -> Self {
+    public mutating func expand() throws {
         // If the path is already absolute, then there's no point in calling realpath(3)
-        guard isRelative else { return self }
+        guard isRelative else { return }
 
         // realpath(3) fails if the path is null
-        guard !_path.isEmpty else { return self }
+        guard !_path.isEmpty else { throw RealPathError.emptyPath }
 
-        var str = _path
-
-        if str.hasPrefix("~") {
+        if _path.hasPrefix("~") {
             let home = try getHome()
-            str = str.replacingOccurrences(of: "^~", with: home.string, options: .regularExpression)
+            _path.replaceSubrange(..<_path.startIndex.advanced(by: 1), with: home.string)
         }
 
-        // realpath(3) fails if the path is longer than PATH_MAX characters
-        guard str.count < PATH_MAX else { return self }
-
-        // realpath(3) fails if any of the path components are longer than NAME_MAX characters
-        guard str.components(separatedBy: Self.separator).reduce(true, { $0 ? $1.count <= NAME_MAX : false }) else { return self }
-
-        // realpath(3) fails if the path does not exist
-        guard Self(str)!.exists else { return Self(str)! }
-
-        guard let realpath = realpath(str, nil) else { throw RealPathError.getError() }
+        let realpath = try cRealpath(_path, nil) ?! RealPathError.getError()
 
         // When realpath(3) is passed a nil buffer argument, the memory is
         // dynamically allocated and must be deallocated
         defer { realpath.deallocate() }
 
-        return Self(String(cString: realpath))!
+        _path = String(cString: realpath)
+    }
+
+    /**
+    Expands all symbolic links and resolves references to ~/, /./, /../ and extra
+    '/' characters to produce a canonicalized absolute pathname.
+
+    - Returns: The expanded copy of self
+    - Throws:
+        - RealPathError.permissionDenied: Read or search permission was denied for a component of the path prefix.
+        - RealPathError.emptyPath: path is NULL (AKA empty).
+        - RealPathError.ioError: An I/O error occurred while reading from the filesystem.
+        - RealPathError.tooManySymlinks: Too many symbolic links were encountered in translating the pathname.
+        - RealPathError.pathnameTooLong: The entire pathname exceeded PATH_MAX characters.
+        - RealPathError.pathComponentTooLong: A component of a pathname exceeded NAME_MAX characters
+        - RealPathError.outOfMemory: Out of memory.
+        - RealPathError.pathDoesNotExist: The named file does not exist.
+        - RealPathError.notADirectory: A component of the path prefix is not a directory.
+    */
+    public func expanded() throws -> Self {
+        // If the path is already absolute, then there's no point in calling realpath(3)
+        guard isRelative else { return self }
+
+        // realpath(3) fails if the path is null
+        guard !_path.isEmpty else { throw RealPathError.emptyPath }
+
+        var str = _path
+
+        if str.hasPrefix("~") {
+            let home = try getHome()
+            str.replaceSubrange(..<str.startIndex.advanced(by: 1), with: home.string)
+        }
+
+        let realpath = try cRealpath(str, nil) ?! RealPathError.getError()
+
+        // When realpath(3) is passed a nil buffer argument, the memory is
+        // dynamically allocated and must be deallocated
+        defer { realpath.deallocate() }
+
+        let realpathString = String(cString: realpath)
+        return Self(realpathString) !! "In the time since this \(Self.self) object was created, a path of a different type has been created at the same location (\(realpathString))."
     }
 }

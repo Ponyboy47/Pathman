@@ -18,65 +18,114 @@ extension Path {
 /**
 Returns the home directory for a specified user
 
-- Parameter username: The username of the user who's home directory you wish to retrieve
-- Throws:
-    - UserInfoError.userDoesNotExist
-    - UserInforError.interrupterdBySignal
-    - UserInforError.ioError
-    - UserInforError.noMoreProcessFileDescriptors
-    - UserInforError.noMoreSystemFileDescriptors
-    - UserInforError.outOfMemory
+- Parameter username: The username of the user whose home directory you wish to retrieve
+- Returns: The home directory of the specified user
+
+- Throws: `UserInfoError.userDoesNotExist` when there was no user found with the specified username
+- Throws: `UserInfoError.interruptedBySignal` when the API call was interrupted by a signal handler
+- Throws: `UserInfoError.ioError` when an I/O error occurred during the API call
+- Throws: `UserInfoError.noMoreProcessFileDescriptors` when the process has no more available file descriptors
+- Throws: `UserInfoError.noMoreSystemFileDescriptors` when the system has no more available file descriptors
+- Throws: `UserInfoError.outOfMemory` when there is insufficient memory to allocate the underlying C passwd struct
 */
 func getHome(_ username: String) throws -> DirectoryPath {
-    guard let info = getUserInfo(username) else { throw UserInfoError.getError() }
-    guard let dir = DirectoryPath(String(cString: info.pw_dir)) else {
-        throw UserInfoError.invalidHomeDirectory
-    }
-    return dir
+    let info = try getUserInfo(username)
+    return try DirectoryPath(String(cString: info.pw_dir)) ?! UserInfoError.invalidHomeDirectory
 }
 /**
 Returns the home directory for a specified user
 
-- Parameter uid: The uid of the user who's home directory you wish to retrieve
-- Throws:
-    - UserInfoError.userDoesNotExist
-    - UserInforError.interrupterdBySignal
-    - UserInforError.ioError
-    - UserInforError.noMoreProcessFileDescriptors
-    - UserInforError.noMoreSystemFileDescriptors
-    - UserInforError.outOfMemory
+- Parameter uid: The uid of the user whose home directory you wish to retrieve
+- Returns: The home directory of the specified user
+
+- Throws: `UserInfoError.userDoesNotExist` when there was no user found with the specified uid
+- Throws: `UserInfoError.interruptedBySignal` when the API call was interrupted by a signal handler
+- Throws: `UserInfoError.ioError` when an I/O error occurred during the API call
+- Throws: `UserInfoError.noMoreProcessFileDescriptors` when the process has no more available file descriptors
+- Throws: `UserInfoError.noMoreSystemFileDescriptors` when the system has no more available file descriptors
+- Throws: `UserInfoError.outOfMemory` when there is insufficient memory to allocate the underlying C passwd struct
 */
 func getHome(_ uid: uid_t = geteuid()) throws -> DirectoryPath {
-    guard let info = getUserInfo(uid) else { throw UserInfoError.getError() }
-    guard let dir = DirectoryPath(String(cString: info.pw_dir)) else {
-        throw UserInfoError.invalidHomeDirectory
-    }
-    return dir
+    let info = try getUserInfo(uid)
+    return try DirectoryPath(String(cString: info.pw_dir)) ?! UserInfoError.invalidHomeDirectory
 }
-/// Returns a passwd structure for the specified username
-func getUserInfo(_ username: String) -> passwd? {
+
+/**
+Returns information about the user requested
+
+- Parameter username: The username of the user whose information you wish to retrieve
+- Returns: A passwd struct containing information about the user. (see getpwnam(3))
+
+- Throws: `UserInfoError.userDoesNotExist` when there was no user found with the specified username
+- Throws: `UserInfoError.interruptedBySignal` when the API call was interrupted by a signal handler
+- Throws: `UserInfoError.ioError` when an I/O error occurred during the API call
+- Throws: `UserInfoError.noMoreProcessFileDescriptors` when the process has no more available file descriptors
+- Throws: `UserInfoError.noMoreSystemFileDescriptors` when the system has no more available file descriptors
+- Throws: `UserInfoError.outOfMemory` when there is insufficient memory to allocate the underlying C passwd struct
+*/
+func getUserInfo(_ username: String) throws -> passwd {
     // getpwnam(2) documentation says "If one wants to check errno after
     // the call, it should be set to zero before the call."
     errno = 0
-    return getpwnam(username)?.pointee
+    return try getpwnam(username)?.pointee ?! UserInfoError.getError()
 }
-func getUserInfo(_ uid: uid_t) -> passwd? {
+
+/**
+Returns information about the user requested
+
+- Parameter uid: The uid of the user whose information you wish to retrieve
+- Returns: A passwd struct containing information about the user. (see getpwuid(3))
+
+- Throws: `UserInfoError.userDoesNotExist` when there was no user found with the specified uid
+- Throws: `UserInfoError.interruptedBySignal` when the API call was interrupted by a signal handler
+- Throws: `UserInfoError.ioError` when an I/O error occurred during the API call
+- Throws: `UserInfoError.noMoreProcessFileDescriptors` when the process has no more available file descriptors
+- Throws: `UserInfoError.noMoreSystemFileDescriptors` when the system has no more available file descriptors
+- Throws: `UserInfoError.outOfMemory` when there is insufficient memory to allocate the underlying C passwd struct
+*/
+func getUserInfo(_ uid: uid_t) throws -> passwd {
     // getpwuid(2) documentation says "If one wants to check errno after
     // the call, it should be set to zero before the call."
     errno = 0
-    return getpwuid(uid)?.pointee
+    return try getpwuid(uid)?.pointee ?! UserInfoError.getError()
 }
 
-// Returns a group structure for the specified groupname
-func getGroupInfo(_ groupname: String) -> group? {
+/**
+Returns information about the group requested
+
+- Parameter groupname: The name of the group whose information you wish to retrieve
+- Returns: A group struct containing information about the group. (see getgrnam(3))
+
+- Throws: `GroupInfoError.groupDoesNotExist` when there was no group found with the specified group name
+- Throws: `GroupInfoError.interruptedBySignal` when the API call was interrupted by a signal handler
+- Throws: `GroupInfoError.ioError` when an I/O error occurred during the API call
+- Throws: `GroupInfoError.noMoreProcessFileDescriptors` when the process has no more available file descriptors
+- Throws: `GroupInfoError.noMoreSystemFileDescriptors` when the system has no more available file descriptors
+- Throws: `GroupInfoError.outOfMemory` when there is insufficient memory to allocate the underlying C group struct
+*/
+func getGroupInfo(_ groupname: String) throws -> group {
     // getgrnam(2) documentation says "If one wants to check errno after
     // the call, it should be set to zero before the call."
     errno = 0
-    return getgrnam(groupname)?.pointee
+    return try getgrnam(groupname)?.pointee ?! GroupInfoError.getError()
 }
-func getGroupInfo(_ gid: gid_t) -> group? {
+
+/**
+Returns information about the group requested
+
+- Parameter gid: The gid of the group whose information you wish to retrieve
+- Returns: A group struct containing information about the group. (see getgrgid(3))
+
+- Throws: `GroupInfoError.groupDoesNotExist` when there was no group found with the specified gid
+- Throws: `GroupInfoError.interruptedBySignal` when the API call was interrupted by a signal handler
+- Throws: `GroupInfoError.ioError` when an I/O error occurred during the API call
+- Throws: `GroupInfoError.noMoreProcessFileDescriptors` when the process has no more available file descriptors
+- Throws: `GroupInfoError.noMoreSystemFileDescriptors` when the system has no more available file descriptors
+- Throws: `GroupInfoError.outOfMemory` when there is insufficient memory to allocate the underlying C group struct
+*/
+func getGroupInfo(_ gid: gid_t) throws -> group {
     // getgrgid(2) documentation says "If one wants to check errno after
     // the call, it should be set to zero before the call."
     errno = 0
-    return getgrgid(gid)?.pointee
+    return try getgrgid(gid)?.pointee ?! GroupInfoError.getError()
 }
