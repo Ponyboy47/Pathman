@@ -6,3 +6,5 @@
 
 *.sw[po]
 *.vimsession
+
+*.AppleDouble
