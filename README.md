@@ -394,3 +394,7 @@ print(globData.other)
   - https://docs.swift.org/swift-book/LanguageGuide/AutomaticReferenceCounting.html
 - [ ] Investigate improved Hashable conformances
   - https://developer.apple.com/documentation/swift/adopting_common_protocols
+- [ ] Study the Ownership Manifesto to see if anything can have improved memory semantics/performance
+  - https://github.com/apple/swift/blob/master/docs/OwnershipManifesto.md
+- [ ] Migrate usage examples to a separate Wiki
+  - [ ] Document performance pitfalls
