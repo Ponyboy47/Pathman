@@ -64,7 +64,7 @@ extension Stat {
     }
     public var group: gid_t {
         return _buffer.pointee.st_gid
-	}
+    }
     public var device: dev_t {
         return _buffer.pointee.st_rdev
     }

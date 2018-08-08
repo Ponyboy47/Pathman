@@ -218,7 +218,7 @@ public class DirectoryPath: Path, Openable, Sequence, IteratorProtocol {
     - Throws: `OpenDirectoryError.outOfMemory` when there is not enough available memory to open the directory
     - Throws: `OpenDirectoryError.pathNotDirectory` when the path you're trying to open exists and is not a directory. This should only occur if your DirectoryPath object was created before the path existed and then the path was created as a non-directory path type
     */
-	public func children(includeHidden: Bool = false) throws -> PathCollection {
+    public func children(includeHidden: Bool = false) throws -> PathCollection {
         return try recursiveChildren(to: 1, includeHidden: includeHidden)
     }
 

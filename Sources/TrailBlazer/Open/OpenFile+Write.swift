@@ -7,7 +7,9 @@ import Darwin
 private let cWriteFile = Darwin.write
 #endif
 
+/// Protocol declaration of types that can be written to
 public protocol Writable: Openable, Seekable {
+    /// Seeks to the specified offset and writes 
     func write(_ buffer: Data, at offset: Offset) throws
     func write(_ string: String, at offset: Offset, using encoding: String.Encoding) throws
 }

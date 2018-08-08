@@ -54,7 +54,7 @@ extension Open: Sequence, IteratorProtocol where PathType: DirectoryPath {
 
 public extension Open where PathType: DirectoryPath {
     /**
-	Recursively changes the owner and group of all files and subdirectories
+    Recursively changes the owner and group of all files and subdirectories
 
     - Parameter owner: The uid of the owner of the path
     - Parameter group: The gid of the group with permissions to access the path
@@ -88,8 +88,8 @@ public extension Open where PathType: DirectoryPath {
         }
     }
 
-	/**
-	Recursively changes the owner and group of all files and subdirectories
+    /**
+    Recursively changes the owner and group of all files and subdirectories
 
     - Parameter owner: The username of the owner of the path
     - Parameter group: The name of the group with permissions to access the path
@@ -109,7 +109,7 @@ public extension Open where PathType: DirectoryPath {
     - Throws: `OpenDirectoryError.pathDoesNotExist` when the path does not exist
     - Throws: `OpenDirectoryError.outOfMemory` when there is not enough available memory to open the directory
     - Throws: `OpenDirectoryError.pathNotDirectory` when the path you're trying to open exists and is not a directory. This should only occur if your DirectoryPath object was created before the path existed and then the path was created as a non-directory path type
-	*/
+    */
     public func changeRecursive(owner username: String? = nil, group groupname: String? = nil) throws {
         let uid: uid_t
         let gid: gid_t
@@ -129,8 +129,8 @@ public extension Open where PathType: DirectoryPath {
         try changeRecursive(owner: uid, group: gid)
     }
 
-	/**
-	Recursively changes the permissions on all paths
+    /**
+    Recursively changes the permissions on all paths
 
     - Parameter permissions: The new permissions for the paths
 
@@ -149,7 +149,7 @@ public extension Open where PathType: DirectoryPath {
     - Throws: `OpenDirectoryError.pathDoesNotExist` when the path does not exist
     - Throws: `OpenDirectoryError.outOfMemory` when there is not enough available memory to open the directory
     - Throws: `OpenDirectoryError.pathNotDirectory` when the path you're trying to open exists and is not a directory. This should only occur if your DirectoryPath object was created before the path existed and then the path was created as a non-directory path type
-	*/
+    */
     public func changeRecursive(permissions: FileMode) throws {
         try change(permissions: permissions)
 
@@ -163,8 +163,8 @@ public extension Open where PathType: DirectoryPath {
         }
     }
 
-	/**
-	Recursively changes the permissions on all paths
+    /**
+    Recursively changes the permissions on all paths
 
     - Parameters:
         - owner: The permissions for the owner of the path
@@ -187,13 +187,13 @@ public extension Open where PathType: DirectoryPath {
     - Throws: `OpenDirectoryError.pathDoesNotExist` when the path does not exist
     - Throws: `OpenDirectoryError.outOfMemory` when there is not enough available memory to open the directory
     - Throws: `OpenDirectoryError.pathNotDirectory` when the path you're trying to open exists and is not a directory. This should only occur if your DirectoryPath object was created before the path existed and then the path was created as a non-directory path type
-	*/
+    */
     public func changeRecursive(owner: FilePermissions, group: FilePermissions, others: FilePermissions, bits: FileBits) throws {
         try changeRecursive(permissions: FileMode(owner: owner, group: group, others: others, bits: bits))
     }
 
-	/**
-	Recursively changes the permissions on all paths
+    /**
+    Recursively changes the permissions on all paths
 
     - Parameters:
         - owner: The permissions for the owner of the path
@@ -216,14 +216,14 @@ public extension Open where PathType: DirectoryPath {
     - Throws: `OpenDirectoryError.pathDoesNotExist` when the path does not exist
     - Throws: `OpenDirectoryError.outOfMemory` when there is not enough available memory to open the directory
     - Throws: `OpenDirectoryError.pathNotDirectory` when the path you're trying to open exists and is not a directory. This should only occur if your DirectoryPath object was created before the path existed and then the path was created as a non-directory path type
-	*/
+    */
     public func changeRecursive(owner: FilePermissions? = nil, group: FilePermissions? = nil, others: FilePermissions? = nil, bits: FileBits? = nil) throws {
         let current = permissions
         try changeRecursive(owner: owner ?? current.owner, group: group ?? current.group, others: others ?? current.others, bits: bits ?? current.bits)
     }
 
-	/**
-	Recursively changes the permissions on all paths
+    /**
+    Recursively changes the permissions on all paths
 
     - Parameters:
         - ownerGroup: The permissions for the path owner and also members of the group with access to the path
@@ -245,14 +245,14 @@ public extension Open where PathType: DirectoryPath {
     - Throws: `OpenDirectoryError.pathDoesNotExist` when the path does not exist
     - Throws: `OpenDirectoryError.outOfMemory` when there is not enough available memory to open the directory
     - Throws: `OpenDirectoryError.pathNotDirectory` when the path you're trying to open exists and is not a directory. This should only occur if your DirectoryPath object was created before the path existed and then the path was created as a non-directory path type
-	*/
+    */
     public func changeRecursive(ownerGroup perms: FilePermissions, others: FilePermissions? = nil, bits: FileBits? = nil) throws {
         let current = permissions
         try changeRecursive(owner: perms, group: perms, others: current.others, bits: bits ?? current.bits)
     }
 
-	/**
-	Recursively changes the permissions on all paths
+    /**
+    Recursively changes the permissions on all paths
 
     - Parameters:
         - ownerOthers: The permissions for the owner of the path and everyone else
@@ -274,14 +274,14 @@ public extension Open where PathType: DirectoryPath {
     - Throws: `OpenDirectoryError.pathDoesNotExist` when the path does not exist
     - Throws: `OpenDirectoryError.outOfMemory` when there is not enough available memory to open the directory
     - Throws: `OpenDirectoryError.pathNotDirectory` when the path you're trying to open exists and is not a directory. This should only occur if your DirectoryPath object was created before the path existed and then the path was created as a non-directory path type
-	*/
+    */
     public func changeRecursive(ownerOthers perms: FilePermissions, group: FilePermissions? = nil, bits: FileBits? = nil) throws {
         let current = permissions
         try changeRecursive(owner: perms, group: group ?? current.group, others: perms, bits: bits ?? current.bits)
     }
 
-	/**
-	Recursively changes the permissions on all paths
+    /**
+    Recursively changes the permissions on all paths
 
     - Parameters:
         - groupOthers: The permissions for members of the group with access to the path and anyone else
@@ -303,14 +303,14 @@ public extension Open where PathType: DirectoryPath {
     - Throws: `OpenDirectoryError.pathDoesNotExist` when the path does not exist
     - Throws: `OpenDirectoryError.outOfMemory` when there is not enough available memory to open the directory
     - Throws: `OpenDirectoryError.pathNotDirectory` when the path you're trying to open exists and is not a directory. This should only occur if your DirectoryPath object was created before the path existed and then the path was created as a non-directory path type
-	*/
+    */
     public func changeRecursive(groupOthers perms: FilePermissions, owner: FilePermissions? = nil, bits: FileBits? = nil) throws {
         let current = permissions
         try changeRecursive(owner: owner ?? current.owner, group: perms, others: perms, bits: bits ?? current.bits)
     }
 
-	/**
-	Recursively changes the permissions on all paths
+    /**
+    Recursively changes the permissions on all paths
 
     - Parameters:
         - ownerGroupOthers: The permissions for the owner of the path, members of the group, and everyone else
@@ -331,7 +331,7 @@ public extension Open where PathType: DirectoryPath {
     - Throws: `OpenDirectoryError.pathDoesNotExist` when the path does not exist
     - Throws: `OpenDirectoryError.outOfMemory` when there is not enough available memory to open the directory
     - Throws: `OpenDirectoryError.pathNotDirectory` when the path you're trying to open exists and is not a directory. This should only occur if your DirectoryPath object was created before the path existed and then the path was created as a non-directory path type
-	*/
+    */
     public func changeRecursive(ownerGroupOthers perms: FilePermissions, bits: FileBits? = nil) throws {
         try changeRecursive(owner: perms, group: perms, others: perms, bits: bits ?? permissions.bits)
     }

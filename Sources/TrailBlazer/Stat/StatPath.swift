@@ -107,5 +107,5 @@ extension StatPath {
     */
     public init<PathType: Path>(_ path: PathType, options: StatOptions = []) {
         self.init(path._path, options: options)
-	}
+    }
 }
