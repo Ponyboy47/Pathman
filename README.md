@@ -3,7 +3,7 @@
 A type-safe path library for Apple's Swift language.
 
 ## Motivation
-I am not a big fan of Foundation's `FileManager`. I find it to be an ugly API that has inconsistent results when used cross-platform (Linux support/stability is important to most of the things for which I use Swift), and it lacks the type-safety and ease-of-use that most Swift API's are expected to have (`FileAttributeKey` anyone?). So I built TrailBlazer! The first type-safe swift path library built around the lower level C API's (everything else out there is really just a wrapper around `FileManager`).
+I am not a big fan of Foundation's `FileManager`. Foundation in general has inconsistent results when used cross-platform (Linux support/stability is important to most of the things for which I use Swift), and `FileManager` lacks the type-safety and ease-of-use that most Swift API's are expected to have (`FileAttributeKey` anyone?). So I built TrailBlazer! The first type-safe swift path library built around the lower level C API's (everything else out there is really just a wrapper around `FileManager`).
 
 ## Goals
 - Type safety
@@ -61,7 +61,7 @@ guard let directory = DirectoryPath("/tmp") else {
 // Paths conform to the StatDelegate protocol, which means that they use the
 // `stat` utility to gather information about the file (ie: size, ownership,
 // modify time, etc)
-// NOTE: Only paths that exist will have information about them
+// NOTE: Only paths that exist will have information about them (obviously)
 
 /// The system id of the path
 path.id
