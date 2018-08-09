@@ -627,3 +627,16 @@ public enum GlobError: TrailBlazerError {
         return .unknown
     }
 }
+
+/// Errors thrown by creating/opening a temporary file/directory (see mkstemp(3)/mkdtemp(3))
+public enum MakeTemporaryError: TrailBlazerError {
+    case unknown
+    case alreadyExists
+
+    public static func getError() -> MakeTemporaryError {
+        switch ErrNo.lastError {
+        case .EEXIST: return .alreadyExists
+        default: return .unknown
+        }
+    }
+}

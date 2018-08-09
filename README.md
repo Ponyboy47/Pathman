@@ -24,7 +24,7 @@ I am not a big fan of Foundation's `FileManager`. Foundation in general has inco
 ## Installation (SPM)
 Add this to your Package.swift dependencies:
 ```swift
-.package(url: "https://github.com/Ponyboy47/Trailblazer.git", from: "0.8.1")
+.package(url: "https://github.com/Ponyboy47/Trailblazer.git", from: "0.8.2")
 ```
 
 ## Usage
@@ -365,6 +365,23 @@ print(globData.directories)
 print(globData.other)
 ```
 
+### Temporary Paths:
+
+```swift
+let tmpFile = try FilePath.temporary()
+// /tmp/vDjKM1C
+
+let tmpDir = try DirectoryPath.temporary()
+// /tmp/rYcznHQ
+
+// You can optionally specify a prefix for the path
+let tmpFile = try FilePath.temporary(prefix: "com.trailblazer.")
+// /tmp/com.trailblazer.gHyiZq
+
+let tmpDirectory = try DirectoryPath.temporary(prefix: "com.trailblazer.")
+// /tmp/com.trailblazer.2eH4iB
+```
+
 ## To Do
 - FilePath
   - [x] Create new files
@@ -381,7 +398,7 @@ print(globData.other)
   - [x] Move paths
   - [x] Rename paths (move alias)
   - [x] URL conversion
-  - [ ] Get/generate temporary files
+  - [x] Get/generate temporary files/directories
 - Misc. Additions
   - [x] Globbing
   - [ ] LinkedPath (symlinks)

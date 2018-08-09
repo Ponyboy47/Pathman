@@ -60,7 +60,7 @@ extension FilePath: Creatable {
             }
         }
 
-        return try open(permissions: .write, flags: .create, .excl, mode: mode)
+        return try open(permissions: .write, flags: .create, .exclusive, mode: mode)
     }
 }
 

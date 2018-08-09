@@ -23,4 +23,5 @@ XCTMain([
     testCase(ChmodTests.allTests),
     testCase(MoveTests.allTests),
     testCase(GlobTests.allTests),
+    testCase(TemporaryTests.allTests),
 ])
