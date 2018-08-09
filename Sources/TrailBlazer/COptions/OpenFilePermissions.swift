@@ -14,6 +14,8 @@ public struct OpenFilePermissions: Equatable, ExpressibleByIntegerLiteral {
     public static let write = OpenFilePermissions(rawValue: O_WRONLY)
     /// Allow both read and write access when opening a file
     public static let readWrite = OpenFilePermissions(rawValue: O_RDWR)
+    /// All possible permissions (read and write)
+    public static let all: OpenFilePermissions = .readWrite
 
     public init(rawValue: IntegerLiteralType) {
         self.rawValue = rawValue

@@ -137,3 +137,9 @@ extension Open: Equatable where PathType: Equatable {
         return lhs._path == rhs._path && lhs.fileDescriptor == rhs.fileDescriptor && lhs.options == rhs.options && lhs.mode == rhs.mode
     }
 }
+
+extension Open: CustomStringConvertible {
+    public var description: String {
+        return "\(Swift.type(of: self))(path: \(_path), flags: \(OpenFileFlags(rawValue: options & OpenFileFlags.all.rawValue)), permissions: \(OpenFilePermissions(rawValue: options & OpenFilePermissions.all.rawValue)), mode: \(String(describing: mode)), offset: \(offset))"
+    }
+}
