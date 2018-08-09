@@ -81,7 +81,7 @@ public struct OpenFileFlags: OptionSet, ExpressibleByIntegerLiteral {
     its link count has increased to 2, in which case the lock is also
     successful.
     */
-    public static let excl = OpenFileFlags(rawValue: O_EXCL)
+    public static let exclusive = OpenFileFlags(rawValue: O_EXCL)
     /**
     If pathname refers to a terminal device—see tty(4)—it will not become the
     process's controlling terminal even if the process does not have one.
@@ -137,6 +137,9 @@ public struct OpenFileFlags: OptionSet, ExpressibleByIntegerLiteral {
     though each write(2) was followed by a call to fsync(2)).
     */
     public static let sync = OpenFileFlags(rawValue: O_SYNC)
+
+    /// All flags
+    public static let all: OpenFileFlags = [.append, .closeOnExec, .create, .directory, .exclusive, .noCTTY, .noFollow, .nonBlock, .truncate, .dsync, .sync]
     #else
     /// Atomically obtain a shared lock
     public static let sharedLock = OpenFileFlags(rawValue: O_SHLOCK)
@@ -146,6 +149,9 @@ public struct OpenFileFlags: OptionSet, ExpressibleByIntegerLiteral {
     public static let symlink = OpenFileFlags(rawValue: O_SYMLINK)
     /// Descriptor requested for event notifications only
     public static let evtOnly = OpenFileFlags(rawValue: O_EVTONLY)
+
+    /// All flags
+    public static let all: OpenFileFlags = [.append, .closeOnExec, .create, .directory, .exclusive, .noCTTY, .noFollow, .nonBlock, .truncate, .sharedLock, .exclusiveLock, .symlink, .evtOnly]
     #endif
 
     public init(rawValue: OptionInt) {
@@ -176,8 +182,8 @@ extension OpenFileFlags: CustomStringConvertible {
         if contains(.directory) {
             flags.append("directory")
         }
-        if contains(.excl) {
-            flags.append("excl")
+        if contains(.exclusive) {
+            flags.append("exclusive")
         }
         if contains(.noCTTY) {
             flags.append("noCTTY")
