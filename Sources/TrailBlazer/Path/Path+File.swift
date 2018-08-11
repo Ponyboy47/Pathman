@@ -16,43 +16,13 @@ private let cOpenFileWithMode = Darwin.open(_:_:_:)
 private let cCloseFile = Darwin.close
 #endif
 
-/*
-Recently modified the recursive directory functions so that they only have one
-directory open at a time, eliminating the need to autoclose directories if many
-are opened in rapid succession. As such, I am removing the overhead of
-storing/checking open files.
-
-/// The conditions under which large amounts of rapidly opened files are
-/// automatically closed (to prevent using up all the process's/system's
-/// available file descriptors)
-private let fileConditions: Conditions = .newer(than: .seconds(5), threshold: 0.25, minCount: 50)
-
-/// The date sorted collection of open files
-private var _openFiles: DateSortedDescriptors<FilePath, OpenFile> = [:]
-/// The date sorted collection of open files
-private var openFiles: DateSortedDescriptors<FilePath, OpenFile> {
-    get {
-        if _openFiles.autoclose == nil {
-            _openFiles.autoclose = (percentage: 0.1, conditions: fileConditions, priority: .added, min: -1.0, max: -1.0)
-        }
-        return _openFiles
-    }
-    set {
-        _openFiles = newValue
-        // See if we should close any recently opened files
-        // NOTE: The openFiles object calls autoclose when inserting new items,
-        // but this is used when completely reassigning openFiles
-        autoclose(openFiles, percentage: 0.1, conditions: fileConditions)
-    }
-}
-*/
-
 /// A dictionary of all the open files
 private var openFiles: [FilePath: OpenFile] = [:]
 
 /// A Path to a file
-open class FilePath: Path, Openable {
+open class FilePath: Path, Openable, Linkable {
     public typealias OpenableType = FilePath
+    public typealias LinkedPathType = FilePath
 
     public var _path: String
     public internal(set) var fileDescriptor: FileDescriptor = -1
@@ -65,6 +35,8 @@ open class FilePath: Path, Openable {
         get { return openFiles[self] }
         set { openFiles[self] = newValue }
     }
+
+    public var linked: Link? = nil
 
     // This is to protect the info from being set externally
     private var _info: StatInfo = StatInfo()
@@ -134,6 +106,14 @@ open class FilePath: Path, Openable {
 
         _path = path._path
         _info = path.info
+    }
+
+    public required init(_ path: LinkedPathType, linked link: Link) throws {
+        _path = path._path
+        _info = path.info
+        linked = link
+
+        try createLink(from: self, to: link.to, type: link.type)
     }
 
     @available(*, unavailable, message: "Cannot append to a FilePath")
