@@ -142,6 +142,86 @@ public enum UnlinkError: TrailBlazerError {
     }
 }
 
+/// Errors thrown when a path is linked (see link(2))
+public enum LinkError: TrailBlazerError {
+    case unknown
+    case noLinkType
+    case pathTypeMismatch
+    case permissionDenied
+    case quotaReached
+    case alreadyExists
+    case badAddress
+    case ioError
+    case tooManySymlinks
+    case linkLimitReached
+    case pathnameTooLong
+    case noRouteToPath
+    case noKernelMemory
+    case deviceFull
+    case pathComponentNotDirectory
+    case operationNotSupported
+    case readOnlyFileSystem
+    case pathsOnDifferentFileSystems
+
+    public static func getError() -> LinkError {
+        switch ErrNo.lastError {
+        case .EACCES: return .permissionDenied
+        case .EDQUOT: return .quotaReached
+        case .EEXIST: return .alreadyExists
+        case .EFAULT: return .badAddress
+        case .EIO: return .ioError
+        case .ELOOP: return .tooManySymlinks
+        case .EMLINK: return .linkLimitReached
+        case .ENAMETOOLONG: return .pathnameTooLong
+        case .ENOENT: return .noRouteToPath
+        case .ENOMEM: return .noKernelMemory
+        case .ENOSPC: return .deviceFull
+        case .ENOTDIR: return .pathComponentNotDirectory
+        case .EPERM: return .operationNotSupported
+        case .EROFS: return .readOnlyFileSystem
+        case .EXDEV: return .pathsOnDifferentFileSystems
+        default: return .unknown
+        }
+    }
+}
+
+/// Errors thrown when a path is symlinked (see symlink(2))
+public enum SymlinkError: TrailBlazerError {
+    case unknown
+    case permissionDenied
+    case quotaReached
+    case alreadyExists
+    case badAddress
+    case ioError
+    case tooManySymlinks
+    case pathnameTooLong
+    case noRouteToPath
+    case noKernelMemory
+    case deviceFull
+    case pathComponentNotDirectory
+    case operationNotSupported
+    case readOnlyFileSystem
+
+    public static func getError() -> SymlinkError {
+        switch ErrNo.lastError {
+        case .EACCES: return .permissionDenied
+        case .EDQUOT: return .quotaReached
+        case .EEXIST: return .alreadyExists
+        case .EFAULT: return .badAddress
+        case .EIO: return .ioError
+        case .ELOOP: return .tooManySymlinks
+        case .ENAMETOOLONG: return .pathnameTooLong
+        case .ENOENT: return .noRouteToPath
+        case .ENOMEM: return .noKernelMemory
+        case .ENOSPC: return .deviceFull
+        case .ENOTDIR: return .pathComponentNotDirectory
+        case .EPERM: return .operationNotSupported
+        case .EROFS: return .readOnlyFileSystem
+        default: return .unknown
+        }
+    }
+}
+
 /// Errors thrown when a DirectoryPath is opened (see opendir(3))
 public enum OpenDirectoryError: TrailBlazerError {
     case unknown
