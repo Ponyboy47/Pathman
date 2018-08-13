@@ -3,27 +3,27 @@ import XCTest
 
 class TemporaryTests: XCTestCase {
     func testTemporaryFile() {
-        let tmpFile: OpenFile
         do {
-            tmpFile = try FilePath.temporary(prefix: "Test-")
+            let tmpFile = try FilePath.temporary(prefix: "Test-")
             XCTAssertTrue(tmpFile._path.lastComponent!.hasPrefix("Test-"))
+
+            XCTAssertNoThrow(try tmpFile.delete())
         } catch {
             XCTFail("Failed to create/open temporary file with error: \(type(of: error)).\(error)")
             return
         }
-        try? tmpFile.delete()
     }
 
     func testTemporaryDirectory() {
-        let tmpDirectory: OpenDirectory
         do {
-            tmpDirectory = try DirectoryPath.temporary(prefix: "Test-")
+            let tmpDirectory = try DirectoryPath.temporary(prefix: "Test-")
             XCTAssertTrue(tmpDirectory._path.lastComponent!.hasPrefix("Test-"))
+
+            XCTAssertNoThrow(try tmpDirectory.delete())
         } catch {
             XCTFail("Failed to create/open temporary file with error: \(type(of: error)).\(error)")
             return
         }
-        try? tmpDirectory.delete()
     }
 
     static var allTests = [

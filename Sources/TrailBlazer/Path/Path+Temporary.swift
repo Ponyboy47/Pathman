@@ -45,9 +45,10 @@ extension FilePath: TemporaryGeneratable {
         #else
         tmpDir = DirectoryPath("/tmp")!
         #endif
+        let template = (tmpDir + "\(prefix)XXXXXX").string
 
         // mkstemp(3) requires 6 consecutive X's in the template
-        let (fileDescriptor, path) = "\(tmpDir.string)\(FilePath.separator)\(prefix)XXXXXX".withCString { (ptr) -> (FileDescriptor, String) in
+        let (fileDescriptor, path) = template.withCString { (ptr) -> (FileDescriptor, String) in
             let mutablePtr = UnsafeMutablePointer(mutating: ptr)
             return (mkstemp(mutablePtr), String(cString: mutablePtr))
         }
@@ -56,7 +57,7 @@ extension FilePath: TemporaryGeneratable {
             guard fileDescriptor != -1 else { throw MakeTemporaryError.getError() }
         } catch MakeTemporaryError.unknown { throw CreateFileError.getError() }
 
-        let temporaryPath = tmpDir + (TemporaryType("\(path)") !! "Somehow, a random, uniquely generated path overwrote the \(TemporaryType.self) path that existed at \(path)")
+        let temporaryPath = TemporaryType("\(path)") !! "Somehow, a random, uniquely generated path overwrote the \(TemporaryType.self) path that existed at \(path)"
         temporaryPath.fileDescriptor = fileDescriptor
 
         // mkstemp(3) opens the file with readWrite permissions and the
@@ -106,11 +107,10 @@ extension DirectoryPath: TemporaryGeneratable {
         #endif
 
         // mkdtemp(s) require the last 6 characters to be X's in the template
-        let template = "\(tmpDir.string)\(DirectoryPath.separator)\(prefix)XXXXXX"
+        let path = (tmpDir + "\(prefix)XXXXXX").string.withCString({ String(cString: mkdtemp(UnsafeMutablePointer(mutating: $0))) })
+        guard !path.isEmpty else { throw CreateDirectoryError.getError() }
 
-        guard let path = template.withCString({ mkdtemp(UnsafeMutablePointer(mutating: $0)) }) else { throw CreateDirectoryError.getError() }
-
-        let dir = TemporaryType(String(cString: path)) !! "Somehow, a random, uniquely generated path overwrote the \(TemporaryType.self) that existed at \(path)"
+        let dir = TemporaryType(path) !! "Somehow, a random, uniquely generated path overwrote the \(TemporaryType.self) that existed at \(path)"
         return try dir.open()
     }
 }
