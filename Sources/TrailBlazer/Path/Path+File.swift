@@ -86,7 +86,7 @@ open class FilePath: Path, Openable, Linkable {
 
     - Parameter  path: The path to copy
     */
-    public init(_ path: FilePath) {
+    public required init(_ path: FilePath) {
         _path = path._path
         _info = path.info
     }

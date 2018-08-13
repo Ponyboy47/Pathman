@@ -167,7 +167,7 @@ public class LinkedPath<PathType: Linkable>: Linkable {
         }
     }
 
-    public init(_ path: LinkedPath<PathType>) {
+    public required init(_ path: LinkedPath<PathType>) {
         __path = path.__path
         _info = path.info
         _linked = path._linked

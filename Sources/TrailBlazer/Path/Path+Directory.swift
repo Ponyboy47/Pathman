@@ -97,7 +97,7 @@ public class DirectoryPath: Path, Openable, Sequence, IteratorProtocol, Linkable
 
     - Parameter path: The path to copy
     */
-    public init(_ path: DirectoryPath) {
+    public required init(_ path: DirectoryPath) {
         _path = path._path
         _info = path.info
     }

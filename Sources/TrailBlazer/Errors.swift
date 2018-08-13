@@ -720,3 +720,7 @@ public enum MakeTemporaryError: TrailBlazerError {
         }
     }
 }
+
+public enum CodingError: Error {
+    case incorrectPathType(String)
+}
