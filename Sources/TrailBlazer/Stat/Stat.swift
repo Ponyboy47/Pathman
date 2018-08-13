@@ -13,13 +13,13 @@ protocol Stat {
 
     init(buffer: UnsafeMutablePointer<stat>)
 
-    /// ID of device containing file
+    /// ID of device containing path
     var id: dev_t { get }
     /// inode number
     var inode: ino_t { get }
-    /// The type of the file
-    var type: FileType? { get }
-    /// The file permissions
+    /// The type of the path
+    var type: PathType? { get }
+    /// The path permissions
     var permissions: FileMode { get }
     /// user ID of owner
     var owner: uid_t { get }
@@ -41,7 +41,7 @@ protocol Stat {
     /// time of last status change
     var lastAttributeChange: Date { get }
     #if os(macOS)
-    /// time the file was created
+    /// time the path was created
     var creation: Date { get }
     #endif
 }
@@ -53,8 +53,8 @@ extension Stat {
     public var inode: ino_t {
         return _buffer.pointee.st_ino
     }
-    public var type: FileType? {
-        return FileType(rawValue: _buffer.pointee.st_mode)
+    public var type: PathType? {
+        return PathType(rawValue: _buffer.pointee.st_mode)
     }
     public var permissions: FileMode {
         return FileMode(rawValue: _buffer.pointee.st_mode)

@@ -12,7 +12,7 @@ public protocol StatDelegate {
 }
 
 public extension StatDelegate {
-    /// ID of device containing file
+    /// ID of device containing path
     public var id: dev_t {
         return info.id
     }
@@ -20,11 +20,11 @@ public extension StatDelegate {
     public var inode: ino_t {
         return info.inode
     }
-    /// The type of the file
-    public var type: FileType? {
+    /// The type of the path
+    public var type: PathType? {
         return info.type
     }
-    /// The file permissions
+    /// The path permissions
     public var permissions: FileMode {
         return info.permissions
     }
@@ -66,7 +66,7 @@ public extension StatDelegate {
         return info.lastAttributeChange
     }
     #if os(macOS)
-    /// time the file was created
+    /// time the path was created
     public var creation: Date {
         return info.creation
     }

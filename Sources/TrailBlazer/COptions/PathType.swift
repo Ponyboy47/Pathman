@@ -4,8 +4,8 @@ import Glibc
 import Darwin
 #endif
 
-/// A swift enum that wraps the C stat mode_t into a file type (see stat(2))
-public enum FileType: OSUInt {
+/// A swift enum that wraps the C stat mode_t into a path type (see stat(2))
+public enum PathType: OSUInt {
     /// Socket path
     case socket
     /// Symbolic link
@@ -21,7 +21,7 @@ public enum FileType: OSUInt {
     /// FIFO path
     case fifo
     /// Regular file
-    public static let file: FileType = .regular
+    public static let file: PathType = .regular
 
     public init?(rawValue: OSUInt) {
         switch rawValue & S_IFMT {
