@@ -24,7 +24,7 @@ I am not a big fan of Foundation's `FileManager`. Foundation in general has inco
 ## Installation (SPM)
 Add this to your Package.swift dependencies:
 ```swift
-.package(url: "https://github.com/Ponyboy47/Trailblazer.git", from: "0.8.2")
+.package(url: "https://github.com/Ponyboy47/Trailblazer.git", from: "0.9.0")
 ```
 
 ## Usage
@@ -382,6 +382,41 @@ let tmpDirectory = try DirectoryPath.temporary(prefix: "com.trailblazer.")
 // /tmp/com.trailblazer.2eH4iB
 ```
 
+### Links:
+
+#### Target to Destination:
+```swift
+// You can link to an existing path
+guard let dir = DirectoryPath("/tmp") else {
+    fatalError("Path not a directory")
+}
+
+// Creates a soft/symbolic link to dir at the specified path
+// All 3 of the following lines produce the same type of link
+let link = try dir.link(at: "~/tmpDir.link")
+let link = try dir.link(at: "~/tmpDir.symbolic", type: .symbolic)
+let link = try dir.link(at: "~/tmpDir.soft", type: .soft)
+
+// Creates a hard link to dir at the specified path
+let link = try dir.link(at: "~/tmpDir.hard", type: .hard)
+```
+
+#### Destination from Target:
+```swift
+guard let linkedFile = FilePath("/path/to/link/location") else {
+    fatalError("Path is not a file")
+}
+
+// Creates a soft/symbolic link to dir at the specified path
+// All 3 of the following lines produce the same type of link
+let link = try linkedFile.link(from: "/path/to/link/target")
+let link = try linkedFile.link(from: "/path/to/link/target", type: .symbolic)
+let link = try linkedFile.link(from: "/path/to/link/target", type: .soft)
+
+// Creates a hard link to dir at the specified path
+let link = try linkedFile.link(from: "/path/to/link/target", type: .hard)
+```
+
 ## To Do
 - FilePath
   - [x] Create new files
@@ -399,9 +434,16 @@ let tmpDirectory = try DirectoryPath.temporary(prefix: "com.trailblazer.")
   - [x] Rename paths (move alias)
   - [x] URL conversion
   - [x] Get/generate temporary files/directories
+  - [ ] Copy paths
 - Misc. Additions
   - [x] Globbing
-  - [ ] LinkedPath (symlinks)
+  - [x] LinkedPath (symlinks and hard links)
+  - [x] Make Paths Codable
+  - [ ] TemporaryPaths
+    - The path is initialized based on the following options:
+      - [ ] Storage: Either deletes itself (and everything in it) once all references to it are gone, or it doesn't
+      - [ ] Base: Whether to generate or supply the root temporary directory (/tmp or not)
+    - Used by the temporary() API call
   - [ ] SocketPath
   - [ ] FIFOPath?
   - [ ] BlockPath?
@@ -413,5 +455,14 @@ let tmpDirectory = try DirectoryPath.temporary(prefix: "com.trailblazer.")
   - https://developer.apple.com/documentation/swift/adopting_common_protocols
 - [ ] Study the Ownership Manifesto to see if anything can have improved memory semantics/performance
   - https://github.com/apple/swift/blob/master/docs/OwnershipManifesto.md
+- [ ] Investiagte class behaviors and ensure proper COW (or other) copy semantics
+  - Don't want to change a LinkedPath and end up changing some GenericPath of a FilePath in a PathCollection...
+    - [ ] Slicing/Collection APIs
+      - DirectoryPath is the slice type
 - [ ] Migrate usage examples to a separate Wiki
   - [ ] Document performance pitfalls
+- [ ] Make a FileSystem utility for easily getting some file system attributes
+  - [ ] Free/Used bytes
+  - [ ] Total size
+  - [ ] Type
+  - [ ] More?
