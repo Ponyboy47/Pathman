@@ -7,7 +7,7 @@ open class GenericPath: Path, ExpressibleByStringLiteral, ExpressibleByArrayLite
     public var _path: String
 
     // This is to protect the info from being set externally
-    fileprivate var _info: StatInfo = StatInfo()
+    private var _info: StatInfo = StatInfo()
     public var info: StatInfo {
         try? _info.getInfo()
         return _info

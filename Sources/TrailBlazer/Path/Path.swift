@@ -40,7 +40,7 @@ public func pathExists(_ path: String) -> Bool {
 }
 
 /// A protocol that describes a Path type and the attributes available to it
-public protocol Path: Hashable, Comparable, CustomStringConvertible, Ownable, Permissionable, Movable {
+public protocol Path: Hashable, Comparable, CustomStringConvertible, Ownable, Permissionable, Movable, Codable {
     /// The underlying path representation
     var _path: String { get set }
     /// A String representation of self
@@ -50,6 +50,8 @@ public protocol Path: Hashable, Comparable, CustomStringConvertible, Ownable, Pe
 
     /// Initialize a Path from a String
     init?(_ str: String)
+    /// Initialize a Path from another Path
+    init(_ path: Self)
     /// Initialize a Path from a GenericPath
     init?(_ path: GenericPath)
     /// Initialize a Path from an array of path components
@@ -281,4 +283,25 @@ public extension Path {
 
         _path = newPath.string
     }
+
+    /**
+    Decodes a Path from an unkeyed String container
+
+    - Throws: `CodingError.incorrectPathType` when a path exists that does not match the encoded type
+    */
+	public init(from decoder: Decoder) throws {
+          var container = try decoder.unkeyedContainer()
+          let pathString = try container.decode(String.self)
+          guard let path = Self(pathString) else {
+              throw CodingError.incorrectPathType(pathString)
+          }
+
+          self.init(path)
+      }
+
+      /// Encodes a Path to an unkeyed String container
+      public func encode(to encoder: Encoder) throws {
+          var container = encoder.unkeyedContainer()
+          try container.encode(string)
+      }
 }

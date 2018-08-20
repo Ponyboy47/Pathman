@@ -8,44 +8,11 @@ typealias DIRType = OpaquePointer
 typealias DIRType = UnsafeMutablePointer<DIR>
 #endif
 
-/*
-Recently modified the recursive functions to only have one directory open at
-a time. This should prevent the need for the whole autoclose code (and its
-overhead)
-
-/// The conditions under which large amounts of rapidly opened directories
-/// are automatically closed (to prevent using up all the process's/system's
-/// available file descriptors)
-private let dirConditions: Conditions = .newer(than: .seconds(5), threshold: 0.25, minCount: 50)
-
-/// The date sorted collection of open directories
-private var _openDirectories: DateSortedDescriptors<DirectoryPath, OpenDirectory> = [:]
-/// The date sorted collection of open directories
-private var openDirectories: DateSortedDescriptors<DirectoryPath, OpenDirectory> {
-    get {
-        if _openDirectories.autoclose == nil {
-            _openDirectories.autoclose = (percentage: 0.1, conditions: dirConditions, priority: .added, min: -1.0, max: -1.0)
-        }
-        return _openDirectories
-    }
-    set {
-        _openDirectories = newValue
-        // See if we should close any recently opened directories
-        // NOTE: The openDirectories object calls autoclose when inserting
-        // new items, but this is used when completely reassigning
-        // openDirectories
-        autoclose(openDirectories, percentage: 0.1, conditions: dirConditions)
-    }
-}
-*/
-
 /// A dictionary of all the open directories
 private var openDirectories: [DirectoryPath: OpenDirectory] = [:]
 
 /// A Path to a directory
-public class DirectoryPath: Path, Openable, Sequence, IteratorProtocol {
-    public typealias OpenableType = DirectoryPath
-
+public class DirectoryPath: Path, Openable, Sequence, IteratorProtocol, Linkable {
     public var _path: String
     public var fileDescriptor: FileDescriptor {
         // Opened directories result in a DIR struct, rather than a straight
@@ -125,7 +92,7 @@ public class DirectoryPath: Path, Openable, Sequence, IteratorProtocol {
 
     - Parameter path: The path to copy
     */
-    public init(_ path: DirectoryPath) {
+    public required init(_ path: DirectoryPath) {
         _path = path._path
         _info = path.info
     }

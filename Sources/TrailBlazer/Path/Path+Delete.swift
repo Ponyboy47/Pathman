@@ -34,7 +34,7 @@ extension FilePath: Deletable {
         try close()
 
         // Deleting files means unlinking them
-        guard unlink(string) != -1 else {
+        guard cUnlink(string) != -1 else {
             throw DeleteFileError.getError()
         }
     }

@@ -9,13 +9,16 @@ public struct OpenFilePermissions: Equatable, ExpressibleByIntegerLiteral {
     public let rawValue: IntegerLiteralType
 
     /// Allow read-only access when opening a file
-    public static let read = OpenFilePermissions(rawValue: O_RDONLY)
+    public static let read = OpenFilePermissions(rawValue: O_RDONLY) // == 0
     /// Allow write-only access when opening a file
-    public static let write = OpenFilePermissions(rawValue: O_WRONLY)
+    public static let write = OpenFilePermissions(rawValue: O_WRONLY) // == 1
     /// Allow both read and write access when opening a file
-    public static let readWrite = OpenFilePermissions(rawValue: O_RDWR)
+    public static let readWrite = OpenFilePermissions(rawValue: O_RDWR) // == 2
     /// All possible permissions (read and write)
     public static let all: OpenFilePermissions = .readWrite
+
+    public var canRead: Bool { return contains(.read) }
+    public var canWrite: Bool { return contains(.write) }
 
     public init(rawValue: IntegerLiteralType) {
         self.rawValue = rawValue
@@ -30,20 +33,23 @@ public struct OpenFilePermissions: Equatable, ExpressibleByIntegerLiteral {
     }
 
     public func contains(_ perms: OpenFilePermissions) -> Bool {
-        return (rawValue & perms.rawValue) == perms.rawValue
+        return self == .readWrite || self == perms
     }
 }
 
 extension OpenFilePermissions: CustomStringConvertible {
     public var description: String {
-        if self == .read {
-            return "\(type(of: self))(read)"
-        } else if self == .write {
-            return "\(type(of: self))(write)"
-        } else if self == .readWrite {
-            return "\(type(of: self))(readWrite)"
-        } else {
-            return "\(type(of: self))(unknown)"
+        var permissions: [String] = []
+        if canRead {
+            permissions.append("read")
         }
+        if canWrite {
+            permissions.append("write")
+        }
+        if permissions.isEmpty {
+            permissions.append("none")
+        }
+
+        return "\(type(of: self))(\(permissions.joined(separator: ", ")), rawValue: \(rawValue))"
     }
 }
