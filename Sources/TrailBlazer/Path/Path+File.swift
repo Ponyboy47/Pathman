@@ -21,9 +21,6 @@ private var openFiles: [FilePath: OpenFile] = [:]
 
 /// A Path to a file
 open class FilePath: Path, Openable, Linkable {
-    public typealias OpenableType = FilePath
-    public typealias LinkedPathType = FilePath
-
     public var _path: String
     public internal(set) var fileDescriptor: FileDescriptor = -1
     public internal(set) var options: OptionInt = 0
@@ -35,8 +32,6 @@ open class FilePath: Path, Openable, Linkable {
         get { return openFiles[self] }
         set { openFiles[self] = newValue }
     }
-
-    public var linked: Link? = nil
 
     // This is to protect the info from being set externally
     private var _info: StatInfo = StatInfo()
@@ -106,14 +101,6 @@ open class FilePath: Path, Openable, Linkable {
 
         _path = path._path
         _info = path.info
-    }
-
-    public required init(_ path: LinkedPathType, linked link: Link) throws {
-        _path = path._path
-        _info = path.info
-        linked = link
-
-        try createLink(from: self, to: link.to, type: link.type)
     }
 
     @available(*, unavailable, message: "Cannot append to a FilePath")

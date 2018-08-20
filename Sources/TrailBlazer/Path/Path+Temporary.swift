@@ -6,13 +6,11 @@ import Darwin
 
 /// Protocol declaration for Paths that can generate and create a unique temporary path
 public protocol TemporaryGeneratable: Path, Creatable {
-    associatedtype TemporaryType: Path & Creatable
+    associatedtype TemporaryType: Path & Creatable = Self
     static func temporary(prefix: String) throws -> Open<TemporaryType>
 }
 
 extension FilePath: TemporaryGeneratable {
-    public typealias TemporaryType = FilePath
-
     /**
     Creates a unique FilePath with the specified prefix
 
@@ -72,8 +70,6 @@ extension FilePath: TemporaryGeneratable {
 }
 
 extension DirectoryPath: TemporaryGeneratable {
-    public typealias TemporaryType = DirectoryPath
-
     /**
     Creates a unique DirectoryPath with the specified prefix
 

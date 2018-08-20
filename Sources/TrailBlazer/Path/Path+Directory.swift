@@ -13,9 +13,6 @@ private var openDirectories: [DirectoryPath: OpenDirectory] = [:]
 
 /// A Path to a directory
 public class DirectoryPath: Path, Openable, Sequence, IteratorProtocol, Linkable {
-    public typealias OpenableType = DirectoryPath
-    public typealias LinkedPathType = DirectoryPath
-
     public var _path: String
     public var fileDescriptor: FileDescriptor {
         // Opened directories result in a DIR struct, rather than a straight
@@ -28,8 +25,6 @@ public class DirectoryPath: Path, Openable, Sequence, IteratorProtocol, Linkable
         // Either returns the file descriptor or -1 if there was an error
         return dirfd(dir)
     }
-
-    public var linked: Link? = nil
 
     /// Opening a directory returns a pointer to a DIR struct
     private var dir: DIRType?
@@ -115,14 +110,6 @@ public class DirectoryPath: Path, Openable, Sequence, IteratorProtocol, Linkable
 
         _path = path._path
         _info = path.info
-    }
-
-    public required init(_ path: LinkedPathType, linked link: Link) throws {
-        _path = path._path
-        _info = path.info
-        linked = link
-
-        try createLink(from: self, to: link.to, type: link.type)
     }
 
     /**

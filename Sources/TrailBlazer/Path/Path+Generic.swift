@@ -1,13 +1,10 @@
 /// A type used to express filesystem paths
-open class GenericPath: Path, ExpressibleByStringLiteral, ExpressibleByArrayLiteral, Linkable {
+open class GenericPath: Path, ExpressibleByStringLiteral, ExpressibleByArrayLiteral {
     public typealias ExtendedGraphemeClusterLiteralType = StringLiteralType
     public typealias ArrayLiteralElement = String
-    public typealias LinkedPathType = GenericPath
 
     /// The stored path to use and manipulate
     public var _path: String
-
-    public var linked: Link? = nil
 
     // This is to protect the info from being set externally
     private var _info: StatInfo = StatInfo()
@@ -86,13 +83,5 @@ open class GenericPath: Path, ExpressibleByStringLiteral, ExpressibleByArrayLite
             _path = first + _path
         }
         _info = StatInfo(_path)
-    }
-
-    public required init(_ path: LinkedPathType, linked link: Link) throws {
-        _path = path._path
-        _info = path.info
-        linked = link
-
-        try createLink(from: self, to: link.to, type: link.type)
     }
 }

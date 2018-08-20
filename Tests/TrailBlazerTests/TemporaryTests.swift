@@ -31,5 +31,3 @@ class TemporaryTests: XCTestCase {
         ("testTemporaryDirectory", testTemporaryDirectory),
     ]
 }
-
-
