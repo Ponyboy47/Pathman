@@ -75,6 +75,13 @@ public struct Offset {
         }
     }
 
+    /// An Offset pointing to the beginning of a path
+    public static let beginning = Offset(.beginning, 0)
+    /// An Offset pointing to the end of a path
+    public static let end = Offset(.end, 0)
+    /// An Offset pointing to the current offset of a path
+    public static let current = Offset(.current, 0)
+
     /// The type of seeking to be performed
     var type: OffsetType
     /// Either the number of bytes to seek or the offset to begin seeking from
