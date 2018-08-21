@@ -41,7 +41,7 @@ extension Path {
 
         if _path.hasPrefix("~") {
             let home = try getHome()
-            _path.replaceSubrange(..<_path.startIndex.advanced(by: 1), with: home.string)
+            _path.replaceSubrange(..<_path.index(after: _path.startIndex), with: home.string)
         }
 
         let realpath = try cRealpath(_path, nil) ?! RealPathError.getError()
@@ -80,7 +80,7 @@ extension Path {
 
         if str.hasPrefix("~") {
             let home = try getHome()
-            str.replaceSubrange(..<str.startIndex.advanced(by: 1), with: home.string)
+            str.replaceSubrange(..<str.index(after: str.startIndex), with: home.string)
         }
 
         let realpath = try cRealpath(str, nil) ?! RealPathError.getError()
