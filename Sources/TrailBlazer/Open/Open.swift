@@ -17,10 +17,30 @@ public protocol Openable: StatDelegate {
     /// The mode used when creating the file (if the `.create` option was used)
     var mode: FileMode? { get }
 
+    /**
+    Whether or not the path was opened with read permissions
+
+    NOTE: Just because the path was opened with read permissions does not
+    necessarily mean the calling process has access to read the path
+    */
+    var mayRead: Bool { get }
+    /**
+    Whether or not the path was opened with write permissions
+
+    NOTE: Just because the path was opened with write permissions does not
+    necessarily mean the calling process has access to write the path
+    */
+    var mayWrite: Bool { get }
+
     /// Opens the path, sets the `fileDescriptor`, and returns the newly opened path
     func open(options: OptionInt, mode: FileMode?) throws -> Open<OpenableType>
     /// Closes the opened `fileDescriptor`
     func close() throws
+}
+
+extension Openable {
+    public var mayRead: Bool { return true }
+    public var mayWrite: Bool { return true }
 }
 
 /// Contains the buffer used for reading from a path
@@ -37,7 +57,7 @@ open class Open<PathType: Path & Openable>: Openable, Ownable, Permissionable {
     public var options: OptionInt { return _path.options }
     public var mode: FileMode? { return _path.mode }
     /// The offset position of the path
-    public var offset: OSInt = 0
+    var _offset: OSInt = 0
 
     var _info: StatInfo = StatInfo()
     public var info: StatInfo {
@@ -140,6 +160,16 @@ extension Open: Equatable where PathType: Equatable {
 
 extension Open: CustomStringConvertible {
     public var description: String {
-        return "\(Swift.type(of: self))(path: \(_path), flags: \(OpenFileFlags(rawValue: options & OpenFileFlags.all.rawValue)), permissions: \(OpenFilePermissions(rawValue: options & OpenFilePermissions.all.rawValue)), mode: \(String(describing: mode)), offset: \(offset))"
+        var data: [(key: String, value: String)] = []
+
+        data.append((key: "path", value: "\(_path)"))
+        data.append((key: "flags", value: "\(OpenFileFlags(rawValue: options & OpenFileFlags.all.rawValue))"))
+        data.append((key: "permissions", value: "\(OpenFilePermissions(rawValue: options & OpenFilePermissions.all.rawValue))"))
+        data.append((key: "mode", value: String(describing: mode)))
+        if self is Seekable {
+            data.append((key: "offset", "\(_offset)"))
+        }
+
+        return "\(Swift.type(of: self))(\(data.map({ return "\($0.key): \($0.value)" }).joined(separator: ", ")))"
     }
 }

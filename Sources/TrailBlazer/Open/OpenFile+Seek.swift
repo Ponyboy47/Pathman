@@ -5,6 +5,16 @@ import Darwin
 #endif
 
 extension Open: Seekable where PathType: FilePath {
+    public var offset: OSInt {
+        get { return _offset }
+        set {
+            guard (try? seek(fromStart: newValue)) != nil else { return }
+            _offset = newValue
+        }
+    }
+
+    public var eof: Bool { return offset >= size }
+
     /**
     Moves the file offset from the beginning of the file by the specified number of bytes
 
@@ -26,7 +36,7 @@ extension Open: Seekable where PathType: FilePath {
             throw SeekError.getError()
         }
 
-        offset = newOffset
+        _offset = newOffset
         return offset
     }
 
@@ -41,13 +51,17 @@ extension Open: Seekable where PathType: FilePath {
     */
     @discardableResult
     public func seek(fromEnd bytes: OSInt) throws -> OSInt {
+        // If we're at the end of the file and we're not moving anywhere, go
+        // ahead and return the offset
+        if bytes == 0 && eof { return offset }
+
         let newOffset = lseek(fileDescriptor, bytes, SEEK_END)
 
         guard newOffset != -1 else {
             throw SeekError.getError()
         }
 
-        offset = newOffset
+        _offset = newOffset
         return offset
     }
 
@@ -72,7 +86,7 @@ extension Open: Seekable where PathType: FilePath {
             throw SeekError.getError()
         }
 
-        offset = newOffset
+        _offset = newOffset
         return offset
     }
 
@@ -107,7 +121,7 @@ extension Open: Seekable where PathType: FilePath {
             throw SeekError.getError()
         }
 
-        self.offset = newOffset
+        _offset = newOffset
         return self.offset
     }
 
@@ -129,9 +143,8 @@ extension Open: Seekable where PathType: FilePath {
             throw SeekError.getError()
         }
 
-        self.offset = newOffset
+        _offset = newOffset
         return self.offset
     }
     #endif
 }
-

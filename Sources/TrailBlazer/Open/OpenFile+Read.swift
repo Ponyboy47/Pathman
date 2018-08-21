@@ -102,7 +102,7 @@ extension Open: Readable where PathType: FilePath {
         guard bytesRead != -1 else { throw ReadError.getError() }
 
         // Update the offset
-        self.offset += OSInt(bytesRead)
+        _offset += OSInt(bytesRead)
 
         // Return the Data read from the file
         return Data(bytes: buffer!, count: bytesRead)

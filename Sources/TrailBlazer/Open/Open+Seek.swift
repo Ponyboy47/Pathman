@@ -10,6 +10,8 @@ public protocol Seekable: class {
     /// The location in the path from where reading and writing begin. Measured
     /// in bytes from the beginning of the path
     var offset: OSInt { get set }
+    /// Whether the offset is at the end of the file
+    var eof: Bool { get }
 
     func seek(_ offset: Offset) throws -> OSInt
 
