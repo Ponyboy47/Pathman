@@ -26,29 +26,22 @@ public protocol Linkable: Path, Deletable {
 }
 
 public extension Linkable {
-    public static var defaultLinkType: LinkType {
-        get { return TrailBlazer.defaultLinkType }
-        set {
-            TrailBlazer.defaultLinkType = newValue
-        }
-    }
-
-    public func link(at linkedPath: LinkablePathType, type: LinkType = LinkablePathType.defaultLinkType) throws -> LinkedPath<LinkablePathType> {
+    public func link(at linkedPath: LinkablePathType, type: LinkType = TrailBlazer.defaultLinkType) throws -> LinkedPath<LinkablePathType> {
         guard let targetPath = self as? LinkablePathType else { throw LinkError.pathTypeMismatch }
         return try LinkedPath(linkedPath, linked: (to: targetPath, type: type))
     }
 
-    public func link(at linkedString: String, type: LinkType = LinkablePathType.defaultLinkType) throws -> LinkedPath<LinkablePathType> {
+    public func link(at linkedString: String, type: LinkType = TrailBlazer.defaultLinkType) throws -> LinkedPath<LinkablePathType> {
         guard let linkedPath = LinkablePathType(linkedString) else { throw LinkError.pathTypeMismatch }
         return try self.link(at: linkedPath, type: type)
     }
 
-    public func link(from targetPath: LinkablePathType, type: LinkType = LinkablePathType.defaultLinkType) throws -> LinkedPath<LinkablePathType> {
+    public func link(from targetPath: LinkablePathType, type: LinkType = TrailBlazer.defaultLinkType) throws -> LinkedPath<LinkablePathType> {
         guard let linkedPath = self as? LinkablePathType else { throw LinkError.pathTypeMismatch }
         return try LinkedPath(linkedPath, linked: (to: targetPath, type: type))
     }
 
-    public func link(from targetString: String, type: LinkType = LinkablePathType.defaultLinkType) throws -> LinkedPath<LinkablePathType> {
+    public func link(from targetString: String, type: LinkType = TrailBlazer.defaultLinkType) throws -> LinkedPath<LinkablePathType> {
         guard let targetPath = LinkablePathType(targetString) else { throw LinkError.pathTypeMismatch }
         return try link(from: targetPath, type: type)
     }
@@ -59,7 +52,6 @@ public protocol Linked: Path {
     typealias Link = (to: LinkedPathType, type: LinkType)
 
     var linked: Link? { get set }
-    static var defaultLinkType: LinkType { get set }
 
     init(_ path: LinkedPathType, linked link: Link) throws
     func link(at: LinkedPathType, type: LinkType) throws -> LinkedPath<LinkedPathType>
@@ -110,47 +102,40 @@ public extension Linked {
         return _linked.type == .hard ? false : _linked.to.exists.toggled()
     }
 
-    public static var defaultLinkType: LinkType {
-        get { return TrailBlazer.defaultLinkType }
-        set {
-            TrailBlazer.defaultLinkType = newValue
-        }
-    }
-
     public init(_ path: String, linked link: Link) throws {
         let pathLink = try LinkedPathType.init(path) ?! LinkError.pathTypeMismatch
         try self.init(pathLink, linked: link)
     }
 
-    public init(_ path: String, linkedTo link: LinkedPathType, type: LinkType = Self.defaultLinkType) throws {
+    public init(_ path: String, linkedTo link: LinkedPathType, type: LinkType = TrailBlazer.defaultLinkType) throws {
         try self.init(path, linked: (to: link, type: type))
     }
 
-    public init(_ path: LinkedPathType, linkedTo link: LinkedPathType, type: LinkType = Self.defaultLinkType) throws {
+    public init(_ path: LinkedPathType, linkedTo link: LinkedPathType, type: LinkType = TrailBlazer.defaultLinkType) throws {
         try self.init(path, linked: (to: link, type: type))
     }
 
-    public init(_ path: LinkedPathType, linkedTo link: String, type: LinkType = Self.defaultLinkType) throws {
+    public init(_ path: LinkedPathType, linkedTo link: String, type: LinkType = TrailBlazer.defaultLinkType) throws {
         let linkedPath = try LinkedPathType.init(link) ?! LinkError.pathTypeMismatch
         try self.init(path, linked: (to: linkedPath, type: type))
     }
 
-    public func link(at linkedPath: LinkedPathType, type: LinkType = Self.defaultLinkType) throws -> LinkedPath<LinkedPathType> {
+    public func link(at linkedPath: LinkedPathType, type: LinkType = TrailBlazer.defaultLinkType) throws -> LinkedPath<LinkedPathType> {
         guard let targetPath = self as? LinkedPathType else { throw LinkError.pathTypeMismatch }
         return try LinkedPath(linkedPath, linked: (to: targetPath, type: type))
     }
 
-    public func link(at linkedString: String, type: LinkType = LinkedPathType.defaultLinkType) throws -> LinkedPath<LinkedPathType> {
+    public func link(at linkedString: String, type: LinkType = TrailBlazer.defaultLinkType) throws -> LinkedPath<LinkedPathType> {
         guard let linkedPath = LinkedPathType(linkedString) else { throw LinkError.pathTypeMismatch }
         return try link(at: linkedPath, type: type)
     }
 
-    public func link(from targetPath: LinkedPathType, type: LinkType = Self.defaultLinkType) throws -> LinkedPath<LinkedPathType> {
+    public func link(from targetPath: LinkedPathType, type: LinkType = TrailBlazer.defaultLinkType) throws -> LinkedPath<LinkedPathType> {
         guard let linkedPath = self as? LinkedPathType else { throw LinkError.pathTypeMismatch }
         return try LinkedPath(linkedPath, linked: (to: targetPath, type: type))
     }
 
-    public func link(from targetString: String, type: LinkType = LinkedPathType.defaultLinkType) throws -> LinkedPath<LinkedPathType> {
+    public func link(from targetString: String, type: LinkType = TrailBlazer.defaultLinkType) throws -> LinkedPath<LinkedPathType> {
         guard let targetPath = LinkedPathType(targetString) else { throw LinkError.pathTypeMismatch }
         return try link(from: targetPath, type: type)
     }

@@ -146,7 +146,7 @@ open class FilePath: Path, Openable, Linkable {
     - Note: A `CloseFileError` will only be thrown if the file has previously been opened and is now being reopened with non-overlapping `options` as the previous open. So we first will close the old open file and then open it with the new options
     */
     @discardableResult
-    open func open(options: OptionInt = 0, mode: FileMode? = nil) throws -> OpenFile {
+    open func open(options: OptionInt = 0, mode: FileMode? = nil) throws -> Open<FilePath> {
         // Check if the file is already opened
         if let open = opened {
             // If the last open had at least the options we need now, just return the already opened file

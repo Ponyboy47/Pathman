@@ -30,7 +30,7 @@ public extension Ownable {
 
     public var ownerName: String? {
         get {
-            guard let username = try? getUserInfo(owner).pw_name else { return nil }
+            guard let username = (try? getUserInfo(owner))?.pw_name else { return nil }
             return String(cString: username)
         }
         set {
@@ -40,7 +40,7 @@ public extension Ownable {
     }
     public var groupName: String? {
         get {
-            guard let groupname = try? getGroupInfo(group).gr_name else { return nil }
+            guard let groupname = (try? getGroupInfo(group))?.gr_name else { return nil }
             return String(cString: groupname)
         }
         set {

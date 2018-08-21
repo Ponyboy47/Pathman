@@ -128,7 +128,7 @@ public class DirectoryPath: Path, Openable, Sequence, IteratorProtocol, Linkable
     - Throws: `OpenDirectoryError.pathNotDirectory` when the path you're trying to open exists and is not a directory. This should only occur if your DirectoryPath object was created before the path existed and then the path was created as a non-directory path type
     */
     @discardableResult
-    public func open(options: OptionInt = 0, mode: FileMode? = nil) throws -> OpenDirectory {
+    public func open(options: OptionInt = 0, mode: FileMode? = nil) throws -> Open<DirectoryPath> {
         // If the directory is already open, return it. Unlike FilePaths, the
         // options/mode are irrelevant for opening directories
         if let openDir = opened {
