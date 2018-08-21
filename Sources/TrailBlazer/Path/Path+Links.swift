@@ -262,7 +262,7 @@ func createLink<PathType: Path>(from: PathType, to: PathType, type: LinkType) th
 
 extension LinkedPath: Creatable {
     @available(*, renamed: "init", renamed: "link", message: "LinkedPaths cannot be created directly, instead use the PathType.link(to/from: PathType, type: LinkType) function or LinkedPath.init(_ path: PathType, linked: (to: PathType, type: LinkType))")
-    public func create(mode: FileMode, ignoreUMask: Bool = false) throws -> Open<PathType> {
+    public func create(mode: FileMode, forceMode forced: Bool = false) throws -> Open<PathType> {
         fatalError("LinkedPaths should not be created directly")
     }
 }
