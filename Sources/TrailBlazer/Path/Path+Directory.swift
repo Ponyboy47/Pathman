@@ -339,8 +339,7 @@ public class DirectoryPath: Path, Openable, Sequence, IteratorProtocol, Linkable
         // If we've iterated through and we're starting again, rewind the directory stream and reset finishedTraversal
         if finishedTraversal {
             // Points the directory stream back to the first path in the directory
-            rewinddir(dir)
-            finishedTraversal = false
+            rewind()
         }
 
         // Read the next entry in the directory. This C API call should never
@@ -353,6 +352,12 @@ public class DirectoryPath: Path, Openable, Sequence, IteratorProtocol, Linkable
 
         // Pulls the directory path from the C dirent struct
         return genPath(entry)
+    }
+
+    public func rewind() {
+        guard let dir = self.dir else { return }
+        rewinddir(dir)
+        finishedTraversal = false
     }
 
     /**

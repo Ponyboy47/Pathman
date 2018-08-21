@@ -50,6 +50,10 @@ extension Open: Sequence, IteratorProtocol where PathType: DirectoryPath {
     public func next() -> GenericPath? {
         return _path.next()
     }
+
+    public func rewind() {
+        _path.rewind()
+    }
 }
 
 public extension Open where PathType: DirectoryPath {
