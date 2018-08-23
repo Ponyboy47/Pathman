@@ -529,3 +529,8 @@ try dir.copy(to: copyPath, options: [.recursive, .includeHidden])
   - [ ] Type
   - [ ] More?
 - [ ] Annotate code with preconditions and assertions
+- Crazy Stuff
+  - [ ] `URLPath`
+    - [ ] Separate current `Path` protocol into a `FileSystemPath` sub-protocol (only keeping relevant stuff in `Path`)
+    - [ ] Opening a `URLPath` downloads data?
+    - [ ] Support relevant standards and common manipulations
