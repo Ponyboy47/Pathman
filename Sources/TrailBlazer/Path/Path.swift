@@ -277,7 +277,7 @@ public extension Path {
 
     - Throws: `CodingError.incorrectPathType` when a path exists that does not match the encoded type
     */
-	public init(from decoder: Decoder) throws {
+    public init(from decoder: Decoder) throws {
           var container = try decoder.unkeyedContainer()
           let pathString = try container.decode(String.self)
           guard let path = Self(pathString) else {

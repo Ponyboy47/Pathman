@@ -142,10 +142,10 @@ open class Open<PathType: Path & Openable>: Openable, Ownable, Permissionable, S
         }
     }
 
-	deinit {
+    deinit {
         buffer?.deallocate()
-		try? close()
-	}
+        try? close()
+    }
 }
 
 extension Open: Equatable where PathType: Equatable {

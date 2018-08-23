@@ -174,7 +174,7 @@ public class Glob {
         }
     }
 
-	#if os(Linux)
+    #if os(Linux)
     public typealias GlobReadDirectoryReturnType = UnsafeMutableRawPointer
     #else
     public typealias GlobReadDirectoryReturnType = UnsafeMutablePointer<dirent>
