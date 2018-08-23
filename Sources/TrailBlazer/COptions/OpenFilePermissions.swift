@@ -17,6 +17,8 @@ public struct OpenFilePermissions: Equatable, ExpressibleByIntegerLiteral {
     /// All possible permissions (read and write)
     public static let all: OpenFilePermissions = .readWrite
 
+    public static let none: OpenFilePermissions = -1
+
     public var canRead: Bool { return contains(.read) }
     public var canWrite: Bool { return contains(.write) }
 
