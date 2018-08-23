@@ -5,14 +5,6 @@ import Darwin
 #endif
 
 extension Open: Seekable where PathType: FilePath {
-    public var offset: OSInt {
-        get { return _offset }
-        set {
-            guard (try? seek(fromStart: newValue)) != nil else { return }
-            _offset = newValue
-        }
-    }
-
     public var eof: Bool { return offset >= size }
 
     /**
@@ -36,8 +28,7 @@ extension Open: Seekable where PathType: FilePath {
             throw SeekError.getError()
         }
 
-        _offset = newOffset
-        return offset
+        return newOffset
     }
 
     /**
@@ -61,8 +52,7 @@ extension Open: Seekable where PathType: FilePath {
             throw SeekError.getError()
         }
 
-        _offset = newOffset
-        return offset
+        return newOffset
     }
 
     /**
@@ -76,18 +66,13 @@ extension Open: Seekable where PathType: FilePath {
     */
     @discardableResult
     public func seek(fromCurrent bytes: OSInt) throws -> OSInt {
-        // If bytes is 0, then we're not moving anywhere and can just return
-        // the current offset
-        guard bytes != 0 else { return offset }
-
         let newOffset = lseek(fileDescriptor, bytes, SEEK_CUR)
 
         guard newOffset != -1 else {
             throw SeekError.getError()
         }
 
-        _offset = newOffset
-        return offset
+        return newOffset
     }
 
     /**
@@ -121,8 +106,7 @@ extension Open: Seekable where PathType: FilePath {
             throw SeekError.getError()
         }
 
-        _offset = newOffset
-        return self.offset
+        return newOffset
     }
 
     /**
@@ -143,8 +127,7 @@ extension Open: Seekable where PathType: FilePath {
             throw SeekError.getError()
         }
 
-        _offset = newOffset
-        return self.offset
+        return newOffset
     }
     #endif
 }

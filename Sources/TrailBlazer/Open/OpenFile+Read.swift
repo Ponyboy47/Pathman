@@ -84,6 +84,10 @@ extension Open: Readable where PathType: FilePath {
     - Throws: `ReadError.ioError` when an I/O error occured during the API call
     */
     public func read(from offset: Offset = .current, bytes byteCount: OSInt? = nil) throws -> Data {
+        if !mayRead {
+            try path.open(permissions: .read)
+        }
+
         try seek(offset)
 
         // Either read the specified number of bytes, or read the entire file
@@ -100,9 +104,6 @@ extension Open: Readable where PathType: FilePath {
         // Reading the file returns the number of bytes read (or -1 if there was an error)
         let bytesRead = cReadFile(fileDescriptor, buffer!, Int(bytesToRead))
         guard bytesRead != -1 else { throw ReadError.getError() }
-
-        // Update the offset
-        _offset += OSInt(bytesRead)
 
         // Return the Data read from the file
         return Data(bytes: buffer!, count: bytesRead)
@@ -153,7 +154,7 @@ public extension FilePath {
     */
     public func read(from offset: Offset = .current, bytes byteCount: OSInt? = nil) throws -> Data {
         // If the file is already opened with read permissions, then use the same opened file to read right now
-        if let opened = self.opened, !OpenFilePermissions(rawValue: opened.options).contains(.read) {
+        if let opened = self.opened, opened.mayRead {
             return try opened.read(from: offset, bytes: byteCount)
         }
 
@@ -207,7 +208,7 @@ public extension FilePath {
     */
     public func read(from offset: Offset = .current, bytes byteCount: OSInt? = nil, encoding: String.Encoding = .utf8) throws -> String? {
         // If the file is already opened with read permissions, then use the same opened file to read right now
-        if let opened = self.opened, !OpenFilePermissions(rawValue: opened.options).contains(.read) {
+        if let opened = self.opened, opened.mayRead {
             return try opened.read(from: offset, bytes: byteCount, encoding: encoding)
         }
 

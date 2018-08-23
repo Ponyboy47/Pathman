@@ -55,10 +55,12 @@ extension Open: Writable where PathType: FilePath {
     - Throws: `WriteError.permissionDenied` when the operation was prevented because of a file seal (see fcntl(2))
     */
     public func write(_ buffer: Data, at offset: Offset = .current) throws {
-        if !OpenFileFlags(rawValue: options).contains(.append) {
+        if !mayWrite {
+            try path.open(permissions: .write)
+        }
+
+        if !openFlags.contains(.append) {
             try seek(offset)
-        } else {
-            try seek(Offset(type: .end, bytes: 0))
         }
 
         guard cWriteFile(fileDescriptor, [UInt8](buffer), buffer.count) != -1 else { throw WriteError.getError() }
@@ -109,7 +111,7 @@ public extension FilePath {
     - Throws: `CloseFileError.ioError` when an I/O error occurred
     */
     public func write(_ buffer: Data, at offset: Offset = .current) throws {
-        if let opened = self.opened, OpenFilePermissions(rawValue: opened.options).contains(.write) {
+        if let opened = self.opened, opened.mayWrite {
             return try opened.write(buffer, at: offset)
         }
 
@@ -162,7 +164,7 @@ public extension FilePath {
     - Throws: `CloseFileError.ioError` when an I/O error occurred
     */
     public func write(_ string: String, at offset: Offset = .current, using encoding: String.Encoding = .utf8) throws {
-        if let opened = self.opened, OpenFilePermissions(rawValue: opened.options).contains(.write) {
+        if let opened = self.opened, opened.mayWrite {
             return try opened.write(string, at: offset, using: encoding)
         }
 
