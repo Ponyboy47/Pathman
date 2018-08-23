@@ -24,7 +24,7 @@ I am not a big fan of Foundation's `FileManager`. Foundation in general has inco
 ## Installation (SPM)
 Add this to your Package.swift dependencies:
 ```swift
-.package(url: "https://github.com/Ponyboy47/Trailblazer.git", from: "0.9.0")
+.package(url: "https://github.com/Ponyboy47/Trailblazer.git", from: "0.10.0")
 ```
 
 ## Usage
@@ -417,13 +417,63 @@ let link = try linkedFile.link(from: "/path/to/link/target", type: .soft)
 let link = try linkedFile.link(from: "/path/to/link/target", type: .hard)
 ```
 
+#### Changing the Default Link Type:
+
+TrailBlazer uses .symbolic/.soft links as the default, but this may be changed.
+```swift
+TrailBlazer.defaultLinkType = .hard
+```
+
+### Copy Paths:
+
+#### FilePaths:
+```swift
+guard let file = FilePath("/path/to/file") else {
+    fatalError("Path is not a file")
+}
+
+guard let copyPath = FilePath("/path/to/copy") else {
+    fatalError("Path already exists and is not a file")
+}
+
+// Both these lines would result in the same thing
+try file.copy(to: copyPath)
+try file.copy(to: "/path/to/copy")
+```
+
+#### DirectoryPaths:
+```swift
+guard let dir = DirectoryPath("/path/to/directory") else {
+    fatalError("Path is not a file")
+}
+
+guard let copyPath = DirectoryPath("/path/to/copy") else {
+    fatalError("Path already exists and is not a directory")
+}
+
+// Both these lines would result in the same thing
+try dir.copy(to: copyPath)
+try dir.copy(to: "/path/to/copy")
+
+// NOTE: Copying directories will fail if the directory is not empty, so pass
+// the recursive option to the copy call in order to sucessfully copy non empty
+// directories
+try dir.copy(to: copyPath, options: .recursive)
+
+// NOTE: You may also include hidden files with the includeHidden option
+try dir.copy(to: copyPath, options: [.recursive, .includeHidden])
+```
+
 ## To Do
 - FilePath
   - [x] Create new files
+    - [ ] Create intermediate directories
+    - [ ] With specified contents
 - DirectoryPath
   - [x] Get directory contents
   - [x] Get directory contents recursively
   - [x] Create new directories
+    - [ ] Create intermediate directories
   - [x] Delete directories
   - [x] Recursively delete directory
 - GenericPath (AKA all Paths)
@@ -434,7 +484,7 @@ let link = try linkedFile.link(from: "/path/to/link/target", type: .hard)
   - [x] Rename paths (move alias)
   - [x] URL conversion
   - [x] Get/generate temporary files/directories
-  - [ ] Copy paths
+  - [x] Copy paths
 - Misc. Additions
   - [x] Globbing
   - [x] LinkedPath (symlinks and hard links)
@@ -444,10 +494,22 @@ let link = try linkedFile.link(from: "/path/to/link/target", type: .hard)
       - [ ] Storage: Either deletes itself (and everything in it) once all references to it are gone, or it doesn't
       - [ ] Base: Whether to generate or supply the root temporary directory (/tmp or not)
     - Used by the temporary() API call
+    - [ ] Temporary path in closure (deleted afterwards if specified)
+  - [ ] APIs for checking permissions to a path
+    - [ ] canRead/Write/Execute/Delete == Whether or not the calling process (or specified uid/gid/username/groupname) can read/write/execute/delete the path
+    - [ ] mayRead/Write == Whether or not the path was opened with read/write permissions
   - [ ] SocketPath
   - [ ] FIFOPath?
   - [ ] BlockPath?
   - [ ] CharacterPath?
+  - [ ] Place deleted items in trash (instead of deleting directly)
+  - [ ] Mount/unmount paths
+  - [ ] Change CWD/Root for closure only
+  - [ ] Pattern matching (~=)
+  - [ ] Useful operators (<<, >>, etc)
+  - [ ] Consolidate repeated/common errors
+  - [ ] Atomic writing (see Data.WritingOptions)
+  - [ ] Make sure we support common Data.ReadingOptions
 - [ ] Investigate TypeErasure to see if it could benefit Paths and Open objects interact together more nicely
 - [ ] Investigate ARC best-practices and see if memory usage/performance/correctness can be improved
   - https://docs.swift.org/swift-book/LanguageGuide/AutomaticReferenceCounting.html
@@ -466,3 +528,4 @@ let link = try linkedFile.link(from: "/path/to/link/target", type: .hard)
   - [ ] Total size
   - [ ] Type
   - [ ] More?
+- [ ] Annotate code with preconditions and assertions
