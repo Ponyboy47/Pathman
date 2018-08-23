@@ -25,4 +25,5 @@ XCTMain([
     testCase(GlobTests.allTests),
     testCase(TemporaryTests.allTests),
     testCase(LinkTests.allTests),
+    testCase(CopyTests.allTests),
 ])
