@@ -32,11 +32,6 @@ public class DirectoryPath: Path, Openable, Sequence, IteratorProtocol, Linkable
     /// whether or not we need to rewind a directory
     private var finishedTraversal: Bool = false
 
-    /// The options used to open a directory (Ignored)
-    public internal(set) var options: OptionInt = 0
-    /// The mode used to open a directory (Ignored)
-    public internal(set) var mode: FileMode? = nil
-
     /// The currently opened directory (if it has been opened previously)
     /// Warning: The setter may be removed in a later release
     public var opened: OpenDirectory? {
@@ -112,12 +107,14 @@ public class DirectoryPath: Path, Openable, Sequence, IteratorProtocol, Linkable
         _info = path.info
     }
 
+    @available(*, renamed: "open", message: "Opening a directory does not permit options or a mode")
+    public func open(options: OptionInt, mode: FileMode?) throws -> Open<DirectoryPath> {
+        fatalError("Opening a directory does not permit options or a mode")
+    }
+
     /**
     Opens the directory
 
-    - Parameters:
-        - options: Unused
-        - mode: Unused
     - Returns: The opened directory
 
     - Throws: `OpenDirectoryError.permissionDenied` when the calling process does not have access to the path
@@ -128,7 +125,7 @@ public class DirectoryPath: Path, Openable, Sequence, IteratorProtocol, Linkable
     - Throws: `OpenDirectoryError.pathNotDirectory` when the path you're trying to open exists and is not a directory. This should only occur if your DirectoryPath object was created before the path existed and then the path was created as a non-directory path type
     */
     @discardableResult
-    public func open(options: OptionInt = 0, mode: FileMode? = nil) throws -> Open<DirectoryPath> {
+    public func open() throws -> Open<DirectoryPath> {
         // If the directory is already open, return it. Unlike FilePaths, the
         // options/mode are irrelevant for opening directories
         if let openDir = opened {
