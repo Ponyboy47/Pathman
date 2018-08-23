@@ -7,9 +7,6 @@ import Darwin
 /// Protocol declaration for types that contain an offset which points to a
 /// byte location in the file and may be moved around
 public protocol Seekable: class {
-    /// The location in the path from where reading and writing begin. Measured
-    /// in bytes from the beginning of the path
-    var offset: OSInt { get set }
     /// Whether the offset is at the end of the file
     var eof: Bool { get }
 
@@ -29,6 +26,13 @@ public protocol Seekable: class {
 }
 
 public extension Seekable {
+    /// The location in the path from where reading and writing begin. Measured
+    /// in bytes from the beginning of the path
+    public var offset: OSInt {
+        get { return (try? seek(fromCurrent: 0)) ?? -1 }
+        set { let _ = try? seek(fromStart: newValue) }
+    }
+
     /// Seeks using the specified offset
     @discardableResult
     public func seek(_ offset: Offset) throws -> OSInt {
@@ -45,7 +49,6 @@ public extension Seekable {
         default: throw SeekError.unknownOffsetType
         }
 
-        self.offset = newOffset
         return self.offset
     }
 }
