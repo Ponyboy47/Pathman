@@ -53,7 +53,7 @@ open class Open<PathType: Path & Openable>: Openable, Ownable, Permissionable, S
     public typealias OpenOptionsType = PathType.OpenOptionsType
 
     /// The path of which this object is the open representation
-    public internal(set) var path: PathType
+    public let path: PathType
     public var fileDescriptor: FileDescriptor { return path.fileDescriptor }
     public var openOptions: OpenOptionsType? { return path.openOptions }
 

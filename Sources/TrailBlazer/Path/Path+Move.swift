@@ -1,10 +1,11 @@
 /// Paths that can be moved
 public protocol Movable {
+    associatedtype MovablePathType: Path = Self
     /// The directory one level above the current Self's location
     var parent: DirectoryPath { get set }
     /// The last element of the path
     var lastComponent: String? { get }
-    mutating func move<PathType: Path>(to newPath: PathType) throws
+    mutating func move(to newPath: MovablePathType) throws
 }
 
 public extension Movable {
@@ -31,8 +32,9 @@ public extension Movable {
     - Throws: `MoveError.pathsOnDifferentFileSystems` when the current path and newPath are on separate file systems
     - Throws: `MoveError.moveToDifferentPathType` when the current path and the newPath are not the same PathType
     */
-    public mutating func move(to newPath: String) throws {
-        try move(to: GenericPath(newPath))
+    public mutating func move(to newPathString: String) throws {
+        let newPath = try MovablePathType(newPathString) ?! MoveError.moveToDifferentPathType
+        try move(to: newPath)
     }
 
     /**
@@ -61,7 +63,7 @@ public extension Movable {
     public mutating func move(into dir: DirectoryPath) throws {
         let last = try lastComponent ?! MoveError.pathDoesNotExist
         let newPath = dir + last
-        try move(to: newPath)
+        try move(to: newPath.string)
     }
 
     /**
@@ -88,6 +90,6 @@ public extension Movable {
     - Throws: `MoveError.moveToDifferentPathType` when the current path and the newPath are not the same PathType
     */
     public mutating func rename(to newName: String) throws {
-        try move(to: parent + newName)
+        try move(to: (parent + newName).string)
     }
 }

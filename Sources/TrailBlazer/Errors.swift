@@ -20,6 +20,7 @@ public enum OpenFileError: TrailBlazerError {
     case badAddress
     case fileTooLarge
     case interruptedBySignal
+    case invalidPermissions
     case invalidFlags
     // case improperUseOfDirectory
     case shouldNotFollowSymlinks
