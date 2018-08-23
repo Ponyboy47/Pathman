@@ -60,7 +60,7 @@ extension FilePath: Creatable {
             }
         }
 
-        return try open(permissions: .write, flags: .create, .exclusive, mode: mode)
+        return try open(permissions: .write, flags: [.create, .exclusive], mode: mode)
     }
 }
 
@@ -102,20 +102,6 @@ extension DirectoryPath: Creatable {
             throw CreateDirectoryError.getError()
         }
 
-        return try self.open(mode: mode)
-    }
-}
-
-extension Open: Creatable where PathType: Creatable {
-    public typealias CreatablePathType = PathType.CreatablePathType
-    public typealias CreatableType = PathType.CreatableType
-
-    /**
-    Paths cannot be opened until they are created. As such, calling this
-    function should be impossible/futile. May be removed in a later release.
-    */
-    @discardableResult
-    public func create(mode: FileMode, forceMode forced: Bool = false) throws -> CreatableType {
-        return try _path.create(mode: mode, forceMode: forced)
+        return try self.open()
     }
 }

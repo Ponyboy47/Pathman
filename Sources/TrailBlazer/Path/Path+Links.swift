@@ -19,7 +19,7 @@ public enum LinkType {
 public var defaultLinkType: LinkType = .symbolic
 
 /// A protocol declaration for Paths that can be symbolically linked to
-public protocol Linkable: Path, Deletable {
+public protocol Linkable: Path, Creatable, Deletable {
     associatedtype LinkablePathType: Linkable = Self
     func link(at: LinkablePathType, type: LinkType) throws -> LinkedPath<LinkablePathType>
     func link(from: LinkablePathType, type: LinkType) throws -> LinkedPath<LinkablePathType>
@@ -245,13 +245,6 @@ func createLink<PathType: Path>(from: PathType, to: PathType, type: LinkType) th
     guard linkFunc(to.string, from.string) != -1 else { throw linkError.getError() }
 }
 
-extension LinkedPath: Creatable {
-    @available(*, renamed: "init", renamed: "link", message: "LinkedPaths cannot be created directly, instead use the PathType.link(to/from: PathType, type: LinkType) function or LinkedPath.init(_ path: PathType, linked: (to: PathType, type: LinkType))")
-    public func create(mode: FileMode, forceMode forced: Bool = false) throws -> Open<PathType> {
-        fatalError("LinkedPaths should not be created directly")
-    }
-}
-
 extension LinkedPath: Deletable {
     public func delete() throws {
         try __path.delete()
@@ -260,16 +253,32 @@ extension LinkedPath: Deletable {
 
 extension LinkedPath: Openable {
     public typealias OpenableType = PathType.OpenableType
+    public typealias OpenOptionsType = PathType.OpenOptionsType
 
     public var fileDescriptor: FileDescriptor { return __path.fileDescriptor }
-    public var options: OptionInt { return __path.options }
-    public var mode: FileMode? { return __path.mode }
+    public var openOptions: OpenOptionsType? { return __path.openOptions }
 
-    public func open(options: OptionInt = 0, mode: FileMode? = nil) throws -> Open<OpenableType> {
-        return try __path.open(options: options, mode: mode)
+    public func open() throws -> Open<OpenableType> {
+        return try __path.open()
     }
 
     public func close() throws {
         try __path.close()
     }
+}
+
+public extension LinkedPath where PathType: FilePath {
+    public var openOptions: OpenOptionsType? {
+        get { return __path.openOptions }
+        set { __path.openOptions = newValue }
+    }
+    public var openPermissions: OpenFilePermissions {
+        get { return __path.openPermissions }
+        set { __path.openPermissions = newValue }
+    }
+    public var openFlags: OpenFileFlags {
+        get { return __path.openFlags }
+        set { __path.openFlags = newValue }
+    }
+    public var createMode: FileMode? { return __path.createMode }
 }
