@@ -187,7 +187,7 @@ public class Glob {
         }
     }
     /// The C function used to open directories (default is opendir(2))
-    public var opendir: (@convention(c) (UnsafePointer<CChar>?) -> GlobReadDirectoryReturnType?) {
+    public var opendir: (@convention(c) (UnsafePointer<CChar>?) -> UnsafeMutableRawPointer?) {
         get { return _glob.pointee.gl_opendir }
         set {
             _glob.pointee.gl_opendir = newValue
