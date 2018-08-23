@@ -13,6 +13,8 @@ protocol Stat {
 
     init(buffer: UnsafeMutablePointer<stat>)
 
+    /// Whether or not the path exists (or is accessible)
+    var exists: Bool { get }
     /// ID of device containing path
     var id: dev_t { get }
     /// inode number

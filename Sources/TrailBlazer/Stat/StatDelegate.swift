@@ -12,6 +12,11 @@ public protocol StatDelegate {
 }
 
 public extension StatDelegate {
+    /// Whether or not the path exists (or is accessible)
+    public var exists: Bool {
+        return info.exists
+    }
+
     /// ID of device containing path
     public var id: dev_t {
         return info.id
