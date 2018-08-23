@@ -22,7 +22,8 @@ public struct CopyOptions: OptionSet {
 
 public protocol Copyable: Openable {
     associatedtype CopyablePathType: Path = Self
-    func copy(to newPath: CopyablePathType, options: CopyOptions) throws
+    @discardableResult
+    func copy(to newPath: CopyablePathType, options: CopyOptions) throws -> Open<OpenableType>
 }
 
 public extension Copyable where Self: Path {
@@ -33,23 +34,17 @@ public extension Copyable where Self: Path {
 }
 
 extension FilePath: Copyable {
-    public func copy(to newPath: FilePath, options: CopyOptions = []) throws {
+    @discardableResult
+    public func copy(to newPath: FilePath, options: CopyOptions = []) throws -> OpenFile {
         // Open self with read permissions
-        let openPath: OpenFile
-        if let open = opened {
-            if open.mayRead {
-                openPath = open
-            } else {
-                openPath = try self.open(permissions: .read)
-            }
-        } else {
-            openPath = try open(permissions: .read)
-        }
+        let openPath: OpenFile = try open(permissions: .read)
+        let originalOffset = openPath.offset
         // Make sure we're at the beginning of the file
         try openPath.rewind()
 
         // Create the path we're going to copy
         let newOpenPath = try newPath.create(mode: permissions, forceMode: true)
+        try newOpenPath.change(owner: owner, group: group)
 
         // If we're not buffering, the buffer size is just the whole file size.
         // If we are buffering, follow the Linux cp(1) implementation, which
@@ -60,11 +55,15 @@ extension FilePath: Copyable {
         repeat {
             try newOpenPath.write(try openPath.read(bytes: bufferSize))
         } while !openPath.eof // Stop reading from the file once we've reached the EOF
+        openPath.offset = originalOffset
+
+        return newOpenPath
     }
 }
 
 extension DirectoryPath: Copyable {
-    public func copy(to newPath: DirectoryPath, options: CopyOptions) throws {
+    @discardableResult
+    public func copy(to newPath: DirectoryPath, options: CopyOptions) throws -> OpenDirectory {
         let openPath: OpenDirectory
         if let open = opened {
             openPath = open
@@ -79,7 +78,8 @@ extension DirectoryPath: Copyable {
         // used. Let's be a little nicer and only skip non-empty directories
         guard childrenPaths.isEmpty || options.contains(.recursive) else { throw CopyError.nonEmptyDirectory }
 
-        try newPath.create(mode: permissions, forceMode: true)
+        let newOpenPath = try newPath.create(mode: permissions, forceMode: true)
+        try newOpenPath.change(owner: owner, group: group)
 
         for file in childrenPaths.files {
             try file.copy(into: newPath, options: options)
@@ -89,5 +89,16 @@ extension DirectoryPath: Copyable {
         }
 
         guard childrenPaths.other.isEmpty else { throw CopyError.uncopyablePath(childrenPaths.other.first!) }
+
+        return newOpenPath
+    }
+}
+
+extension Open: Copyable where PathType: Copyable {
+    public typealias CopyablePathType = PathType.CopyablePathType
+
+    @discardableResult
+    public func copy(to newPath: CopyablePathType, options: CopyOptions = []) throws -> Open<PathType.OpenableType>{
+        return try path.copy(to: newPath, options: options)
     }
 }
