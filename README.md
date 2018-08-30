@@ -1,5 +1,6 @@
 # TrailBlazer
 
+![Build Status](https://travis-ci.org/Ponyboy47/Trailblazer.svg?branch=master)![Supported Platforms](https://img.shields.io/badge/platform-macOS%20%7C%20linux-lightgrey.svg)![License](https://img.shields.io/badge/license-MIT-black.svg)
 A type-safe path library for Apple's Swift language.
 
 ## Motivation
@@ -529,6 +530,7 @@ try dir.copy(to: copyPath, options: [.recursive, .includeHidden])
   - [ ] Type
   - [ ] More?
 - [ ] Annotate code with preconditions and assertions
+- [ ] Awesome logo/icon
 - Crazy Stuff
   - [ ] `URLPath`
     - [ ] Separate current `Path` protocol into a `FileSystemPath` sub-protocol (only keeping relevant stuff in `Path`)
