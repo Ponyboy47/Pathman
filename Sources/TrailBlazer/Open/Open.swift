@@ -8,7 +8,7 @@ import Darwin
 
 /// Protocol declaration for types that can be opened
 public protocol Openable: StatDelegate {
-    associatedtype OpenableType: Path & Openable = Self
+    associatedtype OpenableType: Path & Openable
     associatedtype OpenOptionsType = Void
 
     /// The underlying file descriptor of the opened path

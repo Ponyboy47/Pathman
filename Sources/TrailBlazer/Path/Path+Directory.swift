@@ -13,6 +13,8 @@ private var openDirectories: [DirectoryPath: OpenDirectory] = [:]
 
 /// A Path to a directory
 public class DirectoryPath: Path, Openable, Sequence, IteratorProtocol, Linkable {
+    public typealias OpenableType = DirectoryPath
+
     public var _path: String
     public var fileDescriptor: FileDescriptor {
         // Opened directories result in a DIR struct, rather than a straight

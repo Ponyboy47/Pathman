@@ -7,7 +7,7 @@ import Darwin
 /// A Protocol for Path types that can be created
 public protocol Creatable: Openable {
     /// The type of the Path. Must be Openable as well
-    associatedtype CreatablePathType: Path & Openable = Self
+    associatedtype CreatablePathType: Path & Openable
     associatedtype CreatableType: Openable = Open<CreatablePathType>
 
     /**
@@ -22,6 +22,8 @@ public protocol Creatable: Openable {
 
 /// The FilePath Creatable conformance
 extension FilePath: Creatable {
+    public typealias CreatablePathType = FilePath
+
     /**
     Creates a FilePath
 
@@ -65,6 +67,8 @@ extension FilePath: Creatable {
 }
 
 extension DirectoryPath: Creatable {
+    public typealias CreatablePathType = DirectoryPath
+
     /**
     Creates a DirectoryPath
 

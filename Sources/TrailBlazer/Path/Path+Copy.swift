@@ -21,7 +21,7 @@ public struct CopyOptions: OptionSet {
 }
 
 public protocol Copyable: Openable {
-    associatedtype CopyablePathType: Path = Self
+    associatedtype CopyablePathType: Path
     @discardableResult
     func copy(to newPath: CopyablePathType, options: CopyOptions) throws -> Open<OpenableType>
 }
@@ -34,6 +34,8 @@ public extension Copyable where Self: Path {
 }
 
 extension FilePath: Copyable {
+    public typealias CopyablePathType = FilePath
+
     @discardableResult
     public func copy(to newPath: FilePath, options: CopyOptions = []) throws -> OpenFile {
         // Open self with read permissions
@@ -62,6 +64,8 @@ extension FilePath: Copyable {
 }
 
 extension DirectoryPath: Copyable {
+    public typealias CopyablePathType = DirectoryPath
+
     @discardableResult
     public func copy(to newPath: DirectoryPath, options: CopyOptions) throws -> OpenDirectory {
         let openPath: OpenDirectory

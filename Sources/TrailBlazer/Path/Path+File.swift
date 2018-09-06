@@ -21,6 +21,7 @@ private var openFiles: [FilePath: OpenFile] = [:]
 
 /// A Path to a file
 open class FilePath: Path, Openable, Linkable {
+    public typealias OpenableType = FilePath
     public typealias OpenOptionsType = (permissions: OpenFilePermissions, flags: OpenFileFlags, mode: FileMode?)
 
     public var _path: String

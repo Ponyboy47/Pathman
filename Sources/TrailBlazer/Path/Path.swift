@@ -264,7 +264,7 @@ public extension Path {
     - Throws: `MoveError.readOnlyFileSystem` when the file system is in read-only mode
     - Throws: `MoveError.pathsOnDifferentFileSystems` when the current path and newPath are on separate file systems
     */
-    public mutating func move(to newPath: MovablePathType) throws {
+    public mutating func move(to newPath: Self) throws {
         guard cRename(string, newPath.string) == 0 else {
             throw MoveError.getError()
         }
