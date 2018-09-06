@@ -1,6 +1,6 @@
 # TrailBlazer
 
-![Build Status](https://travis-ci.org/Ponyboy47/Trailblazer.svg?branch=master)![Supported Platforms](https://img.shields.io/badge/platform-macOS%20%7C%20linux-lightgrey.svg)![License](https://img.shields.io/badge/license-MIT-black.svg)
+![Build Status](https://travis-ci.org/Ponyboy47/Trailblazer.svg?branch=master) ![Supported Platforms](https://img.shields.io/badge/platform-macOS%20%7C%20linux-lightgrey.svg) ![Language](https://img.shields.io/badge/language-swift-orange.svg) ![License](https://img.shields.io/badge/license-MIT-black.svg)
 A type-safe path library for Apple's Swift language.
 
 ## Motivation
@@ -22,7 +22,13 @@ I am not a big fan of Foundation's `FileManager`. Foundation in general has inco
     - Was anyone ever a fan of `FileAttributeKey`s?
 - Expose low-level control with high-level safety built-in
 
-## Installation (SPM)
+## Installation
+### Compatibility:
+- Swift 4.2
+- Ubuntu (verified on 16.04 and 18.04)
+- macOS (verified on 10.13)
+
+### Installation (SPM):
 Add this to your Package.swift dependencies:
 ```swift
 .package(url: "https://github.com/Ponyboy47/Trailblazer.git", from: "0.10.0")
