@@ -1,6 +1,6 @@
 # TrailBlazer
 
-![Build Status](https://travis-ci.org/Ponyboy47/Trailblazer.svg?branch=master) ![Supported Platforms](https://img.shields.io/badge/platform-macOS%20%7C%20linux-lightgrey.svg) ![Language](https://img.shields.io/badge/language-swift-orange.svg) ![License](https://img.shields.io/badge/license-MIT-black.svg)
+![Build Status](https://travis-ci.org/Ponyboy47/Trailblazer.svg?branch=master) ![Supported Platforms](https://img.shields.io/badge/platform-macOS%20%7C%20linux-lightgrey.svg) ![Language](https://img.shields.io/badge/language-swift-orange.svg) ![License](https://img.shields.io/badge/license-MIT-black.svg)<br>
 A type-safe path library for Apple's Swift language.
 
 ## Motivation
