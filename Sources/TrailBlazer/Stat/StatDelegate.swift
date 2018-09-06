@@ -46,16 +46,16 @@ public extension StatDelegate {
         return info.device
     }
     /// total size, in bytes
-    public var size: OSInt {
-        return OSInt(info.size)
+    public var size: OSOffsetInt {
+        return info.size
     }
     /// blocksize for filesystem I/O
-    public var blockSize: OSInt {
-        return OSInt(info.blockSize)
+    public var blockSize: Int32 {
+        return info.blockSize
     }
     /// number of 512B blocks allocated
-    public var blocks: OSInt {
-        return OSInt(info.blocks)
+    public var blocks: OSOffsetInt {
+        return info.blocks
     }
 
     /// time of last access

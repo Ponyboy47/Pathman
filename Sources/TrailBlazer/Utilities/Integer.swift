@@ -1,68 +1,68 @@
 public extension BinaryInteger {
     /// Returns the number of bytes assuming self is kilobytes
-    public var kilobytes: OSInt { return OSInt(self * 1024) }
+    public var kilobytes: Int { return Int(self * 1024) }
     /// Returns the number of bytes assuming self is kilobytes
-    public var kb: OSInt { return kilobytes }
+    public var kb: Int { return kilobytes }
     /// Returns the number of bytes assuming self is megabytes
-    public var megabytes: OSInt { return kilobytes * 1024 }
+    public var megabytes: Int { return kilobytes * 1024 }
     /// Returns the number of bytes assuming self is megabytes
-    public var mb: OSInt { return megabytes }
+    public var mb: Int { return megabytes }
     /// Returns the number of bytes assuming self is gigabytes
-    public var gigabytes: OSInt { return megabytes * 1024 }
+    public var gigabytes: Int { return megabytes * 1024 }
     /// Returns the number of bytes assuming self is gigabytes
-    public var gb: OSInt { return gigabytes }
+    public var gb: Int { return gigabytes }
     /// Returns the number of bytes assuming self is terabytes
-    public var terabytes: OSInt { return gigabytes * 1024 }
+    public var terabytes: Int { return gigabytes * 1024 }
     /// Returns the number of bytes assuming self is terabytes
-    public var tb: OSInt { return terabytes }
+    public var tb: Int { return terabytes }
     /// Returns the number of bytes assuming self is petabytes
-    public var petabytes: OSInt { return terabytes * 1024 }
+    public var petabytes: Int { return terabytes * 1024 }
     /// Returns the number of bytes assuming self is petabytes
-    public var pb: OSInt { return petabytes }
+    public var pb: Int { return petabytes }
 }
 
 public extension Double {
     /// Returns the number of bytes assuming self is kilobytes
-    public var kilobytes: OSInt { return OSInt(self * 1024.0) }
+    public var kilobytes: Int { return Int(self * 1024.0) }
     /// Returns the number of bytes assuming self is kilobytes
-    public var kb: OSInt { return kilobytes }
+    public var kb: Int { return kilobytes }
     /// Returns the number of bytes assuming self is megabytes
-    public var megabytes: OSInt { return kilobytes * 1024 }
+    public var megabytes: Int { return kilobytes * 1024 }
     /// Returns the number of bytes assuming self is megabytes
-    public var mb: OSInt { return megabytes }
+    public var mb: Int { return megabytes }
     /// Returns the number of bytes assuming self is gigabytes
-    public var gigabytes: OSInt { return megabytes * 1024 }
+    public var gigabytes: Int { return megabytes * 1024 }
     /// Returns the number of bytes assuming self is gigabytes
-    public var gb: OSInt { return gigabytes }
+    public var gb: Int { return gigabytes }
     /// Returns the number of bytes assuming self is terabytes
-    public var terabytes: OSInt { return gigabytes * 1024 }
+    public var terabytes: Int { return gigabytes * 1024 }
     /// Returns the number of bytes assuming self is terabytes
-    public var tb: OSInt { return terabytes }
+    public var tb: Int { return terabytes }
     /// Returns the number of bytes assuming self is petabytes
-    public var petabytes: OSInt { return terabytes * 1024 }
+    public var petabytes: Int { return terabytes * 1024 }
     /// Returns the number of bytes assuming self is petabytes
-    public var pb: OSInt { return petabytes }
+    public var pb: Int { return petabytes }
 }
 
 public extension Float {
     /// Returns the number of bytes assuming self is kilobytes
-    public var kilobytes: OSInt { return OSInt(self * 1024.0) }
+    public var kilobytes: Int { return Int(self * 1024.0) }
     /// Returns the number of bytes assuming self is kilobytes
-    public var kb: OSInt { return kilobytes }
+    public var kb: Int { return kilobytes }
     /// Returns the number of bytes assuming self is megabytes
-    public var megabytes: OSInt { return kilobytes * 1024 }
+    public var megabytes: Int { return kilobytes * 1024 }
     /// Returns the number of bytes assuming self is megabytes
-    public var mb: OSInt { return megabytes }
+    public var mb: Int { return megabytes }
     /// Returns the number of bytes assuming self is gigabytes
-    public var gigabytes: OSInt { return megabytes * 1024 }
+    public var gigabytes: Int { return megabytes * 1024 }
     /// Returns the number of bytes assuming self is gigabytes
-    public var gb: OSInt { return gigabytes }
+    public var gb: Int { return gigabytes }
     /// Returns the number of bytes assuming self is terabytes
-    public var terabytes: OSInt { return gigabytes * 1024 }
+    public var terabytes: Int { return gigabytes * 1024 }
     /// Returns the number of bytes assuming self is terabytes
-    public var tb: OSInt { return terabytes }
+    public var tb: Int { return terabytes }
     /// Returns the number of bytes assuming self is petabytes
-    public var petabytes: OSInt { return terabytes * 1024 }
+    public var petabytes: Int { return terabytes * 1024 }
     /// Returns the number of bytes assuming self is petabytes
-    public var pb: OSInt { return petabytes }
+    public var pb: Int { return petabytes }
 }

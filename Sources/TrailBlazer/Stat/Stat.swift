@@ -30,11 +30,11 @@ protocol Stat {
     /// device ID (if special file)
     var device: dev_t { get }
     /// total size, in bytes
-    var size: OSInt { get }
+    var size: OSOffsetInt { get }
     /// blocksize for filesystem I/O
-    var blockSize: OSInt { get }
+    var blockSize: blksize_t { get }
     /// number of 512B blocks allocated
-    var blocks: OSInt { get }
+    var blocks: OSOffsetInt { get }
 
     /// time of last access
     var lastAccess: Date { get }
@@ -70,14 +70,14 @@ extension Stat {
     public var device: dev_t {
         return _buffer.pointee.st_rdev
     }
-    public var size: OSInt {
-        return OSInt(_buffer.pointee.st_size)
+    public var size: OSOffsetInt {
+        return _buffer.pointee.st_size
     }
-    public var blockSize: OSInt {
-        return OSInt(_buffer.pointee.st_blksize)
+    public var blockSize: Int32 {
+        return _buffer.pointee.st_blksize
     }
-    public var blocks: OSInt {
-        return OSInt(_buffer.pointee.st_blocks)
+    public var blocks: OSOffsetInt {
+        return _buffer.pointee.st_blocks
     }
 
     public var lastAccess: Date {

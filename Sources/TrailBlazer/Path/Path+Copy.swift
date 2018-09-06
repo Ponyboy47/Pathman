@@ -1,5 +1,5 @@
 public struct CopyOptions: OptionSet {
-    public let rawValue: OSInt
+    public let rawValue: Int
 
     /**
     If the path to copy is a directory, use this to recursively copy all of
@@ -15,7 +15,7 @@ public struct CopyOptions: OptionSet {
     */
     public static let noBuffer = CopyOptions(rawValue: 1 << 2)
 
-    public init(rawValue: OSInt) {
+    public init(rawValue: Int) {
         self.rawValue = rawValue
     }
 }
@@ -51,7 +51,7 @@ extension FilePath: Copyable {
         // If we're not buffering, the buffer size is just the whole file size.
         // If we are buffering, follow the Linux cp(1) implementation, which
         // reads 32 kb at a time.
-        let bufferSize: OSInt = options.contains(.noBuffer) ? size : 32.kb
+        let bufferSize: Int = options.contains(.noBuffer) ? Int(size) : 32.kb
 
         // If we're not buffering, this should really only run once
         repeat {

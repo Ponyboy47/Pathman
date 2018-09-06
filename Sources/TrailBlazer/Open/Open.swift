@@ -46,7 +46,7 @@ extension Openable {
 /// Contains the buffer used for reading from a path
 private var _buffers: [Int: UnsafeMutablePointer<CChar>] = [:]
 /// Tracks the sizes of the read buffers
-private var _bufferSizes: [Int: OSInt] = [:]
+private var _bufferSizes: [Int: Int] = [:]
 
 open class Open<PathType: Path & Openable>: Openable, Ownable, Permissionable, StatDelegate {
     public typealias OpenableType = PathType.OpenableType
@@ -79,7 +79,7 @@ open class Open<PathType: Path & Openable>: Openable, Ownable, Permissionable, S
         }
     }
     /// The size of the buffer used to store read data
-    var bufferSize: OSInt? {
+    var bufferSize: Int? {
         get {
             return _bufferSizes[path.hashValue]
         }
@@ -152,7 +152,7 @@ open class Open<PathType: Path & Openable>: Openable, Ownable, Permissionable, S
 
     deinit {
         if let bSize = bufferSize {
-            buffer?.deinitialize(count: bSize)
+            buffer?.deinitialize(count: Int(bSize))
         }
         buffer?.deallocate()
 

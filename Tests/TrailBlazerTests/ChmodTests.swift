@@ -103,7 +103,7 @@ class ChmodTests: XCTestCase {
 
         if !file.exists {
             do {
-                try file.create(mode: .ownerGroupOthers(.readWriteExecute))
+                try file.create(mode: .ownerGroupOthers(.readWriteExecute), forceMode: true)
             } catch {
                 XCTFail("Failed to create test path => \(file)")
                 return

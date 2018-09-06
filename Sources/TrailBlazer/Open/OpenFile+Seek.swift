@@ -17,7 +17,7 @@ extension Open: Seekable where PathType: FilePath {
     - Throws: `SeekError.offsetTooLarge` when the resulting file offset cannot be represented in an off_t
     */
     @discardableResult
-    public func seek(fromStart bytes: OSInt) throws -> OSInt {
+    public func seek(fromStart bytes: OSOffsetInt) throws -> OSOffsetInt {
         // If the offset is at the bytes already, then nothing would happen so
         // just go ahead and return
         guard offset != bytes else { return offset }
@@ -41,7 +41,7 @@ extension Open: Seekable where PathType: FilePath {
     - Throws: `SeekError.offsetTooLarge` when the resulting file offset cannot be represented in an off_t
     */
     @discardableResult
-    public func seek(fromEnd bytes: OSInt) throws -> OSInt {
+    public func seek(fromEnd bytes: OSOffsetInt) throws -> OSOffsetInt {
         // If we're at the end of the file and we're not moving anywhere, go
         // ahead and return the offset
         if bytes == 0 && eof { return offset }
@@ -65,7 +65,7 @@ extension Open: Seekable where PathType: FilePath {
     - Throws: `SeekError.offsetTooLarge` when the resulting file offset cannot be represented in an off_t
     */
     @discardableResult
-    public func seek(fromCurrent bytes: OSInt) throws -> OSInt {
+    public func seek(fromCurrent bytes: OSOffsetInt) throws -> OSOffsetInt {
         let newOffset = lseek(fileDescriptor, bytes, SEEK_CUR)
 
         guard newOffset != -1 else {
@@ -84,7 +84,7 @@ extension Open: Seekable where PathType: FilePath {
     - Throws: `SeekError.offsetTooLarge` when the resulting file offset cannot be represented in an off_t
     */
     @discardableResult
-    public func rewind() throws -> OSInt {
+    public func rewind() throws -> OSOffsetInt {
         return try seek(fromStart: 0)
     }
 
@@ -99,7 +99,7 @@ extension Open: Seekable where PathType: FilePath {
     - Throws: `SeekError.offsetTooLarge` when the resulting file offset cannot be represented in an off_t
     */
     @discardableResult
-    public func seek(toNextHoleAfter offset: OSInt) throws -> OSInt {
+    public func seek(toNextHoleAfter offset: OSOffsetInt) throws -> OSOffsetInt {
         let newOffset = lseek(fileDescriptor, offset, SEEK_HOLE)
 
         guard newOffset != -1 else {
@@ -120,7 +120,7 @@ extension Open: Seekable where PathType: FilePath {
     - Throws: `SeekError.noData` when there is no more data from the `offset` to the end of the file
     */
     @discardableResult
-    public func seek(toNextDataAfter offset: OSInt) throws -> OSInt {
+    public func seek(toNextDataAfter offset: OSOffsetInt) throws -> OSOffsetInt {
         let newOffset = lseek(fileDescriptor, offset, SEEK_DATA)
 
         guard newOffset != -1 else {
