@@ -50,7 +50,7 @@ public extension StatDelegate {
         return info.size
     }
     /// blocksize for filesystem I/O
-    public var blockSize: Int32 {
+    public var blockSize: blksize_t {
         return info.blockSize
     }
     /// number of 512B blocks allocated

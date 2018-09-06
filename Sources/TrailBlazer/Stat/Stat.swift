@@ -73,7 +73,7 @@ extension Stat {
     public var size: OSOffsetInt {
         return _buffer.pointee.st_size
     }
-    public var blockSize: Int32 {
+    public var blockSize: blksize_t {
         return _buffer.pointee.st_blksize
     }
     public var blocks: OSOffsetInt {
