@@ -10,9 +10,9 @@ extension Path {
     public var relative: Self {
         var str = _path
         if let home = home?.string, str.hasPrefix(home) {
-            str.replaceSubrange(..<str.startIndex.advanced(by: home.count), with: "~")
+            str.replaceSubrange(..<str.index(str.startIndex, offsetBy: home.count), with: "~")
         } else if str.hasPrefix(Self.cwd.string) {
-            str.replaceSubrange(..<str.startIndex.advanced(by: Self.cwd.string.count), with: ".")
+            str.replaceSubrange(..<str.index(str.startIndex, offsetBy: Self.cwd.string.count), with: ".")
         }
 
         return Self(str)!

@@ -17,6 +17,13 @@ public final class StatInfo: StatDescriptor, StatPath {
     /// Whether or not we own the file and can safely free the pointer at deinitialization
     let owned: Bool
 
+    var exists: Bool {
+        if let path = _path {
+            return pathExists(path)
+        }
+        return fileDescriptor != nil
+    }
+
     /// Empty initializer
     init() {
         _path = nil

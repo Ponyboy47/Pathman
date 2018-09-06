@@ -20,6 +20,7 @@ public enum OpenFileError: TrailBlazerError {
     case badAddress
     case fileTooLarge
     case interruptedBySignal
+    case invalidPermissions
     case invalidFlags
     // case improperUseOfDirectory
     case shouldNotFollowSymlinks
@@ -723,4 +724,9 @@ public enum MakeTemporaryError: TrailBlazerError {
 
 public enum CodingError: Error {
     case incorrectPathType(String)
+}
+
+public enum CopyError: Error {
+    case uncopyablePath(GenericPath)
+    case nonEmptyDirectory
 }

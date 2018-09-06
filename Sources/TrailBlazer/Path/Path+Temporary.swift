@@ -58,12 +58,11 @@ extension FilePath: TemporaryGeneratable {
         let temporaryPath = TemporaryType("\(path)") !! "Somehow, a random, uniquely generated path overwrote the \(TemporaryType.self) path that existed at \(path)"
         temporaryPath.fileDescriptor = fileDescriptor
 
-        // mkstemp(3) opens the file with readWrite permissions and the
+        // mkstemp(3) opens the file with readWrite permissions, the
         // .create/.exclusive flags (to ensure this process is the only
-        // owner/creator of the uniquely generated tmp file)
-        temporaryPath.options = OpenFilePermissions.readWrite.rawValue | OpenFileFlags([.create, .exclusive]).rawValue
-        // The file is give the following FileMode according to mkstemp(3)
-        temporaryPath.mode = 0o0600
+        // owner/creator of the uniquely generated tmp file), and a mode of
+        // 0o0600
+        temporaryPath.openOptions = (permissions: OpenFilePermissions.readWrite, flags: [.create, .exclusive], mode: 0o0600)
 
         return Open(temporaryPath)
     }

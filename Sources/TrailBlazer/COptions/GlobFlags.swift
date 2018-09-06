@@ -48,10 +48,6 @@ public struct GlobFlags: OptionSet, ExpressibleByIntegerLiteral {
       providing a mechanism to turn off the special meaning metacharacters.
     */
     public static let noEscape: GlobFlags = GlobFlags(rawValue: GLOB_NOESCAPE)
-    /** Allow a leading period to be matched by metacharacters. By default,
-      metacharacters can't match a leading period.
-    */
-    public static let period: GlobFlags = GlobFlags(rawValue: GLOB_PERIOD)
     /** Use alternative functions Glob().closedir, Glob().readdir,
       Glob().opendir, Glob().lstat, and Glob().stat for filesystem access
       instead of the normal library functions.
@@ -76,6 +72,12 @@ public struct GlobFlags: OptionSet, ExpressibleByIntegerLiteral {
       directory cannot be determined, then no substitution is performed.
     */
     public static let tilde: GlobFlags = GlobFlags(rawValue: GLOB_TILDE)
+
+    #if os(Linux)
+    /** Allow a leading period to be matched by metacharacters. By default,
+      metacharacters can't match a leading period.
+    */
+    public static let period: GlobFlags = GlobFlags(rawValue: GLOB_PERIOD)
     /** This provides behavior similar to that of tilde. The difference is
       that if the username is invalid, or the home directory cannot be
       determined, then instead of using the pattern itself as the name, glob()
@@ -90,6 +92,8 @@ public struct GlobFlags: OptionSet, ExpressibleByIntegerLiteral {
       performance when the caller is interested only in directories.)
     */
     public static let onlyDirectories: GlobFlags = GlobFlags(rawValue: GLOB_ONLYDIR)
+    #else
+    #endif
 
     public init(rawValue: IntegerLiteralType) {
         self.rawValue = rawValue
@@ -126,9 +130,6 @@ extension GlobFlags: CustomStringConvertible {
         if contains(.noEscape) {
             flags.append("noEscape")
         }
-        if contains(.period) {
-            flags.append("period")
-        }
         if contains(.alternativeDirectoryFunctions) {
             flags.append("alternativeDirectoryFunctions")
         }
@@ -141,12 +142,19 @@ extension GlobFlags: CustomStringConvertible {
         if contains(.tilde) {
             flags.append("tilde")
         }
+
+        #if os(Linux)
+        if contains(.period) {
+            flags.append("period")
+        }
         if contains(.tildeCheck) {
             flags.append("tildeCheck")
         }
         if contains(.onlyDirectories) {
             flags.append("onlyDirectories")
         }
+        #else
+        #endif
 
         if flags.isEmpty {
             flags.append("none")

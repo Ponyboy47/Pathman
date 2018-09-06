@@ -6,10 +6,10 @@ class LinkTests: XCTestCase {
     func testRelativeSoftLink() {
         do {
             let link = try FilePath.temporary(prefix: "com.trailblazer.tests.softlink.")
-            DirectoryPath.cwd = link._path.parent
-            let _linked = FilePath("\(link._path.lastComponent!).link")!
-            let target = FilePath("\(link._path.lastComponent!)")!
-            let symlink = try target.link(at: "\(link._path.lastComponent!).link")
+            DirectoryPath.cwd = link.path.parent
+            let _linked = FilePath("\(link.path.lastComponent!).link")!
+            let target = FilePath("\(link.path.lastComponent!)")!
+            let symlink = try target.link(at: "\(link.path.lastComponent!).link")
             XCTAssertTrue(symlink.isLink)
             XCTAssertTrue(symlink.exists)
             XCTAssertEqual(symlink.linkType!, .soft)
@@ -27,7 +27,7 @@ class LinkTests: XCTestCase {
         do {
             let file = try FilePath.temporary(prefix: "com.trailblazer.tests.softlink.")
 
-            let symlink = try file._path.link(at: FilePath("\(file._path.string).link")!)
+            let symlink = try file.path.link(at: FilePath("\(file.path.string).link")!)
             XCTAssertTrue(symlink.isLink)
             XCTAssertTrue(symlink.exists)
             XCTAssertEqual(symlink.linkType!, .symbolic)
@@ -44,9 +44,9 @@ class LinkTests: XCTestCase {
     func testRelativeHardLink() {
         do {
             let link = try FilePath.temporary(prefix: "com.trailblazer.tests.hardlink.")
-            DirectoryPath.cwd = link._path.parent
-            let _linked = FilePath("\(link._path.lastComponent!).link")!
-            let target = FilePath("\(link._path.lastComponent!)")!
+            DirectoryPath.cwd = link.path.parent
+            let _linked = FilePath("\(link.path.lastComponent!).link")!
+            let target = FilePath("\(link.path.lastComponent!)")!
             let symlink = try target.link(at: _linked, type: .hard)
             XCTAssertTrue(symlink.isLink)
             XCTAssertTrue(symlink.exists)
@@ -65,7 +65,7 @@ class LinkTests: XCTestCase {
         do {
             let file = try FilePath.temporary(prefix: "com.trailblazer.tests.hardlink.")
 
-            let symlink = try file._path.link(at: FilePath("\(file._path.string).link")!, type: .hard)
+            let symlink = try file.path.link(at: FilePath("\(file.path.string).link")!, type: .hard)
             XCTAssertTrue(symlink.isLink)
             XCTAssertTrue(symlink.exists)
             XCTAssertEqual(symlink.linkType!, .hard)

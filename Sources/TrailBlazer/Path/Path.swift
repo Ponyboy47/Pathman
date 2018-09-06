@@ -161,11 +161,6 @@ public extension Path {
         return exists && StatInfo(self, options: .getLinkInfo).type == .link
     }
 
-    /// Whether or not the path exists (or is accessible)
-    public var exists: Bool {
-        return pathExists(_path)
-    }
-
     /// The URL representation of the path
     public var url: URL { return URL(fileURLWithPath: _path, isDirectory: isDirectory) }
 
@@ -268,15 +263,8 @@ public extension Path {
     - Throws: `MoveError.newPathIsNonEmptyDirectory` when newPath is a non-empty directory
     - Throws: `MoveError.readOnlyFileSystem` when the file system is in read-only mode
     - Throws: `MoveError.pathsOnDifferentFileSystems` when the current path and newPath are on separate file systems
-    - Throws: `MoveError.moveToDifferentPathType` when the current path and the newPath are not the same PathType
     */
-    public mutating func move<PathType: Path>(to newPath: PathType) throws {
-        if !(newPath is GenericPath) {
-            guard self is PathType else {
-                throw MoveError.moveToDifferentPathType
-            }
-        }
-
+    public mutating func move(to newPath: Self) throws {
         guard cRename(string, newPath.string) == 0 else {
             throw MoveError.getError()
         }
@@ -289,7 +277,7 @@ public extension Path {
 
     - Throws: `CodingError.incorrectPathType` when a path exists that does not match the encoded type
     */
-	public init(from decoder: Decoder) throws {
+    public init(from decoder: Decoder) throws {
           var container = try decoder.unkeyedContainer()
           let pathString = try container.decode(String.self)
           guard let path = Self(pathString) else {

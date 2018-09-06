@@ -13,6 +13,8 @@ private var openDirectories: [DirectoryPath: OpenDirectory] = [:]
 
 /// A Path to a directory
 public class DirectoryPath: Path, Openable, Sequence, IteratorProtocol, Linkable {
+    public typealias OpenableType = DirectoryPath
+
     public var _path: String
     public var fileDescriptor: FileDescriptor {
         // Opened directories result in a DIR struct, rather than a straight
@@ -31,11 +33,6 @@ public class DirectoryPath: Path, Openable, Sequence, IteratorProtocol, Linkable
     /// Directories need to be rewound after being traversed. This tracks
     /// whether or not we need to rewind a directory
     private var finishedTraversal: Bool = false
-
-    /// The options used to open a directory (Ignored)
-    public internal(set) var options: OptionInt = 0
-    /// The mode used to open a directory (Ignored)
-    public internal(set) var mode: FileMode? = nil
 
     /// The currently opened directory (if it has been opened previously)
     /// Warning: The setter may be removed in a later release
@@ -112,12 +109,14 @@ public class DirectoryPath: Path, Openable, Sequence, IteratorProtocol, Linkable
         _info = path.info
     }
 
+    @available(*, renamed: "open", message: "Opening a directory does not permit options or a mode")
+    public func open(options: OptionInt, mode: FileMode?) throws -> Open<DirectoryPath> {
+        fatalError("Opening a directory does not permit options or a mode")
+    }
+
     /**
     Opens the directory
 
-    - Parameters:
-        - options: Unused
-        - mode: Unused
     - Returns: The opened directory
 
     - Throws: `OpenDirectoryError.permissionDenied` when the calling process does not have access to the path
@@ -128,7 +127,7 @@ public class DirectoryPath: Path, Openable, Sequence, IteratorProtocol, Linkable
     - Throws: `OpenDirectoryError.pathNotDirectory` when the path you're trying to open exists and is not a directory. This should only occur if your DirectoryPath object was created before the path existed and then the path was created as a non-directory path type
     */
     @discardableResult
-    public func open(options: OptionInt = 0, mode: FileMode? = nil) throws -> OpenDirectory {
+    public func open() throws -> Open<DirectoryPath> {
         // If the directory is already open, return it. Unlike FilePaths, the
         // options/mode are irrelevant for opening directories
         if let openDir = opened {
@@ -339,8 +338,7 @@ public class DirectoryPath: Path, Openable, Sequence, IteratorProtocol, Linkable
         // If we've iterated through and we're starting again, rewind the directory stream and reset finishedTraversal
         if finishedTraversal {
             // Points the directory stream back to the first path in the directory
-            rewinddir(dir)
-            finishedTraversal = false
+            rewind()
         }
 
         // Read the next entry in the directory. This C API call should never
@@ -353,6 +351,12 @@ public class DirectoryPath: Path, Openable, Sequence, IteratorProtocol, Linkable
 
         // Pulls the directory path from the C dirent struct
         return genPath(entry)
+    }
+
+    public func rewind() {
+        guard let dir = self.dir else { return }
+        rewinddir(dir)
+        finishedTraversal = false
     }
 
     /**

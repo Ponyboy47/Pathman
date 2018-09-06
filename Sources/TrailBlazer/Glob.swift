@@ -116,7 +116,7 @@ public class Glob {
     /// The number of matches that should be found in the matches collection
     public var trueCount: Int { return Int(count - offset) }
     /// The number of matches + the offset
-    public var count: UInt { return _glob.pointee.gl_pathc }
+    public var count: Int { return Int(_glob.pointee.gl_pathc) }
     /** The paths that matched the globbing pattern
 
         NOTE: Since this is a computed variable, it would be more efficient to
@@ -165,7 +165,7 @@ public class Glob {
         underlying glob_t struct. Reserved items are ignored/skipped in the
         matches variable of this Glob object.
     */
-    public var offset: UInt { return _glob.pointee.gl_offs }
+    public var offset: Int { return Int(_glob.pointee.gl_offs) }
     /// The C function to use to close directories (default is closedir(2))
     public var closedir: (@convention(c) (UnsafeMutableRawPointer?) -> ()) {
         get { return _glob.pointee.gl_closedir }
@@ -173,8 +173,14 @@ public class Glob {
             _glob.pointee.gl_closedir = newValue
         }
     }
+
+    #if os(Linux)
+    public typealias GlobReadDirectoryReturnType = UnsafeMutableRawPointer
+    #else
+    public typealias GlobReadDirectoryReturnType = UnsafeMutablePointer<dirent>
+    #endif
     /// The C function used to read directories (default is readdir(2))
-    public var readdir: (@convention(c) (UnsafeMutableRawPointer?) -> UnsafeMutableRawPointer?) {
+    public var readdir: (@convention(c) (UnsafeMutableRawPointer?) -> GlobReadDirectoryReturnType?) {
         get { return _glob.pointee.gl_readdir }
         set {
             _glob.pointee.gl_readdir = newValue
@@ -187,15 +193,21 @@ public class Glob {
             _glob.pointee.gl_opendir = newValue
         }
     }
+
+    #if os(Linux)
+    public typealias GlobStatType = UnsafeMutableRawPointer
+    #else
+    public typealias GlobStatType = UnsafeMutablePointer<stat>
+    #endif
     /// The C function used to lstat directories (default is lstat(2))
-    public var lstat: (@convention(c) (UnsafePointer<CChar>?, UnsafeMutableRawPointer?) -> FileDescriptor) {
+    public var lstat: (@convention(c) (UnsafePointer<CChar>?, GlobStatType?) -> FileDescriptor) {
         get { return _glob.pointee.gl_lstat }
         set {
             _glob.pointee.gl_lstat = newValue
         }
     }
     /// The C function used to stat directories (default is stat(2))
-    public var stat: (@convention(c) (UnsafePointer<CChar>?, UnsafeMutableRawPointer?) -> FileDescriptor) {
+    public var stat: (@convention(c) (UnsafePointer<CChar>?, GlobStatType?) -> FileDescriptor) {
         get { return _glob.pointee.gl_stat }
         set {
             _glob.pointee.gl_stat = newValue

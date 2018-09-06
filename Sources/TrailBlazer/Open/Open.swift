@@ -8,36 +8,54 @@ import Darwin
 
 /// Protocol declaration for types that can be opened
 public protocol Openable: StatDelegate {
-    associatedtype OpenableType: Path & Openable = Self
+    associatedtype OpenableType: Path & Openable
+    associatedtype OpenOptionsType = Void
 
     /// The underlying file descriptor of the opened path
     var fileDescriptor: FileDescriptor { get }
-    /// The raw value of the options used to open the path
-    var options: OptionInt { get }
-    /// The mode used when creating the file (if the `.create` option was used)
-    var mode: FileMode? { get }
+
+    /**
+    Whether or not the path was opened with read permissions
+
+    NOTE: Just because the path was opened with read permissions does not
+    necessarily mean the calling process has access to read the path
+    */
+    var mayRead: Bool { get }
+    /**
+    Whether or not the path was opened with write permissions
+
+    NOTE: Just because the path was opened with write permissions does not
+    necessarily mean the calling process has access to write the path
+    */
+    var mayWrite: Bool { get }
+
+    var openOptions: OpenOptionsType? { get }
 
     /// Opens the path, sets the `fileDescriptor`, and returns the newly opened path
-    func open(options: OptionInt, mode: FileMode?) throws -> Open<OpenableType>
+    func open() throws -> Open<OpenableType>
     /// Closes the opened `fileDescriptor`
     func close() throws
+}
+
+extension Openable {
+    public var mayRead: Bool { return true }
+    public var mayWrite: Bool { return true }
+    public var openOptions: OpenOptionsType? { return nil }
 }
 
 /// Contains the buffer used for reading from a path
 private var _buffers: [Int: UnsafeMutablePointer<CChar>] = [:]
 /// Tracks the sizes of the read buffers
-private var _bufferSizes: [Int: OSInt] = [:]
+private var _bufferSizes: [Int: Int] = [:]
 
-open class Open<PathType: Path & Openable>: Openable, Ownable, Permissionable {
+open class Open<PathType: Path & Openable>: Openable, Ownable, Permissionable, StatDelegate {
     public typealias OpenableType = PathType.OpenableType
+    public typealias OpenOptionsType = PathType.OpenOptionsType
 
     /// The path of which this object is the open representation
-    public let _path: PathType
-    public var fileDescriptor: FileDescriptor { return _path.fileDescriptor }
-    public var options: OptionInt { return _path.options }
-    public var mode: FileMode? { return _path.mode }
-    /// The offset position of the path
-    public var offset: OSInt = 0
+    public let path: PathType
+    public var fileDescriptor: FileDescriptor { return path.fileDescriptor }
+    public var openOptions: OpenOptionsType? { return path.openOptions }
 
     var _info: StatInfo = StatInfo()
     public var info: StatInfo {
@@ -45,40 +63,46 @@ open class Open<PathType: Path & Openable>: Openable, Ownable, Permissionable {
         return _info
     }
 
-    public var url: URL { return _path.url }
+    public var url: URL { return path.url }
 
     /// The buffer used to store data read from a path
     var buffer: UnsafeMutablePointer<CChar>? {
         get {
-            return _buffers[_path.hashValue]
+            return _buffers[path.hashValue]
         }
         set {
-            _buffers[_path.hashValue] = newValue
+            guard let newBuffer = newValue else {
+                _buffers.removeValue(forKey: path.hashValue)
+                return
+            }
+            _buffers[path.hashValue] = newBuffer
         }
     }
     /// The size of the buffer used to store read data
-    var bufferSize: OSInt? {
+    var bufferSize: Int? {
         get {
-            return _bufferSizes[_path.hashValue]
+            return _bufferSizes[path.hashValue]
         }
         set {
-            _bufferSizes[_path.hashValue] = newValue
+            guard let newSize = newValue else {
+                _bufferSizes.removeValue(forKey: path.hashValue)
+                return
+            }
+            _bufferSizes[path.hashValue] = newSize
         }
     }
 
     init(_ path: PathType) {
-        _path = path
+        self.path = path
         _info.fileDescriptor = self.fileDescriptor
         _info._path = path._path
     }
 
     @available(*, renamed: "PathType.open", message: "You should use the path's open function rather than calling this directly.")
-    public func open(options: OptionInt, mode: FileMode? = nil) throws -> Open<OpenableType> {
-        return try _path.open(options: options, mode: mode)
-    }
+    public func open() throws -> Open<OpenableType> { return try path.open() }
 
     public func close() throws {
-        try _path.close()
+        try path.close()
     }
 
     /**
@@ -126,20 +150,35 @@ open class Open<PathType: Path & Openable>: Openable, Ownable, Permissionable {
         }
     }
 
-	deinit {
+    deinit {
+        if let bSize = bufferSize {
+            buffer?.deinitialize(count: Int(bSize))
+        }
         buffer?.deallocate()
-		try? close()
-	}
+
+        buffer = nil
+        bufferSize = nil
+
+        try? close()
+    }
 }
 
 extension Open: Equatable where PathType: Equatable {
     public static func == <OtherPathType: Path & Openable>(lhs: Open<PathType>, rhs: Open<OtherPathType>) -> Bool {
-        return lhs._path == rhs._path && lhs.fileDescriptor == rhs.fileDescriptor && lhs.options == rhs.options && lhs.mode == rhs.mode
+        return lhs.path == rhs.path && lhs.fileDescriptor == rhs.fileDescriptor
     }
 }
 
 extension Open: CustomStringConvertible {
     public var description: String {
-        return "\(Swift.type(of: self))(path: \(_path), flags: \(OpenFileFlags(rawValue: options & OpenFileFlags.all.rawValue)), permissions: \(OpenFilePermissions(rawValue: options & OpenFilePermissions.all.rawValue)), mode: \(String(describing: mode)), offset: \(offset))"
+        var data: [(key: String, value: String)] = []
+
+        data.append((key: "path", value: "\(path)"))
+        data.append((key: "options", value: String(describing: openOptions)))
+        if let seekable = self as? Seekable {
+            data.append((key: "offset", "\(seekable.offset)"))
+        }
+
+        return "\(Swift.type(of: self))(\(data.map({ return "\($0.key): \($0.value)" }).joined(separator: ", ")))"
     }
 }

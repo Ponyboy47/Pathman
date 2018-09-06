@@ -19,7 +19,7 @@ extension Open: Sequence, IteratorProtocol where PathType: DirectoryPath {
     public func children(includeHidden: Bool = false) -> PathCollection {
         // Since the directory is already opened, getting the immediate
         // children is always safe
-        return try! _path.children(includeHidden: includeHidden)
+        return try! path.children(includeHidden: includeHidden)
     }
 
     /**
@@ -39,7 +39,7 @@ extension Open: Sequence, IteratorProtocol where PathType: DirectoryPath {
     - Throws: `OpenDirectoryError.pathNotDirectory` when the path you're trying to open exists and is not a directory. This should only occur if your DirectoryPath object was created before the path existed and then the path was created as a non-directory path type
     */
     public func recursiveChildren(depth: Int = -1, includeHidden: Bool = false) throws -> PathCollection {
-        return try _path.recursiveChildren(depth: depth, includeHidden: includeHidden)
+        return try path.recursiveChildren(depth: depth, includeHidden: includeHidden)
     }
 
     /**
@@ -48,7 +48,11 @@ extension Open: Sequence, IteratorProtocol where PathType: DirectoryPath {
     - Returns: The next path in the directory or nil if all paths have been returned
     */
     public func next() -> GenericPath? {
-        return _path.next()
+        return path.next()
+    }
+
+    public func rewind() {
+        path.rewind()
     }
 }
 

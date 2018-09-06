@@ -40,14 +40,19 @@ public var umask: UMask {
 /**
 Sets the process's umask and then returns it
 
-- Parameter mode: The permissions that should be set in the mask
+- Parameter mode: The permissions that should be allowed in the mask
 - Returns: The new umask
 */
 @discardableResult
 public func setUMask(for mode: FileMode) -> UMask {
-    lastUMask = FileMode(rawValue: cUmask(mode.rawValue))
-    _umask = mode
+    // We only need to change the umask if it affects the mode we're going to use
+    guard !mode.checkAgainstUMask() else { return _umask }
+
+    // Invert the mode and use that as the umask
+    lastUMask = FileMode(rawValue: cUmask(~mode.rawValue))
+    _umask = ~mode
     _umask.bits = .none
+
     return _umask
 }
 

@@ -190,19 +190,29 @@ public struct FileMode: OptionSet, ExpressibleByIntegerLiteral, ExpressibleByStr
     }
 
     /**
+    Returns whether or not the FileMode would be wholly allowed by the UMask
+    */
+    public func checkAgainstUMask() -> Bool {
+        return self == unmask()
+    }
+
+    /**
         Checks the FileMode against the umask for the path (see umask(2))
 
         - Returns: The FileMode after disabling bits from the umask
     */
-    public func checkAgainstUMask() -> FileMode {
+    public func unmask() -> FileMode {
         return FileMode(rawValue: (~TrailBlazer.umask.rawValue) & rawValue)
     }
 
-    /**
-        Mutates self to be the FileMode after disabling bits from the umask
-    */
+    /// Mutates self to be the FileMode after disabling bits from the umask
     public mutating func unmasked() {
         rawValue &= ~TrailBlazer.umask.rawValue
+    }
+
+    /// Returns the inverse FileMode with all bits flipped
+    public static prefix func ~ (lhs: FileMode) -> FileMode {
+        return FileMode(rawValue: ~lhs.rawValue)
     }
 }
 

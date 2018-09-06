@@ -154,6 +154,8 @@ public struct OpenFileFlags: OptionSet, ExpressibleByIntegerLiteral {
     public static let all: OpenFileFlags = [.append, .closeOnExec, .create, .directory, .exclusive, .noCTTY, .noFollow, .nonBlock, .truncate, .sharedLock, .exclusiveLock, .symlink, .evtOnly]
     #endif
 
+    public static let none: OpenFileFlags = []
+
     public init(rawValue: OptionInt) {
         self.rawValue = rawValue
     }

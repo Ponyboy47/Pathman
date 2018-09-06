@@ -41,14 +41,14 @@ open class PathCollection: Equatable, CustomStringConvertible {
     }
 
     /// Combines the items from one PathCollection into this PathCollection
-    open static func += (lhs: inout PathCollection, rhs: PathCollection) {
+    public static func += (lhs: inout PathCollection, rhs: PathCollection) {
         lhs.files += rhs.files
         lhs.directories += rhs.directories
         lhs.other += rhs.other
     }
 
     /// Whether or not two PathCollections are equivalent
-    open static func == (lhs: PathCollection, rhs: PathCollection) -> Bool {
+    public static func == (lhs: PathCollection, rhs: PathCollection) -> Bool {
         return lhs.files == rhs.files && lhs.directories == rhs.directories && lhs.other == rhs.other
     }
 }

@@ -5,7 +5,7 @@ import Darwin
 #endif
 
 /// Paths that can be deleted
-public protocol Deletable: Creatable {
+public protocol Deletable {
     /// Deletes a path
     func delete() throws
 }
@@ -70,12 +70,12 @@ extension DirectoryPath: Deletable {
 extension Open: Deletable where PathType: Deletable {
     /// Closes and deletes the opened path
     public func delete() throws {
-        try _path.delete()
+        try path.delete()
     }
 }
 
-extension Open where PathType: DirectoryPath {
+public extension Open where PathType: DirectoryPath {
     public func recursiveDelete() throws {
-        try _path.recursiveDelete()
+        try path.recursiveDelete()
     }
 }

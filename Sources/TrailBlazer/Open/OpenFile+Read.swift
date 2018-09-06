@@ -14,9 +14,9 @@ private let cReadFile = Darwin.read
 /// Protocol declaration of types that can be read from
 public protocol Readable: Openable, Seekable {
     /// Seeks to the specified offset and returns the specified number of bytes
-    func read(from offset: Offset, bytes byteCount: OSInt?) throws -> Data
+    func read(from offset: Offset, bytes byteCount: Int?) throws -> Data
     /// Seeks to the specified offset and returns the specified number of bytes in a string
-    func read(from offset: Offset, bytes byteCount: OSInt?, encoding: String.Encoding) throws -> String?
+    func read(from offset: Offset, bytes byteCount: Int?, encoding: String.Encoding) throws -> String?
 }
 
 public extension Readable {
@@ -62,7 +62,7 @@ public extension Readable {
     - Throws: `CloseFileError.interruptedBySignal` when the call was interrupted by a signal handler
     - Throws: `CloseFileError.ioError` when an I/O error occurred
     */
-    public func read(from offset: Offset = Offset(type: .current, bytes: 0), bytes byteCount: OSInt? = nil, encoding: String.Encoding = .utf8) throws -> String? {
+    public func read(from offset: Offset = .current, bytes byteCount: Int? = nil, encoding: String.Encoding = .utf8) throws -> String? {
         let data = try read(from: offset, bytes: byteCount)
         return String(data: data, encoding: encoding)
     }
@@ -83,26 +83,31 @@ extension Open: Readable where PathType: FilePath {
     - Throws: `ReadError.cannotReadFileDescriptor` when the underlying file descriptor is attached to a path which is unsuitable for reading or the file was opened with the `.direct` flag and either the buffer addres, the byteCount, or the offset are not suitably aligned
     - Throws: `ReadError.ioError` when an I/O error occured during the API call
     */
-    public func read(from offset: Offset = Offset(type: .current, bytes: 0), bytes byteCount: OSInt? = nil) throws -> Data {
+    public func read(from offset: Offset = .current, bytes byteCount: Int? = nil) throws -> Data {
+        if !mayRead {
+            try path.open(permissions: .read)
+        }
+
         try seek(offset)
 
         // Either read the specified number of bytes, or read the entire file
-        let bytesToRead = byteCount ?? size
+        let bytesToRead = byteCount ?? (size > OSOffsetInt(Int.max) ? Int.max : Int(size))
 
-        // If we haven't allocated the buffer previously or if it's not the
-        // correct size allocate a buffer with the correct amount of space
-        if (bufferSize ?? -1) != bytesToRead {
+        // If we haven't allocated a buffer before, then allocate one now
+        if buffer == nil {
+            buffer = UnsafeMutablePointer<CChar>.allocate(capacity: bytesToRead)
+            bufferSize = bytesToRead
+        // If the buffer size is less than bytes we're going to read then reallocate the buffer
+        } else if let bSize = bufferSize, bSize < bytesToRead {
+            buffer?.deinitialize(count: bSize)
             buffer?.deallocate()
-            buffer = UnsafeMutablePointer<CChar>.allocate(capacity: Int(bytesToRead))
+            buffer = UnsafeMutablePointer<CChar>.allocate(capacity: bytesToRead)
             bufferSize = bytesToRead
         }
 
         // Reading the file returns the number of bytes read (or -1 if there was an error)
-        let bytesRead = cReadFile(fileDescriptor, buffer!, Int(bytesToRead))
+        let bytesRead = cReadFile(fileDescriptor, buffer!, bytesToRead)
         guard bytesRead != -1 else { throw ReadError.getError() }
-
-        // Update the offset
-        self.offset += OSInt(bytesRead)
 
         // Return the Data read from the file
         return Data(bytes: buffer!, count: bytesRead)
@@ -151,9 +156,9 @@ public extension FilePath {
     - Throws: `CloseFileError.interruptedBySignal` when the call was interrupted by a signal handler
     - Throws: `CloseFileError.ioError` when an I/O error occurred
     */
-    public func read(from offset: Offset = Offset(type: .current, bytes: 0), bytes byteCount: OSInt? = nil) throws -> Data {
+    public func read(from offset: Offset = .current, bytes byteCount: Int? = nil) throws -> Data {
         // If the file is already opened with read permissions, then use the same opened file to read right now
-        if let opened = self.opened, !OpenFilePermissions(rawValue: opened.options).contains(.read) {
+        if let opened = self.opened, opened.mayRead {
             return try opened.read(from: offset, bytes: byteCount)
         }
 
@@ -205,9 +210,9 @@ public extension FilePath {
     - Throws: `CloseFileError.interruptedBySignal` when the call was interrupted by a signal handler
     - Throws: `CloseFileError.ioError` when an I/O error occurred
     */
-    public func read(from offset: Offset = Offset(type: .current, bytes: 0), bytes byteCount: OSInt? = nil, encoding: String.Encoding = .utf8) throws -> String? {
+    public func read(from offset: Offset = .current, bytes byteCount: Int? = nil, encoding: String.Encoding = .utf8) throws -> String? {
         // If the file is already opened with read permissions, then use the same opened file to read right now
-        if let opened = self.opened, !OpenFilePermissions(rawValue: opened.options).contains(.read) {
+        if let opened = self.opened, opened.mayRead {
             return try opened.read(from: offset, bytes: byteCount, encoding: encoding)
         }
 
