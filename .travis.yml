@@ -1,7 +1,7 @@
 os:
   - linux
-  - osx
-osx_image: xcode9.4
+#  - osx
+# osx_image: xcode9.4
 dist: trusty
 sudo: required
 language: generic
