@@ -28,7 +28,7 @@ I am not a big fan of Foundation's `FileManager`. Foundation in general has inco
 - Ubuntu (verified on 16.04 and 18.04)
 - macOS (verified on 10.13)
 
-### Installation (SPM):
+### Swift Package Manager:
 Add this to your Package.swift dependencies:
 ```swift
 .package(url: "https://github.com/Ponyboy47/Trailblazer.git", from: "0.10.0")
