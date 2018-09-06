@@ -71,7 +71,11 @@ open class Open<PathType: Path & Openable>: Openable, Ownable, Permissionable, S
             return _buffers[path.hashValue]
         }
         set {
-            _buffers[path.hashValue] = newValue
+            guard let newBuffer = newValue else {
+                _buffers.removeValue(forKey: path.hashValue)
+                return
+            }
+            _buffers[path.hashValue] = newBuffer
         }
     }
     /// The size of the buffer used to store read data
@@ -80,7 +84,11 @@ open class Open<PathType: Path & Openable>: Openable, Ownable, Permissionable, S
             return _bufferSizes[path.hashValue]
         }
         set {
-            _bufferSizes[path.hashValue] = newValue
+            guard let newSize = newValue else {
+                _bufferSizes.removeValue(forKey: path.hashValue)
+                return
+            }
+            _bufferSizes[path.hashValue] = newSize
         }
     }
 
@@ -143,7 +151,14 @@ open class Open<PathType: Path & Openable>: Openable, Ownable, Permissionable, S
     }
 
     deinit {
+        if let bSize = bufferSize {
+            buffer?.deinitialize(count: bSize)
+        }
         buffer?.deallocate()
+
+        buffer = nil
+        bufferSize = nil
+
         try? close()
     }
 }

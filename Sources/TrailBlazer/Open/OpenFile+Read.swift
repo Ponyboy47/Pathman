@@ -93,9 +93,13 @@ extension Open: Readable where PathType: FilePath {
         // Either read the specified number of bytes, or read the entire file
         let bytesToRead = byteCount ?? size
 
-        // If we haven't allocated the buffer previously or if it's not the
-        // correct size allocate a buffer with the correct amount of space
-        if (bufferSize ?? -1) != bytesToRead {
+        // If we haven't allocated a buffer before, then allocate one now
+        if buffer == nil {
+            buffer = UnsafeMutablePointer<CChar>.allocate(capacity: Int(bytesToRead)) 
+            bufferSize = bytesToRead
+        // If the buffer size is less than bytes we're going to read then reallocate the buffer
+        } else if let bSize = bufferSize, bSize < bytesToRead {
+            buffer?.deinitialize(count: bSize)
             buffer?.deallocate()
             buffer = UnsafeMutablePointer<CChar>.allocate(capacity: Int(bytesToRead))
             bufferSize = bytesToRead

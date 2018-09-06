@@ -86,13 +86,14 @@ class CopyTests: XCTestCase {
 
 
         try? tmpDirectory.recursiveDelete()
+        try? newPath.recursiveDelete()
     }
 
     func testCopyDirectoryRecursive() {
     }
 
     static var allTests = [
-        // ("testCopyFile", testCopyFile),
+        ("testCopyFile", testCopyFile),
         ("testCopyDirectoryEmpty", testCopyDirectoryEmpty),
         ("testCopyDirectoryNotEmpty", testCopyDirectoryNotEmpty),
     ]
