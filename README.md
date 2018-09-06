@@ -521,7 +521,6 @@ try dir.copy(to: copyPath, options: [.recursive, .includeHidden])
 - [ ] Investiagte class behaviors and ensure proper COW (or other) copy semantics
   - Don't want to change a LinkedPath and end up changing some GenericPath of a FilePath in a PathCollection...
     - [ ] Slicing/Collection APIs
-      - DirectoryPath is the slice type
 - [ ] Migrate usage examples to a separate Wiki
   - [ ] Document performance pitfalls
 - [ ] Make a FileSystem utility for easily getting some file system attributes
@@ -530,6 +529,15 @@ try dir.copy(to: copyPath, options: [.recursive, .includeHidden])
   - [ ] Type
   - [ ] More?
 - [ ] Annotate code with preconditions and assertions
+- Investigate Domains
+  - https://developer.apple.com/documentation/foundation/filemanager/searchpathdomainmask
+    - [ ] User (~)
+    - [ ] System (/)
+    - [ ] Local (/usr/local)
+    - [ ] Network (??)
+    - [ ] All
+- Investigate Common Search Paths
+  - https://developer.apple.com/documentation/foundation/filemanager/searchpathdirectory
 - [ ] Awesome logo/icon
 - Crazy Stuff
   - [ ] `URLPath`
