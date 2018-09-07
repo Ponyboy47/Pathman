@@ -18,7 +18,7 @@ class CreateDeleteTests: XCTestCase {
         }
 
         do {
-            let open = try file.create(mode: .ownerGroupOthers(.readWrite))
+            let open = try file.create()
             XCTAssertTrue(file.exists)
             XCTAssertTrue(file.isFile)
             try open.write("Hello World")
@@ -42,7 +42,7 @@ class CreateDeleteTests: XCTestCase {
             return
         }
 
-        XCTAssertNoThrow(try dir.create(mode: .ownerGroupOthers(.readWrite)))
+        XCTAssertNoThrow(try dir.create())
         XCTAssertTrue(dir.exists)
         XCTAssertTrue(dir.isDirectory)
     }
@@ -62,7 +62,7 @@ class CreateDeleteTests: XCTestCase {
             return
         }
 
-        XCTAssertNoThrow(try dir.create(mode: .ownerGroupOthers(.readWriteExecute)))
+        XCTAssertNoThrow(try dir.create())
         XCTAssertTrue(dir.exists)
 
         for num in 1...10 {
@@ -72,7 +72,7 @@ class CreateDeleteTests: XCTestCase {
             }
 
             do {
-                try file.create(mode: .ownerGroupOthers(.readWrite))
+                try file.create()
                 XCTAssertTrue(file.exists)
                 XCTAssertTrue(file.isFile)
             } catch OpenFileError.pathExists {
@@ -98,6 +98,30 @@ class CreateDeleteTests: XCTestCase {
         XCTAssertNoThrow(try dir.recursiveDelete())
     }
 
+    func testCreateIntermediates() {
+        guard let dir = DirectoryPath(base + "testIntermediate1") else {
+            XCTFail("Path \(base.string)/testIntermediate1 exists and is not a directory")
+            return
+        }
+        XCTAssertFalse(dir.exists)
+
+        guard let file = FilePath(dir + "testIntermediate2" + "abcdefg.test") else {
+            XCTFail("Path \(base.string)/testIntermediate1/testIntermediate2/abcdefg.test exists and is not a file")
+            return
+        }
+
+        do {
+            let open = try file.create(options: .createIntermediates)
+            XCTAssertTrue(file.exists)
+            XCTAssertTrue(file.isFile)
+            try open.write("Hello World")
+        } catch {
+            XCTFail("Failed to create/write to file with error \(type(of: error))(\(error))")
+        }
+
+        try? dir.recursiveDelete()
+    }
+
     static var allTests = [
         ("testCreateFile", testCreateFile),
         ("testDeleteFile", testDeleteFile),
@@ -105,5 +129,6 @@ class CreateDeleteTests: XCTestCase {
         ("testDeleteDirectory", testDeleteDirectory),
         ("testDeleteNonEmptyDirectory", testDeleteNonEmptyDirectory),
         ("testDeleteDirectoryRecursive", testDeleteDirectoryRecursive),
+        ("testCreateIntermediates", testCreateIntermediates),
     ]
 }

@@ -189,7 +189,11 @@ public struct FileMode: OptionSet, ExpressibleByIntegerLiteral, ExpressibleByStr
         return FileMode(owner: perms.rawValue, group: perms.rawValue, others: perms.rawValue, bits: bits.rawValue)
     }
 
-    /// Returns whether or not the FileMode would be wholly allowed by the UMask
+    /**
+    Determine if the current FileMode will be reduced by the process's umask
+
+    - Returns: true if the FileMode is permitted by the umask
+    */
     public func checkAgainstUMask() -> Bool {
         return self == unmask()
     }
