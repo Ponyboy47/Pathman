@@ -84,4 +84,37 @@ open class GenericPath: Path, ExpressibleByStringLiteral, ExpressibleByArrayLite
         }
         _info = StatInfo(_path)
     }
+
+    public static func + (lhs: GenericPath, rhs: GenericPath) -> GenericPath {
+        var newPath = lhs.string
+        let right = rhs.string
+
+        if !newPath.hasSuffix(GenericPath.separator) {
+            newPath += GenericPath.separator
+        }
+
+        if right.hasPrefix(GenericPath.separator) {
+            newPath += right.dropFirst()
+        } else {
+            newPath += right
+        }
+
+        return GenericPath(newPath)
+    }
+
+    public static func + (lhs: GenericPath, rhs: String) -> GenericPath {
+        return lhs + GenericPath(rhs)
+    }
+
+    public static func + (lhs: String, rhs: GenericPath) -> GenericPath {
+        return GenericPath(lhs) + rhs
+    }
+
+    public static func += (lhs: inout GenericPath, rhs: GenericPath) {
+        lhs = lhs + rhs
+    }
+
+    public static func += (lhs: inout GenericPath, rhs: String) {
+        lhs = lhs + rhs
+    }
 }
