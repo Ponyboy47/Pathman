@@ -31,7 +31,7 @@ I am not a big fan of Foundation's `FileManager`. Foundation in general has inco
 ### Swift Package Manager:
 Add this to your Package.swift dependencies:
 ```swift
-.package(url: "https://github.com/Ponyboy47/Trailblazer.git", from: "0.10.0")
+.package(url: "https://github.com/Ponyboy47/Trailblazer.git", from: "0.11.0")
 ```
 
 ## Usage
@@ -151,7 +151,19 @@ guard let file = FilePath("/tmp/test") else {
     fatalError("Path is not a file")
 }
 
+// Creates a file with the write permissions and returns the opened file
 let openFile: OpenFile = try file.create(mode: FileMode(owner: .readWriteExecute, group: .readWrite, other: .none))
+```
+
+#### Creating Intermediate Directories:
+
+In the event you need to create the intermediate paths as well:
+```swift
+guard let file = FilePath("/tmp/test") else {
+    fatalError("Path is not a file")
+}
+
+let openFile: OpenFile = try file.create(options: .createIntermediates)
 ```
 
 ### Deleting Paths
@@ -267,8 +279,8 @@ let children = try dir.recursiveChildren(depth: 5)
 #### Hidden Files:
 ```swift
 // Both .children() and .recursiveChildren() support getting hidden files/directories (files that begin with a '.')
-let children = try dir.children(includeHidden: true)
-let children = try dir.recursiveChildren(depth: 5, includeHidden: true)
+let children = try dir.children(options: .includeHidden)
+let recursiveChildren = try dir.recursiveChildren(depth: 5, options: .includeHidden)
 ```
 
 ### Changing Path Metadata:
@@ -474,13 +486,13 @@ try dir.copy(to: copyPath, options: [.recursive, .includeHidden])
 ## To Do
 - FilePath
   - [x] Create new files
-    - [ ] Create intermediate directories
+    - [x] Create intermediate directories
     - [ ] With specified contents
 - DirectoryPath
   - [x] Get directory contents
   - [x] Get directory contents recursively
   - [x] Create new directories
-    - [ ] Create intermediate directories
+    - [x] Create intermediate directories
   - [x] Delete directories
   - [x] Recursively delete directory
 - GenericPath (AKA all Paths)

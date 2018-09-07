@@ -4,6 +4,22 @@ import Glibc
 import Darwin
 #endif
 
+public struct CreateOptions: RawRepresentable, OptionSet, ExpressibleByIntegerLiteral {
+    public typealias IntegerLiteralType = UInt8
+    public let rawValue: IntegerLiteralType
+
+    /// Automatically creating any missing intermediate directories of the path
+    public static let createIntermediates = CreateOptions(rawValue: 1 << 0)
+
+    public init(rawValue: IntegerLiteralType) {
+        self.rawValue = rawValue
+    }
+
+    public init(integerLiteral value: IntegerLiteralType) {
+        rawValue = value
+    }
+}
+
 /// A Protocol for Path types that can be created
 public protocol Creatable: Openable {
     /// The type of the Path. Must be Openable as well
@@ -17,7 +33,7 @@ public protocol Creatable: Openable {
     - Parameter forceMode: Whether or not to try and change the process's umask to guarentee that the FileMode is what you want (I've noticed that by default on Ubuntu, others' write access is disabled in the umask. Setting this to true should allow you to overcome this limitation)
     */
     @discardableResult
-    func create(mode: FileMode, forceMode forced: Bool) throws -> CreatableType
+    func create(mode: FileMode, options: CreateOptions) throws -> CreatableType
 }
 
 /// The FilePath Creatable conformance
@@ -50,9 +66,11 @@ extension FilePath: Creatable {
     - Throws: `CreateFileError.pathExists` when creating a path that already exists
     */
     @discardableResult
-    public func create(mode: FileMode, forceMode forced: Bool = false) throws -> Open<FilePath> {
+    public func create(mode: FileMode = FileMode.allPermissions.unmask(), options: CreateOptions = []) throws -> Open<FilePath> {
         guard !exists else { throw CreateFileError.pathExists }
 
+        // If the mode is not allowed by the umask, then we'll have to force it
+        let forced = !mode.checkAgainstUMask()
         if forced {
             setUMask(for: mode)
         }
@@ -60,6 +78,12 @@ extension FilePath: Creatable {
             if forced {
                 resetUMask()
             }
+        }
+
+        // Create and immediately close any intermediates that don't exist when
+        // the .createIntermediates options is used
+        if options.contains(.createIntermediates) && !parent.exists {
+            try parent.create(mode: mode, options: options).close()
         }
 
         return try open(permissions: .write, flags: [.create, .exclusive], mode: mode)
@@ -90,9 +114,11 @@ extension DirectoryPath: Creatable {
     - Throws: `CreateDirectoryError.pathIsRootDirectory` when the path points to the user's root directory
     */
     @discardableResult
-    public func create(mode: FileMode, forceMode forced: Bool = false) throws -> Open<DirectoryPath> {
+    public func create(mode: FileMode = FileMode.allPermissions.unmask(), options: CreateOptions = []) throws -> Open<DirectoryPath> {
         guard !exists else { throw CreateDirectoryError.pathExists }
 
+        // If the mode is not allowed by the umask, then we'll have to force it
+        let forced = !mode.checkAgainstUMask()
         if forced {
             setUMask(for: mode)
         }
@@ -100,6 +126,12 @@ extension DirectoryPath: Creatable {
             if forced {
                 resetUMask()
             }
+        }
+
+        // Create and immediately close any intermediates that don't exist when
+        // the .createIntermediates options is used
+        if options.contains(.createIntermediates) && !parent.exists {
+            try parent.create(mode: mode, options: options).close()
         }
 
         guard mkdir(string, mode.rawValue) != -1 else {

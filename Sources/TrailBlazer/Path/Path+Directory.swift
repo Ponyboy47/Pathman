@@ -11,8 +11,18 @@ typealias DIRType = UnsafeMutablePointer<DIR>
 /// A dictionary of all the open directories
 private var openDirectories: [DirectoryPath: OpenDirectory] = [:]
 
+public struct DirectoryEnumerationOptions: OptionSet {
+    public let rawValue: UInt8
+
+    public static let includeHidden = DirectoryEnumerationOptions(rawValue: 1 << 0)
+
+    public init(rawValue: UInt8) {
+        self.rawValue = rawValue
+    }
+}
+
 /// A Path to a directory
-public class DirectoryPath: Path, Openable, Sequence, IteratorProtocol, Linkable {
+public class DirectoryPath: Path, Openable, Linkable {
     public typealias OpenableType = DirectoryPath
 
     public var _path: String
@@ -21,15 +31,20 @@ public class DirectoryPath: Path, Openable, Sequence, IteratorProtocol, Linkable
         // file descriptor. The dirfd(3) C API call takes a DIR pointer and
         // returns its associated file descriptor
 
-        // Make sure we have opened the directory, otherwise return -1
-        guard let dir = self.dir else { return -1 }
-
-        // Either returns the file descriptor or -1 if there was an error
-        return dirfd(dir)
+        // Either returns the file descriptor or -1
+        return dir == nil ? -1 : dirfd(dir!)
     }
 
     /// Opening a directory returns a pointer to a DIR struct
-    private var dir: DIRType?
+    private var dir: DIRType? {
+        didSet {
+            if dir != nil {
+                opened = Open(self)
+            } else {
+                opened = nil
+            }
+        }
+    }
     /// Directories need to be rewound after being traversed. This tracks
     /// whether or not we need to rewind a directory
     private var finishedTraversal: Bool = false
@@ -38,7 +53,9 @@ public class DirectoryPath: Path, Openable, Sequence, IteratorProtocol, Linkable
     /// Warning: The setter may be removed in a later release
     public var opened: OpenDirectory? {
         get { return openDirectories[self] }
-        set { openDirectories[self] = newValue }
+        set {
+            openDirectories[self] = newValue
+        }
     }
 
     // This is to protect the info from being set externally
@@ -140,10 +157,7 @@ public class DirectoryPath: Path, Openable, Sequence, IteratorProtocol, Linkable
             throw OpenDirectoryError.getError()
         }
 
-        // Add the newly opened directory to the openDirectories dict
-        let openDir = Open(self)
-        opened = openDir
-        return openDir
+        return opened !! "Failed to set the open directory"
     }
 
     /**
@@ -158,7 +172,6 @@ public class DirectoryPath: Path, Openable, Sequence, IteratorProtocol, Linkable
         defer {
             // When this line was not first, it was not executed for some reason
             self.dir = nil
-            openDirectories.removeValue(forKey: self)
         }
 
         // This should never throw since self.dir is private and the only way
@@ -172,7 +185,7 @@ public class DirectoryPath: Path, Openable, Sequence, IteratorProtocol, Linkable
     /**
     Retrieves and files or directories contained within the directory
 
-    - Parameter includeHidden: Whether to include any hidden files in the returned PathCollection
+    - Parameter options: The options used while enumerating the children of the directory
 
     - Returns: A PathCollection of all the files, directories, and other paths that are contained in self
     - Note: Opens the directory if it is unopened and will close it afterwards if the directory was only opened for this API call
@@ -184,16 +197,15 @@ public class DirectoryPath: Path, Openable, Sequence, IteratorProtocol, Linkable
     - Throws: `OpenDirectoryError.outOfMemory` when there is not enough available memory to open the directory
     - Throws: `OpenDirectoryError.pathNotDirectory` when the path you're trying to open exists and is not a directory. This should only occur if your DirectoryPath object was created before the path existed and then the path was created as a non-directory path type
     */
-    public func children(includeHidden: Bool = false) throws -> PathCollection {
-        return try recursiveChildren(to: 1, includeHidden: includeHidden)
+    public func children(options: DirectoryEnumerationOptions = []) throws -> PathCollection {
+        return try recursiveChildren(to: 1, options: options)
     }
-
 
     /**
     Recursively iterates through and retrives all children in all subdirectories
 
     - Parameter depth: How many subdirectories may be recursively traversed (-1 for infinite depth)
-    - Parameter includeHidden: Whether or not to include hidden files and traverse hidden directories
+    - Parameter options: The options used while enumerating the children of the directory
 
     - Returns: A PathCollection of all the files, directories, and other paths that are contained in self and its subdirectories
     - Note: Opens any directories that are previously unopened and will close them afterwards if it was only opened for this API call
@@ -205,15 +217,15 @@ public class DirectoryPath: Path, Openable, Sequence, IteratorProtocol, Linkable
     - Throws: `OpenDirectoryError.outOfMemory` when there is not enough available memory to open the directory
     - Throws: `OpenDirectoryError.pathNotDirectory` when the path you're trying to open exists and is not a directory. This should only occur if your DirectoryPath object was created before the path existed and then the path was created as a non-directory path type
     */
-    public func recursiveChildren(depth: Int = -1, includeHidden: Bool = false) throws -> PathCollection {
-        return try recursiveChildren(to: depth, includeHidden: includeHidden)
+    public func recursiveChildren(depth: Int = -1, options: DirectoryEnumerationOptions = []) throws -> PathCollection {
+        return try recursiveChildren(to: depth, options: options)
     }
 
     /**
     Recursively iterates through and retrives all children in all subdirectories
 
     - Parameter depth: How many subdirectories may be recursively traversed (-1 for infinite depth)
-    - Parameter includeHidden: Whether or not to include hidden files and traverse hidden directories
+    - Parameter options: The options used while enumerating the children of the directory
 
     - Returns: A PathCollection of all the files, directories, and other paths that are contained in self and its subdirectories
     - Note: Opens any directories that are previously unopened and will close them afterwards if it was only opened for this API call
@@ -226,20 +238,25 @@ public class DirectoryPath: Path, Openable, Sequence, IteratorProtocol, Linkable
     - Throws: `OpenDirectoryError.pathNotDirectory` when the path you're trying to open exists and is not a directory. This should only occur if your DirectoryPath object was created before the path existed and then the path was created as a non-directory path type
     */
     @discardableResult
-    private func recursiveChildren(to depth: Int, includeHidden: Bool) throws -> PathCollection {
+    private func recursiveChildren(to depth: Int, options: DirectoryEnumerationOptions) throws -> PathCollection {
         var children: PathCollection = PathCollection()
         // Make sure we're not below the specified depth
         guard depth != 0 else { return children }
         let depth = depth - 1
 
         // Make sure the directory has been opened
-        let unopened = dir == nil
+        let unopened = self.dir == nil
         // If the directory is already open, this just returns the opened directory
         try open()
 
+        let dir = self.dir !! "Failed to open a directory without throwing an error!"
+
         // Go through all the paths in the current directory and add them to the correct array
-        for path in self {
-            if !includeHidden {
+        repeat {
+            guard let path = nextPath(from: dir) else { break }
+            guard !["..", "."].contains(path.lastComponent) else { continue }
+
+            if !options.contains(.includeHidden) {
                 guard !(path.lastComponent ?? "").hasPrefix(".") else { continue }
             }
 
@@ -250,7 +267,7 @@ public class DirectoryPath: Path, Openable, Sequence, IteratorProtocol, Linkable
             } else {
                 children.other.append(path)
             }
-        }
+        } while true
 
         // If this directory was previously unopened and we only opened it for
         // this operation, then we should go ahead and close it too
@@ -261,7 +278,7 @@ public class DirectoryPath: Path, Openable, Sequence, IteratorProtocol, Linkable
         if depth != 0 {
             let dirs = children.directories
             for dir in dirs {
-                children += try dir.recursiveChildren(to: depth, includeHidden: includeHidden)
+                children += try dir.recursiveChildren(to: depth, options: options)
             }
         }
 
@@ -305,21 +322,21 @@ public class DirectoryPath: Path, Openable, Sequence, IteratorProtocol, Linkable
     - Throws: `CloseFileError.ioError` when an I/O error occurred during the API call
     */
     public func recursiveDelete() throws {
-        // Opens the path if it is unopened, returns the opened path if it is already open
-        try open()
+        let childPaths = try children(options: .includeHidden)
 
-        for path in self {
-            // Go ahead and delete any files
-            if let file = FilePath(path) {
-                try file.delete()
-            // Recursively delete any subdirectories
-            } else if let dir = DirectoryPath(path) {
-                guard !["..", "."].contains(dir.lastComponent) else { continue }
-                try dir.recursiveDelete()
-            // Throw an error if the path can't be deleted or else a DeleteDirectoryError.directoryNotEmpty error will be thrown later
-            } else {
-                throw GenericDeleteError.cannotDeleteGenericPath(path)
-            }
+        // Throw an error if the path can't be deleted or else a DeleteDirectoryError.directoryNotEmpty error will be thrown later
+        guard childPaths.other.isEmpty else {
+            throw GenericDeleteError.cannotDeleteGenericPath(childPaths.other.first!)
+        }
+
+        // Delete all the files
+        for file in childPaths.files {
+            try file.delete()
+        }
+
+        // Recursively delete any subdirectories
+        for directory in childPaths.directories {
+            try directory.recursiveDelete()
         }
 
         // Now that the directory is empty, delete it
@@ -331,10 +348,7 @@ public class DirectoryPath: Path, Openable, Sequence, IteratorProtocol, Linkable
 
     - Returns: The next path in the directory or nil if all paths have been returned
     */
-    public func next() -> GenericPath? {
-        // Make sure the directory is open
-        guard let dir = self.dir else { return nil }
-
+    private func nextPath(from dir: DIRType) -> GenericPath? {
         // If we've iterated through and we're starting again, rewind the directory stream and reset finishedTraversal
         if finishedTraversal {
             // Points the directory stream back to the first path in the directory
@@ -353,10 +367,11 @@ public class DirectoryPath: Path, Openable, Sequence, IteratorProtocol, Linkable
         return genPath(entry)
     }
 
-    public func rewind() {
+    private func rewind() {
         guard let dir = self.dir else { return }
+
+        defer { finishedTraversal = false }
         rewinddir(dir)
-        finishedTraversal = false
     }
 
     /**
@@ -385,6 +400,7 @@ public class DirectoryPath: Path, Openable, Sequence, IteratorProtocol, Linkable
 
     - Parameter owner: The uid of the owner of the path
     - Parameter group: The gid of the group with permissions to access the path
+    - Parameter options: The options used while enumerating the children of the directory
 
     - Throws: `ChangeOwnershipError.permissionDenied` when the calling process does not have the proper permissions to modify path ownership
     - Throws: `ChangeOwnershipError.badAddress` when the path points to a location outside your addressible address space
@@ -402,24 +418,22 @@ public class DirectoryPath: Path, Openable, Sequence, IteratorProtocol, Linkable
     - Throws: `OpenDirectoryError.outOfMemory` when there is not enough available memory to open the directory
     - Throws: `OpenDirectoryError.pathNotDirectory` when the path you're trying to open exists and is not a directory. This should only occur if your DirectoryPath object was created before the path existed and then the path was created as a non-directory path type
     */
-    public func changeRecursive(owner uid: uid_t = ~0, group gid: gid_t = ~0) throws {
+    public func changeRecursive(owner uid: uid_t = ~0, group gid: gid_t = ~0, options: DirectoryEnumerationOptions = .includeHidden) throws {
+        let childPaths = try children(options: options)
+
+        for file in childPaths.files {
+            try file.change(owner: uid, group: gid)
+        }
+
+        for path in childPaths.other {
+            try path.change(owner: uid, group: gid)
+        }
+
+        for directory in childPaths.directories {
+            try directory.changeRecursive(owner: uid, group: gid)
+        }
+
         try change(owner: uid, group: gid)
-
-        let unopened = dir == nil
-        try open()
-
-        for path in self {
-            if let dir = DirectoryPath(path) {
-                guard !["..", "."].contains(dir.lastComponent) else { continue }
-                try dir.changeRecursive(owner: uid, group: gid)
-            } else {
-                try path.change(owner: uid, group: gid)
-            }
-        }
-
-        if unopened {
-            try close()
-        }
     }
 
     /**
@@ -427,6 +441,7 @@ public class DirectoryPath: Path, Openable, Sequence, IteratorProtocol, Linkable
 
     - Parameter owner: The username of the owner of the path
     - Parameter group: The name of the group with permissions to access the path
+    - Parameter options: The options used while enumerating the children of the directory
 
     - Throws: `ChangeOwnershipError.permissionDenied` when the calling process does not have the proper permissions to modify path ownership
     - Throws: `ChangeOwnershipError.badAddress` when the path points to a location outside your addressible address space
@@ -456,7 +471,7 @@ public class DirectoryPath: Path, Openable, Sequence, IteratorProtocol, Linkable
     - Throws: `OpenDirectoryError.outOfMemory` when there is not enough available memory to open the directory
     - Throws: `OpenDirectoryError.pathNotDirectory` when the path you're trying to open exists and is not a directory. This should only occur if your DirectoryPath object was created before the path existed and then the path was created as a non-directory path type
     */
-    public func changeRecursive(owner username: String? = nil, group groupname: String? = nil) throws {
+    public func changeRecursive(owner username: String? = nil, group groupname: String? = nil, options: DirectoryEnumerationOptions = .includeHidden) throws {
         let uid: uid_t
         let gid: gid_t
 
@@ -472,13 +487,14 @@ public class DirectoryPath: Path, Openable, Sequence, IteratorProtocol, Linkable
             gid = ~0
         }
 
-        try changeRecursive(owner: uid, group: gid)
+        try changeRecursive(owner: uid, group: gid, options: options)
     }
 
     /**
     Recursively changes the permissions on all paths
 
     - Parameter permissions: The new permissions for the paths
+    - Parameter options: The options used while enumerating the children of the directory
 
     - Throws: `ChangePermissionsError.permissionDenied` when the calling process does not have the proper permissions to modify path permissions
     - Throws: `ChangePermissionsError.badAddress` when the path points to a location outside your accessible address space
@@ -496,26 +512,22 @@ public class DirectoryPath: Path, Openable, Sequence, IteratorProtocol, Linkable
     - Throws: `OpenDirectoryError.outOfMemory` when there is not enough available memory to open the directory
     - Throws: `OpenDirectoryError.pathNotDirectory` when the path you're trying to open exists and is not a directory. This should only occur if your DirectoryPath object was created before the path existed and then the path was created as a non-directory path type
     */
-    public func changeRecursive(permissions: FileMode) throws {
+    public func changeRecursive(permissions: FileMode, options: DirectoryEnumerationOptions = .includeHidden) throws {
+        let childPaths = try children(options: options)
+
+        for file in childPaths.files {
+            try file.change(permissions: permissions)
+        }
+
+        for path in childPaths.other {
+            try path.change(permissions: permissions)
+        }
+
+        for directory in childPaths.directories {
+            try directory.changeRecursive(permissions: permissions)
+        }
+
         try change(permissions: permissions)
-
-        let unopened = dir == nil
-        if unopened {
-            try open()
-        }
-
-        for path in self {
-            if let dir = DirectoryPath(path) {
-                guard !["..", "."].contains(dir.lastComponent) else { continue }
-                try dir.changeRecursive(permissions: permissions)
-            } else {
-                try path.change(permissions: permissions)
-            }
-        }
-
-        if unopened {
-            try close()
-        }
     }
 
     /**
@@ -526,6 +538,7 @@ public class DirectoryPath: Path, Openable, Sequence, IteratorProtocol, Linkable
         - group: The permissions for members of the group with access to the path
         - others: The permissions for everyone else accessing the path
         - bits: The gid, uid, and sticky bits of the path
+        - options: The options used while enumerating the children of the directory
 
     - Throws: `ChangePermissionsError.permissionDenied` when the calling process does not have the proper permissions to modify path permissions
     - Throws: `ChangePermissionsError.badAddress` when the path points to a location outside your accessible address space
@@ -543,8 +556,8 @@ public class DirectoryPath: Path, Openable, Sequence, IteratorProtocol, Linkable
     - Throws: `OpenDirectoryError.outOfMemory` when there is not enough available memory to open the directory
     - Throws: `OpenDirectoryError.pathNotDirectory` when the path you're trying to open exists and is not a directory. This should only occur if your DirectoryPath object was created before the path existed and then the path was created as a non-directory path type
     */
-    public func changeRecursive(owner: FilePermissions, group: FilePermissions, others: FilePermissions, bits: FileBits) throws {
-        try changeRecursive(permissions: FileMode(owner: owner, group: group, others: others, bits: bits))
+    public func changeRecursive(owner: FilePermissions, group: FilePermissions, others: FilePermissions, bits: FileBits, options: DirectoryEnumerationOptions = .includeHidden) throws {
+        try changeRecursive(permissions: FileMode(owner: owner, group: group, others: others, bits: bits), options: options)
     }
 
     /**
@@ -555,6 +568,7 @@ public class DirectoryPath: Path, Openable, Sequence, IteratorProtocol, Linkable
         - group: The permissions for members of the group with access to the path
         - others: The permissions for everyone else accessing the path
         - bits: The gid, uid, and sticky bits of the path
+        - options: The options used while enumerating the children of the directory
 
     - Throws: `ChangePermissionsError.permissionDenied` when the calling process does not have the proper permissions to modify path permissions
     - Throws: `ChangePermissionsError.badAddress` when the path points to a location outside your accessible address space
@@ -572,9 +586,9 @@ public class DirectoryPath: Path, Openable, Sequence, IteratorProtocol, Linkable
     - Throws: `OpenDirectoryError.outOfMemory` when there is not enough available memory to open the directory
     - Throws: `OpenDirectoryError.pathNotDirectory` when the path you're trying to open exists and is not a directory. This should only occur if your DirectoryPath object was created before the path existed and then the path was created as a non-directory path type
     */
-    public func changeRecursive(owner: FilePermissions? = nil, group: FilePermissions? = nil, others: FilePermissions? = nil, bits: FileBits? = nil) throws {
+    public func changeRecursive(owner: FilePermissions? = nil, group: FilePermissions? = nil, others: FilePermissions? = nil, bits: FileBits? = nil, options: DirectoryEnumerationOptions = .includeHidden) throws {
         let current = permissions
-        try changeRecursive(owner: owner ?? current.owner, group: group ?? current.group, others: others ?? current.others, bits: bits ?? current.bits)
+        try changeRecursive(owner: owner ?? current.owner, group: group ?? current.group, others: others ?? current.others, bits: bits ?? current.bits, options: options)
     }
 
     /**
@@ -584,6 +598,7 @@ public class DirectoryPath: Path, Openable, Sequence, IteratorProtocol, Linkable
         - ownerGroup: The permissions for the path owner and also members of the group with access to the path
         - others: The permissions for everyone else accessing the path
         - bits: The gid, uid, and sticky bits of the path
+        - options: The options used while enumerating the children of the directory
 
     - Throws: `ChangePermissionsError.permissionDenied` when the calling process does not have the proper permissions to modify path permissions
     - Throws: `ChangePermissionsError.badAddress` when the path points to a location outside your accessible address space
@@ -601,9 +616,9 @@ public class DirectoryPath: Path, Openable, Sequence, IteratorProtocol, Linkable
     - Throws: `OpenDirectoryError.outOfMemory` when there is not enough available memory to open the directory
     - Throws: `OpenDirectoryError.pathNotDirectory` when the path you're trying to open exists and is not a directory. This should only occur if your DirectoryPath object was created before the path existed and then the path was created as a non-directory path type
     */
-    public func changeRecursive(ownerGroup perms: FilePermissions, others: FilePermissions? = nil, bits: FileBits? = nil) throws {
+    public func changeRecursive(ownerGroup perms: FilePermissions, others: FilePermissions? = nil, bits: FileBits? = nil, options: DirectoryEnumerationOptions = .includeHidden) throws {
         let current = permissions
-        try changeRecursive(owner: perms, group: perms, others: current.others, bits: bits ?? current.bits)
+        try changeRecursive(owner: perms, group: perms, others: current.others, bits: bits ?? current.bits, options: options)
     }
 
     /**
@@ -613,6 +628,7 @@ public class DirectoryPath: Path, Openable, Sequence, IteratorProtocol, Linkable
         - ownerOthers: The permissions for the owner of the path and everyone else
         - group: The permissions for members of the group with access to the path
         - bits: The gid, uid, and sticky bits of the path
+        - options: The options used while enumerating the children of the directory
 
     - Throws: `ChangePermissionsError.permissionDenied` when the calling process does not have the proper permissions to modify path permissions
     - Throws: `ChangePermissionsError.badAddress` when the path points to a location outside your accessible address space
@@ -630,9 +646,9 @@ public class DirectoryPath: Path, Openable, Sequence, IteratorProtocol, Linkable
     - Throws: `OpenDirectoryError.outOfMemory` when there is not enough available memory to open the directory
     - Throws: `OpenDirectoryError.pathNotDirectory` when the path you're trying to open exists and is not a directory. This should only occur if your DirectoryPath object was created before the path existed and then the path was created as a non-directory path type
     */
-    public func changeRecursive(ownerOthers perms: FilePermissions, group: FilePermissions? = nil, bits: FileBits? = nil) throws {
+    public func changeRecursive(ownerOthers perms: FilePermissions, group: FilePermissions? = nil, bits: FileBits? = nil, options: DirectoryEnumerationOptions = .includeHidden) throws {
         let current = permissions
-        try changeRecursive(owner: perms, group: group ?? current.group, others: perms, bits: bits ?? current.bits)
+        try changeRecursive(owner: perms, group: group ?? current.group, others: perms, bits: bits ?? current.bits, options: options)
     }
 
     /**
@@ -642,6 +658,7 @@ public class DirectoryPath: Path, Openable, Sequence, IteratorProtocol, Linkable
         - groupOthers: The permissions for members of the group with access to the path and anyone else
         - owner: The permissions for the owner of the path
         - bits: The gid, uid, and sticky bits of the path
+        - options: The options used while enumerating the children of the directory
 
     - Throws: `ChangePermissionsError.permissionDenied` when the calling process does not have the proper permissions to modify path permissions
     - Throws: `ChangePermissionsError.badAddress` when the path points to a location outside your accessible address space
@@ -659,9 +676,9 @@ public class DirectoryPath: Path, Openable, Sequence, IteratorProtocol, Linkable
     - Throws: `OpenDirectoryError.outOfMemory` when there is not enough available memory to open the directory
     - Throws: `OpenDirectoryError.pathNotDirectory` when the path you're trying to open exists and is not a directory. This should only occur if your DirectoryPath object was created before the path existed and then the path was created as a non-directory path type
     */
-    public func changeRecursive(groupOthers perms: FilePermissions, owner: FilePermissions? = nil, bits: FileBits? = nil) throws {
+    public func changeRecursive(groupOthers perms: FilePermissions, owner: FilePermissions? = nil, bits: FileBits? = nil, options: DirectoryEnumerationOptions = .includeHidden) throws {
         let current = permissions
-        try changeRecursive(owner: owner ?? current.owner, group: perms, others: perms, bits: bits ?? current.bits)
+        try changeRecursive(owner: owner ?? current.owner, group: perms, others: perms, bits: bits ?? current.bits, options: options)
     }
 
     /**
@@ -670,6 +687,7 @@ public class DirectoryPath: Path, Openable, Sequence, IteratorProtocol, Linkable
     - Parameters:
         - ownerGroupOthers: The permissions for the owner of the path, members of the group, and everyone else
         - bits: The gid, uid, and sticky bits of the path
+        - options: The options used while enumerating the children of the directory
 
     - Throws: `ChangePermissionsError.permissionDenied` when the calling process does not have the proper permissions to modify path permissions
     - Throws: `ChangePermissionsError.badAddress` when the path points to a location outside your accessible address space
@@ -687,8 +705,8 @@ public class DirectoryPath: Path, Openable, Sequence, IteratorProtocol, Linkable
     - Throws: `OpenDirectoryError.outOfMemory` when there is not enough available memory to open the directory
     - Throws: `OpenDirectoryError.pathNotDirectory` when the path you're trying to open exists and is not a directory. This should only occur if your DirectoryPath object was created before the path existed and then the path was created as a non-directory path type
     */
-    public func changeRecursive(ownerGroupOthers perms: FilePermissions, bits: FileBits? = nil) throws {
-        try changeRecursive(owner: perms, group: perms, others: perms, bits: bits ?? permissions.bits)
+    public func changeRecursive(ownerGroupOthers perms: FilePermissions, bits: FileBits? = nil, options: DirectoryEnumerationOptions = .includeHidden) throws {
+        try changeRecursive(owner: perms, group: perms, others: perms, bits: bits ?? permissions.bits, options: options)
     }
 
     /**

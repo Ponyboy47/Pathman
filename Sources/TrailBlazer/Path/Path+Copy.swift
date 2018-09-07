@@ -45,7 +45,7 @@ extension FilePath: Copyable {
         try openPath.rewind()
 
         // Create the path we're going to copy
-        let newOpenPath = try newPath.create(mode: permissions, forceMode: true)
+        let newOpenPath = try newPath.create(mode: permissions)
         try newOpenPath.change(owner: owner, group: group)
 
         // If we're not buffering, the buffer size is just the whole file size.
@@ -71,28 +71,27 @@ extension DirectoryPath: Copyable {
         let openPath: OpenDirectory
         if let open = opened {
             openPath = open
-            openPath.rewind()
         } else {
             openPath = try open()
         }
 
-        let childrenPaths = openPath.children(includeHidden: options.contains(.includeHidden))
+        let childPaths = openPath.children(options: options.contains(.includeHidden) ? .includeHidden : [])
 
         // The cp(1) utility skips directories unless the recursive options is
         // used. Let's be a little nicer and only skip non-empty directories
-        guard childrenPaths.isEmpty || options.contains(.recursive) else { throw CopyError.nonEmptyDirectory }
+        guard childPaths.isEmpty || options.contains(.recursive) else { throw CopyError.nonEmptyDirectory }
 
-        let newOpenPath = try newPath.create(mode: permissions, forceMode: true)
+        let newOpenPath = try newPath.create(mode: permissions)
         try newOpenPath.change(owner: owner, group: group)
 
-        for file in childrenPaths.files {
+        for file in childPaths.files {
             try file.copy(into: newPath, options: options)
         }
-        for directory in childrenPaths.directories {
+        for directory in childPaths.directories {
             try directory.copy(into: newPath, options: options)
         }
 
-        guard childrenPaths.other.isEmpty else { throw CopyError.uncopyablePath(childrenPaths.other.first!) }
+        guard childPaths.other.isEmpty else { throw CopyError.uncopyablePath(childPaths.other.first!) }
 
         return newOpenPath
     }
