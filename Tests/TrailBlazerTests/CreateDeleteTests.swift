@@ -33,6 +33,8 @@ class CreateDeleteTests: XCTestCase {
             return
         }
 
+        if !file.exists { testCreateFile() }
+
         XCTAssertNoThrow(try file.delete())
     }
 
@@ -52,6 +54,8 @@ class CreateDeleteTests: XCTestCase {
             XCTFail("Path \(base.string)/hijklmnop exists and is not a directory")
             return
         }
+
+        if !dir.exists { testCreateDirectory() }
 
         XCTAssertNoThrow(try dir.delete())
     }
@@ -94,6 +98,8 @@ class CreateDeleteTests: XCTestCase {
             XCTFail("Path \(base.string)/qrstuvwxyz exists and is not a directory")
             return
         }
+
+        if !dir.exists { testDeleteNonEmptyDirectory() }
 
         XCTAssertNoThrow(try dir.recursiveDelete())
     }
