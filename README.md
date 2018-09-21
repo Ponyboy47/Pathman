@@ -1,6 +1,6 @@
 # TrailBlazer
 
-[![Build Status](https://travis-ci.org/Ponyboy47/Trailblazer.svg?branch=master)](https://travis-ci.org/Ponyboy47/Trailblazer) ![Current Version](https://img.shields.io/badge/version-0.11.2-blue.svg) ![Supported Platforms](https://img.shields.io/badge/platform-macOS%20%7C%20linux-lightgrey.svg) [![Language](https://img.shields.io/badge/language-swift-orange.svg)](https://swift.org) [![Language Version](https://img.shields.io/badge/swift%20version-4.2-orange.svg)](https://swift.org/download/) [![License](https://img.shields.io/badge/license-MIT-black.svg)](https://github.com/Ponyboy47/Trailblazer/blob/master/LICENSE)<br>
+[![Build Status](https://travis-ci.org/Ponyboy47/Trailblazer.svg?branch=master)](https://travis-ci.org/Ponyboy47/Trailblazer) ![Current Version](https://img.shields.io/badge/version-0.11.3-blue.svg) ![Supported Platforms](https://img.shields.io/badge/platform-macOS%20%7C%20linux-lightgrey.svg) [![Language](https://img.shields.io/badge/language-swift-orange.svg)](https://swift.org) [![Language Version](https://img.shields.io/badge/swift%20version-4.2-orange.svg)](https://swift.org/download/) [![License](https://img.shields.io/badge/license-MIT-black.svg)](https://github.com/Ponyboy47/Trailblazer/blob/master/LICENSE)<br>
 A type-safe path library for Apple's Swift language.
 
 ## Motivation
@@ -31,7 +31,7 @@ I am not a big fan of Foundation's `FileManager`. Foundation in general has inco
 ### Swift Package Manager:
 Add this to your Package.swift dependencies:
 ```swift
-.package(url: "https://github.com/Ponyboy47/Trailblazer.git", from: "0.11.2")
+.package(url: "https://github.com/Ponyboy47/Trailblazer.git", from: "0.11.3")
 ```
 
 ## Usage
