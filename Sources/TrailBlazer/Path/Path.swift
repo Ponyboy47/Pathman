@@ -162,7 +162,7 @@ public extension Path {
     }
 
     /// The URL representation of the path
-    public var url: URL { return URL(fileURLWithPath: _path, isDirectory: isDirectory) }
+    public var url: URL { return URL(fileURLWithPath: _path, isDirectory: exists ? isDirectory : Self.self is DirectoryPath) }
 
     /// A printable description of the current path
     public var description: String {

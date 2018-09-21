@@ -1,6 +1,6 @@
 # TrailBlazer
 
-[![Build Status](https://travis-ci.org/Ponyboy47/Trailblazer.svg?branch=master)](https://travis-ci.org/Ponyboy47/Trailblazer) ![Supported Platforms](https://img.shields.io/badge/platform-macOS%20%7C%20linux-lightgrey.svg) [![Language](https://img.shields.io/badge/language-swift-orange.svg)](https://swift.org) [![License](https://img.shields.io/badge/license-MIT-black.svg)](https://github.com/Ponyboy47/Trailblazer/blob/master/LICENSE)<br>
+[![Build Status](https://travis-ci.org/Ponyboy47/Trailblazer.svg?branch=master)](https://travis-ci.org/Ponyboy47/Trailblazer) ![Current Version](https://img.shields.io/badge/version-0.11.2-blue.svg) ![Supported Platforms](https://img.shields.io/badge/platform-macOS%20%7C%20linux-lightgrey.svg) [![Language](https://img.shields.io/badge/language-swift-orange.svg)](https://swift.org) [![Language Version](https://img.shields.io/badge/swift%20version-4.2-orange.svg)](https://swift.org/download/) [![License](https://img.shields.io/badge/license-MIT-black.svg)](https://github.com/Ponyboy47/Trailblazer/blob/master/LICENSE)<br>
 A type-safe path library for Apple's Swift language.
 
 ## Motivation
@@ -31,7 +31,7 @@ I am not a big fan of Foundation's `FileManager`. Foundation in general has inco
 ### Swift Package Manager:
 Add this to your Package.swift dependencies:
 ```swift
-.package(url: "https://github.com/Ponyboy47/Trailblazer.git", from: "0.11.0")
+.package(url: "https://github.com/Ponyboy47/Trailblazer.git", from: "0.11.2")
 ```
 
 ## Usage
@@ -68,49 +68,89 @@ guard let directory = DirectoryPath("/tmp") else {
 // Paths conform to the StatDelegate protocol, which means that they use the
 // `stat` utility to gather information about the file (ie: size, ownership,
 // modify time, etc)
-// NOTE: Only paths that exist will have information about them (obviously)
+// NOTE: Certain properties are only available for paths that exist
 
 /// The system id of the path
-path.id
+var id: dev_t
 
 /// The inode of the path
-path.inode
+var inode: ino_t
 
-/// The type of the path
-path.type
+/// The type of the path, if it exists
+var type: PathType?
+
+/// Whether the path exists
+var exists: Bool
+
+/// Whether the path exists and is a file
+var isFile: Bool
+
+/// Whether the path exists and is a directory
+var isDirectory: Bool
+
+/// Whether the path exists and is a link
+var isLink: Bool
+
+/// The URL representation of the path
+var url: URL
 
 /// The permissions of the path
-path.permissions
+var permissions: FileMode
 
 /// The user id of the user that owns the path
-path.owner
+var owner: uid_t
+
+// The name of the user that owns the path
+var ownerName: String?
 
 /// The group id of the user that owns the path
-path.group
+var group: gid_t
+
+/// The name of the group that owns the path
+var groupName: String?
 
 /// The device id (if special file)
-path.device
+var device: dev_t
 
 /// The total size, in bytes
-path.size
+var size: OSOffsetInt
+// macOS -> Int64
+// Linux -> Int
 
 /// The blocksize for filesystem I/O
-path.blockSize
+var blockSize: blksize_t
 
 /// The number of 512B block allocated
-path.blocks
+var blocks: OSOffsetInt
+// macOS -> Int64
+// Linux -> Int
+
+/// The parent directory of the path
+var parent: DirectoryPath
+
+/// The pieces that make up the path
+var components: [String]
+
+/// The final piece of the path (filename or directory name)
+var lastComponent: String?
+
+/// The final piece of the path with the extension stripped off
+var lastComponentWithoutExtension: String?
+
+/// The extension of the path
+var extension: String?
 
 /// The last time the path was accessed
-path.lastAccess
+var lastAccess: Date
 
 /// The last time the path was modified
-path.lastModified
+var lastModified: Date
 
 /// The last time the path had a status change
-path.lastAttributeChange
+var lastAttributeChange: Date
 
 /// The time when the path was created (macOS only)
-path.creation
+var creation: Date
 ```
 
 ### Opening Paths
