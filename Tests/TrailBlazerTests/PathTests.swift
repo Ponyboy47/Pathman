@@ -150,6 +150,14 @@ class PathTests: XCTestCase {
         XCTAssertTrue(relative1.absolute?.isAbsolute ?? true)
     }
 
+    func testExpand() {
+        var relative = GenericPath("~/")
+
+        XCTAssertFalse(relative.exists)
+        XCTAssertNoThrow(try relative.expand())
+        XCTAssertTrue(relative.exists)
+    }
+
     func testRelative() {
         let relative1 = GenericPath("~/")
         let relative2 = DirectoryPath("./")!
@@ -178,6 +186,7 @@ class PathTests: XCTestCase {
         ("testEquatable", testEquatable),
         ("testAddable", testAddable),
         ("testAbsolute", testAbsolute),
+        ("testExpand", testExpand),
         ("testRelative", testRelative),
     ]
 }

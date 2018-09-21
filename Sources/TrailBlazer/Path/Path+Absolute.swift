@@ -51,6 +51,7 @@ extension Path {
         defer { realpath.deallocate() }
 
         _path = String(cString: realpath)
+        info._path = _path
     }
 
     /**
