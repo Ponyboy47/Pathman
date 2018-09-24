@@ -27,4 +27,5 @@ XCTMain([
     testCase(LinkTests.allTests),
     testCase(CopyTests.allTests),
     testCase(PathCollectionTests.allTests),
+    testCase(UtilityTests.allTests),
 ])
