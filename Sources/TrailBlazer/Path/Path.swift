@@ -166,7 +166,7 @@ public extension Path {
 
     /// A printable description of the current path
     public var description: String {
-        return "\(Swift.type(of: self))(\(string))"
+        return "\(Swift.type(of: self))(\"\(string)\")"
     }
 
     /**

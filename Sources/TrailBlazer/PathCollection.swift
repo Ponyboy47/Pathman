@@ -16,17 +16,7 @@ open class PathCollection: Equatable, CustomStringConvertible {
     open var count: Int { return files.count + directories.count + other.count }
 
     open var description: String {
-        var str: [String] = []
-        if !files.isEmpty {
-            str.append("files:\n\t\(files.map { $0.string } )")
-        }
-        if !directories.isEmpty {
-            str.append("directories:\n\t\(directories.map { $0.string } )")
-        }
-        if !other.isEmpty {
-            str.append("other:\n\t\(other.map { $0.string } )")
-        }
-        return str.joined(separator: "\n\n")
+        return "\(type(of: self))(files: \(files), directories: \(directories), other: \(other))"
     }
 
     /** Initializer
@@ -38,6 +28,11 @@ open class PathCollection: Equatable, CustomStringConvertible {
         self.files = files
         self.directories = directories
         self.other = other
+    }
+
+    /// Combine two PathCollections into a single new PathCollection
+    public static func + (lhs: PathCollection, rhs: PathCollection) -> PathCollection {
+        return PathCollection(files: lhs.files + rhs.files, directories: lhs.directories + rhs.directories, other: lhs.other + rhs.other)
     }
 
     /// Combines the items from one PathCollection into this PathCollection
