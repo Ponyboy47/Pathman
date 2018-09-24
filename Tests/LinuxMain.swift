@@ -10,6 +10,7 @@ import Darwin
 XCTMain([
     testCase(FilePermissionsTests.allTests),
     testCase(FileModeTests.allTests),
+    testCase(FileBitsTests.allTests),
     testCase(PathTests.allTests),
     testCase(StatTests.allTests),
     testCase(OpenTests.allTests),
