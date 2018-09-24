@@ -107,9 +107,9 @@ class PathTests: XCTestCase {
         let path1 = GenericPath("/tmp")
         let path2 = DirectoryPath("/tmp")!
         let path3 = FilePath("/tmp/flabbergasted")!
-        XCTAssertEqual(path1.description, "GenericPath(/tmp)")
-        XCTAssertEqual(path2.description, "DirectoryPath(/tmp)")
-        XCTAssertEqual(path3.description, "FilePath(/tmp/flabbergasted)")
+        XCTAssertEqual(path1.description, "GenericPath(\"/tmp\")")
+        XCTAssertEqual(path2.description, "DirectoryPath(\"/tmp\")")
+        XCTAssertEqual(path3.description, "FilePath(\"/tmp/flabbergasted\")")
     }
 
     func testEquatable() {
