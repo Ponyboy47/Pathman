@@ -219,7 +219,7 @@ public struct FileMode: OptionSet, ExpressibleByIntegerLiteral, ExpressibleByStr
         - Returns: The FileMode after disabling bits from the umask
     */
     public func unmasked() -> FileMode {
-        return ~TrailBlazer.umask & rawValue
+        return ~TrailBlazer.umask & self
     }
 
     /// Mutates self to be the FileMode after disabling bits from the umask
@@ -244,10 +244,6 @@ public struct FileMode: OptionSet, ExpressibleByIntegerLiteral, ExpressibleByStr
     public static func | (lhs: FileMode, rhs: IntegerLiteralType) -> FileMode {
         return FileMode(rawValue: lhs.rawValue | rhs)
     }
-    /// Returns a FileMode with the bits contained in either mode
-    public static func | (lhs: IntegerLiteralType, rhs: FileMode) -> FileMode {
-        return FileMode(rawValue: lhs | rhs.rawValue)
-    }
 
     /// Sets the FileMode with the bits contained in either mode
     public static func |= (lhs: inout FileMode, rhs: FileMode) {
@@ -258,7 +254,7 @@ public struct FileMode: OptionSet, ExpressibleByIntegerLiteral, ExpressibleByStr
         lhs = lhs | rhs
     }
     /// Sets the FileMode with the bits contained in either mode
-    public static func | (lhs: inout FileMode, rhs: IntegerLiteralType) {
+    public static func |= (lhs: inout FileMode, rhs: IntegerLiteralType) {
         lhs = lhs | rhs
     }
 
@@ -274,10 +270,6 @@ public struct FileMode: OptionSet, ExpressibleByIntegerLiteral, ExpressibleByStr
     public static func & (lhs: FileMode, rhs: IntegerLiteralType) -> FileMode {
         return FileMode(rawValue: lhs.rawValue & rhs)
     }
-    /// Returns a FileMode with only the bits contained in both modes
-    public static func & (lhs: IntegerLiteralType, rhs: FileMode) -> FileMode {
-        return FileMode(rawValue: lhs & rhs.rawValue)
-    }
 
     /// Sets the FileMode with only the bits contained in both modes
     public static func &= (lhs: inout FileMode, rhs: FileMode) {
@@ -288,7 +280,7 @@ public struct FileMode: OptionSet, ExpressibleByIntegerLiteral, ExpressibleByStr
         lhs = lhs & rhs
     }
     /// Sets the FileMode with only the bits contained in both modes
-    public static func & (lhs: inout FileMode, rhs: IntegerLiteralType) {
+    public static func &= (lhs: inout FileMode, rhs: IntegerLiteralType) {
         lhs = lhs & rhs
     }
 }

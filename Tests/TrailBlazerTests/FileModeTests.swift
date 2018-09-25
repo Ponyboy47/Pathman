@@ -466,7 +466,35 @@ class FileModeTests: XCTestCase {
         XCTAssertEqual(mode, "-rwSrwSrwT")
     }
 
+    func testOSStrings() {
+        let mode1: FileMode = "rwxrwxrwx"
+        let mode2: FileMode = "-rwxrwxrwx"
+        let mode3: FileMode = "-rwxrwxrwx@"
+        let mode4: FileMode = "-rwxrwxrwx+"
+        let mode5: FileMode = "-rwxrwxrwx "
+
+        XCTAssertEqual(mode1, mode2)
+        XCTAssertEqual(mode2, mode3)
+        XCTAssertEqual(mode3, mode4)
+        XCTAssertEqual(mode4, mode5)
+    }
+
+    func testUMask() {
+        let originalUMask = umask
+        setUMask(for: .none)
+
+        XCTAssertEqual(umask, .allPermissions)
+        XCTAssertEqual(originalUMask, lastUMask)
+
+        resetUMask()
+
+        XCTAssertEqual(umask, originalUMask)
+        XCTAssertEqual(lastUMask, .allPermissions)
+    }
+
     func testUnmask() {
+        setUMask(for: .none)
+        defer { resetUMask() }
         var mode: FileMode = .all
         mode.unmask()
         XCTAssertNotEqual(mode, .all)
@@ -481,7 +509,6 @@ class FileModeTests: XCTestCase {
 
         XCTAssertEqual(ownerAll | groupAll, ownerGroupAll)
         XCTAssertEqual(ownerAll | groupAll.rawValue, ownerGroupAll)
-        XCTAssertEqual(ownerAll.rawValue | groupAll, ownerGroupAll)
 
         XCTAssertNotEqual(empty, ownerGroupAll)
         empty |= ownerAll
@@ -498,7 +525,6 @@ class FileModeTests: XCTestCase {
 
         XCTAssertEqual(ownerGroupAll & ownerAll, ownerAll)
         XCTAssertEqual(ownerGroupAll & ownerAll.rawValue, ownerAll)
-        XCTAssertEqual(ownerGroupAll.rawValue & groupAll, groupAll)
 
         XCTAssertNotEqual(empty, ownerGroupAll)
         ownerGroupAll &= groupAll
@@ -570,6 +596,8 @@ class FileModeTests: XCTestCase {
         ("testOwnerGroupOthersReadExecute", testOwnerGroupOthersReadExecute),
         ("testOwnerGroupOthersWriteExecute", testOwnerGroupOthersWriteExecute),
         ("testOwnerGroupOthersReadWriteExecute", testOwnerGroupOthersReadWriteExecute),
+        ("testOSStrings", testOSStrings),
+        ("testUMask", testUMask),
         ("testUnmask", testUnmask),
         ("testOrOperator", testOrOperator),
         ("testAndOperator", testAndOperator),

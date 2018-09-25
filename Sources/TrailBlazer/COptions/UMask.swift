@@ -31,7 +31,7 @@ public var originalUMask: UMask = {
 /// The process's last umask
 public private(set) var lastUMask: UMask = _umask
 
-/// The process's curent umask
+/// The process's curent umask, which are the permissions that will be rejected when creating new paths
 public var umask: UMask {
     get { return _umask }
     set { setUMask(for: newValue) }
@@ -45,9 +45,6 @@ Sets the process's umask and then returns it
 */
 @discardableResult
 public func setUMask(for mode: FileMode) -> UMask {
-    // We only need to change the umask if it affects the mode we're going to use
-    guard !mode.checkAgainstUMask() else { return _umask }
-
     // Invert the mode and use that as the umask
     lastUMask = FileMode(rawValue: cUmask(~mode.rawValue))
     _umask = ~mode
@@ -58,6 +55,5 @@ public func setUMask(for mode: FileMode) -> UMask {
 
 /// Changes the umask back to its original umask
 public func resetUMask() {
-    umask = originalUMask
+    umask = ~originalUMask
 }
-
