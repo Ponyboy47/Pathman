@@ -239,20 +239,12 @@ public struct FileMode: OptionSet, ExpressibleByIntegerLiteral, ExpressibleByStr
         return FileMode(rawValue: lhs.rawValue | rhs.rawValue)
     }
     /// Returns a FileMode with the bits contained in either mode
-    public static func | (lhs: FileMode, rhs: FileBits) -> FileMode {
-        return FileMode(rawValue: lhs.rawValue | (rhs.rawValue << 9))
-    }
-    /// Returns a FileMode with the bits contained in either mode
     public static func | (lhs: FileMode, rhs: IntegerLiteralType) -> FileMode {
         return FileMode(rawValue: lhs.rawValue | rhs)
     }
 
     /// Sets the FileMode with the bits contained in either mode
     public static func |= (lhs: inout FileMode, rhs: FileMode) {
-        lhs = lhs | rhs
-    }
-    /// Sets the FileMode with the bits contained in either mode
-    public static func |= (lhs: inout FileMode, rhs: FileBits) {
         lhs = lhs | rhs
     }
     /// Sets the FileMode with the bits contained in either mode
@@ -265,20 +257,12 @@ public struct FileMode: OptionSet, ExpressibleByIntegerLiteral, ExpressibleByStr
         return FileMode(rawValue: lhs.rawValue & rhs.rawValue)
     }
     /// Returns a FileMode with only the bits contained in both modes
-    public static func & (lhs: FileMode, rhs: FileBits) -> FileMode {
-        return FileMode(rawValue: lhs.rawValue & (rhs.rawValue << 9))
-    }
-    /// Returns a FileMode with only the bits contained in both modes
     public static func & (lhs: FileMode, rhs: IntegerLiteralType) -> FileMode {
         return FileMode(rawValue: lhs.rawValue & rhs)
     }
 
     /// Sets the FileMode with only the bits contained in both modes
     public static func &= (lhs: inout FileMode, rhs: FileMode) {
-        lhs = lhs & rhs
-    }
-    /// Sets the FileMode with only the bits contained in both modes
-    public static func &= (lhs: inout FileMode, rhs: FileBits) {
         lhs = lhs & rhs
     }
     /// Sets the FileMode with only the bits contained in both modes

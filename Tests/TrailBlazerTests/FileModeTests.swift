@@ -402,21 +402,21 @@ class FileModeTests: XCTestCase {
     }
 
     func testUidBit() {
-        let mode: FileMode = .allPermissions | FileBits.uid
+        let mode: FileMode = .allPermissions | FileBits.uid.rawValue << 9
         XCTAssertEqual(mode.rawValue, 0o4777)
         XCTAssertEqual(mode, FileMode("-rwSrwxrwx"))
         XCTAssertEqual(mode, "-rwSrwxrwx")
     }
 
     func testGidBit() {
-        let mode: FileMode = .allPermissions | FileBits.gid
+        let mode: FileMode = .allPermissions | FileBits.gid.rawValue << 9
         XCTAssertEqual(mode.rawValue, 0o2777)
         XCTAssertEqual(mode, FileMode("-rwxrwSrwx"))
         XCTAssertEqual(mode, "-rwxrwSrwx")
     }
 
     func testStickyBit() {
-        var mode: FileMode = .allPermissions | FileBits.sticky
+        var mode: FileMode = .allPermissions | FileBits.sticky.rawValue << 9
         XCTAssertEqual(mode.rawValue, 0o1777)
         XCTAssertEqual(mode, FileMode("-rwxrwxrwt"))
         XCTAssertEqual(mode, "-rwxrwxrwt")
@@ -427,14 +427,14 @@ class FileModeTests: XCTestCase {
     }
 
     func testUidGidBits() {
-        let mode: FileMode = .allPermissions | FileBits(.uid, .gid)
+        let mode: FileMode = .allPermissions | FileBits(.uid, .gid).rawValue << 9
         XCTAssertEqual(mode.rawValue, 0o6777)
         XCTAssertEqual(mode, FileMode("-rwSrwSrwx"))
         XCTAssertEqual(mode, "-rwSrwSrwx")
     }
 
     func testUidStickyBits() {
-        var mode: FileMode = .allPermissions | FileBits(.uid, .sticky)
+        var mode: FileMode = .allPermissions | FileBits(.uid, .sticky).rawValue << 9
         XCTAssertEqual(mode.rawValue, 0o5777)
         XCTAssertEqual(mode, FileMode("-rwSrwxrwt"))
         XCTAssertEqual(mode, "-rwSrwxrwt")
@@ -445,7 +445,7 @@ class FileModeTests: XCTestCase {
     }
 
     func testGidStickyBits() {
-        var mode: FileMode = .allPermissions | FileBits(.gid, .sticky)
+        var mode: FileMode = .allPermissions | FileBits(.gid, .sticky).rawValue << 9
         XCTAssertEqual(mode.rawValue, 0o3777)
         XCTAssertEqual(mode, FileMode("-rwxrwSrwt"))
         XCTAssertEqual(mode, "-rwxrwSrwt")
@@ -456,7 +456,7 @@ class FileModeTests: XCTestCase {
     }
 
     func testUidGidStickyBits() {
-        var mode: FileMode = .allPermissions | FileBits.all
+        var mode: FileMode = .allPermissions | FileBits.all.rawValue << 9
         XCTAssertEqual(mode.rawValue, 0o7777)
         XCTAssertEqual(mode, FileMode("-rwSrwSrwt"))
         XCTAssertEqual(mode, "-rwSrwSrwt")
@@ -519,7 +519,7 @@ class FileModeTests: XCTestCase {
         XCTAssertNotEqual(empty, ownerGroupAll)
         empty |= ownerAll
         XCTAssertEqual(empty, ownerAll)
-        empty |= groupAll
+        empty |= groupAll.rawValue
         XCTAssertEqual(empty, ownerGroupAll)
     }
 
@@ -535,7 +535,7 @@ class FileModeTests: XCTestCase {
         XCTAssertNotEqual(empty, ownerGroupAll)
         ownerGroupAll &= groupAll
         XCTAssertEqual(ownerGroupAll, groupAll)
-        ownerGroupAll &= ownerAll
+        ownerGroupAll &= ownerAll.rawValue
         XCTAssertEqual(empty, ownerGroupAll)
     }
 
@@ -549,6 +549,14 @@ class FileModeTests: XCTestCase {
 
         XCTAssertEqual(allPermissions.description, "FileMode(owner: \(perms), group: \(perms), others: \(perms), bits: \(noBits))")
         XCTAssertEqual(allBits.description, "FileMode(owner: \(noPerms), group: \(noPerms), others: \(noPerms), bits: \(bits))")
+    }
+
+    func testSetFileBits() {
+        var mode: FileMode = .allPermissions
+
+        XCTAssertEqual(mode.bits, .none)
+        mode.bits = .all
+        XCTAssertEqual(mode.bits, .all)
     }
 
     #if os(Linux)
@@ -615,6 +623,7 @@ class FileModeTests: XCTestCase {
         ("testUidStickyBits", testUidStickyBits),
         ("testGidStickyBits", testGidStickyBits),
         ("testUidGidStickyBits", testUidGidStickyBits),
+        ("testSetFileBits", testSetFileBits),
     ]
     #endif
 }
