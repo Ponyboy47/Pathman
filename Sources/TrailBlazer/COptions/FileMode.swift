@@ -60,11 +60,20 @@ public struct FileMode: OptionSet, ExpressibleByIntegerLiteral, ExpressibleByStr
     */
     public init(_ value: String) {
         self.init(rawValue: 0)
-        guard [9, 10].contains(value.count) else { return }
+        // 9 characters give us 3 sections of 3 (user, group, other)
+        // 10 characters is what linux uses where the first character is either
+        //   a 'd' for directory or a '-'
+        // 11 characters are sometimes present on macOS where the first
+        //   character is like linux, but the last character is either empty, a
+        //   '+', or an '@'
+        guard [9, 10, 11].contains(value.count) else { return }
 
         var value = value
-        if value.count == 10 {
+        if value.count >= 10 {
             value = String(value.dropFirst())
+            if value.count == 10 {
+                value = String(value.dropLast())
+            }
         }
 
         var raw: IntegerLiteralType = 0
@@ -286,14 +295,6 @@ public struct FileMode: OptionSet, ExpressibleByIntegerLiteral, ExpressibleByStr
 
 extension FileMode: CustomStringConvertible {
     public var description: String {
-        var str = "\(type(of: self))(owner: \(owner), group: \(group), others: \(others)"
-
-        #if os(Linux)
-        str += ", bits: \(bits)"
-        #endif
-
-        str += ")"
-
-        return str
+        return "\(type(of: self))(owner: \(owner), group: \(group), others: \(others), bits: \(bits))"
     }
 }
