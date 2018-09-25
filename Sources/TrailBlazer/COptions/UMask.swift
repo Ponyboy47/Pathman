@@ -45,10 +45,17 @@ Sets the process's umask and then returns it
 */
 @discardableResult
 public func setUMask(for mode: FileMode) -> UMask {
+    var newUMask = ~mode
+
+    // umask(2) on Linux always &'s the umask with 0o0777 which ignores the
+    // FileBits. Apparently macOS does not do this though
+    #if os(Linux)
+    newUMask &= .allPermissions
+    #endif
+
     // Invert the mode and use that as the umask
-    lastUMask = FileMode(rawValue: cUmask(~mode.rawValue))
-    _umask = ~mode
-    _umask.bits = .none
+    lastUMask = FileMode(rawValue: cUmask(newUMask.rawValue))
+    _umask = newUMask
 
     return _umask
 }

@@ -483,13 +483,19 @@ class FileModeTests: XCTestCase {
         let originalUMask = umask
         setUMask(for: .none)
 
-        XCTAssertEqual(umask, .allPermissions)
+        #if os(Linux)
+        let expectedUMask: FileMode = .allPermissions
+        #else
+        let expectedUMask: FileMode = .all
+        #endif
+
+        XCTAssertEqual(umask, expectedUMask)
         XCTAssertEqual(originalUMask, lastUMask)
 
         resetUMask()
 
         XCTAssertEqual(umask, originalUMask)
-        XCTAssertEqual(lastUMask, .allPermissions)
+        XCTAssertEqual(lastUMask, expectedUMask)
     }
 
     func testUnmask() {
