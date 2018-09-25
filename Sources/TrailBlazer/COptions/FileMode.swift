@@ -1,7 +1,7 @@
 /// A swift wrapper around the C mode_t type, which is used to hold/manipulate information about a Path's permissions
 public struct FileMode: OptionSet, ExpressibleByIntegerLiteral, ExpressibleByStringLiteral {
     public typealias IntegerLiteralType = OSUInt
-    public typealias ExtendedGraphemeClusterLiteralType = StringLiteralType
+    public typealias StringLiteralType = String
 
     public private(set)var rawValue: IntegerLiteralType
 
@@ -39,11 +39,13 @@ public struct FileMode: OptionSet, ExpressibleByIntegerLiteral, ExpressibleByStr
     }
 
     /// A FileMode with all permissions and all bits on
-    public static let all = FileMode(rawValue: 0o7777)
+    public static let all: FileMode = 0o7777
     /// A FileMode with all permissions and no bits on
-    public static let allPermissions = FileMode(rawValue: 0o0777)
+    public static let allPermissions: FileMode = 0o0777
     /// A FileMode with no permissions and all bits on
-    public static let allBits = FileMode(rawValue: 0o7000)
+    public static let allBits: FileMode = 0o7000
+    /// A FileMode with no permissions and no bits
+    public static let none: FileMode = 0
 
     public init(rawValue: IntegerLiteralType) {
         self.rawValue = rawValue
@@ -66,28 +68,32 @@ public struct FileMode: OptionSet, ExpressibleByIntegerLiteral, ExpressibleByStr
         }
 
         var raw: IntegerLiteralType = 0
+        var sticky = false
         for (index, char) in value.enumerated() {
             if index % 3 == 0 {
                 rawValue |= raw << (9 - index)
                 raw = 0
+                if sticky {
+                    rawValue |= ((index / 3) == 1 ? FileBits.uid : FileBits.gid).rawValue << 9
+                    sticky = false
+                }
             }
 
             switch char {
             case "r": raw |= 0o4
             case "w": raw |= 0o2
+            case "T": sticky = true
+            case "S", "t":
+                sticky = true
+                fallthrough
             case "x": raw |= 0o1
             default: continue
             }
         }
         rawValue |= raw
-    }
-
-    public init(unicodeScalarLiteral value: UnicodeScalarLiteralType) {
-        self.init(value)
-    }
-
-    public init(extendedGraphemeClusterLiteral value: ExtendedGraphemeClusterLiteralType) {
-        self.init(value)
+        if sticky {
+            rawValue |= FileBits.sticky.rawValue << 9
+        }
     }
 
     public init(stringLiteral value: StringLiteralType) {
@@ -195,7 +201,7 @@ public struct FileMode: OptionSet, ExpressibleByIntegerLiteral, ExpressibleByStr
     - Returns: true if the FileMode is permitted by the umask
     */
     public func checkAgainstUMask() -> Bool {
-        return self == unmask()
+        return self == unmasked()
     }
 
     /**
@@ -203,13 +209,13 @@ public struct FileMode: OptionSet, ExpressibleByIntegerLiteral, ExpressibleByStr
 
         - Returns: The FileMode after disabling bits from the umask
     */
-    public func unmask() -> FileMode {
-        return FileMode(rawValue: (~TrailBlazer.umask.rawValue) & rawValue)
+    public func unmasked() -> FileMode {
+        return ~TrailBlazer.umask & rawValue
     }
 
     /// Mutates self to be the FileMode after disabling bits from the umask
-    public mutating func unmasked() {
-        rawValue &= ~TrailBlazer.umask.rawValue
+    public mutating func unmask() {
+        self &= ~TrailBlazer.umask
     }
 
     /// Returns the inverse FileMode with all bits flipped
@@ -217,34 +223,64 @@ public struct FileMode: OptionSet, ExpressibleByIntegerLiteral, ExpressibleByStr
         return FileMode(rawValue: ~lhs.rawValue)
     }
 
-    /// Returns the FileMode with the bits contained in either mode
+    /// Returns a FileMode with the bits contained in either mode
     public static func | (lhs: FileMode, rhs: FileMode) -> FileMode {
         return FileMode(rawValue: lhs.rawValue | rhs.rawValue)
     }
-
-    /// Returns the FileMode with the bits contained in either mode
+    /// Returns a FileMode with the bits contained in either mode
+    public static func | (lhs: FileMode, rhs: FileBits) -> FileMode {
+        return FileMode(rawValue: lhs.rawValue | (rhs.rawValue << 9))
+    }
+    /// Returns a FileMode with the bits contained in either mode
     public static func | (lhs: FileMode, rhs: IntegerLiteralType) -> FileMode {
         return FileMode(rawValue: lhs.rawValue | rhs)
     }
-
-    /// Returns the FileMode with the bits contained in either mode
+    /// Returns a FileMode with the bits contained in either mode
     public static func | (lhs: IntegerLiteralType, rhs: FileMode) -> FileMode {
         return FileMode(rawValue: lhs | rhs.rawValue)
     }
 
-    /// Returns the FileMode with only the bits contained in both mode's
+    /// Sets the FileMode with the bits contained in either mode
+    public static func |= (lhs: inout FileMode, rhs: FileMode) {
+        lhs = lhs | rhs
+    }
+    /// Sets the FileMode with the bits contained in either mode
+    public static func |= (lhs: inout FileMode, rhs: FileBits) {
+        lhs = lhs | rhs
+    }
+    /// Sets the FileMode with the bits contained in either mode
+    public static func | (lhs: inout FileMode, rhs: IntegerLiteralType) {
+        lhs = lhs | rhs
+    }
+
+    /// Returns a FileMode with only the bits contained in both modes
     public static func & (lhs: FileMode, rhs: FileMode) -> FileMode {
         return FileMode(rawValue: lhs.rawValue & rhs.rawValue)
     }
-
-    /// Returns the FileMode with only the bits contained in both mode's
+    /// Returns a FileMode with only the bits contained in both modes
+    public static func & (lhs: FileMode, rhs: FileBits) -> FileMode {
+        return FileMode(rawValue: lhs.rawValue & (rhs.rawValue << 9))
+    }
+    /// Returns a FileMode with only the bits contained in both modes
     public static func & (lhs: FileMode, rhs: IntegerLiteralType) -> FileMode {
         return FileMode(rawValue: lhs.rawValue & rhs)
     }
-
-    /// Returns the FileMode with only the bits contained in both mode's
+    /// Returns a FileMode with only the bits contained in both modes
     public static func & (lhs: IntegerLiteralType, rhs: FileMode) -> FileMode {
         return FileMode(rawValue: lhs & rhs.rawValue)
+    }
+
+    /// Sets the FileMode with only the bits contained in both modes
+    public static func &= (lhs: inout FileMode, rhs: FileMode) {
+        lhs = lhs & rhs
+    }
+    /// Sets the FileMode with only the bits contained in both modes
+    public static func &= (lhs: inout FileMode, rhs: FileBits) {
+        lhs = lhs & rhs
+    }
+    /// Sets the FileMode with only the bits contained in both modes
+    public static func & (lhs: inout FileMode, rhs: IntegerLiteralType) {
+        lhs = lhs & rhs
     }
 }
 

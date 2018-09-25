@@ -66,7 +66,7 @@ extension FilePath: Creatable {
     - Throws: `CreateFileError.pathExists` when creating a path that already exists
     */
     @discardableResult
-    public func create(mode: FileMode = FileMode.allPermissions.unmask(), options: CreateOptions = []) throws -> Open<FilePath> {
+    public func create(mode: FileMode = FileMode.allPermissions.unmasked(), options: CreateOptions = []) throws -> Open<FilePath> {
         guard !exists else { throw CreateFileError.pathExists }
 
         // If the mode is not allowed by the umask, then we'll have to force it
@@ -114,7 +114,7 @@ extension DirectoryPath: Creatable {
     - Throws: `CreateDirectoryError.pathIsRootDirectory` when the path points to the user's root directory
     */
     @discardableResult
-    public func create(mode: FileMode = FileMode.allPermissions.unmask(), options: CreateOptions = []) throws -> Open<DirectoryPath> {
+    public func create(mode: FileMode = FileMode.allPermissions.unmasked(), options: CreateOptions = []) throws -> Open<DirectoryPath> {
         guard !exists else { throw CreateDirectoryError.pathExists }
 
         // If the mode is not allowed by the umask, then we'll have to force it

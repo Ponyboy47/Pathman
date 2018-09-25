@@ -1,6 +1,6 @@
 /// A struct used to hold/manipulate permissions in a C-compatible way for the mode_t struct
 public struct FilePermissions: OptionSet, ExpressibleByStringLiteral, ExpressibleByIntegerLiteral {
-    public typealias ExtendedGraphemeClusterLiteralType = StringLiteralType
+    public typealias StringLiteralType = String
     public typealias IntegerLiteralType = OSUInt
 
     public private(set)var rawValue: IntegerLiteralType
@@ -53,18 +53,10 @@ public struct FilePermissions: OptionSet, ExpressibleByStringLiteral, Expressibl
             switch char {
             case "r": rawValue |= 0o4
             case "w": rawValue |= 0o2
-            case "x": rawValue |= 0o1
+            case "x", "S", "t": rawValue |= 0o1
             default: continue
             }
         }
-    }
-
-    public init(unicodeScalarLiteral value: UnicodeScalarLiteralType) {
-        self.init(value)
-    }
-
-    public init(extendedGraphemeClusterLiteral value: ExtendedGraphemeClusterLiteralType) {
-        self.init(value)
     }
 
     public init(stringLiteral value: StringLiteralType) {
@@ -94,6 +86,6 @@ extension FilePermissions: CustomStringConvertible {
             perms.append("none")
         }
 
-        return "\(type(of: self))(\(perms.joined(separator: ", ")), rawValue: \(rawValue))"
+        return "\(type(of: self))(\(perms.joined(separator: ", ")))"
     }
 }
