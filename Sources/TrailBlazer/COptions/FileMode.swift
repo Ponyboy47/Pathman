@@ -229,7 +229,9 @@ public struct FileMode: OptionSet, ExpressibleByIntegerLiteral, ExpressibleByStr
 
     /// Returns the inverse FileMode with all bits flipped
     public static prefix func ~ (lhs: FileMode) -> FileMode {
-        return FileMode(rawValue: ~lhs.rawValue)
+        // NOTing flips too many bits and may cause rawValues of equivalent
+        // FileModes to no longer be equivalent
+        return FileMode(rawValue: ~lhs.rawValue & FileMode.all.rawValue)
     }
 
     /// Returns a FileMode with the bits contained in either mode
