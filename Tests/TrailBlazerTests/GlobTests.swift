@@ -26,7 +26,7 @@ class GlobTests: XCTestCase {
 
     func testGlobFlagsInit() {
         let flags1 = GlobFlags(.unsorted, .brace, .tilde)
-        let flags2: GlobFlags = 5124
+        let flags2 = GlobFlags(integerLiteral: flags1.rawValue)
         XCTAssertEqual(flags1, flags2)
     }
 
@@ -36,7 +36,7 @@ class GlobTests: XCTestCase {
         #if os(Linux)
         let osFlags = ", period, tildeCheck, onlyDirectories"
         #else
-        let osFlags = "containsGlobbingCharacters, limit"
+        let osFlags = ", containsGlobbingCharacters, limit"
         #endif
 
         XCTAssertEqual(flags.description, "GlobFlags(error, unsorted, offset, noCheck, append, noEscape, alternativeDirectoryFunctions, brace, noMagic, tilde\(osFlags))")
