@@ -84,21 +84,4 @@ class StatTests: XCTestCase {
     func testAttributeChange() {
         let _ = stat.lastAttributeChange
     }
-
-    static var allTests = [
-        ("testInit", testInit),
-        ("testType", testType),
-        ("testID", testID),
-        ("testInode", testInode),
-        ("testPermissions", testPermissions),
-        ("testOwner", testOwner),
-        ("testGroup", testGroup),
-        ("testSize", testSize),
-        ("testDevice", testDevice),
-        ("testBlockSize", testBlockSize),
-        ("testBlocks", testBlocks),
-        ("testAccess", testAccess),
-        ("testModified", testModified),
-        ("testAttributeChange", testAttributeChange),
-    ]
 }

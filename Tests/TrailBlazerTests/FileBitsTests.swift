@@ -61,15 +61,6 @@ class FileBitsTests: XCTestCase {
         XCTAssertEqual(gidSticky.description, "FileBits(gid, sticky)")
         XCTAssertEqual(none.description, "FileBits(none)")
     }
-
-    #if os(Linux)
-    static let allTests = [
-        ("testHasNone", testHasNone),
-        ("testEquality", testEquality),
-        ("testContains", testContains),
-        ("testCustomStringConvertible", testCustomStringConvertible),
-    ]
-    #endif
 }
 
 

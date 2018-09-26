@@ -78,11 +78,4 @@ class LinkTests: XCTestCase {
             return
         }
     }
-
-    static var allTests = [
-        ("testAbsoluteSoftLink", testAbsoluteSoftLink),
-        ("testRelativeSoftLink", testRelativeSoftLink),
-        ("testAbsoluteHardLink", testAbsoluteHardLink),
-        ("testRelativeHardLink", testRelativeHardLink),
-    ]
 }

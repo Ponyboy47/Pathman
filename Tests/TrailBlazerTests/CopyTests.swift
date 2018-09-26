@@ -113,12 +113,5 @@ class CopyTests: XCTestCase {
         try? tmpDirectory.recursiveDelete()
         try? newPath.recursiveDelete()
     }
-
-    static var allTests = [
-        ("testCopyFile", testCopyFile),
-        ("testCopyDirectoryEmpty", testCopyDirectoryEmpty),
-        ("testCopyDirectoryNotEmpty", testCopyDirectoryNotEmpty),
-        ("testCopyDirectoryRecursive", testCopyDirectoryRecursive),
-    ]
 }
 

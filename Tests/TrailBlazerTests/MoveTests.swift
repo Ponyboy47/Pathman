@@ -80,10 +80,4 @@ class MoveTests: XCTestCase {
         try? file.delete()
         try? newDir.delete()
     }
-
-    static var allTests = [
-        ("testMove", testMove),
-        ("testRename", testRename),
-        ("testMoveInto", testMoveInto),
-    ]
 }

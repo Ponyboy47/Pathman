@@ -179,26 +179,4 @@ class PathTests: XCTestCase {
         XCTAssertNotNil(pathType)
         XCTAssertEqual(pathType!, .directory)
     }
-
-    static let allTests = [
-        ("testStringInit", testStringInit),
-        ("testPathInit", testPathInit),
-        ("testArrayInit", testArrayInit),
-        ("testArraySliceInit", testArraySliceInit),
-        ("testStringLiteral", testStringLiteral),
-        ("testArrayLiteral", testArrayLiteral),
-        ("testChRoot", testChRoot),
-        ("testChCWD", testChCWD),
-        ("testComponents", testComponents),
-        ("testLastComponent", testLastComponent),
-        ("testParent", testParent),
-        ("testExists", testExists),
-        ("testCustomStringConvertible", testCustomStringConvertible),
-        ("testEquatable", testEquatable),
-        ("testAddable", testAddable),
-        ("testAbsolute", testAbsolute),
-        ("testExpand", testExpand),
-        ("testRelative", testRelative),
-        ("testPathType", testPathType),
-    ]
 }

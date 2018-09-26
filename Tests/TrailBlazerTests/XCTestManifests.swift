@@ -2,125 +2,134 @@ import XCTest
 
 extension ChmodTests {
     static let __allTests = [
-        ("testSetOwner", testSetOwner),
         ("testSetGroup", testSetGroup),
-        ("testSetOthers", testSetOthers),
-        ("testSetOwnerGroup", testSetOwnerGroup),
-        ("testSetOwnerOthers", testSetOwnerOthers),
         ("testSetGroupOthers", testSetGroupOthers),
+        ("testSetOthers", testSetOthers),
+        ("testSetOwner", testSetOwner),
+        ("testSetOwnerGroup", testSetOwnerGroup),
         ("testSetOwnerGroupOthers", testSetOwnerGroupOthers),
+        ("testSetOwnerOthers", testSetOwnerOthers),
         ("testSetProperties", testSetProperties),
+    ]
+}
+
+extension ChownTests {
+    static let __allTests = [
+        ("testSetBoth", testSetBoth),
+        ("testSetGroup", testSetGroup),
+        ("testSetNeither", testSetNeither),
+        ("testSetOwner", testSetOwner),
     ]
 }
 
 extension CopyTests {
     static let __allTests = [
-        ("testCopyFile", testCopyFile),
         ("testCopyDirectoryEmpty", testCopyDirectoryEmpty),
         ("testCopyDirectoryNotEmpty", testCopyDirectoryNotEmpty),
         ("testCopyDirectoryRecursive", testCopyDirectoryRecursive),
+        ("testCopyFile", testCopyFile),
     ]
 }
 
 extension CreateDeleteTests {
     static let __allTests = [
-        ("testCreateFile", testCreateFile),
-        ("testDeleteFile", testDeleteFile),
         ("testCreateDirectory", testCreateDirectory),
-        ("testDeleteDirectory", testDeleteDirectory),
-        ("testDeleteNonEmptyDirectory", testDeleteNonEmptyDirectory),
-        ("testDeleteDirectoryRecursive", testDeleteDirectoryRecursive),
+        ("testCreateFile", testCreateFile),
         ("testCreateIntermediates", testCreateIntermediates),
+        ("testDeleteDirectory", testDeleteDirectory),
+        ("testDeleteDirectoryRecursive", testDeleteDirectoryRecursive),
+        ("testDeleteFile", testDeleteFile),
+        ("testDeleteNonEmptyDirectory", testDeleteNonEmptyDirectory),
     ]
 }
 
 extension FileBitsTests {
     static let __allTests = [
-        ("testHasNone", testHasNone),
-        ("testEquality", testEquality),
         ("testContains", testContains),
         ("testCustomStringConvertible", testCustomStringConvertible),
+        ("testEquality", testEquality),
+        ("testHasNone", testHasNone),
     ]
 }
 
 extension FileModeTests {
     static let __allTests = [
-        ("testOwnerRead", testOwnerRead),
-        ("testOwnerWrite", testOwnerWrite),
-        ("testOwnerExecute", testOwnerExecute),
-        ("testOwnerReadWrite", testOwnerReadWrite),
-        ("testOwnerReadExecute", testOwnerReadExecute),
-        ("testOwnerWriteExecute", testOwnerWriteExecute),
-        ("testOwnerReadWriteExecute", testOwnerReadWriteExecute),
-        ("testGroupRead", testGroupRead),
-        ("testGroupWrite", testGroupWrite),
-        ("testGroupExecute", testGroupExecute),
-        ("testGroupReadWrite", testGroupReadWrite),
-        ("testGroupReadExecute", testGroupReadExecute),
-        ("testGroupWriteExecute", testGroupWriteExecute),
-        ("testGroupReadWriteExecute", testGroupReadWriteExecute),
-        ("testOthersRead", testOthersRead),
-        ("testOthersWrite", testOthersWrite),
-        ("testOthersExecute", testOthersExecute),
-        ("testOthersReadWrite", testOthersReadWrite),
-        ("testOthersReadExecute", testOthersReadExecute),
-        ("testOthersWriteExecute", testOthersWriteExecute),
-        ("testOthersReadWriteExecute", testOthersReadWriteExecute),
-        ("testOwnerGroupRead", testOwnerGroupRead),
-        ("testOwnerGroupWrite", testOwnerGroupWrite),
-        ("testOwnerGroupExecute", testOwnerGroupExecute),
-        ("testOwnerGroupReadWrite", testOwnerGroupReadWrite),
-        ("testOwnerGroupReadExecute", testOwnerGroupReadExecute),
-        ("testOwnerGroupWriteExecute", testOwnerGroupWriteExecute),
-        ("testOwnerGroupReadWriteExecute", testOwnerGroupReadWriteExecute),
-        ("testOwnerOthersRead", testOwnerOthersRead),
-        ("testOwnerOthersWrite", testOwnerOthersWrite),
-        ("testOwnerOthersExecute", testOwnerOthersExecute),
-        ("testOwnerOthersReadWrite", testOwnerOthersReadWrite),
-        ("testOwnerOthersReadExecute", testOwnerOthersReadExecute),
-        ("testOwnerOthersWriteExecute", testOwnerOthersWriteExecute),
-        ("testOwnerOthersReadWriteExecute", testOwnerOthersReadWriteExecute),
-        ("testGroupOthersRead", testGroupOthersRead),
-        ("testGroupOthersWrite", testGroupOthersWrite),
-        ("testGroupOthersExecute", testGroupOthersExecute),
-        ("testGroupOthersReadWrite", testGroupOthersReadWrite),
-        ("testGroupOthersReadExecute", testGroupOthersReadExecute),
-        ("testGroupOthersWriteExecute", testGroupOthersWriteExecute),
-        ("testGroupOthersReadWriteExecute", testGroupOthersReadWriteExecute),
-        ("testOwnerGroupOthersRead", testOwnerGroupOthersRead),
-        ("testOwnerGroupOthersWrite", testOwnerGroupOthersWrite),
-        ("testOwnerGroupOthersExecute", testOwnerGroupOthersExecute),
-        ("testOwnerGroupOthersReadWrite", testOwnerGroupOthersReadWrite),
-        ("testOwnerGroupOthersReadExecute", testOwnerGroupOthersReadExecute),
-        ("testOwnerGroupOthersWriteExecute", testOwnerGroupOthersWriteExecute),
-        ("testOwnerGroupOthersReadWriteExecute", testOwnerGroupOthersReadWriteExecute),
-        ("testOSStrings", testOSStrings),
-        ("testUMask", testUMask),
-        ("testUnmask", testUnmask),
-        ("testOrOperator", testOrOperator),
         ("testAndOperator", testAndOperator),
         ("testCustomStringConvertible", testCustomStringConvertible),
-        ("testUidBit", testUidBit),
         ("testGidBit", testGidBit),
-        ("testStickyBit", testStickyBit),
-        ("testUidGidBits", testUidGidBits),
-        ("testUidStickyBits", testUidStickyBits),
         ("testGidStickyBits", testGidStickyBits),
-        ("testUidGidStickyBits", testUidGidStickyBits),
+        ("testGroupExecute", testGroupExecute),
+        ("testGroupOthersExecute", testGroupOthersExecute),
+        ("testGroupOthersRead", testGroupOthersRead),
+        ("testGroupOthersReadExecute", testGroupOthersReadExecute),
+        ("testGroupOthersReadWrite", testGroupOthersReadWrite),
+        ("testGroupOthersReadWriteExecute", testGroupOthersReadWriteExecute),
+        ("testGroupOthersWrite", testGroupOthersWrite),
+        ("testGroupOthersWriteExecute", testGroupOthersWriteExecute),
+        ("testGroupRead", testGroupRead),
+        ("testGroupReadExecute", testGroupReadExecute),
+        ("testGroupReadWrite", testGroupReadWrite),
+        ("testGroupReadWriteExecute", testGroupReadWriteExecute),
+        ("testGroupWrite", testGroupWrite),
+        ("testGroupWriteExecute", testGroupWriteExecute),
+        ("testOrOperator", testOrOperator),
+        ("testOSStrings", testOSStrings),
+        ("testOthersExecute", testOthersExecute),
+        ("testOthersRead", testOthersRead),
+        ("testOthersReadExecute", testOthersReadExecute),
+        ("testOthersReadWrite", testOthersReadWrite),
+        ("testOthersReadWriteExecute", testOthersReadWriteExecute),
+        ("testOthersWrite", testOthersWrite),
+        ("testOthersWriteExecute", testOthersWriteExecute),
+        ("testOwnerExecute", testOwnerExecute),
+        ("testOwnerGroupExecute", testOwnerGroupExecute),
+        ("testOwnerGroupOthersExecute", testOwnerGroupOthersExecute),
+        ("testOwnerGroupOthersRead", testOwnerGroupOthersRead),
+        ("testOwnerGroupOthersReadExecute", testOwnerGroupOthersReadExecute),
+        ("testOwnerGroupOthersReadWrite", testOwnerGroupOthersReadWrite),
+        ("testOwnerGroupOthersReadWriteExecute", testOwnerGroupOthersReadWriteExecute),
+        ("testOwnerGroupOthersWrite", testOwnerGroupOthersWrite),
+        ("testOwnerGroupOthersWriteExecute", testOwnerGroupOthersWriteExecute),
+        ("testOwnerGroupRead", testOwnerGroupRead),
+        ("testOwnerGroupReadExecute", testOwnerGroupReadExecute),
+        ("testOwnerGroupReadWrite", testOwnerGroupReadWrite),
+        ("testOwnerGroupReadWriteExecute", testOwnerGroupReadWriteExecute),
+        ("testOwnerGroupWrite", testOwnerGroupWrite),
+        ("testOwnerGroupWriteExecute", testOwnerGroupWriteExecute),
+        ("testOwnerOthersExecute", testOwnerOthersExecute),
+        ("testOwnerOthersRead", testOwnerOthersRead),
+        ("testOwnerOthersReadExecute", testOwnerOthersReadExecute),
+        ("testOwnerOthersReadWrite", testOwnerOthersReadWrite),
+        ("testOwnerOthersReadWriteExecute", testOwnerOthersReadWriteExecute),
+        ("testOwnerOthersWrite", testOwnerOthersWrite),
+        ("testOwnerOthersWriteExecute", testOwnerOthersWriteExecute),
+        ("testOwnerRead", testOwnerRead),
+        ("testOwnerReadExecute", testOwnerReadExecute),
+        ("testOwnerReadWrite", testOwnerReadWrite),
+        ("testOwnerReadWriteExecute", testOwnerReadWriteExecute),
+        ("testOwnerWrite", testOwnerWrite),
+        ("testOwnerWriteExecute", testOwnerWriteExecute),
         ("testSetFileBits", testSetFileBits),
+        ("testStickyBit", testStickyBit),
+        ("testUidBit", testUidBit),
+        ("testUidGidBits", testUidGidBits),
+        ("testUidGidStickyBits", testUidGidStickyBits),
+        ("testUidStickyBits", testUidStickyBits),
+        ("testUMask", testUMask),
+        ("testUnmask", testUnmask),
     ]
 }
 
 extension FilePermissionsTests {
     static let __allTests = [
-        ("testRead", testRead),
-        ("testWrite", testWrite),
         ("testExecute", testExecute),
         ("testNone", testNone),
-        ("testReadWrite", testReadWrite),
+        ("testRead", testRead),
         ("testReadExecute", testReadExecute),
-        ("testWriteExecute", testWriteExecute),
+        ("testReadWrite", testReadWrite),
         ("testReadWriteExecute", testReadWriteExecute),
+        ("testWrite", testWrite),
+        ("testWriteExecute", testWriteExecute),
     ]
 }
 
@@ -128,127 +137,128 @@ extension GlobTests {
     static let __allTests = [
         ("testGlob", testGlob),
         ("testGlobDirectory", testGlobDirectory),
-        ("testGlobFlagsInit", testGlobFlagsInit),
         ("testGlobFlagsCustomStringConvertible", testGlobFlagsCustomStringConvertible),
+        ("testGlobFlagsInit", testGlobFlagsInit),
     ]
 }
 
 extension LinkTests {
     static let __allTests = [
-        ("testAbsoluteSoftLink", testAbsoluteSoftLink),
-        ("testRelativeSoftLink", testRelativeSoftLink),
         ("testAbsoluteHardLink", testAbsoluteHardLink),
+        ("testAbsoluteSoftLink", testAbsoluteSoftLink),
         ("testRelativeHardLink", testRelativeHardLink),
+        ("testRelativeSoftLink", testRelativeSoftLink),
     ]
 }
 
 extension MoveTests {
     static let __allTests = [
         ("testMove", testMove),
-        ("testRename", testRename),
         ("testMoveInto", testMoveInto),
+        ("testRename", testRename),
     ]
 }
 
 extension OpenTests {
     static let __allTests = [
-        ("testOpenFile", testOpenFile),
-        ("testReadFile", testReadFile),
-        ("testWriteFile", testWriteFile),
-        ("testOpenDirectory", testOpenDirectory),
         ("testGetDirectoryChildren", testGetDirectoryChildren),
+        ("testOpenDirectory", testOpenDirectory),
+        ("testOpenFile", testOpenFile),
         ("testOpenFileFlagsCustomStringConvertible", testOpenFileFlagsCustomStringConvertible),
         ("testOpenFilePermissionsCustomStringConvertible", testOpenFilePermissionsCustomStringConvertible),
+        ("testReadFile", testReadFile),
+        ("testWriteFile", testWriteFile),
     ]
 }
 
 extension PathCollectionTests {
     static let __allTests = [
         ("testEmpty", testEmpty),
+        ("testEquality", testEquality),
         ("testNotEmpty", testNotEmpty),
         ("testPlus", testPlus),
         ("testPlusEqual", testPlusEqual),
-        ("testEquality", testEquality),
     ]
 }
 
 extension PathTests {
     static let __allTests = [
-        ("testStringInit", testStringInit),
-        ("testPathInit", testPathInit),
+        ("testAbsolute", testAbsolute),
+        ("testAddable", testAddable),
         ("testArrayInit", testArrayInit),
-        ("testArraySliceInit", testArraySliceInit),
-        ("testStringLiteral", testStringLiteral),
         ("testArrayLiteral", testArrayLiteral),
-        ("testChRoot", testChRoot),
+        ("testArraySliceInit", testArraySliceInit),
         ("testChCWD", testChCWD),
+        ("testChRoot", testChRoot),
         ("testComponents", testComponents),
-        ("testLastComponent", testLastComponent),
-        ("testParent", testParent),
-        ("testExists", testExists),
         ("testCustomStringConvertible", testCustomStringConvertible),
         ("testEquatable", testEquatable),
-        ("testAddable", testAddable),
-        ("testAbsolute", testAbsolute),
+        ("testExists", testExists),
         ("testExpand", testExpand),
-        ("testRelative", testRelative),
+        ("testLastComponent", testLastComponent),
+        ("testParent", testParent),
+        ("testPathInit", testPathInit),
         ("testPathType", testPathType),
+        ("testRelative", testRelative),
+        ("testStringInit", testStringInit),
+        ("testStringLiteral", testStringLiteral),
     ]
 }
 
 extension StatTests {
     static let __allTests = [
-        ("testInit", testInit),
-        ("testType", testType),
-        ("testID", testID),
-        ("testInode", testInode),
-        ("testPermissions", testPermissions),
-        ("testOwner", testOwner),
-        ("testGroup", testGroup),
-        ("testSize", testSize),
-        ("testDevice", testDevice),
-        ("testBlockSize", testBlockSize),
-        ("testBlocks", testBlocks),
         ("testAccess", testAccess),
-        ("testModified", testModified),
         ("testAttributeChange", testAttributeChange),
+        ("testBlocks", testBlocks),
+        ("testBlockSize", testBlockSize),
+        ("testDevice", testDevice),
+        ("testGroup", testGroup),
+        ("testID", testID),
+        ("testInit", testInit),
+        ("testInode", testInode),
+        ("testModified", testModified),
+        ("testOwner", testOwner),
+        ("testPermissions", testPermissions),
+        ("testSize", testSize),
+        ("testType", testType),
     ]
 }
 
 extension TemporaryTests {
     static let __allTests = [
-        ("testTemporaryFile", testTemporaryFile),
         ("testTemporaryDirectory", testTemporaryDirectory),
+        ("testTemporaryFile", testTemporaryFile),
     ]
 }
 
 extension UtilityTests {
     static let __allTests = [
+        ("testGigabytes", testGigabytes),
         ("testKilobytes", testKilobytes),
         ("testMegabytes", testMegabytes),
-        ("testGigabytes", testGigabytes),
-        ("testTerabytes", testTerabytes),
         ("testPetabytes", testPetabytes),
+        ("testTerabytes", testTerabytes),
     ]
 }
 
 #if !os(macOS)
 public func __allTests() -> [XCTestCaseEntry] {
     return [
-        testCase(FilePermissionsTests.__allTests),
-        testCase(FileModeTests.__allTests),
+        testCase(ChmodTests.__allTests),
+        testCase(ChownTests.__allTests),
+        testCase(CopyTests.__allTests),
+        testCase(CreateDeleteTests.__allTests),
         testCase(FileBitsTests.__allTests),
+        testCase(FileModeTests.__allTests),
+        testCase(FilePermissionsTests.__allTests),
+        testCase(GlobTests.__allTests),
+        testCase(LinkTests.__allTests),
+        testCase(MoveTests.__allTests),
+        testCase(OpenTests.__allTests),
+        testCase(PathCollectionTests.__allTests),
         testCase(PathTests.__allTests),
         testCase(StatTests.__allTests),
-        testCase(OpenTests.__allTests),
-        testCase(CreateDeleteTests.__allTests),
-        testCase(ChmodTests.__allTests),
-        testCase(MoveTests.__allTests),
-        testCase(GlobTests.__allTests),
         testCase(TemporaryTests.__allTests),
-        testCase(LinkTests.__allTests),
-        testCase(CopyTests.__allTests),
-        testCase(PathCollectionTests.__allTests),
         testCase(UtilityTests.__allTests),
     ]
 }

@@ -141,11 +141,4 @@ class ChownTests: XCTestCase {
 
         try? file.delete()
     }
-
-    static var allTests = [
-        ("testSetOwner", testSetOwner),
-        ("testSetGroup", testSetGroup),
-        ("testSetBoth", testSetBoth),
-        ("testSetNeither", testSetNeither),
-    ]
 }

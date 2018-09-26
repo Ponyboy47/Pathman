@@ -338,16 +338,5 @@ class ChmodTests: XCTestCase {
 
         try? file.delete()
     }
-
-    static var allTests = [
-        ("testSetOwner", testSetOwner),
-        ("testSetGroup", testSetGroup),
-        ("testSetOthers", testSetOthers),
-        ("testSetOwnerGroup", testSetOwnerGroup),
-        ("testSetOwnerOthers", testSetOwnerOthers),
-        ("testSetGroupOthers", testSetGroupOthers),
-        ("testSetOwnerGroupOthers", testSetOwnerGroupOthers),
-        ("testSetProperties", testSetProperties),
-    ]
 }
 

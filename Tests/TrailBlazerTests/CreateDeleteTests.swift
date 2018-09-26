@@ -166,14 +166,4 @@ class CreateDeleteTests: XCTestCase {
 
         try? dir.recursiveDelete()
     }
-
-    static var allTests = [
-        ("testCreateFile", testCreateFile),
-        ("testDeleteFile", testDeleteFile),
-        ("testCreateDirectory", testCreateDirectory),
-        ("testDeleteDirectory", testDeleteDirectory),
-        ("testDeleteNonEmptyDirectory", testDeleteNonEmptyDirectory),
-        ("testDeleteDirectoryRecursive", testDeleteDirectoryRecursive),
-        ("testCreateIntermediates", testCreateIntermediates),
-    ]
 }

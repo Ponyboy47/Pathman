@@ -57,16 +57,5 @@ class FilePermissionsTests: XCTestCase {
         XCTAssertEqual(FilePermissions("rwx"), perms)
         XCTAssertEqual("rwx", perms)
     }
-
-    static var allTests = [
-        ("testRead", testRead),
-        ("testWrite", testWrite),
-        ("testExecute", testExecute),
-        ("testNone", testNone),
-        ("testReadWrite", testReadWrite),
-        ("testReadExecute", testReadExecute),
-        ("testWriteExecute", testWriteExecute),
-        ("testReadWriteExecute", testReadWriteExecute),
-    ]
 }
 

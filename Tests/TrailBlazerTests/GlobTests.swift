@@ -44,12 +44,5 @@ class GlobTests: XCTestCase {
         let other: GlobFlags = 0
         XCTAssertEqual(other.description, "GlobFlags(none)")
     }
-
-    static var allTests = [
-        ("testGlob", testGlob),
-        ("testGlobDirectory", testGlobDirectory),
-        ("testGlobFlagsInit", testGlobFlagsInit),
-        ("testGlobFlagsCustomStringConvertible", testGlobFlagsCustomStringConvertible),
-    ]
 }
 

@@ -54,14 +54,4 @@ class PathCollectionTests: XCTestCase {
         pE += children1
         XCTAssertNotEqual(pE, combinedChildren)
     }
-
-    #if os(Linux)
-    static let allTests = [
-        ("testEmpty", testEmpty),
-        ("testNotEmpty", testNotEmpty),
-        ("testPlus", testPlus),
-        ("testPlusEqual", testPlusEqual),
-        ("testEquality", testEquality),
-    ]
-    #endif
 }

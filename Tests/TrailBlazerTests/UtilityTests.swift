@@ -63,15 +63,5 @@ class UtilityTests: XCTestCase {
         XCTAssertEqual(Float(byteAmount).petabytes, pbAmount)
         XCTAssertEqual(Float(byteAmount).pb, pbAmount)
     }
-
-    #if os(Linux)
-    static let allTests = [
-        ("testKilobytes", testKilobytes),
-        ("testMegabytes", testMegabytes),
-        ("testGigabytes", testGigabytes),
-        ("testTerabytes", testTerabytes),
-        ("testPetabytes", testPetabytes),
-    ]
-    #endif
 }
 

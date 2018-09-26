@@ -27,9 +27,4 @@ class TemporaryTests: XCTestCase {
             return
         }
     }
-
-    static var allTests = [
-        ("testTemporaryFile", testTemporaryFile),
-        ("testTemporaryDirectory", testTemporaryDirectory),
-    ]
 }
