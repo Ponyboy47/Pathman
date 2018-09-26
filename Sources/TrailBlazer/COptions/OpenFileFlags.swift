@@ -228,6 +228,6 @@ extension OpenFileFlags: CustomStringConvertible {
             flags.append("none")
         }
 
-        return "\(type(of: self))(\(flags.joined(separator: ", ")), rawValue: \(rawValue))"
+        return "\(type(of: self))(\(flags.joined(separator: ", ")))"
     }
 }
