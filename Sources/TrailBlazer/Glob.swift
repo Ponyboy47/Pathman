@@ -166,6 +166,20 @@ public class Glob {
         matches variable of this Glob object.
     */
     public var offset: Int { return Int(_glob.pointee.gl_offs) }
+
+    #if os(macOS)
+    /// The GlobFlags included or used by the glob
+    public var flags: GlobFlags { return GlobFlags(rawValue: _glob.pointee.gl_flags) }
+
+    /** The limit on the number of matches to return. Intended to prevent DoS
+      attacks. Only honored if the .limit GlobFlag is included.
+    */
+    public var limit: Int {
+        get { return Int(_glob.pointee.gl_matchc) }
+        set { _glob.pointee.gl_matchc = newValue }
+    }
+    #endif
+
     /// The C function to use to close directories (default is closedir(2))
     public var closedir: (@convention(c) (UnsafeMutableRawPointer?) -> ()) {
         get { return _glob.pointee.gl_closedir }
