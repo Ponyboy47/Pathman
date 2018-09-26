@@ -52,6 +52,6 @@ extension OpenFilePermissions: CustomStringConvertible {
             permissions.append("none")
         }
 
-        return "\(type(of: self))(\(permissions.joined(separator: ", ")), rawValue: \(rawValue))"
+        return "\(type(of: self))(\(permissions.joined(separator: ", ")))"
     }
 }
