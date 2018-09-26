@@ -169,6 +169,17 @@ class PathTests: XCTestCase {
         XCTAssertEqual(relative1, relative1.absolute?.relative ?? relative1)
     }
 
+    func testPathType() {
+        guard let dir = DirectoryPath("/tmp") else {
+            XCTFail("/tmp is not a directory")
+            return
+        }
+
+        let pathType = PathType(mode: dir.permissions)
+        XCTAssertNotNil(pathType)
+        XCTAssertEqual(pathType!, .directory)
+    }
+
     static var allTests = [
         ("testStringInit", testStringInit),
         ("testPathInit", testPathInit),
@@ -188,5 +199,6 @@ class PathTests: XCTestCase {
         ("testAbsolute", testAbsolute),
         ("testExpand", testExpand),
         ("testRelative", testRelative),
+        ("testPathType", testPathType),
     ]
 }
