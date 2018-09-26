@@ -168,15 +168,12 @@ public class Glob {
     public var offset: Int { return Int(_glob.pointee.gl_offs) }
 
     #if os(macOS)
-    /// The GlobFlags included or used by the glob
-    public var flags: GlobFlags { return GlobFlags(rawValue: _glob.pointee.gl_flags) }
-
     /** The limit on the number of matches to return. Intended to prevent DoS
       attacks. Only honored if the .limit GlobFlag is included.
     */
     public var limit: Int {
         get { return Int(_glob.pointee.gl_matchc) }
-        set { _glob.pointee.gl_matchc = newValue }
+        set { _glob.pointee.gl_matchc = OptionInt(newValue) }
     }
     #endif
 
