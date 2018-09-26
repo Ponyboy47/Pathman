@@ -180,7 +180,7 @@ class PathTests: XCTestCase {
         XCTAssertEqual(pathType!, .directory)
     }
 
-    static var allTests = [
+    static let allTests = [
         ("testStringInit", testStringInit),
         ("testPathInit", testPathInit),
         ("testArrayInit", testArrayInit),

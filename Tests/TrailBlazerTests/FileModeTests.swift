@@ -615,7 +615,7 @@ class FileModeTests: XCTestCase {
         ("testUnmask", testUnmask),
         ("testOrOperator", testOrOperator),
         ("testAndOperator", testAndOperator),
-        ("testCustomStringConvertable", testCustomStringConvertible),
+        ("testCustomStringConvertible", testCustomStringConvertible),
         ("testUidBit", testUidBit),
         ("testGidBit", testGidBit),
         ("testStickyBit", testStickyBit),
