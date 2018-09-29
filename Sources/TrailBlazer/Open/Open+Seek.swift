@@ -91,8 +91,7 @@ public struct Offset {
     var bytes: OSOffsetInt
 
     init(_ type: OffsetType, _ bytes: OSOffsetInt) {
-        self.type = type
-        self.bytes = bytes
+        self.init(type: type, bytes: bytes)
     }
 
     public init(type: OffsetType, bytes: OSOffsetInt) {
