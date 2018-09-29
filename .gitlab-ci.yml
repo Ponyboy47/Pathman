@@ -1,0 +1,25 @@
+image: swift:4.2
+
+stages:
+    - build
+    - test
+
+build:
+    stage: build
+    script:
+        - swift build
+    only:
+        - branches
+    tags:
+        - build
+        - swift
+
+test:
+    stage: test
+    script:
+        - swift test
+    only:
+        - branches
+    tags:
+        - test
+        - swift
