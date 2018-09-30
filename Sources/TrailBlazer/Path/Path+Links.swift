@@ -281,4 +281,6 @@ public extension LinkedPath where PathType: FilePath {
         set { __path.openFlags = newValue }
     }
     public var createMode: FileMode? { return __path.createMode }
+    public var mayRead: Bool { return __path.mayRead }
+    public var mayWrite: Bool { return __path.mayWrite }
 }

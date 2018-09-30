@@ -126,11 +126,6 @@ public class DirectoryPath: Path, Openable, Linkable {
         _info = path.info
     }
 
-    @available(*, renamed: "open", message: "Opening a directory does not permit options or a mode")
-    public func open(options: OptionInt, mode: FileMode?) throws -> Open<DirectoryPath> {
-        fatalError("Opening a directory does not permit options or a mode")
-    }
-
     /**
     Opens the directory
 

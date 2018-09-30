@@ -26,13 +26,13 @@ public struct FilePermissions: OptionSet, ExpressibleByStringLiteral, Expressibl
     public static let readWriteExecute: FilePermissions = .all
 
     // If the permissions include read permissions
-    public var canRead: Bool { return contains(.read) }
+    public var isReadable: Bool { return contains(.read) }
     // If the permissions include write permissions
-    public var canWrite: Bool { return contains(.write) }
+    public var isWritable: Bool { return contains(.write) }
     // If the permissions include execute permissions
-    public var canExecute: Bool { return contains(.execute) }
+    public var isExecutable: Bool { return contains(.execute) }
     /// If the permissions are empty
-    public var hasNone: Bool { return !(canRead || canWrite || canExecute) }
+    public var hasNone: Bool { return !(isReadable || isWritable || isExecutable) }
 
     public init(rawValue: IntegerLiteralType) {
         self.rawValue = rawValue
@@ -72,13 +72,13 @@ extension FilePermissions: CustomStringConvertible {
     public var description: String {
         var perms: [String] = []
 
-        if canRead {
+        if isReadable {
             perms.append("read")
         }
-        if canWrite {
+        if isWritable {
             perms.append("write")
         }
-        if canExecute {
+        if isExecutable {
             perms.append("execute")
         }
 

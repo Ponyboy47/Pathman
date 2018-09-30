@@ -56,6 +56,11 @@ extension Open: Writable where PathType: FilePath {
     */
     public func write(_ buffer: Data, at offset: Offset = .current) throws {
         if !mayWrite {
+            // If the path is not opened for writing, but the calling process
+            // does not have write permissions to the path, then opening will fail
+            guard isWritable else {
+                throw OpenFileError.permissionDenied
+            }
             try path.open(permissions: .write)
         }
 

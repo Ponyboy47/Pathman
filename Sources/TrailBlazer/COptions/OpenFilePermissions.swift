@@ -19,8 +19,8 @@ public struct OpenFilePermissions: Equatable, ExpressibleByIntegerLiteral {
 
     public static let none: OpenFilePermissions = -1
 
-    public var canRead: Bool { return contains(.read) }
-    public var canWrite: Bool { return contains(.write) }
+    public var mayRead: Bool { return contains(.read) }
+    public var mayWrite: Bool { return contains(.write) }
 
     public init(rawValue: IntegerLiteralType) {
         self.rawValue = rawValue
@@ -42,10 +42,10 @@ public struct OpenFilePermissions: Equatable, ExpressibleByIntegerLiteral {
 extension OpenFilePermissions: CustomStringConvertible {
     public var description: String {
         var permissions: [String] = []
-        if canRead {
+        if mayRead {
             permissions.append("read")
         }
-        if canWrite {
+        if mayWrite {
             permissions.append("write")
         }
         if permissions.isEmpty {

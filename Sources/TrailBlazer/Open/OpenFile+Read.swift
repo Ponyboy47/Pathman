@@ -85,6 +85,11 @@ extension Open: Readable where PathType: FilePath {
     */
     public func read(from offset: Offset = .current, bytes byteCount: Int? = nil) throws -> Data {
         if !mayRead {
+            // If the path is not opened for reading, but the calling process
+            // does not have read permissions to the path, then opening will fail
+            guard isReadable else {
+                throw OpenFileError.permissionDenied
+            }
             try path.open(permissions: .read)
         }
 

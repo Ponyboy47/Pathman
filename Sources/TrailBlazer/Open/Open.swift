@@ -13,23 +13,11 @@ public protocol Openable: StatDelegate {
 
     /// The underlying file descriptor of the opened path
     var fileDescriptor: FileDescriptor { get }
-
-    /**
-    Whether or not the path was opened with read permissions
-
-    NOTE: Just because the path was opened with read permissions does not
-    necessarily mean the calling process has access to read the path
-    */
-    var mayRead: Bool { get }
-    /**
-    Whether or not the path was opened with write permissions
-
-    NOTE: Just because the path was opened with write permissions does not
-    necessarily mean the calling process has access to write the path
-    */
-    var mayWrite: Bool { get }
-
     var openOptions: OpenOptionsType? { get }
+    /// Whether the opened path may be read from
+    var mayRead: Bool { get }
+    /// Whether the opened path may be written to
+    var mayWrite: Bool { get }
 
     /// Opens the path, sets the `fileDescriptor`, and returns the newly opened path
     func open() throws -> Open<OpenableType>
@@ -38,9 +26,10 @@ public protocol Openable: StatDelegate {
 }
 
 extension Openable {
+    public var openOptions: OpenOptionsType? { return nil }
+
     public var mayRead: Bool { return true }
     public var mayWrite: Bool { return true }
-    public var openOptions: OpenOptionsType? { return nil }
 }
 
 /// Contains the buffer used for reading from a path
@@ -52,7 +41,6 @@ open class Open<PathType: Path & Openable>: Openable, Ownable, Permissionable, S
     public typealias OpenableType = PathType.OpenableType
     public typealias OpenOptionsType = PathType.OpenOptionsType
 
-    /// The path of which this object is the open representation
     public let path: PathType
     public var fileDescriptor: FileDescriptor { return path.fileDescriptor }
     public var openOptions: OpenOptionsType? { return path.openOptions }
@@ -64,6 +52,16 @@ open class Open<PathType: Path & Openable>: Openable, Ownable, Permissionable, S
     }
 
     public var url: URL { return path.url }
+
+    /// Whether or not the path may be read
+    public var isReadable: Bool {
+        return mayRead && path.isReadable
+    }
+
+    /// Whether or not the path may be written to
+    public var isWritable: Bool {
+        return mayWrite && path.isWritable
+    }
 
     /// The buffer used to store data read from a path
     var buffer: UnsafeMutablePointer<CChar>? {

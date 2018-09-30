@@ -1,11 +1,20 @@
+#if os(Linux)
+import Glibc
+#else
+import Darwin
+#endif
+
 public typealias OpenFile = Open<FilePath>
 
 extension Open where PathType: FilePath {
+    /// Whether or not the path was opened with read permissions
     public var mayRead: Bool {
-        return openPermissions.canRead
+        return path.mayRead
     }
+
+    /// Whether or not the path was opened with write permissions
     public var mayWrite: Bool {
-        return openPermissions.canWrite
+        return path.mayWrite
     }
 
     public var openPermissions: OpenFilePermissions { return path.openPermissions }

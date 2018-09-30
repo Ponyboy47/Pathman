@@ -33,19 +33,19 @@ class ChmodTests: XCTestCase {
         let permissions = file.permissions
 
         let owner = permissions.owner
-        XCTAssertTrue(owner.canRead)
-        XCTAssertTrue(owner.canWrite)
-        XCTAssertFalse(owner.canExecute)
+        XCTAssertTrue(owner.isReadable)
+        XCTAssertTrue(owner.isWritable)
+        XCTAssertFalse(owner.isExecutable)
 
         let group = permissions.group
-        XCTAssertTrue(group.canRead)
-        XCTAssertTrue(group.canWrite)
-        XCTAssertTrue(group.canExecute)
+        XCTAssertTrue(group.isReadable)
+        XCTAssertTrue(group.isWritable)
+        XCTAssertTrue(group.isExecutable)
 
         let others = permissions.others
-        XCTAssertTrue(others.canRead)
-        XCTAssertTrue(others.canWrite)
-        XCTAssertTrue(others.canExecute)
+        XCTAssertTrue(others.isReadable)
+        XCTAssertTrue(others.isWritable)
+        XCTAssertTrue(others.isExecutable)
 
         try? file.delete()
     }
@@ -74,19 +74,19 @@ class ChmodTests: XCTestCase {
         let permissions = file.permissions
 
         let owner = permissions.owner
-        XCTAssertTrue(owner.canRead)
-        XCTAssertTrue(owner.canWrite)
-        XCTAssertTrue(owner.canExecute)
+        XCTAssertTrue(owner.isReadable)
+        XCTAssertTrue(owner.isWritable)
+        XCTAssertTrue(owner.isExecutable)
 
         let group = permissions.group
-        XCTAssertTrue(group.canRead)
-        XCTAssertTrue(group.canWrite)
-        XCTAssertFalse(group.canExecute)
+        XCTAssertTrue(group.isReadable)
+        XCTAssertTrue(group.isWritable)
+        XCTAssertFalse(group.isExecutable)
 
         let others = permissions.others
-        XCTAssertTrue(others.canRead)
-        XCTAssertTrue(others.canWrite)
-        XCTAssertTrue(others.canExecute)
+        XCTAssertTrue(others.isReadable)
+        XCTAssertTrue(others.isWritable)
+        XCTAssertTrue(others.isExecutable)
 
         try? file.delete()
     }
@@ -115,19 +115,19 @@ class ChmodTests: XCTestCase {
         let permissions = file.permissions
 
         let owner = permissions.owner
-        XCTAssertTrue(owner.canRead)
-        XCTAssertTrue(owner.canWrite)
-        XCTAssertTrue(owner.canExecute)
+        XCTAssertTrue(owner.isReadable)
+        XCTAssertTrue(owner.isWritable)
+        XCTAssertTrue(owner.isExecutable)
 
         let group = permissions.group
-        XCTAssertTrue(group.canRead)
-        XCTAssertTrue(group.canWrite)
-        XCTAssertTrue(group.canExecute)
+        XCTAssertTrue(group.isReadable)
+        XCTAssertTrue(group.isWritable)
+        XCTAssertTrue(group.isExecutable)
 
         let others = permissions.others
-        XCTAssertTrue(others.canRead)
-        XCTAssertTrue(others.canWrite)
-        XCTAssertFalse(others.canExecute)
+        XCTAssertTrue(others.isReadable)
+        XCTAssertTrue(others.isWritable)
+        XCTAssertFalse(others.isExecutable)
 
         try? file.delete()
     }
@@ -156,19 +156,19 @@ class ChmodTests: XCTestCase {
         let permissions = file.permissions
 
         let owner = permissions.owner
-        XCTAssertTrue(owner.canRead)
-        XCTAssertTrue(owner.canWrite)
-        XCTAssertFalse(owner.canExecute)
+        XCTAssertTrue(owner.isReadable)
+        XCTAssertTrue(owner.isWritable)
+        XCTAssertFalse(owner.isExecutable)
 
         let group = permissions.group
-        XCTAssertTrue(group.canRead)
-        XCTAssertTrue(group.canWrite)
-        XCTAssertFalse(group.canExecute)
+        XCTAssertTrue(group.isReadable)
+        XCTAssertTrue(group.isWritable)
+        XCTAssertFalse(group.isExecutable)
 
         let others = permissions.others
-        XCTAssertTrue(others.canRead)
-        // XCTAssertTrue(others.canWrite)
-        XCTAssertTrue(others.canExecute)
+        XCTAssertTrue(others.isReadable)
+        // XCTAssertTrue(others.isWritable)
+        XCTAssertTrue(others.isExecutable)
 
         try? file.delete()
     }
@@ -197,19 +197,19 @@ class ChmodTests: XCTestCase {
         let permissions = file.permissions
 
         let owner = permissions.owner
-        XCTAssertTrue(owner.canRead)
-        XCTAssertTrue(owner.canWrite)
-        XCTAssertFalse(owner.canExecute)
+        XCTAssertTrue(owner.isReadable)
+        XCTAssertTrue(owner.isWritable)
+        XCTAssertFalse(owner.isExecutable)
 
         let group = permissions.group
-        XCTAssertTrue(group.canRead)
-        XCTAssertTrue(group.canWrite)
-        XCTAssertTrue(group.canExecute)
+        XCTAssertTrue(group.isReadable)
+        XCTAssertTrue(group.isWritable)
+        XCTAssertTrue(group.isExecutable)
 
         let others = permissions.others
-        XCTAssertTrue(others.canRead)
-        XCTAssertTrue(others.canWrite)
-        XCTAssertFalse(others.canExecute)
+        XCTAssertTrue(others.isReadable)
+        XCTAssertTrue(others.isWritable)
+        XCTAssertFalse(others.isExecutable)
 
         try? file.delete()
     }
@@ -238,19 +238,19 @@ class ChmodTests: XCTestCase {
         let permissions = file.permissions
 
         let owner = permissions.owner
-        XCTAssertTrue(owner.canRead)
-        XCTAssertTrue(owner.canWrite)
-        XCTAssertTrue(owner.canExecute)
+        XCTAssertTrue(owner.isReadable)
+        XCTAssertTrue(owner.isWritable)
+        XCTAssertTrue(owner.isExecutable)
 
         let group = permissions.group
-        XCTAssertTrue(group.canRead)
-        XCTAssertTrue(group.canWrite)
-        XCTAssertFalse(group.canExecute)
+        XCTAssertTrue(group.isReadable)
+        XCTAssertTrue(group.isWritable)
+        XCTAssertFalse(group.isExecutable)
 
         let others = permissions.others
-        XCTAssertTrue(others.canRead)
-        XCTAssertTrue(others.canWrite)
-        XCTAssertFalse(others.canExecute)
+        XCTAssertTrue(others.isReadable)
+        XCTAssertTrue(others.isWritable)
+        XCTAssertFalse(others.isExecutable)
 
         try? file.delete()
     }
@@ -279,19 +279,19 @@ class ChmodTests: XCTestCase {
         let permissions = file.permissions
 
         let owner = permissions.owner
-        XCTAssertTrue(owner.canRead)
-        XCTAssertTrue(owner.canWrite)
-        XCTAssertFalse(owner.canExecute)
+        XCTAssertTrue(owner.isReadable)
+        XCTAssertTrue(owner.isWritable)
+        XCTAssertFalse(owner.isExecutable)
 
         let group = permissions.group
-        XCTAssertTrue(group.canRead)
-        XCTAssertTrue(group.canWrite)
-        XCTAssertFalse(group.canExecute)
+        XCTAssertTrue(group.isReadable)
+        XCTAssertTrue(group.isWritable)
+        XCTAssertFalse(group.isExecutable)
 
         let others = permissions.others
-        XCTAssertTrue(others.canRead)
-        XCTAssertTrue(others.canWrite)
-        XCTAssertFalse(others.canExecute)
+        XCTAssertTrue(others.isReadable)
+        XCTAssertTrue(others.isWritable)
+        XCTAssertFalse(others.isExecutable)
 
         try? file.delete()
     }
@@ -322,19 +322,19 @@ class ChmodTests: XCTestCase {
         let permissions = file.permissions
 
         let owner = permissions.owner
-        XCTAssertTrue(owner.canRead)
-        XCTAssertTrue(owner.canWrite)
-        XCTAssertFalse(owner.canExecute)
+        XCTAssertTrue(owner.isReadable)
+        XCTAssertTrue(owner.isWritable)
+        XCTAssertFalse(owner.isExecutable)
 
         let group = permissions.group
-        XCTAssertTrue(group.canRead)
-        XCTAssertTrue(group.canWrite)
-        XCTAssertFalse(group.canExecute)
+        XCTAssertTrue(group.isReadable)
+        XCTAssertTrue(group.isWritable)
+        XCTAssertFalse(group.isExecutable)
 
         let others = permissions.others
-        XCTAssertTrue(others.canRead)
-        XCTAssertTrue(others.canWrite)
-        XCTAssertFalse(others.canExecute)
+        XCTAssertTrue(others.isReadable)
+        XCTAssertTrue(others.isWritable)
+        XCTAssertFalse(others.isExecutable)
 
         try? file.delete()
     }

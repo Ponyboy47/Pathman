@@ -42,6 +42,9 @@ open class FilePath: Path, Openable, Linkable {
         set { openOptions = (permissions: openPermissions, flags: openFlags, mode: newValue) }
     }
 
+    public var mayRead: Bool { return openPermissions.mayRead }
+    public var mayWrite: Bool { return openPermissions.mayWrite }
+
     /// The currently opened file (if it has been opened previously)
     /// Warning: The setter may be removed in a later release
     public var opened: OpenFile? {
