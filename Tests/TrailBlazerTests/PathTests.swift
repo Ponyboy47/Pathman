@@ -175,8 +175,10 @@ class PathTests: XCTestCase {
             return
         }
 
-        let pathType = PathType(mode: dir.permissions)
-        XCTAssertNotNil(pathType)
-        XCTAssertEqual(pathType!, .directory)
+        guard let pathType = PathType(mode: dir.permissions) else {
+            XCTFail("pathType was nil for \(dir.permissions)")
+            return
+        }
+        XCTAssertEqual(pathType, .directory)
     }
 }
