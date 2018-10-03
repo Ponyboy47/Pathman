@@ -168,6 +168,8 @@ extension OpenTests {
         ("testOpenFilePermissionsCustomStringConvertible", testOpenFilePermissionsCustomStringConvertible),
         ("testReadFile", testReadFile),
         ("testWriteFile", testWriteFile),
+        ("testOpenFileOptions", testOpenFileOptions),
+        ("testOpenDirectoryOptions", testOpenDirectoryOptions),
     ]
 }
 
