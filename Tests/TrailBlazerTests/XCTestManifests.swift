@@ -170,6 +170,9 @@ extension OpenTests {
         ("testWriteFile", testWriteFile),
         ("testOpenFileOptions", testOpenFileOptions),
         ("testOpenDirectoryOptions", testOpenDirectoryOptions),
+        ("testURL", testURL),
+        ("testOpen", testOpen),
+        ("testHashable", testHashable),
     ]
 }
 
