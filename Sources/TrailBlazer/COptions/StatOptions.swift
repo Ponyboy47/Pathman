@@ -1,5 +1,5 @@
 /// Options when making the stat API calls
-public struct StatOptions: OptionSet {
+public struct StatOptions: OptionSet, Hashable {
     public let rawValue: Int
 
     /// Get information about a symlink instead of the path it points to

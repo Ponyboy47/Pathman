@@ -1,5 +1,5 @@
 /// A struct used to hold/manipulate permissions in a C-compatible way for the mode_t struct
-public struct FilePermissions: OptionSet, ExpressibleByStringLiteral, ExpressibleByIntegerLiteral {
+public struct FilePermissions: OptionSet, ExpressibleByStringLiteral, ExpressibleByIntegerLiteral, Hashable {
     public typealias StringLiteralType = String
     public typealias IntegerLiteralType = OSUInt
 

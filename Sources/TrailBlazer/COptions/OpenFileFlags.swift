@@ -5,7 +5,7 @@ import Darwin
 #endif
 
 /// A swift wrapper around the C open path API options
-public struct OpenFileFlags: OptionSet, ExpressibleByIntegerLiteral {
+public struct OpenFileFlags: OptionSet, ExpressibleByIntegerLiteral, Hashable {
     public typealias IntegerLiteralType = OptionInt
     public let rawValue: IntegerLiteralType
 

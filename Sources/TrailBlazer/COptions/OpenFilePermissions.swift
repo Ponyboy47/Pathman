@@ -4,7 +4,7 @@ import Glibc
 import Darwin
 #endif
 
-public struct OpenFilePermissions: Equatable, ExpressibleByIntegerLiteral {
+public struct OpenFilePermissions: Equatable, ExpressibleByIntegerLiteral, Hashable {
     public typealias IntegerLiteralType = OptionInt
     public let rawValue: IntegerLiteralType
 

@@ -1,5 +1,5 @@
 /// A swift wrapper around the C mode_t type, which is used to hold/manipulate information about a Path's permissions
-public struct FileMode: OptionSet, ExpressibleByIntegerLiteral, ExpressibleByStringLiteral {
+public struct FileMode: OptionSet, ExpressibleByIntegerLiteral, ExpressibleByStringLiteral, Hashable {
     public typealias IntegerLiteralType = OSUInt
     public typealias StringLiteralType = String
 

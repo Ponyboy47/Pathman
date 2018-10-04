@@ -1,7 +1,7 @@
 import Cglob
 
 /// A Swift wrapper around the C globbing options (see glob(3))
-public struct GlobFlags: OptionSet, ExpressibleByIntegerLiteral {
+public struct GlobFlags: OptionSet, ExpressibleByIntegerLiteral, Hashable {
     public typealias IntegerLiteralType = OptionInt
 
     public private(set) var rawValue: IntegerLiteralType

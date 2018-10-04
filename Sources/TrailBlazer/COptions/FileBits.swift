@@ -1,5 +1,5 @@
 /// A struct for manipulating the uid, gid, and sticky bits of a file mode (mode_t in C)
-public struct FileBits: OptionSet, ExpressibleByIntegerLiteral {
+public struct FileBits: OptionSet, ExpressibleByIntegerLiteral, Hashable {
     public typealias IntegerLiteralType = OSUInt
 
     public let rawValue: IntegerLiteralType
