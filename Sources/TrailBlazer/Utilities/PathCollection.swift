@@ -47,7 +47,7 @@ open class PathCollection: Equatable, CustomStringConvertible {
         while let path = iterator.next() {
             guard !["..", "."].contains(path.lastComponent) else { continue }
 
-            guard !options.contains(.includeHidden) || !(path.lastComponent ?? ".").hasPrefix(".") else { continue }
+            guard options.contains(.includeHidden) || !(path.lastComponent ?? ".").hasPrefix(".") else { continue }
 
             if let file = FilePath(path) {
                 files.append(file)
