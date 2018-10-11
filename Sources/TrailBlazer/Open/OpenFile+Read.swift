@@ -248,9 +248,6 @@ public extension FilePath {
     - Throws: `CloseFileError.ioError` when an I/O error occurred
     */
     public func read(from offset: Offset = .current, bytes byteCount: Int? = nil, encoding: String.Encoding = .utf8) throws -> String? {
-        // Open the file ourselves (and close it when we're done)
-        let openFile = try open(permissions: .read)
-        defer { try? openFile.close() }
-        return try openFile.read(from: offset, bytes: byteCount, encoding: encoding)
+        return try String(data: read(from: offset, bytes: byteCount), encoding: encoding)
     }
 }
