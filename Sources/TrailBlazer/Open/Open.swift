@@ -30,9 +30,7 @@ public protocol Openable: StatDelegate {
     func cleanup()
 }
 
-public struct Empty: Hashable {
-    init() {}
-}
+public struct Empty: Hashable {}
 
 extension Openable {
     public var openOptions: OpenOptionsType? { return nil }
@@ -151,9 +149,9 @@ extension Open: Hashable {
 
 extension Open: CustomStringConvertible {
     public var description: String {
-        var data: [(key: String, value: String)] = []
+        var data: [(key: String, value: CustomStringConvertible)] = []
 
-        data.append((key: "path", value: "\(path)"))
+        data.append((key: "path", value: path))
         data.append((key: "options", value: String(describing: openOptions)))
         if let seekable = self as? Seekable {
             data.append((key: "offset", "\(seekable.offset)"))

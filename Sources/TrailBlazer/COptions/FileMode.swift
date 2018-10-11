@@ -3,7 +3,7 @@ public struct FileMode: OptionSet, ExpressibleByIntegerLiteral, ExpressibleByStr
     public typealias IntegerLiteralType = OSUInt
     public typealias StringLiteralType = String
 
-    public private(set)var rawValue: IntegerLiteralType
+    public private(set) var rawValue: IntegerLiteralType
 
     /// The uid, gid, and sticky bits
     public var bits: FileBits {
@@ -245,11 +245,11 @@ public struct FileMode: OptionSet, ExpressibleByIntegerLiteral, ExpressibleByStr
 
     /// Sets the FileMode with the bits contained in either mode
     public static func |= (lhs: inout FileMode, rhs: FileMode) {
-        lhs = lhs | rhs
+        lhs.rawValue = lhs.rawValue | rhs.rawValue
     }
     /// Sets the FileMode with the bits contained in either mode
     public static func |= (lhs: inout FileMode, rhs: IntegerLiteralType) {
-        lhs = lhs | rhs
+        lhs.rawValue = lhs.rawValue | rhs
     }
 
     /// Returns a FileMode with only the bits contained in both modes
@@ -263,11 +263,11 @@ public struct FileMode: OptionSet, ExpressibleByIntegerLiteral, ExpressibleByStr
 
     /// Sets the FileMode with only the bits contained in both modes
     public static func &= (lhs: inout FileMode, rhs: FileMode) {
-        lhs = lhs & rhs
+        lhs.rawValue = lhs.rawValue & rhs.rawValue
     }
     /// Sets the FileMode with only the bits contained in both modes
     public static func &= (lhs: inout FileMode, rhs: IntegerLiteralType) {
-        lhs = lhs & rhs
+        lhs.rawValue = lhs.rawValue & rhs
     }
 }
 

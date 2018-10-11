@@ -2,6 +2,7 @@ import XCTest
 
 extension ChmodTests {
     static let __allTests = [
+        ("testOpenFile", testOpenFile),
         ("testSetGroup", testSetGroup),
         ("testSetGroupOthers", testSetGroupOthers),
         ("testSetOthers", testSetOthers),
@@ -161,6 +162,7 @@ extension MoveTests {
 
 extension OpenTests {
     static let __allTests = [
+        ("testCustomStringConvertible", testCustomStringConvertible),
         ("testGetDirectoryChildren", testGetDirectoryChildren),
         ("testHashable", testHashable),
         ("testOpen", testOpen),

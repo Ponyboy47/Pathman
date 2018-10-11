@@ -338,5 +338,37 @@ class ChmodTests: XCTestCase {
 
         try? file.delete()
     }
+
+    func testOpenFile() {
+        guard let home: DirectoryPath = .home else {
+            XCTFail("Failed to get the home directory")
+            return
+        }
+        guard let file = FilePath(home + "\(UUID()).test") else {
+            XCTFail("Path is not a file")
+            return
+        }
+
+        let openFile: OpenFile
+        if !file.exists {
+            do {
+                openFile = try file.create(mode: .ownerGroupOthers(.readWriteExecute))
+            } catch {
+                XCTFail("Failed to create test path => \(file)")
+                return
+            }
+        } else {
+            do {
+                openFile = try file.open(permissions: .readWrite)
+            } catch {
+                XCTFail("Failed to open test path => \(file)")
+                return
+            }
+        }
+
+        XCTAssertNoThrow(try openFile.change(others: .read))
+        XCTAssertEqual(openFile.permissions.owner & openFile.permissions.group, .readWriteExecute)
+        XCTAssertEqual(openFile.permissions.others, .read)
+    }
 }
 

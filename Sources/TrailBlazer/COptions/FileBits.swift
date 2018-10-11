@@ -2,7 +2,7 @@
 public struct FileBits: OptionSet, ExpressibleByIntegerLiteral, Hashable {
     public typealias IntegerLiteralType = OSUInt
 
-    public let rawValue: IntegerLiteralType
+    public private(set) var rawValue: IntegerLiteralType
 
     /// Whether or not the uid bit is set
     public var uid: Bool {
@@ -45,6 +45,49 @@ public struct FileBits: OptionSet, ExpressibleByIntegerLiteral, Hashable {
 
     public init(integerLiteral value: IntegerLiteralType) {
         self.init(rawValue: value)
+    }
+
+    /// Returns the inverse FileBits with all bits flipped
+    public static prefix func ~ (lhs: FileBits) -> FileBits {
+        // NOTing flips too many bits and may cause rawValues of equivalent
+        // FileBitss to no longer be equivalent
+        return FileBits(rawValue: ~lhs.rawValue & FileBits.all.rawValue)
+    }
+
+    /// Returns a FileBits with the bits contained in either mode
+    public static func | (lhs: FileBits, rhs: FileBits) -> FileBits {
+        return FileBits(rawValue: lhs.rawValue | rhs.rawValue)
+    }
+    /// Returns a FileBits with the bits contained in either mode
+    public static func | (lhs: FileBits, rhs: IntegerLiteralType) -> FileBits {
+        return FileBits(rawValue: lhs.rawValue | rhs)
+    }
+
+    /// Sets the FileBits with the bits contained in either mode
+    public static func |= (lhs: inout FileBits, rhs: FileBits) {
+        lhs.rawValue = lhs.rawValue | rhs.rawValue
+    }
+    /// Sets the FileBits with the bits contained in either mode
+    public static func |= (lhs: inout FileBits, rhs: IntegerLiteralType) {
+        lhs.rawValue = lhs.rawValue | rhs
+    }
+
+    /// Returns a FileBits with only the bits contained in both modes
+    public static func & (lhs: FileBits, rhs: FileBits) -> FileBits {
+        return FileBits(rawValue: lhs.rawValue & rhs.rawValue)
+    }
+    /// Returns a FileBits with only the bits contained in both modes
+    public static func & (lhs: FileBits, rhs: IntegerLiteralType) -> FileBits {
+        return FileBits(rawValue: lhs.rawValue & rhs)
+    }
+
+    /// Sets the FileBits with only the bits contained in both modes
+    public static func &= (lhs: inout FileBits, rhs: FileBits) {
+        lhs.rawValue = lhs.rawValue & rhs.rawValue
+    }
+    /// Sets the FileBits with only the bits contained in both modes
+    public static func &= (lhs: inout FileBits, rhs: IntegerLiteralType) {
+        lhs.rawValue = lhs.rawValue & rhs
     }
 }
 

@@ -66,6 +66,49 @@ public struct FilePermissions: OptionSet, ExpressibleByStringLiteral, Expressibl
     public init(integerLiteral value: IntegerLiteralType) {
         self.init(rawValue: value)
     }
+
+    /// Returns the inverse FilePermissions with all bits flipped
+    public static prefix func ~ (lhs: FilePermissions) -> FilePermissions {
+        // NOTing flips too many bits and may cause rawValues of equivalent
+        // FilePermissionss to no longer be equivalent
+        return FilePermissions(rawValue: ~lhs.rawValue & FilePermissions.all.rawValue)
+    }
+
+    /// Returns a FilePermissions with the bits contained in either mode
+    public static func | (lhs: FilePermissions, rhs: FilePermissions) -> FilePermissions {
+        return FilePermissions(rawValue: lhs.rawValue | rhs.rawValue)
+    }
+    /// Returns a FilePermissions with the bits contained in either mode
+    public static func | (lhs: FilePermissions, rhs: IntegerLiteralType) -> FilePermissions {
+        return FilePermissions(rawValue: lhs.rawValue | rhs)
+    }
+
+    /// Sets the FilePermissions with the bits contained in either mode
+    public static func |= (lhs: inout FilePermissions, rhs: FilePermissions) {
+        lhs.rawValue = lhs.rawValue | rhs.rawValue
+    }
+    /// Sets the FilePermissions with the bits contained in either mode
+    public static func |= (lhs: inout FilePermissions, rhs: IntegerLiteralType) {
+        lhs.rawValue = lhs.rawValue | rhs
+    }
+
+    /// Returns a FilePermissions with only the bits contained in both modes
+    public static func & (lhs: FilePermissions, rhs: FilePermissions) -> FilePermissions {
+        return FilePermissions(rawValue: lhs.rawValue & rhs.rawValue)
+    }
+    /// Returns a FilePermissions with only the bits contained in both modes
+    public static func & (lhs: FilePermissions, rhs: IntegerLiteralType) -> FilePermissions {
+        return FilePermissions(rawValue: lhs.rawValue & rhs)
+    }
+
+    /// Sets the FilePermissions with only the bits contained in both modes
+    public static func &= (lhs: inout FilePermissions, rhs: FilePermissions) {
+        lhs.rawValue = lhs.rawValue & rhs.rawValue
+    }
+    /// Sets the FilePermissions with only the bits contained in both modes
+    public static func &= (lhs: inout FilePermissions, rhs: IntegerLiteralType) {
+        lhs.rawValue = lhs.rawValue & rhs
+    }
 }
 
 extension FilePermissions: CustomStringConvertible {
