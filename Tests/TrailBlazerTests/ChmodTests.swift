@@ -14,7 +14,7 @@ class ChmodTests: XCTestCase {
             XCTFail("Failed to get the home directory")
             return
         }
-        guard let file = FilePath(home + "\(UUID()).test") else {
+        guard var file = FilePath(home + "\(UUID()).test") else {
             XCTFail("Path is not a file")
             return
         }
@@ -55,7 +55,7 @@ class ChmodTests: XCTestCase {
             XCTFail("Failed to get the home directory")
             return
         }
-        guard let file = FilePath(home + "\(UUID()).test") else {
+        guard var file = FilePath(home + "\(UUID()).test") else {
             XCTFail("Path is not a file")
             return
         }
@@ -96,7 +96,7 @@ class ChmodTests: XCTestCase {
             XCTFail("Failed to get the home directory")
             return
         }
-        guard let file = FilePath(home + "\(UUID()).test") else {
+        guard var file = FilePath(home + "\(UUID()).test") else {
             XCTFail("Path is not a file")
             return
         }
@@ -137,7 +137,7 @@ class ChmodTests: XCTestCase {
             XCTFail("Failed to get the home directory")
             return
         }
-        guard let file = FilePath(home + "\(UUID()).test") else {
+        guard var file = FilePath(home + "\(UUID()).test") else {
             XCTFail("Path is not a file")
             return
         }
@@ -178,7 +178,7 @@ class ChmodTests: XCTestCase {
             XCTFail("Failed to get the home directory")
             return
         }
-        guard let file = FilePath(home + "\(UUID()).test") else {
+        guard var file = FilePath(home + "\(UUID()).test") else {
             XCTFail("Path is not a file")
             return
         }
@@ -219,7 +219,7 @@ class ChmodTests: XCTestCase {
             XCTFail("Failed to get the home directory")
             return
         }
-        guard let file = FilePath(home + "\(UUID()).test") else {
+        guard var file = FilePath(home + "\(UUID()).test") else {
             XCTFail("Path is not a file")
             return
         }
@@ -260,7 +260,7 @@ class ChmodTests: XCTestCase {
             XCTFail("Failed to get the home directory")
             return
         }
-        guard let file = FilePath(home + "\(UUID()).test") else {
+        guard var file = FilePath(home + "\(UUID()).test") else {
             XCTFail("Path is not a file")
             return
         }

@@ -62,7 +62,7 @@ extension FilePath: TemporaryGeneratable {
         // .create/.exclusive flags (to ensure this process is the only
         // owner/creator of the uniquely generated tmp file), and a mode of
         // 0o0600
-        temporaryPath.openOptions = (permissions: OpenFilePermissions.readWrite, flags: [.create, .exclusive], mode: 0o0600)
+        temporaryPath.openOptions = FilePath.OpenOptions(permissions: OpenFilePermissions.readWrite, flags: [.create, .exclusive], mode: 0o0600)
 
         return Open(temporaryPath)
     }

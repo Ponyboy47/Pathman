@@ -9,7 +9,7 @@ import Darwin
 /// Protocol declaration for types that can be opened
 public protocol Openable: StatDelegate {
     associatedtype OpenableType: Path & Openable
-    associatedtype OpenOptionsType = Void
+    associatedtype OpenOptionsType: Hashable = Empty
 
     /// The underlying file descriptor of the opened path
     var fileDescriptor: FileDescriptor { get }
@@ -19,10 +19,18 @@ public protocol Openable: StatDelegate {
     /// Whether the opened path may be written to
     var mayWrite: Bool { get }
 
+    var opened: Open<OpenableType>? { get }
+
     /// Opens the path, sets the `fileDescriptor`, and returns the newly opened path
-    func open() throws -> Open<OpenableType>
+    mutating func open() throws -> Open<OpenableType>
     /// Closes the opened `fileDescriptor`
-    func close() throws
+    mutating func close() throws
+
+    mutating func cleanup()
+}
+
+public struct Empty: Hashable {
+    init() {}
 }
 
 extension Openable {
@@ -30,18 +38,15 @@ extension Openable {
 
     public var mayRead: Bool { return true }
     public var mayWrite: Bool { return true }
-}
 
-/// Contains the buffer used for reading from a path
-private var _buffers: [Int: UnsafeMutablePointer<CChar>] = [:]
-/// Tracks the sizes of the read buffers
-private var _bufferSizes: [Int: Int] = [:]
+    public func cleanup() {}
+}
 
 open class Open<PathType: Path & Openable>: Openable, Ownable, Permissionable, StatDelegate {
     public typealias OpenableType = PathType.OpenableType
     public typealias OpenOptionsType = PathType.OpenOptionsType
 
-    public let path: PathType
+    public internal(set) var path: PathType
     public var fileDescriptor: FileDescriptor { return path.fileDescriptor }
     public var openOptions: OpenOptionsType? { return path.openOptions }
 
@@ -63,32 +68,7 @@ open class Open<PathType: Path & Openable>: Openable, Ownable, Permissionable, S
         return mayWrite && path.isWritable
     }
 
-    /// The buffer used to store data read from a path
-    var buffer: UnsafeMutablePointer<CChar>? {
-        get {
-            return _buffers[path.hashValue]
-        }
-        set {
-            guard let newBuffer = newValue else {
-                _buffers.removeValue(forKey: path.hashValue)
-                return
-            }
-            _buffers[path.hashValue] = newBuffer
-        }
-    }
-    /// The size of the buffer used to store read data
-    var bufferSize: Int? {
-        get {
-            return _bufferSizes[path.hashValue]
-        }
-        set {
-            guard let newSize = newValue else {
-                _bufferSizes.removeValue(forKey: path.hashValue)
-                return
-            }
-            _bufferSizes[path.hashValue] = newSize
-        }
-    }
+    public var opened: Open<PathType.OpenableType>? { return path.opened }
 
     init(_ path: PathType) {
         self.path = path
@@ -149,21 +129,22 @@ open class Open<PathType: Path & Openable>: Openable, Ownable, Permissionable, S
     }
 
     deinit {
-        if let bSize = bufferSize {
-            buffer?.deinitialize(count: Int(bSize))
-        }
-        buffer?.deallocate()
-
-        buffer = nil
-        bufferSize = nil
-
         try? close()
+        path.cleanup()
+        cleanup()
     }
 }
 
-extension Open: Equatable where PathType: Equatable {
+extension Open: Equatable {
     public static func == <OtherPathType: Path & Openable>(lhs: Open<PathType>, rhs: Open<OtherPathType>) -> Bool {
         return lhs.path == rhs.path && lhs.fileDescriptor == rhs.fileDescriptor
+    }
+}
+
+extension Open: Hashable {
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(path)
+        hasher.combine(fileDescriptor)
     }
 }
 

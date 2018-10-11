@@ -176,7 +176,7 @@ public class LinkedPath<PathType: Linkable>: Linked {
     }
 
     public required init(_ path: LinkedPathType, linked link: Link) throws {
-        __path = path
+        __path = LinkedPathType(path)
         _info = path.info
 
         try createLink(from: path, to: link.to, type: link.type)
@@ -212,7 +212,7 @@ public class LinkedPath<PathType: Linkable>: Linked {
     }
 
     public required init(_ path: LinkedPath<PathType>) {
-        __path = path.__path
+        __path = LinkedPathType(path.__path)
         _info = path.info
         _linked = path._linked
     }
@@ -224,12 +224,12 @@ public class LinkedPath<PathType: Linkable>: Linked {
             guard path.isLink else { return nil }
         }
 
-        __path = _path
+        __path = LinkedPathType(_path)
         _info = path.info
     }
 }
 
-func createLink<PathType: Path>(from: PathType, to: PathType, type: LinkType) throws {
+private func createLink<PathType: Path>(from: PathType, to: PathType, type: LinkType) throws {
     let linkFunc: (UnsafePointer<CChar>, UnsafePointer<CChar>) -> OptionInt
     let linkError: TrailBlazerError.Type
     switch type {
@@ -258,6 +258,8 @@ extension LinkedPath: Openable {
     public var fileDescriptor: FileDescriptor { return __path.fileDescriptor }
     public var openOptions: OpenOptionsType? { return __path.openOptions }
 
+    public var opened: Open<PathType.OpenableType>? { return __path.opened }
+
     public func open() throws -> Open<OpenableType> {
         return try __path.open()
     }
@@ -272,14 +274,8 @@ public extension LinkedPath where PathType: FilePath {
         get { return __path.openOptions }
         set { __path.openOptions = newValue }
     }
-    public var openPermissions: OpenFilePermissions {
-        get { return __path.openPermissions }
-        set { __path.openPermissions = newValue }
-    }
-    public var openFlags: OpenFileFlags {
-        get { return __path.openFlags }
-        set { __path.openFlags = newValue }
-    }
+    public var openPermissions: OpenFilePermissions { return __path.openPermissions }
+    public var openFlags: OpenFileFlags { return __path.openFlags }
     public var createMode: FileMode? { return __path.createMode }
     public var mayRead: Bool { return __path.mayRead }
     public var mayWrite: Bool { return __path.mayWrite }

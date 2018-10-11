@@ -39,10 +39,7 @@ extension FilePath: Copyable {
     @discardableResult
     public func copy(to newPath: FilePath, options: CopyOptions = []) throws -> OpenFile {
         // Open self with read permissions
-        let openPath: OpenFile = try open(permissions: .read)
-        let originalOffset = openPath.offset
-        // Make sure we're at the beginning of the file
-        try openPath.rewind()
+        let openPath = try open(permissions: .read)
 
         // Create the path we're going to copy
         let newOpenPath = try newPath.create(mode: permissions)
@@ -55,9 +52,8 @@ extension FilePath: Copyable {
 
         // If we're not buffering, this should really only run once
         repeat {
-            try newOpenPath.write(try openPath.read(bytes: bufferSize))
+            try newOpenPath.write(openPath.read(bytes: bufferSize))
         } while !openPath.eof // Stop reading from the file once we've reached the EOF
-        openPath.offset = originalOffset
 
         return newOpenPath
     }
@@ -68,14 +64,7 @@ extension DirectoryPath: Copyable {
 
     @discardableResult
     public func copy(to newPath: DirectoryPath, options: CopyOptions) throws -> OpenDirectory {
-        let openPath: OpenDirectory
-        if let open = opened {
-            openPath = open
-        } else {
-            openPath = try open()
-        }
-
-        let childPaths = openPath.children(options: options.contains(.includeHidden) ? .includeHidden : [])
+        let childPaths = try children(options: options.contains(.includeHidden) ? .includeHidden : [])
 
         // The cp(1) utility skips directories unless the recursive options is
         // used. Let's be a little nicer and only skip non-empty directories

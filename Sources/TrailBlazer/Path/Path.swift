@@ -40,7 +40,7 @@ public func pathExists(_ path: String) -> Bool {
 }
 
 /// A protocol that describes a Path type and the attributes available to it
-public protocol Path: Hashable, Comparable, CustomStringConvertible, Ownable, Permissionable, Movable, Codable {
+public protocol Path: Hashable, Comparable, CustomStringConvertible, Ownable, Permissionable, Movable, Codable, Sequence {
     /// The underlying path representation
     var _path: String { get set }
     /// A String representation of self
@@ -250,7 +250,7 @@ public extension Path {
     - Throws: `ChangeOwnershipError.readOnlyFileSystem` when the file system is in read-only mode
     - Throws: `ChangeOwnershipError.ioError` when an I/O error occurred during the API call
     */
-    public func change(owner uid: uid_t = ~0, group gid: gid_t = ~0) throws {
+    public mutating func change(owner uid: uid_t = ~0, group gid: gid_t = ~0) throws {
         guard chown(string, uid, gid) == 0 else {
             throw ChangeOwnershipError.getError()
         }
@@ -271,7 +271,7 @@ public extension Path {
     - Throws: `ChangePermissionsError.pathComponentNotDirectory` when a component of the path is not a directory
     - Throws: `ChangePermissionsError.readOnlyFileSystem` when the file system is in read-only mode
     */
-    public func change(permissions: FileMode) throws {
+    public mutating func change(permissions: FileMode) throws {
         guard chmod(string, permissions.rawValue) == 0 else {
             throw ChangePermissionsError.getError()
         }
@@ -313,18 +313,38 @@ public extension Path {
     - Throws: `CodingError.incorrectPathType` when a path exists that does not match the encoded type
     */
     public init(from decoder: Decoder) throws {
-          var container = try decoder.unkeyedContainer()
-          let pathString = try container.decode(String.self)
-          guard let path = Self(pathString) else {
-              throw CodingError.incorrectPathType(pathString)
-          }
+        var container = try decoder.unkeyedContainer()
+        let pathString = try container.decode(String.self)
+        guard let path = Self(pathString) else {
+            throw CodingError.incorrectPathType(pathString)
+        }
 
-          self.init(path)
-      }
+        self.init(path)
+    }
 
-      /// Encodes a Path to an unkeyed String container
-      public func encode(to encoder: Encoder) throws {
-          var container = encoder.unkeyedContainer()
-          try container.encode(string)
-      }
+    /// Encodes a Path to an unkeyed String container
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.unkeyedContainer()
+        try container.encode(string)
+    }
+
+    public func makeIterator() -> PathIterator {
+        return PathIterator(self)
+    }
+}
+
+public struct PathIterator: IteratorProtocol {
+    let components: [String]
+    var idx: Array<String>.Index
+
+    init<PathType: Path>(_ path: PathType) {
+        components = path.components
+        idx = components.startIndex
+    }
+
+    public mutating func next() -> String? {
+        guard idx < components.endIndex else { return nil }
+        defer { idx = idx.advanced(by: 1) }
+        return components[idx]
+    }
 }

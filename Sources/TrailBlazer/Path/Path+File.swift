@@ -16,41 +16,32 @@ private let cOpenFileWithMode = Darwin.open(_:_:_:)
 private let cCloseFile = Darwin.close
 #endif
 
-/// A dictionary of all the open files
-private var openFiles: [FilePath: OpenFile] = [:]
-
 /// A Path to a file
 open class FilePath: Path, Openable, Linkable {
     public typealias OpenableType = FilePath
-    public typealias OpenOptionsType = (permissions: OpenFilePermissions, flags: OpenFileFlags, mode: FileMode?)
+    public typealias OpenOptionsType = OpenOptions
 
     public var _path: String
-    public internal(set) var fileDescriptor: FileDescriptor = -1
+    public internal(set) var fileDescriptor: FileDescriptor = -1 {
+        willSet {
+            if newValue != -1 {
+                opened = OpenFile(self)
+            } else {
+                opened = nil
+            }
+        }
+    }
     public internal(set) var openOptions: OpenOptionsType?
     private var _tmpOpenOptions: OpenOptionsType?
 
-    public var openPermissions: OpenFilePermissions {
-        get { return openOptions?.permissions ?? .none }
-        set { openOptions = (permissions: newValue, flags: openFlags, mode: createMode) }
-    }
-    public var openFlags: OpenFileFlags {
-        get { return openOptions?.flags ?? .none }
-        set { openOptions = (permissions: openPermissions, flags: newValue, mode: createMode) }
-    }
-    public var createMode: FileMode? {
-        get { return openOptions?.mode }
-        set { openOptions = (permissions: openPermissions, flags: openFlags, mode: newValue) }
-    }
+    public var opened: OpenFile?
+
+    public var openPermissions: OpenFilePermissions { return openOptions?.permissions ?? .none }
+    public var openFlags: OpenFileFlags { return openOptions?.flags ?? .none }
+    public var createMode: FileMode? { return openOptions?.mode }
 
     public var mayRead: Bool { return openPermissions.mayRead }
     public var mayWrite: Bool { return openPermissions.mayWrite }
-
-    /// The currently opened file (if it has been opened previously)
-    /// Warning: The setter may be removed in a later release
-    public var opened: OpenFile? {
-        get { return openFiles[self] }
-        set { openFiles[self] = newValue }
-    }
 
     // This is to protect the info from being set externally
     private var _info: StatInfo = StatInfo()
@@ -168,18 +159,12 @@ open class FilePath: Path, Openable, Linkable {
 
         guard options.permissions != .none else { throw OpenFileError.invalidPermissions }
 
-        // Check if the file is already opened
-        if let open = opened {
-            let openPermissions = open.path.openPermissions
-            let openFlags = open.path.openFlags
-
-            // If the last open had at least the options we need now, just return the already opened file
-            guard !openPermissions.contains(options.permissions) || !openFlags.contains(options.flags) else { return open }
-
-            // If the options are different, close the open file so we can
-            // re-open it with the new options
-            try open.close()
-            openFiles.removeValue(forKey: self)
+        if let opened = opened {
+            if options == openOptions
+               || (openOptions!.permissions.contains(options.permissions)
+                  && options.flags.contains(openOptions!.flags))
+            { return opened }
+            try close()
         }
 
         let rawOptions = options.permissions.rawValue | options.flags.rawValue
@@ -195,15 +180,11 @@ open class FilePath: Path, Openable, Linkable {
 
         guard fileDescriptor != -1 else { throw OpenFileError.getError() }
 
-        let open = OpenFile(self)
-
         defer {
             self.openOptions = options
             self._tmpOpenOptions = nil
-            self.opened = open
         }
-
-        return open
+        return OpenFile(self)
     }
 
     /**
@@ -248,7 +229,7 @@ open class FilePath: Path, Openable, Linkable {
     */
     @discardableResult
     open func open(permissions: OpenFilePermissions, flags: OpenFileFlags = [], mode: FileMode? = nil) throws -> Open<FilePath> {
-        _tmpOpenOptions = (permissions: permissions, flags: flags, mode: mode)
+        _tmpOpenOptions = OpenOptions(permissions: permissions, flags: flags, mode: mode)
         return try open()
     }
 
@@ -265,9 +246,8 @@ open class FilePath: Path, Openable, Linkable {
 
         // Remove the open file from the openFiles dict after we close it
         defer {
-            openFiles.removeValue(forKey: self)
-            fileDescriptor = -1
             openOptions = nil
+            fileDescriptor = -1
         }
 
         guard cCloseFile(fileDescriptor) == 0 else {
@@ -278,5 +258,19 @@ open class FilePath: Path, Openable, Linkable {
     // Be sure to close any open files on deconstruction
     deinit {
         try? close()
+    }
+}
+
+extension FilePath {
+    public struct OpenOptions: Hashable {
+        public let permissions: OpenFilePermissions
+        public let flags: OpenFileFlags
+        public let mode: FileMode?
+
+        public init(permissions: OpenFilePermissions, flags: OpenFileFlags = [], mode: FileMode? = nil) {
+            self.permissions = permissions
+            self.flags = flags
+            self.mode = mode
+        }
     }
 }

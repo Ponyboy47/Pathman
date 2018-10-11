@@ -22,10 +22,6 @@ public struct CreateOptions: RawRepresentable, OptionSet, ExpressibleByIntegerLi
 
 /// A Protocol for Path types that can be created
 public protocol Creatable: Openable {
-    /// The type of the Path. Must be Openable as well
-    associatedtype CreatablePathType: Path & Openable
-    associatedtype CreatableType: Openable = Open<CreatablePathType>
-
     /**
     Creates a path
 
@@ -33,13 +29,11 @@ public protocol Creatable: Openable {
     - Parameter forceMode: Whether or not to try and change the process's umask to guarentee that the FileMode is what you want (I've noticed that by default on Ubuntu, others' write access is disabled in the umask. Setting this to true should allow you to overcome this limitation)
     */
     @discardableResult
-    func create(mode: FileMode, options: CreateOptions) throws -> CreatableType
+    func create(mode: FileMode, options: CreateOptions) throws -> Open<OpenableType>
 }
 
 /// The FilePath Creatable conformance
 extension FilePath: Creatable {
-    public typealias CreatablePathType = FilePath
-
     /**
     Creates a FilePath
 
@@ -91,8 +85,6 @@ extension FilePath: Creatable {
 }
 
 extension DirectoryPath: Creatable {
-    public typealias CreatablePathType = DirectoryPath
-
     /**
     Creates a DirectoryPath
 

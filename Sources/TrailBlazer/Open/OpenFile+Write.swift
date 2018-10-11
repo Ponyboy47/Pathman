@@ -116,13 +116,9 @@ public extension FilePath {
     - Throws: `CloseFileError.ioError` when an I/O error occurred
     */
     public func write(_ buffer: Data, at offset: Offset = .current) throws {
-        if let opened = self.opened, opened.mayWrite {
-            return try opened.write(buffer, at: offset)
-        }
-
-        let opened = try open(permissions: .write)
-        defer { try? opened.close() }
-        try opened.write(buffer, at: offset)
+        let openFile = try open(permissions: .write)
+        defer { try? openFile.close() }
+        try openFile.write(buffer, at: offset)
     }
 
     /**
@@ -169,12 +165,8 @@ public extension FilePath {
     - Throws: `CloseFileError.ioError` when an I/O error occurred
     */
     public func write(_ string: String, at offset: Offset = .current, using encoding: String.Encoding = .utf8) throws {
-        if let opened = self.opened, opened.mayWrite {
-            return try opened.write(string, at: offset, using: encoding)
-        }
-
-        let opened = try open(permissions: .write)
-        defer { try? opened.close() }
-        try opened.write(string, at: offset, using: encoding)
+        let openFile = try open(permissions: .write)
+        defer { try? openFile.close() }
+        try openFile.write(string, at: offset, using: encoding)
     }
 }

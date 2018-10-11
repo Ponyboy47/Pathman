@@ -68,7 +68,50 @@ public extension Readable {
     }
 }
 
+/// Contains the buffer used for reading from a path
+private var _buffers: [Int: UnsafeMutablePointer<CChar>] = [:]
+/// Tracks the sizes of the read buffers
+private var _bufferSizes: [Int: Int] = [:]
+
 extension Open: Readable where PathType: FilePath {
+    /// The buffer used to store data read from a path
+    var buffer: UnsafeMutablePointer<CChar>? {
+        get {
+            return _buffers[path.hashValue]
+        }
+        set {
+            guard let newBuffer = newValue else {
+                _buffers.removeValue(forKey: path.hashValue)
+                return
+            }
+            _buffers[path.hashValue] = newBuffer
+        }
+    }
+    /// The size of the buffer used to store read data
+    var bufferSize: Int? {
+        get {
+            return _bufferSizes[path.hashValue]
+        }
+        set {
+            guard let newSize = newValue else {
+                _bufferSizes.removeValue(forKey: path.hashValue)
+                return
+            }
+            _bufferSizes[path.hashValue] = newSize
+        }
+    }
+
+    public func cleanup() {
+        if let bSize = bufferSize {
+            buffer?.deinitialize(count: Int(bSize))
+        }
+        buffer?.deallocate()
+
+        buffer = nil
+        bufferSize = nil
+
+    }
+
     /**
     Read data from a path
 
@@ -162,15 +205,10 @@ public extension FilePath {
     - Throws: `CloseFileError.ioError` when an I/O error occurred
     */
     public func read(from offset: Offset = .current, bytes byteCount: Int? = nil) throws -> Data {
-        // If the file is already opened with read permissions, then use the same opened file to read right now
-        if let opened = self.opened, opened.mayRead {
-            return try opened.read(from: offset, bytes: byteCount)
-        }
-
         // Open the file ourselves (and close it when we're done)
-        let opened = try open(permissions: .read)
-        defer { try? opened.close() }
-        return try opened.read(from: offset, bytes: byteCount)
+        let openFile = try open(permissions: .read)
+        defer { try? openFile.close() }
+        return try openFile.read(from: offset, bytes: byteCount)
     }
 
     /**
@@ -216,14 +254,9 @@ public extension FilePath {
     - Throws: `CloseFileError.ioError` when an I/O error occurred
     */
     public func read(from offset: Offset = .current, bytes byteCount: Int? = nil, encoding: String.Encoding = .utf8) throws -> String? {
-        // If the file is already opened with read permissions, then use the same opened file to read right now
-        if let opened = self.opened, opened.mayRead {
-            return try opened.read(from: offset, bytes: byteCount, encoding: encoding)
-        }
-
         // Open the file ourselves (and close it when we're done)
-        let opened = try open(permissions: .read)
-        defer { try? opened.close() }
-        return try opened.read(from: offset, bytes: byteCount, encoding: encoding)
+        let openFile = try open(permissions: .read)
+        defer { try? openFile.close() }
+        return try openFile.read(from: offset, bytes: byteCount, encoding: encoding)
     }
 }
