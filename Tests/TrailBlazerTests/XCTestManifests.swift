@@ -51,6 +51,7 @@ extension FileBitsTests {
         ("testCustomStringConvertible", testCustomStringConvertible),
         ("testEquality", testEquality),
         ("testHasNone", testHasNone),
+        ("testNotOperator", testNotOperator),
         ("testOrOperator", testOrOperator),
     ]
 }
@@ -128,6 +129,7 @@ extension FilePermissionsTests {
         ("testAndOperator", testAndOperator),
         ("testExecute", testExecute),
         ("testNone", testNone),
+        ("testNotOperator", testNotOperator),
         ("testOrOperator", testOrOperator),
         ("testRead", testRead),
         ("testReadExecute", testReadExecute),

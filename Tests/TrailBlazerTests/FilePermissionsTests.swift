@@ -91,5 +91,26 @@ class FilePermissionsTests: XCTestCase {
         all &= (write | read).rawValue
         XCTAssertEqual(empty, all)
     }
+
+    func testNotOperator() {
+        let all: FilePermissions = .all
+        let read: FilePermissions = .read
+        let write: FilePermissions = .write
+        let execute: FilePermissions = .execute
+        let empty: FilePermissions = .none
+
+        XCTAssertNotEqual(all, empty)
+        XCTAssertEqual(~all, empty)
+        XCTAssertEqual(all, ~empty)
+        XCTAssertNotEqual(~all, ~empty)
+
+        XCTAssertEqual(~read, write | execute)
+        XCTAssertEqual(~write, read | execute)
+        XCTAssertEqual(~execute, read | write)
+
+        XCTAssertEqual(~(read | write), execute)
+        XCTAssertEqual(~(read | execute), write)
+        XCTAssertEqual(~(write | execute), read)
+    }
 }
 
