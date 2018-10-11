@@ -171,6 +171,7 @@ extension OpenTests {
         ("testOpenFileOptions", testOpenFileOptions),
         ("testOpenFilePermissionsCustomStringConvertible", testOpenFilePermissionsCustomStringConvertible),
         ("testReadFile", testReadFile),
+        ("testSeek", testSeek),
         ("testURL", testURL),
         ("testWriteFile", testWriteFile),
     ]
