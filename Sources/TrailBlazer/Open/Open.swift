@@ -23,10 +23,11 @@ public protocol Openable: StatDelegate {
 
     /// Opens the path, sets the `fileDescriptor`, and returns the newly opened path
     mutating func open() throws -> Open<OpenableType>
-    /// Closes the opened `fileDescriptor`
+    /// Closes the opened `fileDescriptor` and sets it to an invalid value (like -1)
     mutating func close() throws
 
-    mutating func cleanup()
+    /// Perform any necessary cleanup when closing an open path
+    func cleanup()
 }
 
 public struct Empty: Hashable {

@@ -23,8 +23,8 @@ open class FilePath: Path, Openable, Linkable {
 
     public var _path: String
     public internal(set) var fileDescriptor: FileDescriptor = -1 {
-        willSet {
-            if newValue != -1 {
+        didSet {
+            if fileDescriptor != -1 {
                 opened = OpenFile(self)
             } else {
                 opened = nil
@@ -184,7 +184,7 @@ open class FilePath: Path, Openable, Linkable {
             self.openOptions = options
             self._tmpOpenOptions = nil
         }
-        return OpenFile(self)
+        return opened !! "Failed to set the opened file object"
     }
 
     /**
