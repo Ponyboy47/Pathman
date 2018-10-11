@@ -170,6 +170,7 @@ extension OpenTests {
         ("testOpenFileFlagsCustomStringConvertible", testOpenFileFlagsCustomStringConvertible),
         ("testOpenFileOptions", testOpenFileOptions),
         ("testOpenFilePermissionsCustomStringConvertible", testOpenFilePermissionsCustomStringConvertible),
+        ("testReadDifferentBuffersFile", testReadDifferentBuffersFile),
         ("testReadFile", testReadFile),
         ("testSeek", testSeek),
         ("testURL", testURL),
