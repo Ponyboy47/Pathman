@@ -170,6 +170,7 @@ extension OpenTests {
     static let __allTests = [
         ("testCustomStringConvertible", testCustomStringConvertible),
         ("testGetDirectoryChildren", testGetDirectoryChildren),
+        ("testGetOpened", testGetOpened),
         ("testHashable", testHashable),
         ("testOpen", testOpen),
         ("testOpenDirectory", testOpenDirectory),

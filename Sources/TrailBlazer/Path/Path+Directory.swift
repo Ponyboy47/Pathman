@@ -13,13 +13,13 @@ public class DirectoryPath: Path, Openable, Linkable, DirectoryEnumerable {
     public typealias OpenableType = DirectoryPath
 
     public var _path: String
-    public var fileDescriptor: FileDescriptor {
+    public var fileDescriptor: FileDescriptor? {
         // Opened directories result in a DIR struct, rather than a straight
         // file descriptor. The dirfd(3) C API call takes a DIR pointer and
         // returns its associated file descriptor
 
-        // Either returns the file descriptor or -1
-        return dir == nil ? -1 : dirfd(dir!)
+        // Either returns the file descriptor or nil
+        return dir == nil ? nil : dirfd(dir!)
     }
 
     /// Opening a directory returns a pointer to a DIR struct

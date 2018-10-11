@@ -22,7 +22,7 @@ extension Open: Seekable where PathType: FilePath {
         // just go ahead and return
         guard offset != bytes else { return offset }
 
-        let newOffset = lseek(fileDescriptor, bytes, SEEK_SET)
+        let newOffset = lseek(fileDescriptor!, bytes, SEEK_SET)
 
         guard newOffset != -1 else {
             throw SeekError.getError()
@@ -46,7 +46,7 @@ extension Open: Seekable where PathType: FilePath {
         // ahead and return the offset
         if bytes == 0 && eof { return offset }
 
-        let newOffset = lseek(fileDescriptor, bytes, SEEK_END)
+        let newOffset = lseek(fileDescriptor!, bytes, SEEK_END)
 
         guard newOffset != -1 else {
             throw SeekError.getError()
@@ -66,7 +66,7 @@ extension Open: Seekable where PathType: FilePath {
     */
     @discardableResult
     public func seek(fromCurrent bytes: OSOffsetInt) throws -> OSOffsetInt {
-        let newOffset = lseek(fileDescriptor, bytes, SEEK_CUR)
+        let newOffset = lseek(fileDescriptor!, bytes, SEEK_CUR)
 
         guard newOffset != -1 else {
             throw SeekError.getError()

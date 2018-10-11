@@ -22,9 +22,9 @@ open class FilePath: Path, Openable, Linkable {
     public typealias OpenOptionsType = OpenOptions
 
     public var _path: String
-    public internal(set) var fileDescriptor: FileDescriptor = -1 {
+    public internal(set) var fileDescriptor: FileDescriptor? {
         didSet {
-            if fileDescriptor != -1 {
+            if fileDescriptor != nil {
                 opened = OpenFile(self)
             } else {
                 opened = nil
@@ -242,12 +242,16 @@ open class FilePath: Path, Openable, Linkable {
     */
     open func close() throws {
         // File is not open
-        guard fileDescriptor != -1 else { return }
+        guard let fileDescriptor = fileDescriptor else { return }
+
+        // deinitializes and deallocates any existing memory
+        opened?.buffer = nil
+        opened?.bufferSize = nil
 
         // Remove the open file from the openFiles dict after we close it
         defer {
             openOptions = nil
-            fileDescriptor = -1
+            self.fileDescriptor = nil
         }
 
         guard cCloseFile(fileDescriptor) == 0 else {

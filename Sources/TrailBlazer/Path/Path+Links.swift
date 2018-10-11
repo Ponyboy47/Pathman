@@ -252,15 +252,12 @@ extension LinkedPath: Deletable {
 }
 
 extension LinkedPath: Openable {
-    public typealias OpenableType = PathType.OpenableType
-    public typealias OpenOptionsType = PathType.OpenOptionsType
-
-    public var fileDescriptor: FileDescriptor { return __path.fileDescriptor }
-    public var openOptions: OpenOptionsType? { return __path.openOptions }
+    public var fileDescriptor: FileDescriptor? { return __path.fileDescriptor }
+    public var openOptions: PathType.OpenOptionsType? { return __path.openOptions }
 
     public var opened: Open<PathType.OpenableType>? { return __path.opened }
 
-    public func open() throws -> Open<OpenableType> {
+    public func open() throws -> Open<PathType.OpenableType> {
         return try __path.open()
     }
 

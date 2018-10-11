@@ -63,7 +63,7 @@ extension Open: Writable where PathType: FilePath {
             try seek(offset)
         }
 
-        guard cWriteFile(fileDescriptor, [UInt8](buffer), buffer.count) != -1 else { throw WriteError.getError() }
+        guard cWriteFile(fileDescriptor!, [UInt8](buffer), buffer.count) != -1 else { throw WriteError.getError() }
     }
 }
 

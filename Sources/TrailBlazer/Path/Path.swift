@@ -90,10 +90,6 @@ public extension Path {
         set { Self.cwd = newValue }
     }
 
-    public var hashValue: Int {
-        return string.hashValue
-    }
-
     /// The String representation of the path
     public var string: String {
         return _path
@@ -202,6 +198,10 @@ public extension Path {
         }
 
         return permissions.others.isExecutable
+    }
+
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(_path)
     }
 
     /**
@@ -330,6 +330,13 @@ public extension Path {
 
     public func makeIterator() -> PathIterator {
         return PathIterator(self)
+    }
+}
+
+extension Path where Self: Openable {
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(_path)
+        hasher.combine(fileDescriptor)
     }
 }
 

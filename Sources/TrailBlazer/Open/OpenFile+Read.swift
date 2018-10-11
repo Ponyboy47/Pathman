@@ -75,7 +75,7 @@ private var _bufferSizes: [Int: Int] = [:]
 
 extension Open: Readable where PathType: FilePath {
     /// The buffer used to store data read from a path
-    private var buffer: UnsafeMutablePointer<CChar>? {
+    var buffer: UnsafeMutablePointer<CChar>? {
         get {
             return _buffers[hashValue]
         }
@@ -92,7 +92,7 @@ extension Open: Readable where PathType: FilePath {
         }
     }
     /// The size of the buffer used to store read data
-    private var bufferSize: Int? {
+    var bufferSize: Int? {
         get {
             return _bufferSizes[hashValue]
         }
@@ -107,12 +107,6 @@ extension Open: Readable where PathType: FilePath {
             buffer = UnsafeMutablePointer<CChar>.allocate(capacity: newSize)
             _bufferSizes[hashValue] = newSize
         }
-    }
-
-    public func cleanup() {
-        // deinitializes and deallocates any existing memory
-        buffer = nil
-        bufferSize = nil
     }
 
     /**
@@ -148,7 +142,7 @@ extension Open: Readable where PathType: FilePath {
         }
 
         // Reading the file returns the number of bytes read (or -1 if there was an error)
-        let bytesRead = cReadFile(fileDescriptor, buffer!, bytesToRead)
+        let bytesRead = cReadFile(fileDescriptor!, buffer!, bytesToRead)
         guard bytesRead != -1 else { throw ReadError.getError() }
 
         // Return the Data read from the file
