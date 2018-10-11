@@ -162,17 +162,17 @@ extension MoveTests {
 extension OpenTests {
     static let __allTests = [
         ("testGetDirectoryChildren", testGetDirectoryChildren),
+        ("testHashable", testHashable),
+        ("testOpen", testOpen),
         ("testOpenDirectory", testOpenDirectory),
+        ("testOpenDirectoryOptions", testOpenDirectoryOptions),
         ("testOpenFile", testOpenFile),
         ("testOpenFileFlagsCustomStringConvertible", testOpenFileFlagsCustomStringConvertible),
+        ("testOpenFileOptions", testOpenFileOptions),
         ("testOpenFilePermissionsCustomStringConvertible", testOpenFilePermissionsCustomStringConvertible),
         ("testReadFile", testReadFile),
-        ("testWriteFile", testWriteFile),
-        ("testOpenFileOptions", testOpenFileOptions),
-        ("testOpenDirectoryOptions", testOpenDirectoryOptions),
         ("testURL", testURL),
-        ("testOpen", testOpen),
-        ("testHashable", testHashable),
+        ("testWriteFile", testWriteFile),
     ]
 }
 
