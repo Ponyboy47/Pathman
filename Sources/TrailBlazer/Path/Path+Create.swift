@@ -80,7 +80,7 @@ extension FilePath: Creatable {
             try parent.create(mode: mode, options: options).close()
         }
 
-        return try open(permissions: .write, flags: [.create, .exclusive], mode: mode)
+        return try open(permissions: .readWrite, flags: [.create, .exclusive], mode: mode)
     }
 }
 
