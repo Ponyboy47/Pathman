@@ -57,5 +57,39 @@ class FilePermissionsTests: XCTestCase {
         XCTAssertEqual(FilePermissions("rwx"), perms)
         XCTAssertEqual("rwx", perms)
     }
+
+    func testOrOperator() {
+        let all: FilePermissions = .all
+        let read: FilePermissions = .read
+        let write: FilePermissions = .write
+        let execute: FilePermissions = .execute
+        var empty: FilePermissions = .none
+
+        XCTAssertEqual(read | write | execute, all)
+        XCTAssertEqual(read | write.rawValue | execute.rawValue, all)
+
+        XCTAssertNotEqual(empty, all)
+        empty |= read
+        XCTAssertEqual(empty, read)
+        empty |= (write | execute).rawValue
+        XCTAssertEqual(empty, all)
+    }
+
+    func testAndOperator() {
+        var all: FilePermissions = .all
+        let read: FilePermissions = .read
+        let write: FilePermissions = .write
+        let execute: FilePermissions = .execute
+        let empty: FilePermissions = .none
+
+        XCTAssertEqual(all & read, read)
+        XCTAssertEqual(all & write.rawValue, write)
+
+        XCTAssertNotEqual(empty, all)
+        all &= execute
+        XCTAssertEqual(all, execute)
+        all &= (write | read).rawValue
+        XCTAssertEqual(empty, all)
+    }
 }
 

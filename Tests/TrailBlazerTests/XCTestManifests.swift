@@ -46,10 +46,12 @@ extension CreateDeleteTests {
 
 extension FileBitsTests {
     static let __allTests = [
+        ("testAndOperator", testAndOperator),
         ("testContains", testContains),
         ("testCustomStringConvertible", testCustomStringConvertible),
         ("testEquality", testEquality),
         ("testHasNone", testHasNone),
+        ("testOrOperator", testOrOperator),
     ]
 }
 
@@ -123,8 +125,10 @@ extension FileModeTests {
 
 extension FilePermissionsTests {
     static let __allTests = [
+        ("testAndOperator", testAndOperator),
         ("testExecute", testExecute),
         ("testNone", testNone),
+        ("testOrOperator", testOrOperator),
         ("testRead", testRead),
         ("testReadExecute", testReadExecute),
         ("testReadWrite", testReadWrite),

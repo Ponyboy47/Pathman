@@ -61,6 +61,40 @@ class FileBitsTests: XCTestCase {
         XCTAssertEqual(gidSticky.description, "FileBits(gid, sticky)")
         XCTAssertEqual(none.description, "FileBits(none)")
     }
+
+    func testOrOperator() {
+        let all: FileBits = .all
+        let uid: FileBits = .uid
+        let gid: FileBits = .gid
+        let sticky: FileBits = .sticky
+        var empty: FileBits = .none
+
+        XCTAssertEqual(uid | gid | sticky, all)
+        XCTAssertEqual(uid | gid.rawValue | sticky.rawValue, all)
+
+        XCTAssertNotEqual(empty, all)
+        empty |= uid
+        XCTAssertEqual(empty, uid)
+        empty |= (gid | sticky).rawValue
+        XCTAssertEqual(empty, all)
+    }
+
+    func testAndOperator() {
+        var all: FileBits = .all
+        let uid: FileBits = .uid
+        let gid: FileBits = .gid
+        let sticky: FileBits = .sticky
+        let empty: FileBits = .none
+
+        XCTAssertEqual(all & uid, uid)
+        XCTAssertEqual(all & gid.rawValue, gid)
+
+        XCTAssertNotEqual(empty, all)
+        all &= sticky
+        XCTAssertEqual(all, sticky)
+        all &= (gid | uid).rawValue
+        XCTAssertEqual(empty, all)
+    }
 }
 
 
