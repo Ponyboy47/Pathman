@@ -75,41 +75,44 @@ private var _bufferSizes: [Int: Int] = [:]
 
 extension Open: Readable where PathType: FilePath {
     /// The buffer used to store data read from a path
-    var buffer: UnsafeMutablePointer<CChar>? {
+    private var buffer: UnsafeMutablePointer<CChar>? {
         get {
-            return _buffers[path.hashValue]
+            return _buffers[hashValue]
         }
         set {
             guard let newBuffer = newValue else {
-                _buffers.removeValue(forKey: path.hashValue)
+                if let bSize = bufferSize {
+                    _buffers[hashValue]?.deinitialize(count: bSize)
+                    _buffers[hashValue]?.deallocate()
+                }
+                _buffers.removeValue(forKey: hashValue)
                 return
             }
-            _buffers[path.hashValue] = newBuffer
+            _buffers[hashValue] = newBuffer
         }
     }
     /// The size of the buffer used to store read data
-    var bufferSize: Int? {
+    private var bufferSize: Int? {
         get {
-            return _bufferSizes[path.hashValue]
+            return _bufferSizes[hashValue]
         }
         set {
             guard let newSize = newValue else {
-                _bufferSizes.removeValue(forKey: path.hashValue)
+                _bufferSizes.removeValue(forKey: hashValue)
                 return
             }
-            _bufferSizes[path.hashValue] = newSize
+            // Deinitializes and deallocates any existing memory
+            buffer = nil
+
+            buffer = UnsafeMutablePointer<CChar>.allocate(capacity: newSize)
+            _bufferSizes[hashValue] = newSize
         }
     }
 
     public func cleanup() {
-        if let bSize = bufferSize {
-            buffer?.deinitialize(count: Int(bSize))
-        }
-        buffer?.deallocate()
-
+        // deinitializes and deallocates any existing memory
         buffer = nil
         bufferSize = nil
-
     }
 
     /**
@@ -128,11 +131,6 @@ extension Open: Readable where PathType: FilePath {
     */
     public func read(from offset: Offset = .current, bytes byteCount: Int? = nil) throws -> Data {
         if !mayRead {
-            // If the path is not opened for reading, but the calling process
-            // does not have read permissions to the path, then opening will fail
-            guard isReadable else {
-                throw OpenFileError.permissionDenied
-            }
             try path.open(permissions: .read)
         }
 
@@ -143,13 +141,9 @@ extension Open: Readable where PathType: FilePath {
 
         // If we haven't allocated a buffer before, then allocate one now
         if buffer == nil {
-            buffer = UnsafeMutablePointer<CChar>.allocate(capacity: bytesToRead)
             bufferSize = bytesToRead
         // If the buffer size is less than bytes we're going to read then reallocate the buffer
         } else if let bSize = bufferSize, bSize < bytesToRead {
-            buffer?.deinitialize(count: bSize)
-            buffer?.deallocate()
-            buffer = UnsafeMutablePointer<CChar>.allocate(capacity: bytesToRead)
             bufferSize = bytesToRead
         }
 
