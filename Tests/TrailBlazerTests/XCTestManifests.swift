@@ -181,9 +181,11 @@ extension OpenTests {
         ("testOpenFilePermissionsCustomStringConvertible", testOpenFilePermissionsCustomStringConvertible),
         ("testReadDifferentBuffersFile", testReadDifferentBuffersFile),
         ("testReadFile", testReadFile),
+        ("testReadThenWrite", testReadThenWrite),
         ("testSeek", testSeek),
         ("testURL", testURL),
         ("testWriteFile", testWriteFile),
+        ("testWriteThenRead", testWriteThenRead),
     ]
 }
 

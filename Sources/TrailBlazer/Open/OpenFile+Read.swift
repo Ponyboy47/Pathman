@@ -124,8 +124,8 @@ extension Open: Readable where PathType: FilePath {
     - Throws: `ReadError.ioError` when an I/O error occured during the API call
     */
     public func read(from offset: Offset = .current, bytes byteCount: Int? = nil) throws -> Data {
-        if !mayRead {
-            try path.open(permissions: .read)
+        guard mayRead else {
+            throw ReadError.cannotReadFileDescriptor
         }
 
         try seek(offset)

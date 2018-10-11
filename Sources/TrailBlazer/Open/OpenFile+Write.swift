@@ -55,8 +55,9 @@ extension Open: Writable where PathType: FilePath {
     - Throws: `WriteError.permissionDenied` when the operation was prevented because of a file seal (see fcntl(2))
     */
     public func write(_ buffer: Data, at offset: Offset = .current) throws {
-        if !mayWrite {
-            try path.open(permissions: .write)
+        // If the path has not been opened for writing
+        guard mayWrite else {
+            throw WriteError.cannotWriteToFileDescriptor
         }
 
         if !openFlags.contains(.append) {
