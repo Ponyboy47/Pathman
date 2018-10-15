@@ -10,54 +10,41 @@ public final class StatInfo: StatDescriptor, StatPath {
     var _path: String?
     /// The stat options for the stat(2) C API calls
     var options: StatOptions
-    /// The file descriptor to use for the underlying fstat(2) C API calls
-    var fileDescriptor: FileDescriptor?
+    /// The descriptor to use for the underlying fstat(2) C API calls
+    var _descriptor: Descriptor?
+    var fileDescriptor: FileDescriptor? { return _descriptor?.fileDescriptor }
     /// The underlying stat struct that stores the information from the stat(2) C API calls
-    var _buffer: UnsafeMutablePointer<stat>
-    /// Whether or not we own the file and can safely free the pointer at deinitialization
-    let owned: Bool
+    var _buffer: stat
 
     var exists: Bool {
-        if let path = _path {
+        if _descriptor != nil {
+            return true
+        } else if let path = _path {
             return pathExists(path)
         }
-        return fileDescriptor != nil
+        return false
     }
 
     /// Empty initializer
     init() {
         _path = nil
         options = []
-        fileDescriptor = nil
-        _buffer = UnsafeMutablePointer.allocate(capacity: 1)
-        _buffer.initialize(to: stat())
-        owned = true
-    }
-
-    /** Initializer with a custom stat pointer (Expert mode)
-        - Parameter buffer: A pointer to the C stat struct which should be used to store results of the stat(2) C API calls
-        - Warning: If you use this initializer, then you must release the buffer pointer yourself
-    */
-    init(buffer: UnsafeMutablePointer<stat>) {
-        _path = nil
-        options = []
-        fileDescriptor = nil
-        _buffer = buffer
-        owned = false
+        _descriptor = nil
+        _buffer = stat()
     }
 
     /// Makes a stat(2) C API call with the specified options
     func getInfo(options: StatOptions = []) throws {
-        if let fd = self.fileDescriptor {
-            try StatInfo.update(fd, _buffer)
+        if let fd = fileDescriptor {
+            try StatInfo.update(fd, &_buffer)
         } else if let path = _path {
-            try StatInfo.update(path, options: options, _buffer)
+            try StatInfo.update(path, options: options, &_buffer)
         }
     }
+}
 
-    deinit {
-        if owned {
-            _buffer.deallocate()
-        }
+extension StatInfo: CustomStringConvertible {
+    public var description: String {
+        return "\(Swift.type(of: self))(path: \(String(describing: _path)), fileDescriptor: \(String(describing: fileDescriptor)), options: \(options), buffer: \(_buffer))"
     }
 }

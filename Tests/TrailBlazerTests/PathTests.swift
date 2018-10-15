@@ -37,6 +37,12 @@ class PathTests: XCTestCase {
         XCTAssertEqual(FilePath(FilePath("/tmp/flabbergasted")!).string, "/tmp/flabbergasted")
     }
 
+    func testVariadicInit() {
+        XCTAssertEqual(GenericPath("/", "tmp").string, "/tmp")
+        XCTAssertEqual(DirectoryPath("/", "tmp")!.string, "/tmp")
+        XCTAssertEqual(FilePath("/", "tmp", "flabbergasted")!.string, "/tmp/flabbergasted")
+    }
+
     func testArrayInit() {
         XCTAssertEqual(GenericPath(["/", "tmp"]).string, "/tmp")
         XCTAssertEqual(DirectoryPath(["/", "tmp"])!.string, "/tmp")
@@ -140,8 +146,8 @@ class PathTests: XCTestCase {
 
     func testAbsolute() {
         let relative1 = GenericPath("~/")
-        let relative2 = DirectoryPath("~/")!
-        let relative3 = FilePath("~/flabbergasted")!
+        let relative2 = DirectoryPath("~/../")!
+        let relative3 = FilePath("~/flabbergasted/.")!
 
         XCTAssertFalse(relative1.isAbsolute)
         XCTAssertNotEqual(relative1, relative1.absolute)
@@ -151,11 +157,13 @@ class PathTests: XCTestCase {
     }
 
     func testExpand() {
-        var relative = GenericPath("~/")
+        var relative1 = GenericPath("~/")
+        let relative2 = GenericPath("~/")
 
-        XCTAssertFalse(relative.exists)
-        XCTAssertNoThrow(try relative.expand())
-        XCTAssertTrue(relative.exists)
+        XCTAssertFalse(relative1.exists)
+        XCTAssertNoThrow(try relative1.expand())
+        XCTAssertTrue(relative1.exists)
+        XCTAssertEqual(try! relative2.expanded(), relative1)
     }
 
     func testRelative() {

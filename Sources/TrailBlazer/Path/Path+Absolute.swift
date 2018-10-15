@@ -40,7 +40,7 @@ extension Path {
         guard !_path.isEmpty else { throw RealPathError.emptyPath }
 
         // Whenever we leave this function we need to update the path used by StatInfo
-        defer { info._path = _path }
+        defer { _info._path = _path }
 
         if _path.hasPrefix("~") {
             let home = try getHome()

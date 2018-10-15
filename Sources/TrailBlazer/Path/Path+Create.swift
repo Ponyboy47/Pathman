@@ -12,7 +12,7 @@ public struct CreateOptions: RawRepresentable, OptionSet, ExpressibleByIntegerLi
     public static let createIntermediates = CreateOptions(rawValue: 1 << 0)
 
     public init(rawValue: IntegerLiteralType) {
-        self.rawValue = rawValue
+        self.init(integerLiteral: rawValue)
     }
 
     public init(integerLiteral value: IntegerLiteralType) {
@@ -29,7 +29,7 @@ public protocol Creatable: Openable {
     - Parameter forceMode: Whether or not to try and change the process's umask to guarentee that the FileMode is what you want (I've noticed that by default on Ubuntu, others' write access is disabled in the umask. Setting this to true should allow you to overcome this limitation)
     */
     @discardableResult
-    func create(mode: FileMode, options: CreateOptions) throws -> Open<OpenableType>
+    func create(mode: FileMode, options: CreateOptions) throws -> Open<Self>
 }
 
 /// The FilePath Creatable conformance
@@ -77,7 +77,7 @@ extension FilePath: Creatable {
         // Create and immediately close any intermediates that don't exist when
         // the .createIntermediates options is used
         if options.contains(.createIntermediates) && !parent.exists {
-            try parent.create(mode: mode, options: options).close()
+            try parent.create(mode: mode, options: options)
         }
 
         return try open(permissions: .readWrite, flags: [.create, .exclusive], mode: mode)
@@ -123,7 +123,7 @@ extension DirectoryPath: Creatable {
         // Create and immediately close any intermediates that don't exist when
         // the .createIntermediates options is used
         if options.contains(.createIntermediates) && !parent.exists {
-            try parent.create(mode: mode, options: options).close()
+            try parent.create(mode: mode, options: options)
         }
 
         guard mkdir(string, mode.rawValue) != -1 else {

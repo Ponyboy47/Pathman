@@ -4,20 +4,20 @@ import Cdirent
     from some kind of traversal or enumeration (ie: globbing or getting
     directory children)
 */
-open class PathCollection: Equatable, CustomStringConvertible {
+public struct PathCollection: Equatable, CustomStringConvertible {
     /// The file paths
-    open internal(set) var files: [FilePath] = []
+    public internal(set) var files: [FilePath] = []
     /// The directory paths
-    open internal(set) var directories: [DirectoryPath] = []
+    public internal(set) var directories: [DirectoryPath] = []
     /// Other paths
-    open internal(set) var other: [GenericPath] = []
+    public internal(set) var other: [GenericPath] = []
 
     /// Whether or not this collection is empty
-    open var isEmpty: Bool { return files.isEmpty && directories.isEmpty && other.isEmpty }
+    public var isEmpty: Bool { return files.isEmpty && directories.isEmpty && other.isEmpty }
     /// The number of paths stored in this collection
-    open var count: Int { return files.count + directories.count + other.count }
+    public var count: Int { return files.count + directories.count + other.count }
 
-    open var description: String {
+    public var description: String {
         return "\(type(of: self))(files: \(files), directories: \(directories), other: \(other))"
     }
 
@@ -32,18 +32,11 @@ open class PathCollection: Equatable, CustomStringConvertible {
         self.other = other
     }
 
-    public convenience init<PathType: DirectoryPath>(_ directory: PathType, options: DirectoryEnumerationOptions = []) throws {
-        let unopened = directory.dir == nil
-
-        self.init(try directory.open(), options: options)
-        if unopened { try directory.close() }
-    }
-
-    public convenience init<PathType: DirectoryPath>(_ openDirectory: Open<PathType>, options: DirectoryEnumerationOptions = []) {
+    public init(_ openDirectory: OpenDirectory, options: DirectoryEnumerationOptions = []) {
         self.init(DirectoryIterator(openDirectory), options: options)
     }
 
-    private init<PathType: DirectoryPath>(_ iterator: DirectoryIterator<PathType>, options: DirectoryEnumerationOptions = []) {
+    private init(_ iterator: DirectoryIterator, options: DirectoryEnumerationOptions = []) {
         while let path = iterator.next() {
             guard !["..", "."].contains(path.lastComponent) else { continue }
 
@@ -77,12 +70,12 @@ open class PathCollection: Equatable, CustomStringConvertible {
     }
 }
 
-private struct DirectoryIterator<PathType: DirectoryPath>: IteratorProtocol {
-    let openDirectory: Open<PathType>
-    var dir: DIRType { return openDirectory.dir }
+private struct DirectoryIterator: IteratorProtocol {
+    let openDirectory: OpenDirectory
+    var dir: DIRType { return openDirectory.descriptor }
     var path: DirectoryPath { return openDirectory.path }
 
-    init(_ openDirectory: Open<PathType>) {
+    init(_ openDirectory: OpenDirectory) {
         self.openDirectory = openDirectory
         self.openDirectory.rewind()
     }

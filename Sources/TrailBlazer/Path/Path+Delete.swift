@@ -30,9 +30,6 @@ extension FilePath: Deletable {
     - Throws: `CloseFileError.ioError` when an I/O error occurred during the API call
     */
     public func delete() throws {
-        // Be sure to close the file before deleting it or the `.pathInUse` error will be thrown
-        try close()
-
         // Deleting files means unlinking them
         guard cUnlink(string) != -1 else {
             throw DeleteFileError.getError()
@@ -58,9 +55,6 @@ extension DirectoryPath: Deletable {
     - Throws: `DeleteDirectoryError.ioError` (macOS only) when an I/O error occurred during the API call
     */
     public func delete() throws {
-        // Be sure to close the directory before deleting it or the `.pathInUse` error will be thrown
-        try close()
-
         guard rmdir(string) != -1 else {
             throw DeleteDirectoryError.getError()
         }

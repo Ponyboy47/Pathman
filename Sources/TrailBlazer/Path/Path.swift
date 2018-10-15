@@ -204,6 +204,16 @@ public extension Path {
         hasher.combine(_path)
     }
 
+    /// Initialize from a variadic array of path elements
+    public init?(_ components: String...) {
+        self.init(components)
+    }
+
+    /// Initialize from a slice of an array of path elements
+    public init?(_ components: ArraySlice<String>) {
+        self.init(Array(components))
+    }
+
     /**
     Determine if two paths are equivalent
 
@@ -330,13 +340,6 @@ public extension Path {
 
     public func makeIterator() -> PathIterator {
         return PathIterator(self)
-    }
-}
-
-extension Path where Self: Openable {
-    public func hash(into hasher: inout Hasher) {
-        hasher.combine(_path)
-        hasher.combine(fileDescriptor)
     }
 }
 

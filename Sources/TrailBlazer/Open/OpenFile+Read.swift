@@ -12,7 +12,7 @@ private let cReadFile = Darwin.read
 #endif
 
 /// Protocol declaration of types that can be read from
-public protocol Readable: Openable, Seekable {
+public protocol Readable: Seekable {
     /// Seeks to the specified offset and returns the specified number of bytes
     func read(from offset: Offset, bytes byteCount: Int?) throws -> Data
     /// Seeks to the specified offset and returns the specified number of bytes in a string
@@ -73,9 +73,9 @@ private var _buffers: [Int: UnsafeMutablePointer<CChar>] = [:]
 /// Tracks the sizes of the read buffers
 private var _bufferSizes: [Int: Int] = [:]
 
-extension Open: Readable where PathType: FilePath {
+extension Open: Readable where PathType == FilePath {
     /// The buffer used to store data read from a path
-    var buffer: UnsafeMutablePointer<CChar>? {
+    private var buffer: UnsafeMutablePointer<CChar>? {
         get {
             return _buffers[hashValue]
         }
@@ -92,7 +92,7 @@ extension Open: Readable where PathType: FilePath {
         }
     }
     /// The size of the buffer used to store read data
-    var bufferSize: Int? {
+    private var bufferSize: Int? {
         get {
             return _bufferSizes[hashValue]
         }
@@ -142,7 +142,7 @@ extension Open: Readable where PathType: FilePath {
         }
 
         // Reading the file returns the number of bytes read (or -1 if there was an error)
-        let bytesRead = cReadFile(fileDescriptor!, buffer!, bytesToRead)
+        let bytesRead = cReadFile(fileDescriptor, buffer!, bytesToRead)
         guard bytesRead != -1 else { throw ReadError.getError() }
 
         // Return the Data read from the file
@@ -193,10 +193,7 @@ public extension FilePath {
     - Throws: `CloseFileError.ioError` when an I/O error occurred
     */
     public func read(from offset: Offset = .current, bytes byteCount: Int? = nil) throws -> Data {
-        // Open the file ourselves (and close it when we're done)
-        let openFile = try open(permissions: .read)
-        defer { try? openFile.close() }
-        return try openFile.read(from: offset, bytes: byteCount)
+        return try open(permissions: .read).read(from: offset, bytes: byteCount)
     }
 
     /**

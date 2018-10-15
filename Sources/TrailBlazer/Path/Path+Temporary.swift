@@ -5,9 +5,8 @@ import Darwin
 #endif
 
 /// Protocol declaration for Paths that can generate and create a unique temporary path
-public protocol TemporaryGeneratable: Path, Creatable {
-    associatedtype TemporaryType: Path & Creatable = Self
-    static func temporary(prefix: String) throws -> Open<TemporaryType>
+public protocol TemporaryGeneratable: Creatable {
+    static func temporary(prefix: String) throws -> Open<Self>
 }
 
 extension FilePath: TemporaryGeneratable {
@@ -29,7 +28,7 @@ extension FilePath: TemporaryGeneratable {
     - Throws: `CreateFileError.lockedDevice` when the device where path exists is locked from writing
     - Throws: `CreateFileError.ioErrorCreatingPath` when an I/O error occurred while creating the inode for the path
     */
-    public static func temporary(prefix: String = "") throws -> Open<TemporaryType> {
+    public static func temporary(prefix: String = "") throws -> Open<FilePath> {
         let tmpDir: DirectoryPath
 
         // If this is set, it's the first place to check. macOS uses this
@@ -55,16 +54,15 @@ extension FilePath: TemporaryGeneratable {
             guard fileDescriptor != -1 else { throw MakeTemporaryError.getError() }
         } catch MakeTemporaryError.unknown { throw CreateFileError.getError() }
 
-        let temporaryPath = TemporaryType("\(path)") !! "Somehow, a random, uniquely generated path overwrote the \(TemporaryType.self) path that existed at \(path)"
-        temporaryPath.fileDescriptor = fileDescriptor
+        let temporaryPath = FilePath("\(path)") !! "Somehow, a random, uniquely generated path overwrote the \(FilePath.self) path that existed at \(path)"
 
         // mkstemp(3) opens the file with readWrite permissions, the
         // .create/.exclusive flags (to ensure this process is the only
         // owner/creator of the uniquely generated tmp file), and a mode of
         // 0o0600
-        temporaryPath.openOptions = FilePath.OpenOptions(permissions: OpenFilePermissions.readWrite, flags: [.create, .exclusive], mode: 0o0600)
+        let openOptions = FilePath.OpenOptions(permissions: OpenFilePermissions.readWrite, flags: [.create, .exclusive], mode: 0o0600)
 
-        return Open(temporaryPath)
+        return Open(temporaryPath, descriptor: fileDescriptor, options: openOptions)
     }
 }
 
@@ -86,7 +84,7 @@ extension DirectoryPath: TemporaryGeneratable {
     - Throws: `OpenDirectoryError.noSystemFileDescriptors` when the entire system has run out of available file descriptors
     - Throws: `OpenDirectoryError.outOfMemory` when there is not enough available memory to open the directory
     */
-    public static func temporary(prefix: String = "") throws -> Open<TemporaryType> {
+    public static func temporary(prefix: String = "") throws -> Open<DirectoryPath> {
         let tmpDir: DirectoryPath
 
         // If this is set, it's the first place to check. macOS uses this
@@ -105,7 +103,7 @@ extension DirectoryPath: TemporaryGeneratable {
         let path = (tmpDir + "\(prefix)XXXXXX").string.withCString({ String(cString: mkdtemp(UnsafeMutablePointer(mutating: $0))) })
         guard !path.isEmpty else { throw CreateDirectoryError.getError() }
 
-        let dir = TemporaryType(path) !! "Somehow, a random, uniquely generated path overwrote the \(TemporaryType.self) that existed at \(path)"
+        let dir = DirectoryPath(path) !! "Somehow, a random, uniquely generated path overwrote the \(DirectoryPath.self) that existed at \(path)"
         return try dir.open()
     }
 }

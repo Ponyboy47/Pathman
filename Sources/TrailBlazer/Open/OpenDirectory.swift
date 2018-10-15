@@ -6,11 +6,9 @@ import Darwin
 
 public typealias OpenDirectory = Open<DirectoryPath>
 
-extension Open: DirectoryEnumerable where PathType: DirectoryPath {
-    public var dir: DIRType { return path.dir! }
-
+extension Open: DirectoryEnumerable where PathType == DirectoryPath {
     func rewind() {
-        path.rewind()
+        rewinddir(descriptor)
     }
 
     /**

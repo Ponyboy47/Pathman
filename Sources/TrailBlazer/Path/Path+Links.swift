@@ -19,47 +19,57 @@ public enum LinkType {
 public var defaultLinkType: LinkType = .symbolic
 
 /// A protocol declaration for Paths that can be symbolically linked to
-public protocol Linkable: Path, Creatable, Deletable {
-    associatedtype LinkablePathType: Linkable = Self
-    func link(at: LinkablePathType, type: LinkType) throws -> LinkedPath<LinkablePathType>
-    func link(from: LinkablePathType, type: LinkType) throws -> LinkedPath<LinkablePathType>
+public protocol Linkable: Path {
+    func link(at: Self, type: LinkType) throws -> LinkedPath<Self>
+    func link(from: Self, type: LinkType) throws -> LinkedPath<Self>
 }
 
 public extension Linkable {
-    public func link(at linkedPath: LinkablePathType, type: LinkType = TrailBlazer.defaultLinkType) throws -> LinkedPath<LinkablePathType> {
-        guard let targetPath = self as? LinkablePathType else { throw LinkError.pathTypeMismatch }
-        return try LinkedPath(linkedPath, linked: (to: targetPath, type: type))
+    public func link(at linkedPath: Self, type: LinkType = TrailBlazer.defaultLinkType) throws -> LinkedPath<Self> {
+        return try LinkedPath(linkedPath, linked: (to: self, type: type))
     }
 
-    public func link(at linkedString: String, type: LinkType = TrailBlazer.defaultLinkType) throws -> LinkedPath<LinkablePathType> {
-        guard let linkedPath = LinkablePathType(linkedString) else { throw LinkError.pathTypeMismatch }
+    public func link(at linkedString: String, type: LinkType = TrailBlazer.defaultLinkType) throws -> LinkedPath<Self> {
+        guard let linkedPath = Self(linkedString) else { throw LinkError.pathTypeMismatch }
         return try self.link(at: linkedPath, type: type)
     }
 
-    public func link(from targetPath: LinkablePathType, type: LinkType = TrailBlazer.defaultLinkType) throws -> LinkedPath<LinkablePathType> {
-        guard let linkedPath = self as? LinkablePathType else { throw LinkError.pathTypeMismatch }
-        return try LinkedPath(linkedPath, linked: (to: targetPath, type: type))
+    public func link(from targetPath: Self, type: LinkType = TrailBlazer.defaultLinkType) throws -> LinkedPath<Self> {
+        return try LinkedPath(self, linked: (to: targetPath, type: type))
     }
 
-    public func link(from targetString: String, type: LinkType = TrailBlazer.defaultLinkType) throws -> LinkedPath<LinkablePathType> {
-        guard let targetPath = LinkablePathType(targetString) else { throw LinkError.pathTypeMismatch }
+    public func link(from targetString: String, type: LinkType = TrailBlazer.defaultLinkType) throws -> LinkedPath<Self> {
+        guard let targetPath = Self(targetString) else { throw LinkError.pathTypeMismatch }
         return try link(from: targetPath, type: type)
     }
 }
 
-public protocol Linked: Path {
-    associatedtype LinkedPathType: Linkable
-    typealias Link = (to: LinkedPathType, type: LinkType)
+public struct LinkedPath<LinkedPathType: Linkable>: Linkable {
+    public typealias Link = (to: LinkedPathType, type: LinkType)
 
-    var linked: Link? { get set }
+    public var _path: String {
+        get { return __path._path }
+        set {
+            __path._path = newValue
+        }
+    }
+    private var __path: LinkedPathType
 
-    init(_ path: LinkedPathType, linked link: Link) throws
-    func link(at: LinkedPathType, type: LinkType) throws -> LinkedPath<LinkedPathType>
-    func link(from: LinkedPathType, type: LinkType) throws -> LinkedPath<LinkedPathType>
-    func unlink() throws
-}
+    private var _linked: Link? = nil
+    public var linked: Link? {
+        get { return _linked }
+        set {
+            if let newVal = newValue {
+                guard (try? link(from: newVal.to, type: newVal.type)) != nil else { return }
+            } else {
+                guard (try? unlink()) != nil else { return }
+            }
+            _linked = newValue
+        }
+    }
 
-public extension Linked {
+    public var _info: StatInfo = StatInfo()
+
     public var linkedTo: LinkedPathType? {
         get { return linked?.to }
         set {
@@ -67,11 +77,11 @@ public extension Linked {
             // and do that
             if let link = newValue, let type = linkType {
                 linked = (to: link, type: type)
-            // If we're setting the link location to nil, then we'll unlink
+                // If we're setting the link location to nil, then we'll unlink
             } else if linkType != nil {
                 try? unlink()
-            // If the link type is nil, then we can't set/create a new link. So
-            // do nothing.
+                // If the link type is nil, then we can't set/create a new link. So
+                // do nothing.
             } else if let link = newValue {
                 linked = (to: link, type: TrailBlazer.defaultLinkType)
             }
@@ -83,7 +93,7 @@ public extension Linked {
             // If we're just changing the link type, then go ahead and do it
             if let type = newValue, let link = linkedTo {
                 linked = (to: link, type: type)
-            // If we're setting the link type to nil, then we'll unlink
+                // If we're setting the link type to nil, then we'll unlink
             } else if linkedTo != nil {
                 try? unlink()
             }
@@ -143,89 +153,65 @@ public extension Linked {
     public func unlink() throws {
         guard cUnlink(_path) != -1 else { throw UnlinkError.getError() }
     }
-}
-
-public class LinkedPath<PathType: Linkable>: Linked {
-    public typealias LinkedPathType = PathType
-
-    public var _path: String {
-        get { return __path._path }
-        set {
-            __path._path = newValue
-        }
-    }
-    private var __path: PathType
-
-    private var _linked: Link? = nil
-    public var linked: Link? {
-        get { return _linked }
-        set {
-            if let newVal = newValue {
-                guard (try? link(from: newVal.to, type: newVal.type)) != nil else { return }
-            } else {
-                guard (try? unlink()) != nil else { return }
-            }
-            _linked = newValue
-        }
-    }
-
-    private var _info: StatInfo = StatInfo()
-    public var info: StatInfo {
-        try? _info.getInfo()
-        return _info
-    }
-
-    public required init(_ path: LinkedPathType, linked link: Link) throws {
+    public init(_ path: LinkedPathType, linked link: Link) throws {
         __path = LinkedPathType(path)
-        _info = path.info
+        _info._path = path.string
 
         try createLink(from: path, to: link.to, type: link.type)
         _linked = link
     }
 
-    public required init?(_ components: [String]) {
-        guard let path = PathType(components) else { return nil }
+    public init?(_ components: [String]) {
+        guard let path = LinkedPathType(components) else { return nil }
         __path = path
-        _info = path.info
+        _info._path = path.string
 
         if path.exists {
             guard path.isLink else { return nil }
         }
     }
 
-    public convenience init?(_ components: String...) {
-        self.init(components)
-    }
-
-    public convenience init?(_ components: ArraySlice<String>) {
-        self.init(Array(components))
-    }
-
-    public required init?(_ str: String) {
-        guard let path = PathType(str) else { return nil }
+    public init?(_ str: String) {
+        guard let path = LinkedPathType(str) else { return nil }
         __path = path
-        _info = path.info
+        _info._path = path.string
 
         if path.exists {
             guard path.isLink else { return nil }
         }
     }
 
-    public required init(_ path: LinkedPath<PathType>) {
+    public init(_ path: LinkedPath<LinkedPathType>) {
         __path = LinkedPathType(path.__path)
-        _info = path.info
+        _info._path = path.string
         _linked = path._linked
     }
 
-    public required init?(_ path: GenericPath) {
-        guard let _path = path as? PathType else { return nil }
+    public init?(_ path: GenericPath) {
+        guard let _path = path as? LinkedPathType else { return nil }
 
         if path.exists {
             guard path.isLink else { return nil }
         }
 
         __path = LinkedPathType(_path)
-        _info = path.info
+        _info._path = path.string
+    }
+}
+
+extension LinkedPath: Deletable where LinkedPathType: Deletable {
+    public func delete() throws {
+        try __path.delete()
+    }
+}
+
+extension LinkedPath where LinkedPathType: Openable {
+    public func open(options: LinkedPathType.OpenOptionsType) throws -> Open<LinkedPathType> {
+        return try __path.open(options: options)
+    }
+
+    public static func close(descriptor: LinkedPathType.DescriptorType) throws {
+        try LinkedPathType.close(descriptor: descriptor)
     }
 }
 
@@ -243,37 +229,4 @@ private func createLink<PathType: Path>(from: PathType, to: PathType, type: Link
     }
 
     guard linkFunc(to.string, from.string) != -1 else { throw linkError.getError() }
-}
-
-extension LinkedPath: Deletable {
-    public func delete() throws {
-        try __path.delete()
-    }
-}
-
-extension LinkedPath: Openable {
-    public var fileDescriptor: FileDescriptor? { return __path.fileDescriptor }
-    public var openOptions: PathType.OpenOptionsType? { return __path.openOptions }
-
-    public var opened: Open<PathType.OpenableType>? { return __path.opened }
-
-    public func open() throws -> Open<PathType.OpenableType> {
-        return try __path.open()
-    }
-
-    public func close() throws {
-        try __path.close()
-    }
-}
-
-public extension LinkedPath where PathType: FilePath {
-    public var openOptions: OpenOptionsType? {
-        get { return __path.openOptions }
-        set { __path.openOptions = newValue }
-    }
-    public var openPermissions: OpenFilePermissions { return __path.openPermissions }
-    public var openFlags: OpenFileFlags { return __path.openFlags }
-    public var createMode: FileMode? { return __path.createMode }
-    public var mayRead: Bool { return __path.mayRead }
-    public var mayWrite: Bool { return __path.mayWrite }
 }

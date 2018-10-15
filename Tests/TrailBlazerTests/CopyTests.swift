@@ -97,11 +97,11 @@ class CopyTests: XCTestCase {
             return
         }
 
-        let tmpFile: OpenFile
         do {
-            tmpFile = try FilePath.temporary()
-            var path = tmpFile.path
-            try path.move(into: tmpDirectory.path)
+            var tmpFile = try FilePath.temporary().path
+            try tmpFile.move(into: tmpDirectory.path)
+            var tmpDir = try DirectoryPath.temporary().path
+            try tmpDir.move(into: tmpDirectory.path)
         } catch {
             XCTFail("Failed to create/move temporary file into the temporary directory")
             return

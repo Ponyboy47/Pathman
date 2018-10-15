@@ -3,47 +3,29 @@ import Cdirent
 #if os(Linux)
 /// The directory stream type used for readding directory entries
 public typealias DIRType = OpaquePointer
+
+extension DIRType: Descriptor {
+    public var fileDescriptor: FileDescriptor { return dirfd(self) }
+}
 #else
 /// The directory stream type used for readding directory entries
 public typealias DIRType = UnsafeMutablePointer<DIR>
+
+extension UnsafeMutablePointer: Descriptor where Pointee == DIR {
+    public var fileDescriptor: FileDescriptor { return dirfd(self) }
+}
 #endif
 
+
 /// A Path to a directory
-public class DirectoryPath: Path, Openable, Linkable, DirectoryEnumerable {
-    public typealias OpenableType = DirectoryPath
-
+public struct DirectoryPath: Path, Openable, Linkable, DirectoryEnumerable {
     public var _path: String
-    public var fileDescriptor: FileDescriptor? {
-        // Opened directories result in a DIR struct, rather than a straight
-        // file descriptor. The dirfd(3) C API call takes a DIR pointer and
-        // returns its associated file descriptor
-
-        // Either returns the file descriptor or nil
-        return dir == nil ? nil : dirfd(dir!)
-    }
-
-    /// Opening a directory returns a pointer to a DIR struct
-    var dir: DIRType? {
-        didSet {
-            if dir != nil {
-                opened = OpenDirectory(self)
-            } else {
-                opened = nil
-            }
-        }
-    }
-
-    public var opened: OpenDirectory?
 
     // This is to protect the info from being set externally
-    private var _info: StatInfo
-    public var info: StatInfo {
-        try? _info.getInfo()
-        return _info
-    }
+    public var _info: StatInfo
 
     /// Initialize from an array of path elements
-    public required init?(_ components: [String]) {
+    public init?(_ components: [String]) {
         _path = components.filter({ !$0.isEmpty && $0 != DirectoryPath.separator}).joined(separator: GenericPath.separator)
         if let first = components.first, first == DirectoryPath.separator {
             _path = first + _path
@@ -55,17 +37,7 @@ public class DirectoryPath: Path, Openable, Linkable, DirectoryEnumerable {
         }
     }
 
-    /// Initialize from a variadic array of path elements
-    public convenience init?(_ components: String...) {
-        self.init(components)
-    }
-
-    /// Initialize from a slice of an array of path elements
-    public convenience init?(_ components: ArraySlice<String>) {
-        self.init(Array(components))
-    }
-
-    public required init?(_ str: String) {
+    public init?(_ str: String) {
         if str.count > 1 && str.hasSuffix(DirectoryPath.separator) {
             _path = String(str.dropLast())
         } else {
@@ -83,7 +55,7 @@ public class DirectoryPath: Path, Openable, Linkable, DirectoryEnumerable {
 
     - Parameter path: The path to copy
     */
-    public required init(_ path: DirectoryPath) {
+    public init(_ path: DirectoryPath) {
         _path = path._path
         _info = path.info
     }
@@ -93,7 +65,7 @@ public class DirectoryPath: Path, Openable, Linkable, DirectoryEnumerable {
 
     - Parameter path: The path to copy
     */
-    public required init?(_ path: GenericPath) {
+    public init?(_ path: GenericPath) {
         // Cannot initialize a directory from a non-directory type
         if path.exists {
             guard path.isDirectory else { return nil }
@@ -115,17 +87,12 @@ public class DirectoryPath: Path, Openable, Linkable, DirectoryEnumerable {
     - Throws: `OpenDirectoryError.outOfMemory` when there is not enough available memory to open the directory
     - Throws: `OpenDirectoryError.pathNotDirectory` when the path you're trying to open exists and is not a directory. This should only occur if your DirectoryPath object was created before the path existed and then the path was created as a non-directory path type
     */
-    @discardableResult
-    public func open() throws -> Open<DirectoryPath> {
-        if let opened = opened { return opened }
-
-        dir = opendir(string)
-
-        guard dir != nil else {
+    public func open(options: Empty = Empty()) throws -> Open<DirectoryPath> {
+        guard let dir = opendir(string) else {
             throw OpenDirectoryError.getError()
         }
 
-        return opened !! "Failed to set the opened directory"
+        return Open(self, descriptor: dir, options: options) !! "Failed to set the opened directory"
     }
 
     /**
@@ -133,26 +100,10 @@ public class DirectoryPath: Path, Openable, Linkable, DirectoryEnumerable {
 
     - Throws: Never
     */
-    public func close() throws {
-        guard let dir = self.dir else { return }
-
-        // Be sure to remove the open directory from the dict
-        defer {
-            // When this line was not first, it was not executed for some reason
-            self.dir = nil
-        }
-
-        // This should never throw since self.dir is private and the only way
-        // it would be invalid is if it was previously closed or set to nil
-        // (which this library should never do)
-        guard closedir(dir) != -1 else {
+    public static func close(descriptor: DIRType) throws {
+        guard closedir(descriptor) != -1 else {
             throw CloseDirectoryError.getError()
         }
-    }
-
-    func rewind() {
-        guard let dir = self.dir else { return }
-        rewinddir(dir)
     }
 
     /**
@@ -171,13 +122,7 @@ public class DirectoryPath: Path, Openable, Linkable, DirectoryEnumerable {
     - Throws: `OpenDirectoryError.pathNotDirectory` when the path you're trying to open exists and is not a directory. This should only occur if your DirectoryPath object was created before the path existed and then the path was created as a non-directory path type
     */
     public func children(options: DirectoryEnumerationOptions = []) throws -> PathCollection {
-        let unopened = dir == nil
-
-        let children = PathCollection(try open())
-
-        if unopened { try close() }
-
-        return children
+        return PathCollection(try open())
     }
 
     /**
@@ -229,9 +174,4 @@ public class DirectoryPath: Path, Openable, Linkable, DirectoryEnumerable {
 
     @available(*, unavailable, message: "Appending FilePath to DirectoryPath results in a FilePath, but it is impossible to change the type of the left-hand object from a DirectoryPath to a FilePath")
     public static func += (lhs: inout DirectoryPath, rhs: FilePath) {}
-
-    // Be sure to close any open directories during deconstruction
-    deinit {
-        try? close()
-    }
 }

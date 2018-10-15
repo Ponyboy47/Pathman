@@ -170,9 +170,7 @@ extension OpenTests {
     static let __allTests = [
         ("testCustomStringConvertible", testCustomStringConvertible),
         ("testGetDirectoryChildren", testGetDirectoryChildren),
-        ("testGetOpened", testGetOpened),
         ("testHashable", testHashable),
-        ("testOpen", testOpen),
         ("testOpenDirectory", testOpenDirectory),
         ("testOpenDirectoryOptions", testOpenDirectoryOptions),
         ("testOpenFile", testOpenFile),
@@ -220,6 +218,7 @@ extension PathTests {
         ("testRelative", testRelative),
         ("testStringInit", testStringInit),
         ("testStringLiteral", testStringLiteral),
+        ("testVariadicInit", testVariadicInit),
     ]
 }
 

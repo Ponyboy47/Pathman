@@ -1,5 +1,5 @@
 /// A Path that can be constrained with permissions
-public protocol Permissionable: StatDelegate {
+public protocol Permissionable: UpdatableStatDelegate {
     /// The permissions of the path
     var permissions: FileMode { get set }
     mutating func change(permissions: FileMode) throws

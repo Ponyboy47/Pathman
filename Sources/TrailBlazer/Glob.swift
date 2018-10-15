@@ -126,7 +126,7 @@ public class Glob {
     */
     public var matches: PathCollection {
         // Create the children collection
-        let children = PathCollection()
+        var children = PathCollection()
 
         // Array of Strings of the matched paths. (char **)
         var item = _glob.pointee.gl_pathv
@@ -136,13 +136,9 @@ public class Glob {
             item = item?.successor()
         }
 
-        // Go through the remaining items, get the path type, and append it to
-        // the relevant children array
-        for _ in offset...count {
-            // Make sure the item pointed to is not nil or else we've hit the
-            // end. The glob(3) docs say the array is null-terminated.
-            guard let pointee = item?.pointee else { break }
-
+        // Make sure the item pointed to is not nil or else we've hit the
+        // end. The glob(3) docs say the array is null-terminated.
+        while let pointee = item?.pointee {
             // Cast the char * pointee to a swift String
             let path = String(cString: pointee)
 

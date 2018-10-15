@@ -5,7 +5,7 @@ import Darwin
 #endif
 
 /// A Path that has an owner and a group associated with it
-public protocol Ownable: StatDelegate {
+public protocol Ownable: UpdatableStatDelegate {
     /// The uid of the user that owns the file
     var owner: uid_t { get set }
     /// The gid of the group that owns the file

@@ -6,85 +6,43 @@ import Glibc
 import Darwin
 #endif
 
-/// Protocol declaration for types that can be opened
-public protocol Openable: StatDelegate {
-    associatedtype OpenableType: Path & Openable
-    associatedtype OpenOptionsType: Hashable = Empty
+public protocol Opened: Ownable, Permissionable {
+    associatedtype PathType: Openable
 
-    /// The underlying file descriptor of the opened path
-    var fileDescriptor: FileDescriptor? { get }
-    var openOptions: OpenOptionsType? { get }
-    /// Whether the opened path may be read from
-    var mayRead: Bool { get }
-    /// Whether the opened path may be written to
-    var mayWrite: Bool { get }
+    var path: PathType { get }
+    var descriptor: PathType.DescriptorType { get }
+    var openOptions: PathType.OpenOptionsType { get }
 
-    var opened: Open<OpenableType>? { get }
-
-    /// Opens the path, sets the `fileDescriptor`, and returns the newly opened path
-    mutating func open() throws -> Open<OpenableType>
-    /// Closes the opened `fileDescriptor` and sets it to nil
-    mutating func close() throws
+    init(_ path: PathType, descriptor: PathType.DescriptorType, options: PathType.OpenOptionsType)
 }
 
-public struct Empty: Hashable {}
+public final class Open<PathType: Openable>: Opened {
+    public let path: PathType
+    public let descriptor: PathType.DescriptorType
+    public var fileDescriptor: FileDescriptor { return descriptor.fileDescriptor }
+    public let openOptions: PathType.OpenOptionsType
 
-extension Openable {
-    public var openOptions: OpenOptionsType? { return nil }
-
-    public var mayRead: Bool { return true }
-    public var mayWrite: Bool { return true }
-}
-
-open class Open<PathType: Path & Openable>: Openable, Ownable, Permissionable, StatDelegate, Hashable {
-    public typealias OpenableType = PathType.OpenableType
-    public typealias OpenOptionsType = PathType.OpenOptionsType
-
-    public internal(set) var path: PathType
-    public let fileDescriptor: FileDescriptor?
-    public let openOptions: OpenOptionsType?
-    public let hashValue: Int
-
-    var _info: StatInfo = StatInfo()
-    public var info: StatInfo {
-        try? _info.getInfo()
-        return _info
-    }
+    public var _info: StatInfo = StatInfo()
 
     public var url: URL { return path.url }
 
     /// Whether or not the path may be read
     public var isReadable: Bool {
-        return mayRead && path.isReadable
+        return path.mayRead && path.isReadable
     }
 
     /// Whether or not the path may be written to
     public var isWritable: Bool {
-        return mayWrite && path.isWritable
+        return path.mayWrite && path.isWritable
     }
 
-    public var opened: Open<PathType.OpenableType>? { return path.opened }
+    public init(_ path: PathType, descriptor: PathType.DescriptorType, options: PathType.OpenOptionsType) {
+        self.path = PathType(path)
+        self.descriptor = descriptor
+        openOptions = options
 
-    init(_ path: PathType) {
-        self.path = path
-        fileDescriptor = path.fileDescriptor
-        openOptions = path.openOptions
-        _info.fileDescriptor = self.fileDescriptor
+        _info._descriptor = descriptor
         _info._path = path._path
-
-        var hasher = Hasher()
-        hasher.combine(path)
-        hasher.combine(fileDescriptor)
-        hasher.combine(openOptions)
-        hashValue = hasher.finalize()
-    }
-
-    @available(*, renamed: "PathType.open", message: "You should use the path's open function rather than calling this directly.")
-    public func open() throws -> Open<OpenableType> { return try path.open() }
-
-
-    public func close() throws {
-        try path.close()
     }
 
     /**
@@ -105,7 +63,7 @@ open class Open<PathType: Path & Openable>: Openable, Ownable, Permissionable, S
     - Throws: `ChangeOwnershipError.ioError` when an I/O error occurred during the API call
     */
     public func change(owner uid: uid_t = ~0, group gid: gid_t = ~0) throws {
-        guard fchown(fileDescriptor!, uid, gid) == 0 else {
+        guard fchown(fileDescriptor, uid, gid) == 0 else {
             throw ChangeOwnershipError.getError()
         }
     }
@@ -127,13 +85,14 @@ open class Open<PathType: Path & Openable>: Openable, Ownable, Permissionable, S
     - Throws: `ChangePermissionsError.badFileDescriptor` when the file descriptor is invalid or not open
     */
     public func change(permissions: FileMode) throws {
-        guard fchmod(fileDescriptor!, permissions.rawValue) == 0 else {
+        guard fchmod(fileDescriptor, permissions.rawValue) == 0 else {
             throw ChangePermissionsError.getError()
         }
     }
 
     deinit {
-        try? close()
+        print("Closing \(path)")
+//        try? PathType.close(descriptor: descriptor)
     }
 }
 
@@ -143,15 +102,20 @@ extension Open: Equatable {
     }
 }
 
+extension Open: Hashable {
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(path)
+        hasher.combine(fileDescriptor)
+        hasher.combine(openOptions)
+    }
+}
+
 extension Open: CustomStringConvertible {
     public var description: String {
         var data: [(key: String, value: CustomStringConvertible)] = []
 
         data.append((key: "path", value: path))
         data.append((key: "options", value: String(describing: openOptions)))
-        if let seekable = self as? Seekable {
-            data.append((key: "offset", "\(seekable.offset)"))
-        }
 
         return "\(Swift.type(of: self))(\(data.map({ return "\($0.key): \($0.value)" }).joined(separator: ", ")))"
     }

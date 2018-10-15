@@ -17,41 +17,16 @@ private let cCloseFile = Darwin.close
 #endif
 
 /// A Path to a file
-open class FilePath: Path, Openable, Linkable {
-    public typealias OpenableType = FilePath
+public struct FilePath: Path, Openable, Linkable {
     public typealias OpenOptionsType = OpenOptions
-
+    
     public var _path: String
-    public internal(set) var fileDescriptor: FileDescriptor? {
-        didSet {
-            if fileDescriptor != nil {
-                opened = OpenFile(self)
-            } else {
-                opened = nil
-            }
-        }
-    }
-    public internal(set) var openOptions: OpenOptionsType?
-    private var _tmpOpenOptions: OpenOptionsType?
-
-    public var opened: OpenFile?
-
-    public var openPermissions: OpenFilePermissions { return openOptions?.permissions ?? .none }
-    public var openFlags: OpenFileFlags { return openOptions?.flags ?? .none }
-    public var createMode: FileMode? { return openOptions?.mode }
-
-    public var mayRead: Bool { return openPermissions.mayRead }
-    public var mayWrite: Bool { return openPermissions.mayWrite }
 
     // This is to protect the info from being set externally
-    private var _info: StatInfo = StatInfo()
-    public var info: StatInfo {
-        try? _info.getInfo()
-        return _info
-    }
+    public var _info: StatInfo = StatInfo()
 
     /// Initialize from an array of path elements
-    public required init?(_ components: [String]) {
+    public init?(_ components: [String]) {
         _path = components.filter({ !$0.isEmpty && $0 != FilePath.separator}).joined(separator: GenericPath.separator)
         if let first = components.first, first == FilePath.separator {
             _path = first + _path
@@ -63,17 +38,7 @@ open class FilePath: Path, Openable, Linkable {
         }
     }
 
-    /// Initialize from a variadic array of path elements
-    public convenience init?(_ components: String...) {
-        self.init(components)
-    }
-
-    /// Initialize from a slice of an array of path elements
-    public convenience init?(_ components: ArraySlice<String>) {
-        self.init(Array(components))
-    }
-
-    public required init?(_ str: String) {
+    public init?(_ str: String) {
         if str.count > 1 && str.hasSuffix(FilePath.separator) {
             _path = String(str.dropLast())
         } else {
@@ -91,9 +56,8 @@ open class FilePath: Path, Openable, Linkable {
 
     - Parameter  path: The path to copy
     */
-    public required init(_ path: FilePath) {
-        _path = path._path
-        _info = path.info
+    public init(_ path: FilePath) {
+        self = path
     }
 
     /**
@@ -103,7 +67,7 @@ open class FilePath: Path, Openable, Linkable {
 
     - Parameter path: The path to copy
     */
-    public required init?(_ path: GenericPath) {
+    public init?(_ path: GenericPath) {
         // Cannot initialize a file from a non-file type
         if path.exists {
             guard path.isFile else { return nil }
@@ -115,7 +79,6 @@ open class FilePath: Path, Openable, Linkable {
 
     @available(*, unavailable, message: "Cannot append to a FilePath")
     public static func + <PathType: Path>(lhs: FilePath, rhs: PathType) -> PathType { fatalError("Cannot append to a FilePath") }
-
 
     /**
     Opens the file
@@ -153,22 +116,12 @@ open class FilePath: Path, Openable, Linkable {
     - Warning: Beware opening the same file multiple times with non-overlapping options/permissions. In order to reduce the number of open file descriptors, a single file can only be opened once at a time. If you open the same path with different permissions or flags, then the previously opened instance will be closed before the new one is opened. ie: if youre going to use a path for reading and writing, then open it using the `.readWrite` permissions rather than first opening it with `.read` and then later opening it with `.write`
     - Note: A `CloseFileError` will only be thrown if the file has previously been opened and is now being reopened with non-overlapping `options` as the previous open. So we first will close the old open file and then open it with the new options
     */
-    @discardableResult
-    open func open() throws -> Open<FilePath> {
-        let options = try (_tmpOpenOptions ?? openOptions) ?! OpenFileError.invalidPermissions
-
+    public func open(options: OpenOptions) throws -> Open<FilePath> {
         guard options.permissions != .none else { throw OpenFileError.invalidPermissions }
-
-        if let opened = opened {
-            if options == openOptions
-               || (openOptions!.permissions.contains(options.permissions)
-                  && options.flags.contains(openOptions!.flags))
-            { return opened }
-            try close()
-        }
 
         let rawOptions = options.permissions.rawValue | options.flags.rawValue
 
+        let fileDescriptor: FileDescriptor
         if let mode = options.mode {
             fileDescriptor = cOpenFileWithMode(string, rawOptions, mode.rawValue)
         } else {
@@ -180,11 +133,7 @@ open class FilePath: Path, Openable, Linkable {
 
         guard fileDescriptor != -1 else { throw OpenFileError.getError() }
 
-        defer {
-            self.openOptions = options
-            self._tmpOpenOptions = nil
-        }
-        return opened !! "Failed to set the opened file object"
+        return OpenFile(self, descriptor: fileDescriptor, options: options) !! "Failed to set the opened file object"
     }
 
     /**
@@ -227,10 +176,8 @@ open class FilePath: Path, Openable, Linkable {
     - Warning: Beware opening the same file multiple times with non-overlapping options/permissions. In order to reduce the number of open file descriptors, a single file can only be opened once at a time. If you open the same path with different permissions or flags, then the previously opened instance will be closed before the new one is opened. ie: if youre going to use a path for reading and writing, then open it using the `.readWrite` permissions rather than first opening it with `.read` and then later opening it with `.write`
     - Note: A `CloseFileError` will only be thrown if the file has previously been opened and is now being reopened with non-overlapping `options` as the previous open. So we first will close the old open file and then open it with the new options
     */
-    @discardableResult
-    open func open(permissions: OpenFilePermissions, flags: OpenFileFlags = [], mode: FileMode? = nil) throws -> Open<FilePath> {
-        _tmpOpenOptions = OpenOptions(permissions: permissions, flags: flags, mode: mode)
-        return try open()
+    public func open(permissions: OpenFilePermissions, flags: OpenFileFlags = [], mode: FileMode? = nil) throws -> Open<FilePath> {
+        return try open(options: OpenOptions(permissions: permissions, flags: flags, mode: mode))
     }
 
     /**
@@ -240,28 +187,13 @@ open class FilePath: Path, Openable, Linkable {
     - Throws: `CloseFileError.interruptedBySignal` when the call was interrupted by a signal handler
     - Throws: `CloseFileError.ioError` when an I/O error occurred
     */
-    open func close() throws {
+    public static func close(descriptor: FileDescriptor) throws {
         // File is not open
-        guard let fileDescriptor = fileDescriptor else { return }
+        guard descriptor != -1 else { return }
 
-        // deinitializes and deallocates any existing memory
-        opened?.buffer = nil
-        opened?.bufferSize = nil
-
-        // Remove the open file from the openFiles dict after we close it
-        defer {
-            openOptions = nil
-            self.fileDescriptor = nil
-        }
-
-        guard cCloseFile(fileDescriptor) == 0 else {
+        guard cCloseFile(descriptor) == 0 else {
             throw CloseFileError.getError()
         }
-    }
-
-    // Be sure to close any open files on deconstruction
-    deinit {
-        try? close()
     }
 }
 

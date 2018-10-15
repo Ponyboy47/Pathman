@@ -8,7 +8,7 @@ private let cWriteFile = Darwin.write
 #endif
 
 /// Protocol declaration of types that can be written to
-public protocol Writable: Openable, Seekable {
+public protocol Writable: Seekable {
     /// Seeks to the specified offset and writes the specified bytes
     func write(_ buffer: Data, at offset: Offset) throws
     /// Seeks to the specified offset and write the specified String
@@ -38,7 +38,7 @@ public extension Writable {
     }
 }
 
-extension Open: Writable where PathType: FilePath {
+extension Open: Writable where PathType == FilePath {
     /**
     Seeks to the specified offset and writes the data
 
@@ -64,7 +64,7 @@ extension Open: Writable where PathType: FilePath {
             try seek(offset)
         }
 
-        guard cWriteFile(fileDescriptor!, [UInt8](buffer), buffer.count) != -1 else { throw WriteError.getError() }
+        guard cWriteFile(fileDescriptor, [UInt8](buffer), buffer.count) != -1 else { throw WriteError.getError() }
     }
 }
 
@@ -112,9 +112,7 @@ public extension FilePath {
     - Throws: `CloseFileError.ioError` when an I/O error occurred
     */
     public func write(_ buffer: Data, at offset: Offset = .current) throws {
-        let openFile = try open(permissions: .write)
-        defer { try? openFile.close() }
-        try openFile.write(buffer, at: offset)
+        try open(permissions: .write).write(buffer, at: offset)
     }
 
     /**
