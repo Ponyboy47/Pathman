@@ -54,7 +54,9 @@ class PathTests: XCTestCase {
 
     func testStringLiteral() {
         let path1: GenericPath = "/tmp"
+        let path2: GenericPath = "/tmp/"
         XCTAssertEqual(path1.string, "/tmp")
+        XCTAssertEqual(path1, path2)
     }
 
     func testArrayLiteral() {
@@ -192,7 +194,7 @@ class PathTests: XCTestCase {
         var path2: GenericPath = "/tmp"
 
         XCTAssertEqual(path1 + path2, "/tmp/tmp")
-        XCTAssertEqual("/tmp" + path2, "/tmp/tmp")
+        XCTAssertEqual(path1.string + path2, "/tmp/tmp")
         XCTAssertEqual(path1 + "/tmp", "/tmp/tmp")
 
         path2 += path1
@@ -203,7 +205,7 @@ class PathTests: XCTestCase {
     }
 
     func testGetHome() {
-        XCTAssertNoThrow(try getUserInfo(username: "root"))
+        XCTAssertNoThrow(try getHome(username: "root"))
         #if os(macOS)
         XCTAssertNoThrow(try getGroupInfo(groupname: "admin"))
         #else
