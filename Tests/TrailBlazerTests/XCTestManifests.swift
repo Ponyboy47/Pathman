@@ -230,6 +230,8 @@ extension StatTests {
         ("testAttributeChange", testAttributeChange),
         ("testBlocks", testBlocks),
         ("testBlockSize", testBlockSize),
+        ("testCreation", testCreation),
+        ("testDelegate", testDelegate),
         ("testDevice", testDevice),
         ("testGroup", testGroup),
         ("testID", testID),

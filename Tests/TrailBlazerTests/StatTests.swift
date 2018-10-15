@@ -84,4 +84,31 @@ class StatTests: XCTestCase {
     func testAttributeChange() {
         let _ = stat.lastAttributeChange
     }
+
+    func testCreation() {
+        #if os(macOS)
+        let _ = stat.creation
+        #endif
+    }
+
+    func testDelegate() {
+        let dir = DirectoryPath("/tmp")!
+
+        let _ = dir.id
+        let _ = dir.inode
+        let _ = dir.permissions
+        let _ = dir.owner
+        let _ = dir.group
+        let _ = dir.size
+        let _ = dir.device
+        let _ = dir.blockSize
+        let _ = dir.blocks
+        let _ = dir.lastAccess
+        let _ = dir.lastModified
+        let _ = dir.lastAttributeChange
+
+        #if os(macOS)
+        let _ = dir.creation
+        #endif
+    }
 }
