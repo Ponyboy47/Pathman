@@ -88,7 +88,7 @@ public struct DirectoryPath: Path, Openable, Linkable, DirectoryEnumerable {
     - Throws: `OpenDirectoryError.outOfMemory` when there is not enough available memory to open the directory
     - Throws: `OpenDirectoryError.pathNotDirectory` when the path you're trying to open exists and is not a directory. This should only occur if your DirectoryPath object was created before the path existed and then the path was created as a non-directory path type
     */
-    public func open(options: Empty = Empty()) throws -> Open<DirectoryPath> {
+    public func open(options: Empty) throws -> Open<DirectoryPath> {
         guard let dir = opendir(string) else {
             throw OpenDirectoryError.getError()
         }
