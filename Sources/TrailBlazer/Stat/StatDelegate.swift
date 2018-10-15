@@ -12,7 +12,7 @@ public protocol StatDelegate {
 }
 
 public protocol UpdatableStatDelegate: StatDelegate {
-    var _info: StatInfo { get set }
+    var _info: StatInfo { get }
 }
 
 extension UpdatableStatDelegate {

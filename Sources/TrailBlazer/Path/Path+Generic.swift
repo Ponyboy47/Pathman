@@ -4,7 +4,7 @@ public struct GenericPath: Path, ExpressibleByStringLiteral, ExpressibleByArrayL
     public var _path: String
 
     // This is to protect the info from being set externally
-    public var _info: StatInfo = StatInfo()
+    public let _info: StatInfo
 
     public init(_ str: String) {
         if str.count > 1 && str.hasSuffix(GenericPath.separator) {
@@ -36,7 +36,7 @@ public struct GenericPath: Path, ExpressibleByStringLiteral, ExpressibleByArrayL
 
     public init<PathType: Path>(_ path: PathType) {
         _path = path._path
-        _info = path.info
+        _info = StatInfo(path)
     }
 
     /// Initialize from a string literal

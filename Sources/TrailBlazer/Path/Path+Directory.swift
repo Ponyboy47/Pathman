@@ -23,7 +23,7 @@ public struct DirectoryPath: Path, Openable, Linkable, DirectoryEnumerable {
     public var _path: String
 
     // This is to protect the info from being set externally
-    public var _info: StatInfo
+    public let _info: StatInfo
 
     /// Initialize from an array of path elements
     public init?(_ components: [String]) {
@@ -58,7 +58,7 @@ public struct DirectoryPath: Path, Openable, Linkable, DirectoryEnumerable {
     */
     public init(_ path: DirectoryPath) {
         _path = path._path
-        _info = path.info
+        _info = StatInfo(path)
     }
 
     /**
@@ -73,7 +73,7 @@ public struct DirectoryPath: Path, Openable, Linkable, DirectoryEnumerable {
         }
 
         _path = path._path
-        _info = path.info
+        _info = StatInfo(path)
     }
 
     /**

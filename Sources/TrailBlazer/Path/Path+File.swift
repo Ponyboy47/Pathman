@@ -23,7 +23,7 @@ public struct FilePath: Path, Openable, Linkable {
     public var _path: String
 
     // This is to protect the info from being set externally
-    public var _info: StatInfo = StatInfo()
+    public let _info: StatInfo
 
     /// Initialize from an array of path elements
     public init?(_ components: [String]) {
@@ -74,7 +74,7 @@ public struct FilePath: Path, Openable, Linkable {
         }
 
         _path = path._path
-        _info = path.info
+        _info = StatInfo(path)
     }
 
     @available(*, unavailable, message: "Cannot append to a FilePath")

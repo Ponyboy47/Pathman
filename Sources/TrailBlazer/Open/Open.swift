@@ -42,7 +42,6 @@ public final class Open<PathType: Openable>: Opened {
         openOptions = options
 
         _info._descriptor = descriptor
-        _info._path = path._path
     }
 
     /**
