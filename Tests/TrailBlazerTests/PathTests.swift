@@ -201,4 +201,14 @@ class PathTests: XCTestCase {
         path2 += "/tmp"
         XCTAssertEqual(path2, "/tmp/tmp")
     }
+
+    func testGetHome() {
+        XCTAssertNoThrow(try getUserInfo(username: "root"))
+        #if os(macOS)
+        XCTAssertNoThrow(try getGroupInfo(groupname: "admin"))
+        #else
+        XCTAssertNoThrow(try getGroupInfo(groupname: "root"))
+        #endif
+        XCTAssertNoThrow(try getGroupInfo(gid: 0))
+    }
 }

@@ -28,8 +28,8 @@ Returns the home directory for a specified user
 - Throws: `UserInfoError.noMoreSystemFileDescriptors` when the system has no more available file descriptors
 - Throws: `UserInfoError.outOfMemory` when there is insufficient memory to allocate the underlying C passwd struct
 */
-func getHome(_ username: String) throws -> DirectoryPath {
-    let info = try getUserInfo(username)
+public func getHome(username: String) throws -> DirectoryPath {
+    let info = try getUserInfo(username: username)
     return try DirectoryPath(String(cString: info.pw_dir)) ?! UserInfoError.invalidHomeDirectory
 }
 /**
@@ -45,8 +45,8 @@ Returns the home directory for a specified user
 - Throws: `UserInfoError.noMoreSystemFileDescriptors` when the system has no more available file descriptors
 - Throws: `UserInfoError.outOfMemory` when there is insufficient memory to allocate the underlying C passwd struct
 */
-func getHome(_ uid: uid_t = geteuid()) throws -> DirectoryPath {
-    let info = try getUserInfo(uid)
+public func getHome(uid: uid_t = geteuid()) throws -> DirectoryPath {
+    let info = try getUserInfo(uid: uid)
     return try DirectoryPath(String(cString: info.pw_dir)) ?! UserInfoError.invalidHomeDirectory
 }
 
@@ -63,7 +63,7 @@ Returns information about the user requested
 - Throws: `UserInfoError.noMoreSystemFileDescriptors` when the system has no more available file descriptors
 - Throws: `UserInfoError.outOfMemory` when there is insufficient memory to allocate the underlying C passwd struct
 */
-func getUserInfo(_ username: String) throws -> passwd {
+func getUserInfo(username: String) throws -> passwd {
     // getpwnam(2) documentation says "If one wants to check errno after
     // the call, it should be set to zero before the call."
     errno = 0
@@ -83,7 +83,7 @@ Returns information about the user requested
 - Throws: `UserInfoError.noMoreSystemFileDescriptors` when the system has no more available file descriptors
 - Throws: `UserInfoError.outOfMemory` when there is insufficient memory to allocate the underlying C passwd struct
 */
-func getUserInfo(_ uid: uid_t) throws -> passwd {
+func getUserInfo(uid: uid_t) throws -> passwd {
     // getpwuid(2) documentation says "If one wants to check errno after
     // the call, it should be set to zero before the call."
     errno = 0
@@ -103,7 +103,7 @@ Returns information about the group requested
 - Throws: `GroupInfoError.noMoreSystemFileDescriptors` when the system has no more available file descriptors
 - Throws: `GroupInfoError.outOfMemory` when there is insufficient memory to allocate the underlying C group struct
 */
-func getGroupInfo(_ groupname: String) throws -> group {
+func getGroupInfo(groupname: String) throws -> group {
     // getgrnam(2) documentation says "If one wants to check errno after
     // the call, it should be set to zero before the call."
     errno = 0
@@ -123,7 +123,7 @@ Returns information about the group requested
 - Throws: `GroupInfoError.noMoreSystemFileDescriptors` when the system has no more available file descriptors
 - Throws: `GroupInfoError.outOfMemory` when there is insufficient memory to allocate the underlying C group struct
 */
-func getGroupInfo(_ gid: gid_t) throws -> group {
+func getGroupInfo(gid: gid_t) throws -> group {
     // getgrgid(2) documentation says "If one wants to check errno after
     // the call, it should be set to zero before the call."
     errno = 0

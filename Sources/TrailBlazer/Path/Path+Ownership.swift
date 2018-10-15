@@ -30,7 +30,7 @@ public extension Ownable {
 
     public var ownerName: String? {
         get {
-            guard let username = (try? getUserInfo(owner))?.pw_name else { return nil }
+            guard let username = (try? getUserInfo(uid: owner))?.pw_name else { return nil }
             return String(cString: username)
         }
         set {
@@ -40,7 +40,7 @@ public extension Ownable {
     }
     public var groupName: String? {
         get {
-            guard let groupname = (try? getGroupInfo(group))?.gr_name else { return nil }
+            guard let groupname = (try? getGroupInfo(gid: group))?.gr_name else { return nil }
             return String(cString: groupname)
         }
         set {
@@ -82,13 +82,13 @@ public extension Ownable {
         let gid: gid_t
 
         if let username = username {
-            uid = try getUserInfo(username).pw_uid
+            uid = try getUserInfo(username: username).pw_uid
         } else {
             uid = ~0
         }
 
         if let groupname = groupname {
-            gid = try getGroupInfo(groupname).gr_gid
+            gid = try getGroupInfo(groupname: groupname).gr_gid
         } else {
             gid = ~0
         }
@@ -179,13 +179,13 @@ extension Ownable where Self: DirectoryEnumerable {
         let gid: gid_t
 
         if let username = username {
-            uid = try getUserInfo(username).pw_uid
+            uid = try getUserInfo(username: username).pw_uid
         } else {
             uid = ~0
         }
 
         if let groupname = groupname {
-            gid = try getGroupInfo(groupname).gr_gid
+            gid = try getGroupInfo(groupname: groupname).gr_gid
         } else {
             gid = ~0
         }
