@@ -17,12 +17,10 @@ public final class StatInfo: StatDescriptor, StatPath {
     var _buffer: stat
 
     var exists: Bool {
-        if _descriptor != nil {
-            return true
-        } else if let path = _path {
+        if let path = _path {
             return pathExists(path)
         }
-        return false
+        return _descriptor != nil
     }
 
     /// Empty initializer
@@ -45,6 +43,6 @@ public final class StatInfo: StatDescriptor, StatPath {
 
 extension StatInfo: CustomStringConvertible {
     public var description: String {
-        return "\(Swift.type(of: self))(path: \(String(describing: _path)), fileDescriptor: \(String(describing: fileDescriptor)), options: \(options), buffer: \(_buffer))"
+        return "\(Swift.type(of: self))(path: \(String(describing: _path)), fileDescriptor: \(String(describing: fileDescriptor)), options: \(options))"
     }
 }

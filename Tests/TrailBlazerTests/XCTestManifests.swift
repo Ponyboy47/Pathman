@@ -231,6 +231,7 @@ extension StatTests {
         ("testBlocks", testBlocks),
         ("testBlockSize", testBlockSize),
         ("testCreation", testCreation),
+        ("testCustomStringConvertible", testCustomStringConvertible),
         ("testDelegate", testDelegate),
         ("testDevice", testDevice),
         ("testGroup", testGroup),

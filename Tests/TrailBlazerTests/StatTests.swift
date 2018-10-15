@@ -111,4 +111,8 @@ class StatTests: XCTestCase {
         let _ = dir.creation
         #endif
     }
+
+    func testCustomStringConvertible() {
+        XCTAssertEqual(stat.description, "StatInfo(path: Optional(\"/tmp\"), fileDescriptor: nil, options: StatOptions(rawValue: 0))")
+    }
 }
