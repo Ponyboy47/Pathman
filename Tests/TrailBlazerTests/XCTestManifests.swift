@@ -211,6 +211,7 @@ extension PathTests {
         ("testEquatable", testEquatable),
         ("testExists", testExists),
         ("testExpand", testExpand),
+        ("testGenericPathMath", testGenericPathMath),
         ("testLastComponent", testLastComponent),
         ("testParent", testParent),
         ("testPathInit", testPathInit),

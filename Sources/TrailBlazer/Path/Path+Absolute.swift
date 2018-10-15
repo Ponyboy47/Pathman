@@ -79,7 +79,6 @@ extension Path {
     public func expanded() throws -> Self {
         var toExpand = Self(_path) !! "The path '\(_path)' is not a \(Self.self)"
         try toExpand.expand()
-        print("Here I am")
         return toExpand
     }
 }

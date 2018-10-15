@@ -8,17 +8,13 @@ import Darwin
 
 class PathTests: XCTestCase {
     func testStringInit() {
-        XCTAssertEqual(GenericPath("/tmp").string, "/tmp")
-        guard let dir = DirectoryPath("/tmp") else {
-            XCTFail("DirectoryPath was nil")
-            return
-        }
-        XCTAssertEqual(dir.string, "/tmp")
-        guard let file = FilePath("/tmp/flabbergasted") else {
-            XCTFail("FilePath was nil")
-            return
-        }
-        XCTAssertEqual(file.string, "/tmp/flabbergasted")
+        XCTAssertEqual(GenericPath("/tmp/").string, "/tmp")
+        let dir = DirectoryPath("/tmp")
+        XCTAssertNotNil(dir)
+        XCTAssertEqual(dir!.string, "/tmp")
+        let file = FilePath("/tmp/flabbergasted/")
+        XCTAssertNotNil(file)
+        XCTAssertEqual(file!.string, "/tmp/flabbergasted")
     }
 
     func testPathInit() {
@@ -47,6 +43,7 @@ class PathTests: XCTestCase {
         XCTAssertEqual(GenericPath(["/", "tmp"]).string, "/tmp")
         XCTAssertEqual(DirectoryPath(["/", "tmp"])!.string, "/tmp")
         XCTAssertEqual(FilePath(["/", "tmp", "flabbergasted"])!.string, "/tmp/flabbergasted")
+        XCTAssertNil(FilePath(["/", "tmp"]))
     }
 
     func testArraySliceInit() {
@@ -188,5 +185,20 @@ class PathTests: XCTestCase {
             return
         }
         XCTAssertEqual(pathType, .directory)
+    }
+
+    func testGenericPathMath() {
+        let path1: GenericPath = "/tmp"
+        var path2: GenericPath = "/tmp"
+
+        XCTAssertEqual(path1 + path2, "/tmp/tmp")
+        XCTAssertEqual("/tmp" + path2, "/tmp/tmp")
+        XCTAssertEqual(path1 + "/tmp", "/tmp/tmp")
+
+        path2 += path1
+        XCTAssertEqual(path2, "/tmp/tmp")
+        path2 = path1
+        path2 += "/tmp"
+        XCTAssertEqual(path2, "/tmp/tmp")
     }
 }
