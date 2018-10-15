@@ -91,8 +91,7 @@ public final class Open<PathType: Openable>: Opened {
     }
 
     deinit {
-        print("Closing \(path)")
-//        try? PathType.close(descriptor: descriptor)
+        try? PathType.close(descriptor: descriptor)
     }
 }
 
