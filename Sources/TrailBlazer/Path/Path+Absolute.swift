@@ -56,6 +56,7 @@ extension Path {
 
         // When realpath(3) is passed a nil buffer argument, the memory is
         // dynamically allocated and must be deallocated
+        realpath.deinitialize(count: 1)
         realpath.deallocate()
     }
 
@@ -78,6 +79,7 @@ extension Path {
     public func expanded() throws -> Self {
         var toExpand = Self(_path) !! "The path '\(_path)' is not a \(Self.self)"
         try toExpand.expand()
+        print("Here I am")
         return toExpand
     }
 }
