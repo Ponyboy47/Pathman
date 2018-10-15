@@ -11,7 +11,7 @@ public protocol Openable: Path {
     /// Opens the path, sets the `fileDescriptor`, and returns the newly opened path
     func open(options: OpenOptionsType) throws -> Open<Self>
     /// Closes the opened `fileDescriptor` and sets it to nil
-    static func close(descriptor: DescriptorType) throws
+    static func close(opened: Open<Self>) throws
 }
 
 public struct Empty: Hashable {

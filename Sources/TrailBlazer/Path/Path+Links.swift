@@ -209,10 +209,6 @@ extension LinkedPath where LinkedPathType: Openable {
     public func open(options: LinkedPathType.OpenOptionsType) throws -> Open<LinkedPathType> {
         return try __path.open(options: options)
     }
-
-    public static func close(descriptor: LinkedPathType.DescriptorType) throws {
-        try LinkedPathType.close(descriptor: descriptor)
-    }
 }
 
 private func createLink<PathType: Path>(from: PathType, to: PathType, type: LinkType) throws {

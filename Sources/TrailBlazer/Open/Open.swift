@@ -91,7 +91,7 @@ public final class Open<PathType: Openable>: Opened {
     }
 
     deinit {
-        try? PathType.close(descriptor: descriptor)
+        try? PathType.close(opened: self)
     }
 }
 

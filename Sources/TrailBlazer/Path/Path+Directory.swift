@@ -19,6 +19,7 @@ extension UnsafeMutablePointer: Descriptor where Pointee == DIR {
 
 /// A Path to a directory
 public struct DirectoryPath: Path, Openable, Linkable, DirectoryEnumerable {
+    public typealias DescriptorType = DIRType
     public var _path: String
 
     // This is to protect the info from being set externally
@@ -100,8 +101,8 @@ public struct DirectoryPath: Path, Openable, Linkable, DirectoryEnumerable {
 
     - Throws: Never
     */
-    public static func close(descriptor: DIRType) throws {
-        guard closedir(descriptor) != -1 else {
+    public static func close(opened: Open<DirectoryPath>) throws {
+        guard closedir(opened.descriptor) != -1 else {
             throw CloseDirectoryError.getError()
         }
     }

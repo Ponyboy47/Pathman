@@ -187,13 +187,16 @@ public struct FilePath: Path, Openable, Linkable {
     - Throws: `CloseFileError.interruptedBySignal` when the call was interrupted by a signal handler
     - Throws: `CloseFileError.ioError` when an I/O error occurred
     */
-    public static func close(descriptor: FileDescriptor) throws {
+    public static func close(opened: Open<FilePath>) throws {
         // File is not open
-        guard descriptor != -1 else { return }
+        guard opened.descriptor != -1 else { return }
 
-        guard cCloseFile(descriptor) == 0 else {
+        guard cCloseFile(opened.descriptor) == 0 else {
             throw CloseFileError.getError()
         }
+
+        opened.buffer = nil
+        opened.bufferSize = nil
     }
 }
 

@@ -75,7 +75,7 @@ private var _bufferSizes: [Int: Int] = [:]
 
 extension Open: Readable where PathType == FilePath {
     /// The buffer used to store data read from a path
-    private var buffer: UnsafeMutablePointer<CChar>? {
+    var buffer: UnsafeMutablePointer<CChar>? {
         get {
             return _buffers[hashValue]
         }
@@ -92,7 +92,7 @@ extension Open: Readable where PathType == FilePath {
         }
     }
     /// The size of the buffer used to store read data
-    private var bufferSize: Int? {
+    var bufferSize: Int? {
         get {
             return _bufferSizes[hashValue]
         }
