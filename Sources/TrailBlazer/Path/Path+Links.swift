@@ -83,7 +83,7 @@ public struct LinkedPath<LinkedPathType: Path>: Path {
         linkType = type
     }
 
-    @available(*, message: "WARNING: This should only be used if the path is a symlink")
+    /// Initialize a symbolic link from an array of Path components
     public init?(_ components: [String]) {
         guard let path = LinkedPathType(components) else { return nil }
         __path = path
@@ -107,7 +107,7 @@ public struct LinkedPath<LinkedPathType: Path>: Path {
         linkType = .symbolic
     }
 
-    @available(*, message: "WARNING: This should only be used if the path is a symlink")
+    /// Initialize a symbolic link from an array of Path components
     public init?(_ str: String) {
         guard let path = LinkedPathType(str) else { return nil }
         __path = path
@@ -138,7 +138,7 @@ public struct LinkedPath<LinkedPathType: Path>: Path {
         linkType = path.linkType
     }
 
-    @available(*, message: "WARNING: This should only be used if the path is a symlink")
+    /// Initialize a symbolic link from an array of Path components
     public init?(_ path: GenericPath) {
         guard let _path = path as? LinkedPathType else { return nil }
         __path = _path
