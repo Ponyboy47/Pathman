@@ -12,8 +12,6 @@ public protocol Opened: Ownable, Permissionable {
     var path: PathType { get }
     var descriptor: PathType.DescriptorType { get }
     var openOptions: PathType.OpenOptionsType { get }
-
-    init(_ path: PathType, descriptor: PathType.DescriptorType, options: PathType.OpenOptionsType)
 }
 
 public final class Open<PathType: Openable>: Opened {

@@ -17,7 +17,7 @@ private let cCloseFile = Darwin.close
 #endif
 
 /// A Path to a file
-public struct FilePath: Path, Openable, Linkable {
+public struct FilePath: Path, Openable {
     public typealias OpenOptionsType = OpenOptions
     
     public var _path: String

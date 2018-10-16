@@ -153,6 +153,7 @@ extension LinkTests {
     static let __allTests = [
         ("testAbsoluteHardLink", testAbsoluteHardLink),
         ("testAbsoluteSoftLink", testAbsoluteSoftLink),
+        ("testFromLinking", testFromLinking),
         ("testRelativeHardLink", testRelativeHardLink),
         ("testRelativeSoftLink", testRelativeSoftLink),
     ]

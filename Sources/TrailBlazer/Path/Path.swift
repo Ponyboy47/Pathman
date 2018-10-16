@@ -45,6 +45,7 @@ public protocol Path: Hashable, Comparable, CustomStringConvertible, Ownable, Pe
     var _path: String { get set }
     /// A String representation of self
     var string: String { get }
+    var isLink: Bool { get }
     /// The character used to separate components of a path
     static var separator: String { get }
 
