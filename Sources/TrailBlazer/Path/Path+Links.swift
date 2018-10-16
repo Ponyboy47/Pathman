@@ -3,11 +3,13 @@ import Glibc
 let cLink = Glibc.link
 let cSymlink = Glibc.symlink
 let cUnlink = Glibc.unlink
+let cReadlink = Glibc.readlink
 #else
 import Darwin
 let cLink = Darwin.link
 let cSymlink = Darwin.symlink
 let cUnlink = Darwin.unlink
+let cReadlink = Darwin.readlink
 #endif
 
 public enum LinkType {
@@ -81,11 +83,53 @@ public struct LinkedPath<LinkedPathType: Path>: Path {
         linkType = type
     }
 
-    @available(*, renamed: "init(_:linkedTo:type:)")
-    public init?(_ components: [String]) { fatalError("Cannot initialize a LinkedPath without specifying the path to link to") }
+    @available(*, message: "WARNING: This should only be used if the path is a symlink")
+    public init?(_ components: [String]) {
+        guard let path = LinkedPathType(components) else { return nil }
+        __path = path
+        _info = StatInfo(path.string)
 
-    @available(*, renamed: "init(_:linkedTo:type:)")
-    public init?(_ str: String) { fatalError("Cannot initialize a LinkedPath without specifying the path to link to") }
+        let buffer = UnsafeMutablePointer<CChar>.allocate(capacity: Int(PATH_MAX) + 1)
+        defer {
+            buffer.deinitialize(count: Int(PATH_MAX) + 1)
+            buffer.deallocate()
+        }
+
+        let linkSize = cReadlink(path.string, buffer, Int(PATH_MAX))
+        guard linkSize != -1 else { return nil }
+
+        // realink(2) does not null-terminate the string stored in the buffer,
+        // Swift expects it to be null-terminated to convert a cString to a Swift String
+        buffer[linkSize] = 0
+        guard let link = LinkedPathType.init(String(cString: buffer)) else { return nil }
+
+        self.link = link
+        linkType = .symbolic
+    }
+
+    @available(*, message: "WARNING: This should only be used if the path is a symlink")
+    public init?(_ str: String) {
+        guard let path = LinkedPathType(str) else { return nil }
+        __path = path
+        _info = StatInfo(path.string)
+
+        let buffer = UnsafeMutablePointer<CChar>.allocate(capacity: Int(PATH_MAX) + 1)
+        defer {
+            buffer.deinitialize(count: Int(PATH_MAX) + 1)
+            buffer.deallocate()
+        }
+
+        let linkSize = cReadlink(path.string, buffer, Int(PATH_MAX))
+        guard linkSize != -1 else { return nil }
+
+        // realink(2) does not null-terminate the string stored in the buffer,
+        // Swift expects it to be null-terminated to convert a cString to a Swift String
+        buffer[linkSize] = 0
+        guard let link = LinkedPathType.init(String(cString: buffer)) else { return nil }
+
+        self.link = link
+        linkType = .symbolic
+    }
 
     public init(_ path: LinkedPath<LinkedPathType>) {
         __path = LinkedPathType(path.__path)
@@ -94,8 +138,29 @@ public struct LinkedPath<LinkedPathType: Path>: Path {
         linkType = path.linkType
     }
 
-    @available(*, renamed: "init(_:linkedTo:type:)")
-    public init?(_ path: GenericPath) { fatalError("Cannot initialize a LinkedPath without specifying the path to link to") }
+    @available(*, message: "WARNING: This should only be used if the path is a symlink")
+    public init?(_ path: GenericPath) {
+        guard let _path = path as? LinkedPathType else { return nil }
+        __path = _path
+        _info = StatInfo(_path.string)
+
+        let buffer = UnsafeMutablePointer<CChar>.allocate(capacity: Int(PATH_MAX) + 1)
+        defer {
+            buffer.deinitialize(count: Int(PATH_MAX) + 1)
+            buffer.deallocate()
+        }
+
+        let linkSize = cReadlink(_path.string, buffer, Int(PATH_MAX))
+        guard linkSize != -1 else { return nil }
+
+        // realink(2) does not null-terminate the string stored in the buffer,
+        // Swift expects it to be null-terminated to convert a cString to a Swift String
+        buffer[linkSize] = 0
+        guard let link = LinkedPathType.init(String(cString: buffer)) else { return nil }
+
+        self.link = link
+        linkType = .symbolic
+    }
 }
 
 extension LinkedPath: Deletable where LinkedPathType: Deletable {
