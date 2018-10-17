@@ -369,6 +369,8 @@ class ChmodTests: XCTestCase {
         XCTAssertNoThrow(try openFile.change(others: .read))
         XCTAssertEqual(openFile.permissions.owner & openFile.permissions.group, .readWriteExecute)
         XCTAssertEqual(openFile.permissions.others, .read)
+
+        try? file.delete()
     }
 }
 
