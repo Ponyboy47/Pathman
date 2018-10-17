@@ -176,17 +176,10 @@ extension LinkedPath where LinkedPathType: Openable {
 }
 
 private func createLink<PathType: Path>(from: PathType, to: PathType, type: LinkType) throws {
-    let linkFunc: (UnsafePointer<CChar>, UnsafePointer<CChar>) -> OptionInt
-    let linkError: TrailBlazerError.Type
     switch type {
     case .hard:
-        linkFunc = cLink
-        linkError = LinkError.self
+        guard cLink(to.string, from.string) != -1 else { throw LinkError.getError() }
     case .soft, .symbolic:
-        linkFunc = cSymlink
-        linkError = SymlinkError.self
-    default: throw LinkError.noLinkType
+        guard cSymlink(to.string, from.string) != -1 else { throw SymlinkError.getError() }
     }
-
-    guard linkFunc(to.string, from.string) != -1 else { throw linkError.getError() }
 }

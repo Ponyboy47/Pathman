@@ -125,9 +125,6 @@ public struct FilePath: Path, Openable {
         if let mode = options.mode {
             fileDescriptor = cOpenFileWithMode(string, rawOptions, mode.rawValue)
         } else {
-            guard !options.flags.contains(.create) else {
-                throw OpenFileError.createWithoutMode
-            }
             fileDescriptor = cOpenFile(string, rawOptions)
         }
 

@@ -208,6 +208,8 @@ extension Open: Readable where PathType == FilePath {
             throw ReadError.cannotReadFileDescriptor
         }
 
+        let bytesToRead = bytesToRead > size ? Int(size) : bytesToRead
+
         // If we haven't allocated a buffer before, then allocate one now
         if buffer == nil {
             bufferSize = bytesToRead
