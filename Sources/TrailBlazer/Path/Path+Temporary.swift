@@ -50,9 +50,7 @@ extension FilePath: TemporaryGeneratable {
             return (mkstemp(mutablePtr), String(cString: mutablePtr))
         }
 
-        do {
-            guard fileDescriptor != -1 else { throw MakeTemporaryError.getError() }
-        } catch MakeTemporaryError.unknown { throw CreateFileError.getError() }
+        guard fileDescriptor != -1 else { throw MakeTemporaryError.getError() }
 
         let temporaryPath = FilePath("\(path)") !! "Somehow, a random, uniquely generated path overwrote the \(FilePath.self) path that existed at \(path)"
 
