@@ -28,6 +28,7 @@ class ChmodTests: XCTestCase {
             }
         }
 
+        XCTAssertNoThrow(try directory.change(owner: .readWrite))
         XCTAssertNoThrow(try directory.changeRecursive(owner: .readWrite))
 
         let permissions = directory.permissions
@@ -69,6 +70,7 @@ class ChmodTests: XCTestCase {
             }
         }
 
+        XCTAssertNoThrow(try directory.change(group: .readWrite))
         XCTAssertNoThrow(try directory.changeRecursive(group: .readWrite))
 
         let permissions = directory.permissions
@@ -110,6 +112,7 @@ class ChmodTests: XCTestCase {
             }
         }
 
+        XCTAssertNoThrow(try directory.change(others: .readWrite))
         XCTAssertNoThrow(try directory.changeRecursive(others: .readWrite))
 
         let permissions = directory.permissions
@@ -151,6 +154,7 @@ class ChmodTests: XCTestCase {
             }
         }
 
+        XCTAssertNoThrow(try directory.change(ownerGroup: .readWrite))
         XCTAssertNoThrow(try directory.changeRecursive(ownerGroup: .readWrite))
 
         let permissions = directory.permissions
@@ -192,6 +196,7 @@ class ChmodTests: XCTestCase {
             }
         }
 
+        XCTAssertNoThrow(try directory.change(ownerOthers: .readWrite))
         XCTAssertNoThrow(try directory.changeRecursive(ownerOthers: .readWrite))
 
         let permissions = directory.permissions
@@ -233,6 +238,7 @@ class ChmodTests: XCTestCase {
             }
         }
 
+        XCTAssertNoThrow(try directory.change(groupOthers: .readWrite))
         XCTAssertNoThrow(try directory.changeRecursive(groupOthers: .readWrite))
 
         let permissions = directory.permissions
@@ -274,6 +280,7 @@ class ChmodTests: XCTestCase {
             }
         }
 
+        XCTAssertNoThrow(try directory.change(ownerGroupOthers: .readWrite))
         XCTAssertNoThrow(try directory.changeRecursive(ownerGroupOthers: .readWrite))
 
         let permissions = directory.permissions
