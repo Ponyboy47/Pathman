@@ -213,4 +213,17 @@ class PathTests: XCTestCase {
         #endif
         XCTAssertNoThrow(try getGroupInfo(gid: 0))
     }
+
+    func testIsLink() {
+        guard let dir = DirectoryPath("/tmp") else {
+            XCTFail("/tmp is not a directory")
+            return
+        }
+
+        #if os(macOS)
+        XCTAssertTrue(dir.isLink)
+        #else
+        XCTAssertFalse(dir.isLink)
+        #endif
+    }
 }

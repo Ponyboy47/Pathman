@@ -146,17 +146,18 @@ public extension Path {
 
     /// Whether or not the path is a directory
     public var isDirectory: Bool {
-        return exists && info.type == .directory
+        return _info.exists && _info.type == .directory
     }
 
     /// Whether or not the path is a file
     public var isFile: Bool {
-        return exists && info.type == .file
+        return _info.exists && _info.type == .file
     }
 
     /// Whether or not the path is a symlink
     public var isLink: Bool {
-        return exists && StatInfo(self, options: .getLinkInfo).type == .link
+        try? _info.getInfo(options: .getLinkInfo)
+        return _info.exists && _info.type == .link
     }
 
     /// The URL representation of the path

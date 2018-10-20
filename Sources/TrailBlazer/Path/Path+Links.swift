@@ -88,6 +88,7 @@ public struct LinkedPath<LinkedPathType: Path>: Path {
         guard let path = LinkedPathType(components) else { return nil }
         __path = path
         _info = StatInfo(path.string)
+        try? _info.getInfo()
 
         let buffer = UnsafeMutablePointer<CChar>.allocate(capacity: Int(PATH_MAX) + 1)
         defer {
@@ -112,6 +113,7 @@ public struct LinkedPath<LinkedPathType: Path>: Path {
         guard let path = LinkedPathType(str) else { return nil }
         __path = path
         _info = StatInfo(path.string)
+        try? _info.getInfo()
 
         let buffer = UnsafeMutablePointer<CChar>.allocate(capacity: Int(PATH_MAX) + 1)
         defer {
@@ -134,6 +136,7 @@ public struct LinkedPath<LinkedPathType: Path>: Path {
     public init(_ path: LinkedPath<LinkedPathType>) {
         __path = LinkedPathType(path.__path)
         _info = StatInfo(path.string)
+        try? _info.getInfo()
         link = path.link
         linkType = path.linkType
     }
@@ -143,6 +146,7 @@ public struct LinkedPath<LinkedPathType: Path>: Path {
         guard let _path = path as? LinkedPathType else { return nil }
         __path = _path
         _info = StatInfo(_path.string)
+        try? _info.getInfo()
 
         let buffer = UnsafeMutablePointer<CChar>.allocate(capacity: Int(PATH_MAX) + 1)
         defer {

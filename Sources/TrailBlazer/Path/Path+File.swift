@@ -32,9 +32,10 @@ public struct FilePath: Path, Openable {
             _path = first + _path
         }
         _info = StatInfo(_path)
+        try? _info.getInfo()
 
-        if exists {
-            guard isFile else { return nil }
+        if _info.exists {
+            guard _info.type == .file else { return nil }
         }
     }
 
@@ -45,9 +46,10 @@ public struct FilePath: Path, Openable {
             _path = str
         }
         _info = StatInfo(_path)
+        try? _info.getInfo()
 
-        if exists {
-            guard isFile else { return nil }
+        if _info.exists {
+            guard _info.type == .file else { return nil }
         }
     }
 
@@ -70,11 +72,12 @@ public struct FilePath: Path, Openable {
     public init?(_ path: GenericPath) {
         // Cannot initialize a file from a non-file type
         if path.exists {
-            guard path.isFile else { return nil }
+            guard path._info.type == .file else { return nil }
         }
 
         _path = path._path
         _info = StatInfo(path)
+        try? _info.getInfo()
     }
 
     @available(*, unavailable, message: "Cannot append to a FilePath")

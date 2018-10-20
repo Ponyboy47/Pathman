@@ -215,6 +215,7 @@ extension PathTests {
         ("testExpand", testExpand),
         ("testGenericPathMath", testGenericPathMath),
         ("testGetHome", testGetHome),
+        ("testIsLink", testIsLink),
         ("testLastComponent", testLastComponent),
         ("testParent", testParent),
         ("testPathInit", testPathInit),

@@ -13,6 +13,7 @@ public struct GenericPath: Path, ExpressibleByStringLiteral, ExpressibleByArrayL
             _path = str
         }
         _info = StatInfo(_path)
+        try? _info.getInfo()
     }
 
     /// Initialize from an array of path elements
@@ -22,6 +23,7 @@ public struct GenericPath: Path, ExpressibleByStringLiteral, ExpressibleByArrayL
             _path = first + _path
         }
         _info = StatInfo(_path)
+        try? _info.getInfo()
     }
 
     /// Initialize from a variadic array of path elements
@@ -37,6 +39,7 @@ public struct GenericPath: Path, ExpressibleByStringLiteral, ExpressibleByArrayL
     public init<PathType: Path>(_ path: PathType) {
         _path = path._path
         _info = StatInfo(path)
+        try? _info.getInfo()
     }
 
     /// Initialize from a string literal
@@ -47,6 +50,7 @@ public struct GenericPath: Path, ExpressibleByStringLiteral, ExpressibleByArrayL
             _path = value
         }
         _info = StatInfo(_path)
+        try? _info.getInfo()
     }
 
     /// Initialize from a string array literal

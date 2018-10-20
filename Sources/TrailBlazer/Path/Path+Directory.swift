@@ -32,9 +32,10 @@ public struct DirectoryPath: Path, Openable, DirectoryEnumerable {
             _path = first + _path
         }
         _info = StatInfo(_path)
+        try? _info.getInfo()
 
-        if exists {
-            guard isDirectory else { return nil }
+        if _info.exists {
+            guard _info.type == .directory else { return nil }
         }
     }
 
@@ -45,9 +46,10 @@ public struct DirectoryPath: Path, Openable, DirectoryEnumerable {
             _path = str
         }
         _info = StatInfo(_path)
+        try? _info.getInfo()
 
-        if exists {
-            guard isDirectory else { return nil }
+        if _info.exists {
+            guard _info.type == .directory else { return nil }
         }
     }
 
@@ -59,6 +61,7 @@ public struct DirectoryPath: Path, Openable, DirectoryEnumerable {
     public init(_ path: DirectoryPath) {
         _path = path._path
         _info = StatInfo(path)
+        try? _info.getInfo()
     }
 
     /**
@@ -69,11 +72,12 @@ public struct DirectoryPath: Path, Openable, DirectoryEnumerable {
     public init?(_ path: GenericPath) {
         // Cannot initialize a directory from a non-directory type
         if path.exists {
-            guard path.isDirectory else { return nil }
+            guard path._info.type == .directory else { return nil }
         }
 
         _path = path._path
         _info = StatInfo(path)
+        try? _info.getInfo()
     }
 
     /**
