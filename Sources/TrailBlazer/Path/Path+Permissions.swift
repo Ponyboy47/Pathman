@@ -1,16 +1,11 @@
 /// A Path that can be constrained with permissions
-public protocol Permissionable: UpdatableStatDelegate {
+public protocol Permissionable {
     /// The permissions of the path
     var permissions: FileMode { get set }
     mutating func change(permissions: FileMode) throws
 }
 
 public extension Permissionable {
-    public var permissions: FileMode {
-        get { return info.permissions }
-        set { try? change(permissions: newValue) }
-    }
-
     /**
     Changes the permissions of the path
 
@@ -367,5 +362,13 @@ extension Permissionable where Self: DirectoryEnumerable {
     */
     public mutating func changeRecursive(ownerGroupOthers perms: FilePermissions, bits: FileBits? = nil, options: DirectoryEnumerationOptions = .includeHidden) throws {
         try changeRecursive(owner: perms, group: perms, others: perms, bits: bits ?? permissions.bits, options: options)
+    }
+}
+
+extension Permissionable where Self: StatDelegate {
+    /// The permissions for the path
+    public var permissions: FileMode {
+        get { return info.permissions }
+        set { try? change(permissions: newValue) }
     }
 }

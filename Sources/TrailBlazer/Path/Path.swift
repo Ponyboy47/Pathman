@@ -40,7 +40,7 @@ public func pathExists(_ path: String) -> Bool {
 }
 
 /// A protocol that describes a Path type and the attributes available to it
-public protocol Path: Hashable, Comparable, CustomStringConvertible, Ownable, Permissionable, Movable, Codable, Sequence {
+public protocol Path: Hashable, Comparable, CustomStringConvertible, UpdatableStatDelegate, Ownable, Permissionable, Movable, Codable, Sequence {
     /// The underlying path representation
     var _path: String { get set }
     /// A String representation of self

@@ -245,6 +245,7 @@ extension StatTests {
         ("testOwner", testOwner),
         ("testPermissions", testPermissions),
         ("testSize", testSize),
+        ("testStatDelegate", testStatDelegate),
         ("testType", testType),
     ]
 }

@@ -5,7 +5,7 @@ import Darwin
 #endif
 
 /// A Path that has an owner and a group associated with it
-public protocol Ownable: UpdatableStatDelegate {
+public protocol Ownable {
     /// The uid of the user that owns the file
     var owner: uid_t { get set }
     /// The gid of the group that owns the file
@@ -19,15 +19,6 @@ public protocol Ownable: UpdatableStatDelegate {
 }
 
 public extension Ownable {
-    public var owner: uid_t {
-        get { return info.owner }
-        set { try? change(owner: newValue, group: ~0) }
-    }
-    public var group: gid_t {
-        get { return info.group }
-        set { try? change(owner: ~0, group: newValue) }
-    }
-
     public var ownerName: String? {
         get {
             guard let username = (try? getUserInfo(uid: owner))?.pw_name else { return nil }
@@ -191,5 +182,19 @@ extension Ownable where Self: DirectoryEnumerable {
         }
 
         try changeRecursive(owner: uid, group: gid, options: options)
+    }
+}
+
+extension Ownable where Self: StatDelegate {
+    /// The uid of the owner of the path
+    public var owner: uid_t {
+        get { return info.owner }
+        set { try? change(owner: newValue, group: ~0) }
+    }
+
+    /// The gid of the group that owns the path
+    public var group: gid_t {
+        get { return info.group }
+        set { try? change(owner: ~0, group: newValue) }
     }
 }

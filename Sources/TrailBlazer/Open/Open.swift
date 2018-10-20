@@ -6,7 +6,7 @@ import Glibc
 import Darwin
 #endif
 
-public protocol Opened: Ownable, Permissionable {
+public protocol Opened: UpdatableStatDelegate, Ownable, Permissionable {
     associatedtype PathType: Openable
 
     var path: PathType { get }

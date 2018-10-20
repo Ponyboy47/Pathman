@@ -115,4 +115,22 @@ class StatTests: XCTestCase {
     func testCustomStringConvertible() {
         XCTAssertEqual(stat.description, "StatInfo(path: Optional(\"/tmp\"), fileDescriptor: nil, options: StatOptions(rawValue: 0))")
     }
+
+    func testStatDelegate() {
+        struct Foo: UpdatableStatDelegate {
+            var _info: StatInfo
+
+            init(_ path: String) {
+                _info = StatInfo(path)
+            }
+        }
+
+        let foo = Foo("/tmp")
+        XCTAssertNotNil(foo.type)
+        XCTAssertEqual(foo.type, .directory)
+
+        XCTAssertNotEqual(foo.permissions, 0)
+        XCTAssertNotEqual(foo.owner, 1234)
+        XCTAssertNotEqual(foo.group, 1234)
+    }
 }
