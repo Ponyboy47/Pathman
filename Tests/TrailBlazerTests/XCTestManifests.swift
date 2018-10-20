@@ -22,6 +22,7 @@ extension ChownTests {
         ("testSetOpen", testSetOpen),
         ("testSetOwner", testSetOwner),
         ("testSetRecursive", testSetRecursive),
+        ("testSetString", testSetString),
     ]
 }
 

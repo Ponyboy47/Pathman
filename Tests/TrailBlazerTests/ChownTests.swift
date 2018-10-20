@@ -19,9 +19,6 @@ class ChownTests: XCTestCase {
     }()
 
     func testSetOwner() {
-        // Can't set the owner unless you're a privileged user, like root (uid == 0)
-        guard geteuid() == 0 else { return }
-
         var file: FilePath
         do {
             file = try FilePath.temporary(prefix: "com.trailblazer.test.").path
@@ -31,21 +28,19 @@ class ChownTests: XCTestCase {
         }
 
         file.owner = testUID
-        XCTAssertEqual(testUID, file.owner)
-        XCTAssertNotEqual(geteuid(), file.owner)
-        XCTAssertEqual(getegid(), file.group)
         XCTAssertNotNil(file.ownerName)
+
+        // Can't set the owner unless you're a privileged user, like root (uid == 0)
+        if geteuid() == 0 {
+            XCTAssertEqual(testUID, file.owner)
+            XCTAssertNotEqual(geteuid(), file.owner)
+            XCTAssertEqual(getegid(), file.group)
+        }
 
         try? file.delete()
     }
 
     func testSetGroup() {
-        // Can't set the group unless you're a privileged user, like root (uid
-        // == 0) or if youre changing the group to one of the groups you are a
-        // part of (too much work to get the list of groups the process's user
-        // is a part of)
-        guard geteuid() == 0 else { return }
-
         var file: FilePath
         do {
             file = try FilePath.temporary(prefix: "com.trailblazer.test.").path
@@ -55,22 +50,18 @@ class ChownTests: XCTestCase {
         }
 
         file.group = testGID
-        XCTAssertEqual(testGID, file.group)
-        XCTAssertNotEqual(getegid(), file.group)
-        XCTAssertEqual(geteuid(), file.owner)
         XCTAssertNotNil(file.groupName)
+
+        if geteuid() == 0 {
+            XCTAssertEqual(testGID, file.group)
+            XCTAssertNotEqual(getegid(), file.group)
+            XCTAssertEqual(geteuid(), file.owner)
+        }
 
         try? file.delete()
     }
 
     func testSetBoth() {
-        // Can't set the owner unless you're a privileged user, like root (uid == 0)
-        // Can't set the group unless you're a privileged user, like root (uid
-        // == 0) or if youre changing the group to one of the groups you are a
-        // part of (too much work to get the list of groups the process's user
-        // is a part of)
-        guard geteuid() == 0 else { return }
-
         var file: FilePath
         do {
             file = try FilePath.temporary(prefix: "com.trailblazer.test.").path
@@ -79,11 +70,13 @@ class ChownTests: XCTestCase {
             return
         }
 
-        XCTAssertNoThrow(try file.change(owner: testUID, group: testGID))
-        XCTAssertEqual(testUID, file.owner)
-        XCTAssertNotEqual(geteuid(), file.owner)
-        XCTAssertEqual(testGID, file.group)
-        XCTAssertNotEqual(getegid(), file.group)
+        if geteuid() == 0 {
+            XCTAssertNoThrow(try file.change(owner: testUID, group: testGID))
+            XCTAssertEqual(testUID, file.owner)
+            XCTAssertNotEqual(geteuid(), file.owner)
+            XCTAssertEqual(testGID, file.group)
+            XCTAssertNotEqual(getegid(), file.group)
+        }
 
         try? file.delete()
     }
@@ -105,13 +98,6 @@ class ChownTests: XCTestCase {
     }
 
     func testSetOpen() {
-        // Can't set the owner unless you're a privileged user, like root (uid == 0)
-        // Can't set the group unless you're a privileged user, like root (uid
-        // == 0) or if youre changing the group to one of the groups you are a
-        // part of (too much work to get the list of groups the process's user
-        // is a part of)
-        guard geteuid() == 0 else { return }
-
         var openFile: Open<FilePath>
         do {
             openFile = try FilePath.temporary(prefix: "com.trailblazer.test.")
@@ -120,11 +106,13 @@ class ChownTests: XCTestCase {
             return
         }
 
-        XCTAssertNoThrow(try openFile.change(owner: testUID, group: testGID))
-        XCTAssertEqual(testUID, openFile.owner)
-        XCTAssertNotEqual(geteuid(), openFile.owner)
-        XCTAssertEqual(testGID, openFile.group)
-        XCTAssertNotEqual(getegid(), openFile.group)
+        if geteuid() == 0 {
+            XCTAssertNoThrow(try openFile.change(owner: testUID, group: testGID))
+            XCTAssertEqual(testUID, openFile.owner)
+            XCTAssertNotEqual(geteuid(), openFile.owner)
+            XCTAssertEqual(testGID, openFile.group)
+            XCTAssertNotEqual(getegid(), openFile.group)
+        }
 
         try? openFile.delete()
     }
@@ -152,10 +140,27 @@ class ChownTests: XCTestCase {
         do {
             var open = try dir.open()
             XCTAssertNoThrow(try open.changeRecursive(owner: open.ownerName, group: open.groupName))
+            XCTAssertNoThrow(try open.changeRecursive(owner: open.ownerName))
+            XCTAssertNoThrow(try open.changeRecursive(group: open.groupName))
         } catch {
             XCTFail("Failed to open directory with error \(type(of: error))(\(error))")
         }
 
         try? dir.recursiveDelete()
+    }
+
+    func testSetString() {
+        var file: FilePath
+        do {
+            file = try FilePath.temporary(prefix: "com.trailblazer.test.").path
+        } catch {
+            XCTFail("Failed to create test path")
+            return
+        }
+
+        file.ownerName = "root"
+        file.groupName = "root"
+
+        try? file.delete()
     }
 }
