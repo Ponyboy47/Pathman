@@ -182,6 +182,7 @@ extension OpenTests {
         ("testReadFile", testReadFile),
         ("testReadThenWrite", testReadThenWrite),
         ("testSeek", testSeek),
+        ("testSeekReadWrite", testSeekReadWrite),
         ("testURL", testURL),
         ("testWriteFile", testWriteFile),
         ("testWriteThenRead", testWriteThenRead),
