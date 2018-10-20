@@ -19,7 +19,9 @@ extension ChownTests {
         ("testSetBoth", testSetBoth),
         ("testSetGroup", testSetGroup),
         ("testSetNeither", testSetNeither),
+        ("testSetOpen", testSetOpen),
         ("testSetOwner", testSetOwner),
+        ("testSetRecursive", testSetRecursive),
     ]
 }
 
