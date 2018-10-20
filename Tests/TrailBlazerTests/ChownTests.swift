@@ -99,7 +99,7 @@ class ChownTests: XCTestCase {
 
         XCTAssertNoThrow(try file.change(owner: nil, group: nil))
         XCTAssertEqual(geteuid(), file.owner)
-        XCTAssertEqual(0, file.group)
+        XCTAssertNotEqual(100, file.group) // group is 0 on mac, 2000 on travis linux, and whatever the current UID is on other linux OSes
 
         try? file.delete()
     }
