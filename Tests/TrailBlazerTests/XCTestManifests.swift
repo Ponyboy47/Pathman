@@ -3,6 +3,7 @@ import XCTest
 extension ChmodTests {
     static let __allTests = [
         ("testOpenFile", testOpenFile),
+        ("testRecursive", testRecursive),
         ("testSetGroup", testSetGroup),
         ("testSetGroupOthers", testSetGroupOthers),
         ("testSetOthers", testSetOthers),
