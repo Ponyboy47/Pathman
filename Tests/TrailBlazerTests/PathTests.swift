@@ -169,11 +169,13 @@ class PathTests: XCTestCase {
         let relative1 = GenericPath("~/")
         let relative2 = DirectoryPath("./")!
         let relative3 = FilePath("../flabbergasted")!
+        let absolute = FilePath.cwd + FilePath("flabbergasted2")!
 
         XCTAssertTrue(relative1.isRelative)
         XCTAssertTrue(relative2.isRelative)
         XCTAssertTrue(relative3.isRelative)
         XCTAssertEqual(relative1, relative1.absolute?.relative ?? relative1)
+        XCTAssertNotEqual(absolute.relative, absolute)
     }
 
     func testPathType() {
