@@ -82,10 +82,15 @@ class PathTests: XCTestCase {
     }
 
     func testChCWD() {
+        let directory = DirectoryPath()!
         DirectoryPath.cwd = DirectoryPath("/tmp")!
+        directory.cwd = DirectoryPath("/tmp")!
         XCTAssertEqual(DirectoryPath.cwd.string, "/tmp")
+        XCTAssertEqual(directory.cwd.string, "/tmp")
         DirectoryPath.cwd = DirectoryPath("/")!
+        directory.cwd = DirectoryPath("/")!
         XCTAssertEqual(DirectoryPath.cwd.string, "/")
+        XCTAssertEqual(directory.cwd.string, "/")
     }
 
     func testComponents() {
