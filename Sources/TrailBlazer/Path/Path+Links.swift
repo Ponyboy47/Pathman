@@ -3,11 +3,13 @@ import Glibc
 let cLink = Glibc.link
 let cSymlink = Glibc.symlink
 let cUnlink = Glibc.unlink
+let cReadlink = Glibc.readlink
 #else
 import Darwin
 let cLink = Darwin.link
 let cSymlink = Darwin.symlink
 let cUnlink = Darwin.unlink
+let cReadlink = Darwin.readlink
 #endif
 
 public enum LinkType {
@@ -18,267 +20,176 @@ public enum LinkType {
 
 public var defaultLinkType: LinkType = .symbolic
 
-/// A protocol declaration for Paths that can be symbolically linked to
-public protocol Linkable: Path, Creatable, Deletable {
-    associatedtype LinkablePathType: Linkable = Self
-    func link(at: LinkablePathType, type: LinkType) throws -> LinkedPath<LinkablePathType>
-    func link(from: LinkablePathType, type: LinkType) throws -> LinkedPath<LinkablePathType>
-}
-
-public extension Linkable {
-    public func link(at linkedPath: LinkablePathType, type: LinkType = TrailBlazer.defaultLinkType) throws -> LinkedPath<LinkablePathType> {
-        guard let targetPath = self as? LinkablePathType else { throw LinkError.pathTypeMismatch }
-        return try LinkedPath(linkedPath, linked: (to: targetPath, type: type))
+extension Path {
+    public func link(at linkedPath: Self, type: LinkType = TrailBlazer.defaultLinkType) throws -> LinkedPath<Self> {
+        return try LinkedPath(linkedPath, linkedTo: self, type: type)
     }
 
-    public func link(at linkedString: String, type: LinkType = TrailBlazer.defaultLinkType) throws -> LinkedPath<LinkablePathType> {
-        guard let linkedPath = LinkablePathType(linkedString) else { throw LinkError.pathTypeMismatch }
+    public func link(at linkedString: String, type: LinkType = TrailBlazer.defaultLinkType) throws -> LinkedPath<Self> {
+        guard let linkedPath = Self(linkedString) else { throw LinkError.pathTypeMismatch }
         return try self.link(at: linkedPath, type: type)
     }
 
-    public func link(from targetPath: LinkablePathType, type: LinkType = TrailBlazer.defaultLinkType) throws -> LinkedPath<LinkablePathType> {
-        guard let linkedPath = self as? LinkablePathType else { throw LinkError.pathTypeMismatch }
-        return try LinkedPath(linkedPath, linked: (to: targetPath, type: type))
+    public func link(from targetPath: Self, type: LinkType = TrailBlazer.defaultLinkType) throws -> LinkedPath<Self> {
+        return try LinkedPath(self, linkedTo: targetPath, type: type)
     }
 
-    public func link(from targetString: String, type: LinkType = TrailBlazer.defaultLinkType) throws -> LinkedPath<LinkablePathType> {
-        guard let targetPath = LinkablePathType(targetString) else { throw LinkError.pathTypeMismatch }
+    public func link(from targetString: String, type: LinkType = TrailBlazer.defaultLinkType) throws -> LinkedPath<Self> {
+        guard let targetPath = Self(targetString) else { throw LinkError.pathTypeMismatch }
         return try link(from: targetPath, type: type)
     }
 }
 
-public protocol Linked: Path {
-    associatedtype LinkedPathType: Linkable
-    typealias Link = (to: LinkedPathType, type: LinkType)
-
-    var linked: Link? { get set }
-
-    init(_ path: LinkedPathType, linked link: Link) throws
-    func link(at: LinkedPathType, type: LinkType) throws -> LinkedPath<LinkedPathType>
-    func link(from: LinkedPathType, type: LinkType) throws -> LinkedPath<LinkedPathType>
-    func unlink() throws
-}
-
-public extension Linked {
-    public var linkedTo: LinkedPathType? {
-        get { return linked?.to }
-        set {
-            // If we're just changing which file the link points to, go ahead
-            // and do that
-            if let link = newValue, let type = linkType {
-                linked = (to: link, type: type)
-            // If we're setting the link location to nil, then we'll unlink
-            } else if linkType != nil {
-                try? unlink()
-            // If the link type is nil, then we can't set/create a new link. So
-            // do nothing.
-            } else if let link = newValue {
-                linked = (to: link, type: TrailBlazer.defaultLinkType)
-            }
-        }
-    }
-    public var linkType: LinkType? {
-        get { return linked?.type }
-        set {
-            // If we're just changing the link type, then go ahead and do it
-            if let type = newValue, let link = linkedTo {
-                linked = (to: link, type: type)
-            // If we're setting the link type to nil, then we'll unlink
-            } else if linkedTo != nil {
-                try? unlink()
-            }
-            // If the link location is nil, then we can't set/create a new
-            // link. So do nothing.
-        }
-    }
-
-    public var isLink: Bool { return linkType != nil }
-
-    public var isDangling: Bool {
-        guard let _linked = linked else { return true }
-
-        // If the path we're linked to exists then the link is not dangling.
-        // Hard links cannot be dangling.
-        return _linked.type == .hard ? false : _linked.to.exists.toggled()
-    }
-
-    public init(_ path: String, linked link: Link) throws {
-        let pathLink = try LinkedPathType.init(path) ?! LinkError.pathTypeMismatch
-        try self.init(pathLink, linked: link)
-    }
-
-    public init(_ path: String, linkedTo link: LinkedPathType, type: LinkType = TrailBlazer.defaultLinkType) throws {
-        try self.init(path, linked: (to: link, type: type))
-    }
-
-    public init(_ path: LinkedPathType, linkedTo link: LinkedPathType, type: LinkType = TrailBlazer.defaultLinkType) throws {
-        try self.init(path, linked: (to: link, type: type))
-    }
-
-    public init(_ path: LinkedPathType, linkedTo link: String, type: LinkType = TrailBlazer.defaultLinkType) throws {
-        let linkedPath = try LinkedPathType.init(link) ?! LinkError.pathTypeMismatch
-        try self.init(path, linked: (to: linkedPath, type: type))
-    }
-
-    public func link(at linkedPath: LinkedPathType, type: LinkType = TrailBlazer.defaultLinkType) throws -> LinkedPath<LinkedPathType> {
-        guard let targetPath = self as? LinkedPathType else { throw LinkError.pathTypeMismatch }
-        return try LinkedPath(linkedPath, linked: (to: targetPath, type: type))
-    }
-
-    public func link(at linkedString: String, type: LinkType = TrailBlazer.defaultLinkType) throws -> LinkedPath<LinkedPathType> {
-        guard let linkedPath = LinkedPathType(linkedString) else { throw LinkError.pathTypeMismatch }
-        return try link(at: linkedPath, type: type)
-    }
-
-    public func link(from targetPath: LinkedPathType, type: LinkType = TrailBlazer.defaultLinkType) throws -> LinkedPath<LinkedPathType> {
-        guard let linkedPath = self as? LinkedPathType else { throw LinkError.pathTypeMismatch }
-        return try LinkedPath(linkedPath, linked: (to: targetPath, type: type))
-    }
-
-    public func link(from targetString: String, type: LinkType = TrailBlazer.defaultLinkType) throws -> LinkedPath<LinkedPathType> {
-        guard let targetPath = LinkedPathType(targetString) else { throw LinkError.pathTypeMismatch }
-        return try link(from: targetPath, type: type)
-    }
-
-    public func unlink() throws {
-        guard cUnlink(_path) != -1 else { throw UnlinkError.getError() }
-    }
-}
-
-public class LinkedPath<PathType: Linkable>: Linked {
-    public typealias LinkedPathType = PathType
-
+public struct LinkedPath<LinkedPathType: Path>: Path {
     public var _path: String {
         get { return __path._path }
-        set {
-            __path._path = newValue
-        }
+        set { __path._path = newValue }
     }
-    private var __path: PathType
+    private var __path: LinkedPathType
 
-    private var _linked: Link? = nil
-    public var linked: Link? {
-        get { return _linked }
-        set {
-            if let newVal = newValue {
-                guard (try? link(from: newVal.to, type: newVal.type)) != nil else { return }
-            } else {
-                guard (try? unlink()) != nil else { return }
-            }
-            _linked = newValue
-        }
+    public let _info: StatInfo
+
+    public private(set) var link: LinkedPathType
+    public private(set) var linkType: LinkType
+
+    public let isLink: Bool = true
+
+    public var isDangling: Bool {
+        // If the path we're linked to exists then the link is not dangling.
+        // Hard links cannot be dangling.
+        return linkType == .hard ? false : link.exists.toggled()
     }
 
-    private var _info: StatInfo = StatInfo()
-    public var info: StatInfo {
+    public init(_ path: String, linkedTo linkPath: LinkedPathType, type: LinkType = TrailBlazer.defaultLinkType) throws {
+        let pathLink = try LinkedPathType.init(path) ?! LinkError.pathTypeMismatch
+        try self.init(pathLink, linkedTo: linkPath, type: type)
+    }
+
+    public init(_ pathLink: LinkedPathType, linkedTo link: String, type: LinkType = TrailBlazer.defaultLinkType) throws {
+        let linkPath = try LinkedPathType.init(link) ?! LinkError.pathTypeMismatch
+        try self.init(pathLink, linkedTo: linkPath, type: type)
+    }
+
+    public init(_ path: String, linkedTo link: String, type: LinkType = TrailBlazer.defaultLinkType) throws {
+        let pathLink = try LinkedPathType.init(path) ?! LinkError.pathTypeMismatch
+        let linkPath = try LinkedPathType.init(link) ?! LinkError.pathTypeMismatch
+        try self.init(pathLink, linkedTo: linkPath, type: type)
+    }
+
+    public mutating func unlink() throws {
+        guard cUnlink(_path) != -1 else { throw UnlinkError.getError() }
+    }
+
+    public init(_ pathLink: LinkedPathType, linkedTo linkPath: LinkedPathType, type: LinkType = TrailBlazer.defaultLinkType) throws {
+        __path = LinkedPathType(pathLink)
+        _info = StatInfo(pathLink.string)
+
+        try createLink(from: pathLink, to: linkPath, type: type)
+        self.link = linkPath
+        linkType = type
+    }
+
+    /// Initialize a symbolic link from an array of Path components
+    public init?(_ components: [String]) {
+        guard let path = LinkedPathType(components) else { return nil }
+        __path = path
+        _info = StatInfo(path.string)
         try? _info.getInfo()
-        return _info
-    }
 
-    public required init(_ path: LinkedPathType, linked link: Link) throws {
-        __path = path
-        _info = path.info
-
-        try createLink(from: path, to: link.to, type: link.type)
-        _linked = link
-    }
-
-    public required init?(_ components: [String]) {
-        guard let path = PathType(components) else { return nil }
-        __path = path
-        _info = path.info
-
-        if path.exists {
-            guard path.isLink else { return nil }
-        }
-    }
-
-    public convenience init?(_ components: String...) {
-        self.init(components)
-    }
-
-    public convenience init?(_ components: ArraySlice<String>) {
-        self.init(Array(components))
-    }
-
-    public required init?(_ str: String) {
-        guard let path = PathType(str) else { return nil }
-        __path = path
-        _info = path.info
-
-        if path.exists {
-            guard path.isLink else { return nil }
-        }
-    }
-
-    public required init(_ path: LinkedPath<PathType>) {
-        __path = path.__path
-        _info = path.info
-        _linked = path._linked
-    }
-
-    public required init?(_ path: GenericPath) {
-        guard let _path = path as? PathType else { return nil }
-
-        if path.exists {
-            guard path.isLink else { return nil }
+        let buffer = UnsafeMutablePointer<CChar>.allocate(capacity: Int(PATH_MAX) + 1)
+        defer {
+            buffer.deinitialize(count: Int(PATH_MAX) + 1)
+            buffer.deallocate()
         }
 
+        let linkSize = cReadlink(path.string, buffer, Int(PATH_MAX))
+        guard linkSize != -1 else { return nil }
+
+        // realink(2) does not null-terminate the string stored in the buffer,
+        // Swift expects it to be null-terminated to convert a cString to a Swift String
+        buffer[linkSize] = 0
+        guard let link = LinkedPathType.init(String(cString: buffer)) else { return nil }
+
+        self.link = link
+        linkType = .symbolic
+    }
+
+    /// Initialize a symbolic link from an array of Path components
+    public init?(_ str: String) {
+        guard let path = LinkedPathType(str) else { return nil }
+        __path = path
+        _info = StatInfo(path.string)
+        try? _info.getInfo()
+
+        let buffer = UnsafeMutablePointer<CChar>.allocate(capacity: Int(PATH_MAX) + 1)
+        defer {
+            buffer.deinitialize(count: Int(PATH_MAX) + 1)
+            buffer.deallocate()
+        }
+
+        let linkSize = cReadlink(path.string, buffer, Int(PATH_MAX))
+        guard linkSize != -1 else { return nil }
+
+        // realink(2) does not null-terminate the string stored in the buffer,
+        // Swift expects it to be null-terminated to convert a cString to a Swift String
+        buffer[linkSize] = 0
+        guard let link = LinkedPathType.init(String(cString: buffer)) else { return nil }
+
+        self.link = link
+        linkType = .symbolic
+    }
+
+    public init(_ path: LinkedPath<LinkedPathType>) {
+        __path = LinkedPathType(path.__path)
+        _info = StatInfo(path.string)
+        try? _info.getInfo()
+        link = path.link
+        linkType = path.linkType
+    }
+
+    /// Initialize a symbolic link from an array of Path components
+    public init?(_ path: GenericPath) {
+        guard let _path = LinkedPathType(path) else { return nil }
         __path = _path
-        _info = path.info
-    }
-}
+        _info = StatInfo(_path.string)
+        try? _info.getInfo()
 
-func createLink<PathType: Path>(from: PathType, to: PathType, type: LinkType) throws {
-    let linkFunc: (UnsafePointer<CChar>, UnsafePointer<CChar>) -> OptionInt
-    let linkError: TrailBlazerError.Type
-    switch type {
-    case .hard:
-        linkFunc = cLink
-        linkError = LinkError.self
-    case .soft, .symbolic:
-        linkFunc = cSymlink
-        linkError = SymlinkError.self
-    default: throw LinkError.noLinkType
-    }
+        let buffer = UnsafeMutablePointer<CChar>.allocate(capacity: Int(PATH_MAX) + 1)
+        defer {
+            buffer.deinitialize(count: Int(PATH_MAX) + 1)
+            buffer.deallocate()
+        }
 
-    guard linkFunc(to.string, from.string) != -1 else { throw linkError.getError() }
+        let linkSize = cReadlink(_path.string, buffer, Int(PATH_MAX))
+        guard linkSize != -1 else { return nil }
+
+        // realink(2) does not null-terminate the string stored in the buffer,
+        // Swift expects it to be null-terminated to convert a cString to a Swift String
+        buffer[linkSize] = 0
+        guard let link = LinkedPathType.init(String(cString: buffer)) else { return nil }
+
+        self.link = link
+        linkType = .symbolic
+    }
 }
 
 extension LinkedPath: Deletable {
-    public func delete() throws {
-        try __path.delete()
+    public mutating func delete() throws {
+        try unlink()
     }
 }
 
-extension LinkedPath: Openable {
-    public typealias OpenableType = PathType.OpenableType
-    public typealias OpenOptionsType = PathType.OpenOptionsType
-
-    public var fileDescriptor: FileDescriptor { return __path.fileDescriptor }
-    public var openOptions: OpenOptionsType? { return __path.openOptions }
-
-    public func open() throws -> Open<OpenableType> {
-        return try __path.open()
-    }
-
-    public func close() throws {
-        try __path.close()
+extension LinkedPath where LinkedPathType: Openable {
+    public func open(options: LinkedPathType.OpenOptionsType) throws -> Open<LinkedPathType> {
+        return try __path.open(options: options)
     }
 }
 
-public extension LinkedPath where PathType: FilePath {
-    public var openOptions: OpenOptionsType? {
-        get { return __path.openOptions }
-        set { __path.openOptions = newValue }
+private func createLink<PathType: Path>(from: PathType, to: PathType, type: LinkType) throws {
+    switch type {
+    case .hard:
+        guard cLink(to.string, from.string) != -1 else { throw LinkError.getError() }
+    case .soft, .symbolic:
+        guard cSymlink(to.string, from.string) != -1 else { throw SymlinkError.getError() }
     }
-    public var openPermissions: OpenFilePermissions {
-        get { return __path.openPermissions }
-        set { __path.openPermissions = newValue }
-    }
-    public var openFlags: OpenFileFlags {
-        get { return __path.openFlags }
-        set { __path.openFlags = newValue }
-    }
-    public var createMode: FileMode? { return __path.createMode }
 }

@@ -6,103 +6,40 @@ import Glibc
 import Darwin
 #endif
 
-/// Protocol declaration for types that can be opened
-public protocol Openable: StatDelegate {
-    associatedtype OpenableType: Path & Openable
-    associatedtype OpenOptionsType = Void
+public protocol Opened: UpdatableStatDelegate, Ownable, Permissionable {
+    associatedtype PathType: Openable
 
-    /// The underlying file descriptor of the opened path
-    var fileDescriptor: FileDescriptor { get }
-
-    /**
-    Whether or not the path was opened with read permissions
-
-    NOTE: Just because the path was opened with read permissions does not
-    necessarily mean the calling process has access to read the path
-    */
-    var mayRead: Bool { get }
-    /**
-    Whether or not the path was opened with write permissions
-
-    NOTE: Just because the path was opened with write permissions does not
-    necessarily mean the calling process has access to write the path
-    */
-    var mayWrite: Bool { get }
-
-    var openOptions: OpenOptionsType? { get }
-
-    /// Opens the path, sets the `fileDescriptor`, and returns the newly opened path
-    func open() throws -> Open<OpenableType>
-    /// Closes the opened `fileDescriptor`
-    func close() throws
+    var path: PathType { get }
+    var descriptor: PathType.DescriptorType { get }
+    var openOptions: PathType.OpenOptionsType { get }
 }
 
-extension Openable {
-    public var mayRead: Bool { return true }
-    public var mayWrite: Bool { return true }
-    public var openOptions: OpenOptionsType? { return nil }
-}
+public final class Open<PathType: Openable>: Opened {
+    public internal(set) var path: PathType
+    public let descriptor: PathType.DescriptorType
+    public var fileDescriptor: FileDescriptor { return descriptor.fileDescriptor }
+    public let openOptions: PathType.OpenOptionsType
 
-/// Contains the buffer used for reading from a path
-private var _buffers: [Int: UnsafeMutablePointer<CChar>] = [:]
-/// Tracks the sizes of the read buffers
-private var _bufferSizes: [Int: Int] = [:]
-
-open class Open<PathType: Path & Openable>: Openable, Ownable, Permissionable, StatDelegate {
-    public typealias OpenableType = PathType.OpenableType
-    public typealias OpenOptionsType = PathType.OpenOptionsType
-
-    /// The path of which this object is the open representation
-    public let path: PathType
-    public var fileDescriptor: FileDescriptor { return path.fileDescriptor }
-    public var openOptions: OpenOptionsType? { return path.openOptions }
-
-    var _info: StatInfo = StatInfo()
-    public var info: StatInfo {
-        try? _info.getInfo()
-        return _info
-    }
+    public var _info: StatInfo = StatInfo()
 
     public var url: URL { return path.url }
 
-    /// The buffer used to store data read from a path
-    var buffer: UnsafeMutablePointer<CChar>? {
-        get {
-            return _buffers[path.hashValue]
-        }
-        set {
-            guard let newBuffer = newValue else {
-                _buffers.removeValue(forKey: path.hashValue)
-                return
-            }
-            _buffers[path.hashValue] = newBuffer
-        }
-    }
-    /// The size of the buffer used to store read data
-    var bufferSize: Int? {
-        get {
-            return _bufferSizes[path.hashValue]
-        }
-        set {
-            guard let newSize = newValue else {
-                _bufferSizes.removeValue(forKey: path.hashValue)
-                return
-            }
-            _bufferSizes[path.hashValue] = newSize
-        }
+    /// Whether or not the path may be read
+    public var isReadable: Bool {
+        return path.mayRead && path.isReadable
     }
 
-    init(_ path: PathType) {
-        self.path = path
-        _info.fileDescriptor = self.fileDescriptor
-        _info._path = path._path
+    /// Whether or not the path may be written to
+    public var isWritable: Bool {
+        return path.mayWrite && path.isWritable
     }
 
-    @available(*, renamed: "PathType.open", message: "You should use the path's open function rather than calling this directly.")
-    public func open() throws -> Open<OpenableType> { return try path.open() }
+    public init(_ path: PathType, descriptor: PathType.DescriptorType, options: PathType.OpenOptionsType) {
+        self.path = PathType(path)
+        self.descriptor = descriptor
+        openOptions = options
 
-    public func close() throws {
-        try path.close()
+        _info._descriptor = descriptor
     }
 
     /**
@@ -151,33 +88,30 @@ open class Open<PathType: Path & Openable>: Openable, Ownable, Permissionable, S
     }
 
     deinit {
-        if let bSize = bufferSize {
-            buffer?.deinitialize(count: Int(bSize))
-        }
-        buffer?.deallocate()
-
-        buffer = nil
-        bufferSize = nil
-
-        try? close()
+        try? PathType.close(opened: self)
     }
 }
 
-extension Open: Equatable where PathType: Equatable {
+extension Open: Equatable {
     public static func == <OtherPathType: Path & Openable>(lhs: Open<PathType>, rhs: Open<OtherPathType>) -> Bool {
         return lhs.path == rhs.path && lhs.fileDescriptor == rhs.fileDescriptor
     }
 }
 
+extension Open: Hashable {
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(path)
+        hasher.combine(fileDescriptor)
+        hasher.combine(openOptions)
+    }
+}
+
 extension Open: CustomStringConvertible {
     public var description: String {
-        var data: [(key: String, value: String)] = []
+        var data: [(key: String, value: CustomStringConvertible)] = []
 
-        data.append((key: "path", value: "\(path)"))
+        data.append((key: "path", value: path))
         data.append((key: "options", value: String(describing: openOptions)))
-        if let seekable = self as? Seekable {
-            data.append((key: "offset", "\(seekable.offset)"))
-        }
 
         return "\(Swift.type(of: self))(\(data.map({ return "\($0.key): \($0.value)" }).joined(separator: ", ")))"
     }

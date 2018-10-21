@@ -5,7 +5,7 @@ import Darwin
 #endif
 
 /// A swift enum that wraps the C stat mode_t into a path type (see stat(2))
-public enum PathType: OSUInt {
+public enum PathType: OSUInt, Hashable {
     /// Socket path
     case socket
     /// Symbolic link

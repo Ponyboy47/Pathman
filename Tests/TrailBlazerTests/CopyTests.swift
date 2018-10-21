@@ -22,7 +22,7 @@ class CopyTests: XCTestCase {
             newOpenPath = try tmpFile.copy(to: newPath)
         } catch {
             XCTFail("Failed to copy the path: \(type(of: error)).\(error)")
-            try? tmpFile.delete()
+            try? tmpFile.path.delete()
             return
         }
 
@@ -34,8 +34,8 @@ class CopyTests: XCTestCase {
             XCTFail("Failed to read path with error: \(type(of: error)).\(error)")
         }
 
-        try? tmpFile.delete()
-        try? newOpenPath.delete()
+        try? tmpFile.path.delete()
+        try? newOpenPath.path.delete()
     }
 
     func testCopyDirectoryEmpty() {
@@ -47,12 +47,12 @@ class CopyTests: XCTestCase {
             return
         }
 
-        let newPath = DirectoryPath(tmpDirectory.path.parent + "com.trailblazer.copied.\(UUID())")!
+        var newPath = DirectoryPath(tmpDirectory.path.parent + "com.trailblazer.copied.\(UUID())")!
         XCTAssertFalse(newPath.exists)
         XCTAssertNoThrow(try tmpDirectory.copy(to: newPath))
         XCTAssertTrue(newPath.exists)
 
-        try? tmpDirectory.delete()
+        try? tmpDirectory.path.delete()
         try? newPath.delete()
     }
 
@@ -75,7 +75,7 @@ class CopyTests: XCTestCase {
             return
         }
 
-        let newPath = DirectoryPath(tmpDirectory.path.parent + "com.trailblazer.copied.\(UUID())")!
+        var newPath = DirectoryPath(tmpDirectory.path.parent + "com.trailblazer.copied.\(UUID())")!
         do {
             try tmpDirectory.copy(to: newPath)
             XCTFail("Should not be able to copy non empty directory without the .recursive option")
@@ -84,7 +84,7 @@ class CopyTests: XCTestCase {
             XCTFail("Expected CopyError.nonEmptyDirectory received \(type(of: error)).\(error)")
         }
 
-        try? tmpDirectory.recursiveDelete()
+        try? tmpDirectory.path.recursiveDelete()
         try? newPath.recursiveDelete()
     }
 
@@ -97,28 +97,21 @@ class CopyTests: XCTestCase {
             return
         }
 
-        let tmpFile: OpenFile
         do {
-            tmpFile = try FilePath.temporary()
-            var path = tmpFile.path
-            try path.move(into: tmpDirectory.path)
+            var tmpFile = try FilePath.temporary().path
+            try tmpFile.move(into: tmpDirectory.path)
+            var tmpDir = try DirectoryPath.temporary().path
+            try tmpDir.move(into: tmpDirectory.path)
         } catch {
             XCTFail("Failed to create/move temporary file into the temporary directory")
             return
         }
 
-        let newPath = DirectoryPath(tmpDirectory.path.parent + "com.trailblazer.copied.\(UUID())")!
+        var newPath = DirectoryPath(tmpDirectory.path.parent + "com.trailblazer.copied.\(UUID())")!
         XCTAssertNoThrow(try tmpDirectory.copy(to: newPath, options: .recursive))
 
-        try? tmpDirectory.recursiveDelete()
+        try? tmpDirectory.path.recursiveDelete()
         try? newPath.recursiveDelete()
     }
-
-    static var allTests = [
-        ("testCopyFile", testCopyFile),
-        ("testCopyDirectoryEmpty", testCopyDirectoryEmpty),
-        ("testCopyDirectoryNotEmpty", testCopyDirectoryNotEmpty),
-        ("testCopyDirectoryRecursive", testCopyDirectoryRecursive),
-    ]
 }
 

@@ -14,40 +14,41 @@ class ChmodTests: XCTestCase {
             XCTFail("Failed to get the home directory")
             return
         }
-        guard let file = FilePath(home + "\(UUID()).test") else {
-            XCTFail("Path is not a file")
+        guard var directory = DirectoryPath(home + "\(UUID()).test") else {
+            XCTFail("Path is not a directory")
             return
         }
 
-        if !file.exists {
+        if !directory.exists {
             do {
-                try file.create(mode: .ownerGroupOthers(.readWriteExecute))
+                try directory.create(mode: .ownerGroupOthers(.readWriteExecute))
             } catch {
-                XCTFail("Failed to create test path => \(file)")
+                XCTFail("Failed to create test path => \(directory)")
                 return
             }
         }
 
-        XCTAssertNoThrow(try file.change(owner: .readWrite))
+        XCTAssertNoThrow(try directory.change(owner: .readWrite))
+        XCTAssertNoThrow(try directory.changeRecursive(owner: .readWrite))
 
-        let permissions = file.permissions
+        let permissions = directory.permissions
 
         let owner = permissions.owner
-        XCTAssertTrue(owner.canRead)
-        XCTAssertTrue(owner.canWrite)
-        XCTAssertFalse(owner.canExecute)
+        XCTAssertTrue(owner.isReadable)
+        XCTAssertTrue(owner.isWritable)
+        XCTAssertFalse(owner.isExecutable)
 
         let group = permissions.group
-        XCTAssertTrue(group.canRead)
-        XCTAssertTrue(group.canWrite)
-        XCTAssertTrue(group.canExecute)
+        XCTAssertTrue(group.isReadable)
+        XCTAssertTrue(group.isWritable)
+        XCTAssertTrue(group.isExecutable)
 
         let others = permissions.others
-        XCTAssertTrue(others.canRead)
-        XCTAssertTrue(others.canWrite)
-        XCTAssertTrue(others.canExecute)
+        XCTAssertTrue(others.isReadable)
+        XCTAssertTrue(others.isWritable)
+        XCTAssertTrue(others.isExecutable)
 
-        try? file.delete()
+        try? directory.delete()
     }
 
     func testSetGroup() {
@@ -55,40 +56,41 @@ class ChmodTests: XCTestCase {
             XCTFail("Failed to get the home directory")
             return
         }
-        guard let file = FilePath(home + "\(UUID()).test") else {
-            XCTFail("Path is not a file")
+        guard var directory = DirectoryPath(home + "\(UUID()).test") else {
+            XCTFail("Path is not a directory")
             return
         }
 
-        if !file.exists {
+        if !directory.exists {
             do {
-                try file.create(mode: .ownerGroupOthers(.readWriteExecute))
+                try directory.create(mode: .ownerGroupOthers(.readWriteExecute))
             } catch {
-                XCTFail("Failed to create test path => \(file)")
+                XCTFail("Failed to create test path => \(directory)")
                 return
             }
         }
 
-        XCTAssertNoThrow(try file.change(group: .readWrite))
+        XCTAssertNoThrow(try directory.change(group: .readWrite))
+        XCTAssertNoThrow(try directory.changeRecursive(group: .readWrite))
 
-        let permissions = file.permissions
+        let permissions = directory.permissions
 
         let owner = permissions.owner
-        XCTAssertTrue(owner.canRead)
-        XCTAssertTrue(owner.canWrite)
-        XCTAssertTrue(owner.canExecute)
+        XCTAssertTrue(owner.isReadable)
+        XCTAssertTrue(owner.isWritable)
+        XCTAssertTrue(owner.isExecutable)
 
         let group = permissions.group
-        XCTAssertTrue(group.canRead)
-        XCTAssertTrue(group.canWrite)
-        XCTAssertFalse(group.canExecute)
+        XCTAssertTrue(group.isReadable)
+        XCTAssertTrue(group.isWritable)
+        XCTAssertFalse(group.isExecutable)
 
         let others = permissions.others
-        XCTAssertTrue(others.canRead)
-        XCTAssertTrue(others.canWrite)
-        XCTAssertTrue(others.canExecute)
+        XCTAssertTrue(others.isReadable)
+        XCTAssertTrue(others.isWritable)
+        XCTAssertTrue(others.isExecutable)
 
-        try? file.delete()
+        try? directory.delete()
     }
 
     func testSetOthers() {
@@ -96,40 +98,41 @@ class ChmodTests: XCTestCase {
             XCTFail("Failed to get the home directory")
             return
         }
-        guard let file = FilePath(home + "\(UUID()).test") else {
-            XCTFail("Path is not a file")
+        guard var directory = DirectoryPath(home + "\(UUID()).test") else {
+            XCTFail("Path is not a directory")
             return
         }
 
-        if !file.exists {
+        if !directory.exists {
             do {
-                try file.create(mode: .ownerGroupOthers(.readWriteExecute))
+                try directory.create(mode: .ownerGroupOthers(.readWriteExecute))
             } catch {
-                XCTFail("Failed to create test path => \(file)")
+                XCTFail("Failed to create test path => \(directory)")
                 return
             }
         }
 
-        XCTAssertNoThrow(try file.change(others: .readWrite))
+        XCTAssertNoThrow(try directory.change(others: .readWrite))
+        XCTAssertNoThrow(try directory.changeRecursive(others: .readWrite))
 
-        let permissions = file.permissions
+        let permissions = directory.permissions
 
         let owner = permissions.owner
-        XCTAssertTrue(owner.canRead)
-        XCTAssertTrue(owner.canWrite)
-        XCTAssertTrue(owner.canExecute)
+        XCTAssertTrue(owner.isReadable)
+        XCTAssertTrue(owner.isWritable)
+        XCTAssertTrue(owner.isExecutable)
 
         let group = permissions.group
-        XCTAssertTrue(group.canRead)
-        XCTAssertTrue(group.canWrite)
-        XCTAssertTrue(group.canExecute)
+        XCTAssertTrue(group.isReadable)
+        XCTAssertTrue(group.isWritable)
+        XCTAssertTrue(group.isExecutable)
 
         let others = permissions.others
-        XCTAssertTrue(others.canRead)
-        XCTAssertTrue(others.canWrite)
-        XCTAssertFalse(others.canExecute)
+        XCTAssertTrue(others.isReadable)
+        XCTAssertTrue(others.isWritable)
+        XCTAssertFalse(others.isExecutable)
 
-        try? file.delete()
+        try? directory.delete()
     }
 
     func testSetOwnerGroup() {
@@ -137,40 +140,41 @@ class ChmodTests: XCTestCase {
             XCTFail("Failed to get the home directory")
             return
         }
-        guard let file = FilePath(home + "\(UUID()).test") else {
-            XCTFail("Path is not a file")
+        guard var directory = DirectoryPath(home + "\(UUID()).test") else {
+            XCTFail("Path is not a directory")
             return
         }
 
-        if !file.exists {
+        if !directory.exists {
             do {
-                try file.create(mode: .ownerGroupOthers(.readWriteExecute))
+                try directory.create(mode: .ownerGroupOthers(.readWriteExecute))
             } catch {
-                XCTFail("Failed to create test path => \(file)")
+                XCTFail("Failed to create test path => \(directory)")
                 return
             }
         }
 
-        XCTAssertNoThrow(try file.change(ownerGroup: .readWrite))
+        XCTAssertNoThrow(try directory.change(ownerGroup: .readWrite))
+        XCTAssertNoThrow(try directory.changeRecursive(ownerGroup: .readWrite))
 
-        let permissions = file.permissions
+        let permissions = directory.permissions
 
         let owner = permissions.owner
-        XCTAssertTrue(owner.canRead)
-        XCTAssertTrue(owner.canWrite)
-        XCTAssertFalse(owner.canExecute)
+        XCTAssertTrue(owner.isReadable)
+        XCTAssertTrue(owner.isWritable)
+        XCTAssertFalse(owner.isExecutable)
 
         let group = permissions.group
-        XCTAssertTrue(group.canRead)
-        XCTAssertTrue(group.canWrite)
-        XCTAssertFalse(group.canExecute)
+        XCTAssertTrue(group.isReadable)
+        XCTAssertTrue(group.isWritable)
+        XCTAssertFalse(group.isExecutable)
 
         let others = permissions.others
-        XCTAssertTrue(others.canRead)
-        // XCTAssertTrue(others.canWrite)
-        XCTAssertTrue(others.canExecute)
+        XCTAssertTrue(others.isReadable)
+        // XCTAssertTrue(others.isWritable)
+        XCTAssertTrue(others.isExecutable)
 
-        try? file.delete()
+        try? directory.delete()
     }
 
     func testSetOwnerOthers() {
@@ -178,40 +182,41 @@ class ChmodTests: XCTestCase {
             XCTFail("Failed to get the home directory")
             return
         }
-        guard let file = FilePath(home + "\(UUID()).test") else {
-            XCTFail("Path is not a file")
+        guard var directory = DirectoryPath(home + "\(UUID()).test") else {
+            XCTFail("Path is not a directory")
             return
         }
 
-        if !file.exists {
+        if !directory.exists {
             do {
-                try file.create(mode: .ownerGroupOthers(.readWriteExecute))
+                try directory.create(mode: .ownerGroupOthers(.readWriteExecute))
             } catch {
-                XCTFail("Failed to create test path => \(file)")
+                XCTFail("Failed to create test path => \(directory)")
                 return
             }
         }
 
-        XCTAssertNoThrow(try file.change(ownerOthers: .readWrite))
+        XCTAssertNoThrow(try directory.change(ownerOthers: .readWrite))
+        XCTAssertNoThrow(try directory.changeRecursive(ownerOthers: .readWrite))
 
-        let permissions = file.permissions
+        let permissions = directory.permissions
 
         let owner = permissions.owner
-        XCTAssertTrue(owner.canRead)
-        XCTAssertTrue(owner.canWrite)
-        XCTAssertFalse(owner.canExecute)
+        XCTAssertTrue(owner.isReadable)
+        XCTAssertTrue(owner.isWritable)
+        XCTAssertFalse(owner.isExecutable)
 
         let group = permissions.group
-        XCTAssertTrue(group.canRead)
-        XCTAssertTrue(group.canWrite)
-        XCTAssertTrue(group.canExecute)
+        XCTAssertTrue(group.isReadable)
+        XCTAssertTrue(group.isWritable)
+        XCTAssertTrue(group.isExecutable)
 
         let others = permissions.others
-        XCTAssertTrue(others.canRead)
-        XCTAssertTrue(others.canWrite)
-        XCTAssertFalse(others.canExecute)
+        XCTAssertTrue(others.isReadable)
+        XCTAssertTrue(others.isWritable)
+        XCTAssertFalse(others.isExecutable)
 
-        try? file.delete()
+        try? directory.delete()
     }
 
     func testSetGroupOthers() {
@@ -219,40 +224,41 @@ class ChmodTests: XCTestCase {
             XCTFail("Failed to get the home directory")
             return
         }
-        guard let file = FilePath(home + "\(UUID()).test") else {
-            XCTFail("Path is not a file")
+        guard var directory = DirectoryPath(home + "\(UUID()).test") else {
+            XCTFail("Path is not a directory")
             return
         }
 
-        if !file.exists {
+        if !directory.exists {
             do {
-                try file.create(mode: .ownerGroupOthers(.readWriteExecute))
+                try directory.create(mode: .ownerGroupOthers(.readWriteExecute))
             } catch {
-                XCTFail("Failed to create test path => \(file)")
+                XCTFail("Failed to create test path => \(directory)")
                 return
             }
         }
 
-        XCTAssertNoThrow(try file.change(groupOthers: .readWrite))
+        XCTAssertNoThrow(try directory.change(groupOthers: .readWrite))
+        XCTAssertNoThrow(try directory.changeRecursive(groupOthers: .readWrite))
 
-        let permissions = file.permissions
+        let permissions = directory.permissions
 
         let owner = permissions.owner
-        XCTAssertTrue(owner.canRead)
-        XCTAssertTrue(owner.canWrite)
-        XCTAssertTrue(owner.canExecute)
+        XCTAssertTrue(owner.isReadable)
+        XCTAssertTrue(owner.isWritable)
+        XCTAssertTrue(owner.isExecutable)
 
         let group = permissions.group
-        XCTAssertTrue(group.canRead)
-        XCTAssertTrue(group.canWrite)
-        XCTAssertFalse(group.canExecute)
+        XCTAssertTrue(group.isReadable)
+        XCTAssertTrue(group.isWritable)
+        XCTAssertFalse(group.isExecutable)
 
         let others = permissions.others
-        XCTAssertTrue(others.canRead)
-        XCTAssertTrue(others.canWrite)
-        XCTAssertFalse(others.canExecute)
+        XCTAssertTrue(others.isReadable)
+        XCTAssertTrue(others.isWritable)
+        XCTAssertFalse(others.isExecutable)
 
-        try? file.delete()
+        try? directory.delete()
     }
 
     func testSetOwnerGroupOthers() {
@@ -260,40 +266,41 @@ class ChmodTests: XCTestCase {
             XCTFail("Failed to get the home directory")
             return
         }
-        guard let file = FilePath(home + "\(UUID()).test") else {
-            XCTFail("Path is not a file")
+        guard var directory = DirectoryPath(home + "\(UUID()).test") else {
+            XCTFail("Path is not a directory")
             return
         }
 
-        if !file.exists {
+        if !directory.exists {
             do {
-                try file.create(mode: .ownerGroupOthers(.readWriteExecute))
+                try directory.create(mode: .ownerGroupOthers(.readWriteExecute))
             } catch {
-                XCTFail("Failed to create test path => \(file)")
+                XCTFail("Failed to create test path => \(directory)")
                 return
             }
         }
 
-        XCTAssertNoThrow(try file.change(ownerGroupOthers: .readWrite))
+        XCTAssertNoThrow(try directory.change(ownerGroupOthers: .readWrite))
+        XCTAssertNoThrow(try directory.changeRecursive(ownerGroupOthers: .readWrite))
 
-        let permissions = file.permissions
+        let permissions = directory.permissions
 
         let owner = permissions.owner
-        XCTAssertTrue(owner.canRead)
-        XCTAssertTrue(owner.canWrite)
-        XCTAssertFalse(owner.canExecute)
+        XCTAssertTrue(owner.isReadable)
+        XCTAssertTrue(owner.isWritable)
+        XCTAssertFalse(owner.isExecutable)
 
         let group = permissions.group
-        XCTAssertTrue(group.canRead)
-        XCTAssertTrue(group.canWrite)
-        XCTAssertFalse(group.canExecute)
+        XCTAssertTrue(group.isReadable)
+        XCTAssertTrue(group.isWritable)
+        XCTAssertFalse(group.isExecutable)
 
         let others = permissions.others
-        XCTAssertTrue(others.canRead)
-        XCTAssertTrue(others.canWrite)
-        XCTAssertFalse(others.canExecute)
+        XCTAssertTrue(others.isReadable)
+        XCTAssertTrue(others.isWritable)
+        XCTAssertFalse(others.isExecutable)
 
-        try? file.delete()
+        try? directory.delete()
     }
 
     func testSetProperties() {
@@ -301,53 +308,106 @@ class ChmodTests: XCTestCase {
             XCTFail("Failed to get the home directory")
             return
         }
-        guard var file = FilePath(home + "\(UUID()).test") else {
-            XCTFail("Path is not a file")
+        guard var directory = DirectoryPath(home + "\(UUID()).test") else {
+            XCTFail("Path is not a directory")
             return
         }
 
-        if !file.exists {
+        if !directory.exists {
             do {
-                try file.create(mode: .ownerGroupOthers(.readWriteExecute))
+                try directory.create(mode: .ownerGroupOthers(.readWriteExecute))
             } catch {
-                XCTFail("Failed to create test path => \(file)")
+                XCTFail("Failed to create test path => \(directory)")
                 return
             }
         }
 
-        file.permissions.owner = .readWrite
-        file.permissions.group = .readWrite
-        file.permissions.others = .readWrite
+        directory.permissions.owner = .readWrite
+        directory.permissions.group = .readWrite
+        directory.permissions.others = .readWrite
 
-        let permissions = file.permissions
+        let permissions = directory.permissions
 
         let owner = permissions.owner
-        XCTAssertTrue(owner.canRead)
-        XCTAssertTrue(owner.canWrite)
-        XCTAssertFalse(owner.canExecute)
+        XCTAssertTrue(owner.isReadable)
+        XCTAssertTrue(owner.isWritable)
+        XCTAssertFalse(owner.isExecutable)
 
         let group = permissions.group
-        XCTAssertTrue(group.canRead)
-        XCTAssertTrue(group.canWrite)
-        XCTAssertFalse(group.canExecute)
+        XCTAssertTrue(group.isReadable)
+        XCTAssertTrue(group.isWritable)
+        XCTAssertFalse(group.isExecutable)
 
         let others = permissions.others
-        XCTAssertTrue(others.canRead)
-        XCTAssertTrue(others.canWrite)
-        XCTAssertFalse(others.canExecute)
+        XCTAssertTrue(others.isReadable)
+        XCTAssertTrue(others.isWritable)
+        XCTAssertFalse(others.isExecutable)
+
+        try? directory.delete()
+    }
+
+    func testOpenFile() {
+        guard let home: DirectoryPath = .home else {
+            XCTFail("Failed to get the home directory")
+            return
+        }
+        guard var file = FilePath(home + "\(UUID()).test") else {
+            XCTFail("Path is not a directory")
+            return
+        }
+
+        let openFile: OpenFile
+        if !file.exists {
+            do {
+                openFile = try file.create(mode: .ownerGroupOthers(.readWriteExecute))
+            } catch {
+                XCTFail("Failed to create test path => \(file)")
+                return
+            }
+        } else {
+            do {
+                openFile = try file.open(permissions: .readWrite)
+            } catch {
+                XCTFail("Failed to open test path => \(file)")
+                return
+            }
+        }
+
+        XCTAssertNoThrow(try openFile.change(others: .read))
+        XCTAssertEqual(openFile.permissions.owner & openFile.permissions.group, .readWriteExecute)
+        XCTAssertEqual(openFile.permissions.others, .read)
 
         try? file.delete()
     }
 
-    static var allTests = [
-        ("testSetOwner", testSetOwner),
-        ("testSetGroup", testSetGroup),
-        ("testSetOthers", testSetOthers),
-        ("testSetOwnerGroup", testSetOwnerGroup),
-        ("testSetOwnerOthers", testSetOwnerOthers),
-        ("testSetGroupOthers", testSetGroupOthers),
-        ("testSetOwnerGroupOthers", testSetOwnerGroupOthers),
-        ("testSetProperties", testSetProperties),
-    ]
+    func testRecursive() {
+        #if os(Linux)
+        let base: DirectoryPath = DirectoryPath.home!
+        #else
+        let base: DirectoryPath = DirectoryPath("/tmp")!
+        #endif
+
+        guard var dir = DirectoryPath(base + "\(UUID())") else {
+            XCTFail("Test path exists and is not a directory")
+            return
+        }
+        XCTAssertFalse(dir.exists)
+
+        guard let file = FilePath(dir + "\(UUID())" + "\(UUID()).test") else {
+            XCTFail("Test path exists and is not a file")
+            return
+        }
+
+        let _ = try? file.create(options: .createIntermediates)
+
+        do {
+            var open = try dir.open()
+            XCTAssertNoThrow(try open.changeRecursive(owner: .all))
+        } catch {
+            XCTFail("Failed to open directory with error \(type(of: error))(\(error))")
+        }
+
+        try? dir.recursiveDelete()
+    }
 }
 

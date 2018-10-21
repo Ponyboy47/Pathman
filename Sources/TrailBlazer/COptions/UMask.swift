@@ -31,7 +31,7 @@ public var originalUMask: UMask = {
 /// The process's last umask
 public private(set) var lastUMask: UMask = _umask
 
-/// The process's curent umask
+/// The process's curent umask, which are the permissions that will be rejected when creating new paths
 public var umask: UMask {
     get { return _umask }
     set { setUMask(for: newValue) }
@@ -45,19 +45,22 @@ Sets the process's umask and then returns it
 */
 @discardableResult
 public func setUMask(for mode: FileMode) -> UMask {
-    // We only need to change the umask if it affects the mode we're going to use
-    guard !mode.checkAgainstUMask() else { return _umask }
+    var newUMask = ~mode
+
+    // umask(2) on Linux always &'s the umask with 0o0777 which ignores the
+    // FileBits. Apparently macOS does not do this though
+    #if os(Linux)
+    newUMask &= .allPermissions
+    #endif
 
     // Invert the mode and use that as the umask
-    lastUMask = FileMode(rawValue: cUmask(~mode.rawValue))
-    _umask = ~mode
-    _umask.bits = .none
+    lastUMask = FileMode(rawValue: cUmask(newUMask.rawValue))
+    _umask = newUMask
 
     return _umask
 }
 
 /// Changes the umask back to its original umask
 public func resetUMask() {
-    umask = originalUMask
+    umask = ~originalUMask
 }
-

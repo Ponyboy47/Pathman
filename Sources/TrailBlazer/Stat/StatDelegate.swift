@@ -11,6 +11,19 @@ public protocol StatDelegate {
     var info: StatInfo { get }
 }
 
+public protocol UpdatableStatDelegate: StatDelegate {
+    var _info: StatInfo { get }
+}
+
+extension UpdatableStatDelegate {
+    public var info: StatInfo {
+        get {
+            try? _info.getInfo()
+            return _info
+        }
+    }
+}
+
 public extension StatDelegate {
     /// Whether or not the path exists (or is accessible)
     public var exists: Bool {

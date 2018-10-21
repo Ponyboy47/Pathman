@@ -4,24 +4,24 @@ import Foundation
 #if os(Linux)
 import Glibc
 /// The C stat(2) API call for checking symlinks
-let cStat = Glibc.lstat
+private let cStat = Glibc.lstat
 /// The C rename(2) API call for moving or renaming paths
-let cRename = Glibc.rename
+private let cRename = Glibc.rename
 #else
 import Darwin
 /// The C stat(2) API call for checking symlinks
-let cStat = Darwin.lstat
+private let cStat = Darwin.lstat
 /// The C rename(2) API call for moving or renaming paths
-let cRename = Darwin.rename
+private let cRename = Darwin.rename
 #endif
 
 /// The separator between components of a path
 let pathSeparator: String = "/"
 /// The root directory of the swift process using this library
-fileprivate var processRoot: DirectoryPath = DirectoryPath(pathSeparator) !! "The '\(pathSeparator)' path separator is incorrect for this system."
+private var processRoot: DirectoryPath = DirectoryPath(pathSeparator) !! "The '\(pathSeparator)' path separator is incorrect for this system."
 
 /// The working directory of the current process
-fileprivate var currentWorkingDirectory = DirectoryPath(String(cString: getcwd(nil, 0))) !! "Failed to get current working directory"
+private var currentWorkingDirectory = DirectoryPath(String(cString: getcwd(nil, 0))) !! "Failed to get current working directory"
 
 /**
 Whether or not a path exists
@@ -40,11 +40,13 @@ public func pathExists(_ path: String) -> Bool {
 }
 
 /// A protocol that describes a Path type and the attributes available to it
-public protocol Path: Hashable, Comparable, CustomStringConvertible, Ownable, Permissionable, Movable, Codable {
+public protocol Path: Hashable, CustomStringConvertible, UpdatableStatDelegate, Ownable, Permissionable, Movable, Codable, Sequence {
     /// The underlying path representation
     var _path: String { get set }
     /// A String representation of self
     var string: String { get }
+    /// Whether or not the path is a link
+    var isLink: Bool { get }
     /// The character used to separate components of a path
     static var separator: String { get }
 
@@ -73,7 +75,7 @@ public extension Path {
     /// The root directory for the process
     public var root: DirectoryPath {
         get { return Self.root }
-        set { Self.root = newValue }
+        nonmutating set { Self.root = newValue }
     }
 
     /// The current working directory for the process
@@ -87,11 +89,7 @@ public extension Path {
     /// The current working directory for the process
     public var cwd: DirectoryPath {
         get { return Self.cwd }
-        set { Self.cwd = newValue }
-    }
-
-    public var hashValue: Int {
-        return string.hashValue
+        nonmutating set { Self.cwd = newValue }
     }
 
     /// The String representation of the path
@@ -115,7 +113,7 @@ public extension Path {
     /// The last element of the path with the extension removed
     public var lastComponentWithoutExtension: String? {
         guard let last = lastComponent else { return nil }
-        return String(last.prefix(last.count - (`extension`?.count ?? 0)))
+        return String(last.prefix(last.count - ((`extension`?.count ?? -1) + 1)))
     }
 
     /// The extension of the path
@@ -148,25 +146,75 @@ public extension Path {
 
     /// Whether or not the path is a directory
     public var isDirectory: Bool {
-        return exists && info.type == .directory
+        return _info.exists && _info.type == .directory
     }
 
     /// Whether or not the path is a file
     public var isFile: Bool {
-        return exists && info.type == .file
+        return _info.exists && _info.type == .file
     }
 
     /// Whether or not the path is a symlink
     public var isLink: Bool {
-        return exists && StatInfo(self, options: .getLinkInfo).type == .link
+        try? _info.getInfo(options: .getLinkInfo)
+        return _info.exists && _info.type == .link
     }
 
     /// The URL representation of the path
-    public var url: URL { return URL(fileURLWithPath: _path, isDirectory: exists ? isDirectory : self is DirectoryPath) }
+    public var url: URL {
+        return URL(fileURLWithPath: _path, isDirectory: exists ? isDirectory : self is DirectoryPath)
+    }
 
     /// A printable description of the current path
     public var description: String {
-        return "\(Swift.type(of: self))(\(string))"
+        return "\(Swift.type(of: self))(\"\(string)\")"
+    }
+
+    /// Whether or not the path may be read from by the calling process
+    public var isReadable: Bool {
+        if geteuid() == owner && permissions.owner.isReadable {
+            return true
+        } else if getegid() == group && permissions.group.isReadable {
+            return true
+        }
+
+        return permissions.others.isReadable
+    }
+
+    /// Whether or not the path may be read from by the calling process
+    public var isWritable: Bool {
+        if geteuid() == owner && permissions.owner.isWritable {
+            return true
+        } else if getegid() == group && permissions.group.isWritable {
+            return true
+        }
+
+        return permissions.others.isWritable
+    }
+
+    /// Whether or not the path may be read from by the calling process
+    public var isExecutable: Bool {
+        if geteuid() == owner && permissions.owner.isExecutable {
+            return true
+        } else if getegid() == group && permissions.group.isExecutable {
+            return true
+        }
+
+        return permissions.others.isExecutable
+    }
+
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(_path)
+    }
+
+    /// Initialize from a variadic array of path elements
+    public init?(_ components: String...) {
+        self.init(components)
+    }
+
+    /// Initialize from a slice of an array of path elements
+    public init?(_ components: ArraySlice<String>) {
+        self.init(Array(components))
     }
 
     /**
@@ -192,13 +240,6 @@ public extension Path {
         return lhs.string == rhs.string
     }
 
-    public static func < (lhs: Self, rhs: Self) -> Bool {
-        return lhs.string < rhs.string
-    }
-    public static func < <PathType: Path>(lhs: Self, rhs: PathType) -> Bool {
-        return lhs.string < rhs.string
-    }
-
     /**
     Changes the owner and/or group of the path
 
@@ -215,7 +256,7 @@ public extension Path {
     - Throws: `ChangeOwnershipError.readOnlyFileSystem` when the file system is in read-only mode
     - Throws: `ChangeOwnershipError.ioError` when an I/O error occurred during the API call
     */
-    public func change(owner uid: uid_t = ~0, group gid: gid_t = ~0) throws {
+    public mutating func change(owner uid: uid_t = ~0, group gid: gid_t = ~0) throws {
         guard chown(string, uid, gid) == 0 else {
             throw ChangeOwnershipError.getError()
         }
@@ -236,7 +277,7 @@ public extension Path {
     - Throws: `ChangePermissionsError.pathComponentNotDirectory` when a component of the path is not a directory
     - Throws: `ChangePermissionsError.readOnlyFileSystem` when the file system is in read-only mode
     */
-    public func change(permissions: FileMode) throws {
+    public mutating func change(permissions: FileMode) throws {
         guard chmod(string, permissions.rawValue) == 0 else {
             throw ChangePermissionsError.getError()
         }
@@ -278,18 +319,38 @@ public extension Path {
     - Throws: `CodingError.incorrectPathType` when a path exists that does not match the encoded type
     */
     public init(from decoder: Decoder) throws {
-          var container = try decoder.unkeyedContainer()
-          let pathString = try container.decode(String.self)
-          guard let path = Self(pathString) else {
-              throw CodingError.incorrectPathType(pathString)
-          }
+        var container = try decoder.unkeyedContainer()
+        let pathString = try container.decode(String.self)
+        guard let path = Self(pathString) else {
+            throw CodingError.incorrectPathType(pathString)
+        }
 
-          self.init(path)
-      }
+        self.init(path)
+    }
 
-      /// Encodes a Path to an unkeyed String container
-      public func encode(to encoder: Encoder) throws {
-          var container = encoder.unkeyedContainer()
-          try container.encode(string)
-      }
+    /// Encodes a Path to an unkeyed String container
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.unkeyedContainer()
+        try container.encode(string)
+    }
+
+    public func makeIterator() -> PathIterator {
+        return PathIterator(self)
+    }
+}
+
+public struct PathIterator: IteratorProtocol {
+    let components: [String]
+    var idx: Array<String>.Index
+
+    init<PathType: Path>(_ path: PathType) {
+        components = path.components
+        idx = components.startIndex
+    }
+
+    public mutating func next() -> String? {
+        guard idx < components.endIndex else { return nil }
+        defer { idx = idx.advanced(by: 1) }
+        return components[idx]
+    }
 }

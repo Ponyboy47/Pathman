@@ -1,21 +1,23 @@
 # TrailBlazer
 
-[![Build Status](https://travis-ci.org/Ponyboy47/Trailblazer.svg?branch=master)](https://travis-ci.org/Ponyboy47/Trailblazer) ![Current Version](https://img.shields.io/badge/version-0.11.3-blue.svg) ![Supported Platforms](https://img.shields.io/badge/platform-macOS%20%7C%20linux-lightgrey.svg) [![Language](https://img.shields.io/badge/language-swift-orange.svg)](https://swift.org) [![Language Version](https://img.shields.io/badge/swift%20version-4.2-blue.svg)](https://swift.org/download/) [![License](https://img.shields.io/badge/license-MIT-black.svg)](https://github.com/Ponyboy47/Trailblazer/blob/master/LICENSE)<br>
+[![Build Status](https://travis-ci.org/Ponyboy47/Trailblazer.svg?branch=master)](https://travis-ci.org/Ponyboy47/Trailblazer) [![codecov](https://codecov.io/gh/Ponyboy47/Trailblazer/branch/master/graph/badge.svg)](https://codecov.io/gh/Ponyboy47/Trailblazer) ![Current Version](https://img.shields.io/badge/version-0.12.0-blue.svg) ![Supported Platforms](https://img.shields.io/badge/platform-macOS%20%7C%20linux-lightgrey.svg) [![Language](https://img.shields.io/badge/language-swift-orange.svg)](https://swift.org) [![Language Version](https://img.shields.io/badge/swift%20version-4.2-blue.svg)](https://swift.org/download/) [![License](https://img.shields.io/badge/license-MIT-black.svg)](https://github.com/Ponyboy47/Trailblazer/blob/master/LICENSE)<br>
 A type-safe path library for Apple's Swift language.
 
 ## Motivation
-I am not a big fan of Foundation's `FileManager`. Foundation in general has inconsistent results when used cross-platform (Linux support/stability is important to most of the things for which I use Swift), and `FileManager` lacks the type-safety and ease-of-use that most Swift API's are expected to have (`FileAttributeKey` anyone?). So I built TrailBlazer! The first type-safe swift path library built around the lower level C API's (everything else out there is really just a wrapper around `FileManager`).
+I have never been a big fan of Foundation's `FileManager`. Foundation in general has inconsistent results when used cross-platform (Linux support/stability is important for most of the things for which I use Swift) and `FileManager` itself lacks the type-safety and ease-of-use that most Swift API's are expected to have (`FileAttributeKey` anyone?).
+
+So I built TrailBlazer! The first type-safe swift path library built around the lower level C API's (everything else out there is just a wrapper around `FileManager` to make it nicer to use in Swift).
 
 ## Goals
 - Type safety
   - File paths are different that directory paths and should be treated as such
 - Extensibility
-  - Everything is based around protocols or extensible classes so that others can create new path types (ie: socket files)
+  - Everything is based around protocols or extensible classes so that others can create new path types (ie: sockets)
 - Error Handling
   - There are an extensive number of errors so that when something goes wrong you can get the most relevant error message possible (see Errors.swift)
     - No more dealing with obscure `NSError`s when `FileManager` throws
 - Minimal Foundation
-  - I avoid using Foundation as much as possible, because it is not as stable on Linux as it is on Apple platforms and the results for some APIs are inconsistent between Linux and macOS
+  - I avoid using Foundation as much as possible, because it is not as stable on Linux as it is on Apple platforms (yet) and the results for some APIs are inconsistent between Linux and macOS
   - Currently, I only use Foundation for the `Data`, `Date`, and `URL` types
 - Ease of Use
   - No clunky interface just to get attributes of a path
@@ -25,13 +27,13 @@ I am not a big fan of Foundation's `FileManager`. Foundation in general has inco
 ## Installation
 ### Compatibility:
 - Swift 4.2
-- Ubuntu (verified on 16.04 and 18.04)
-- macOS (verified on 10.13)
+- Ubuntu
+- macOS
 
 ### Swift Package Manager:
 Add this to your Package.swift dependencies:
 ```swift
-.package(url: "https://github.com/Ponyboy47/Trailblazer.git", from: "0.11.3")
+.package(url: "https://github.com/Ponyboy47/Trailblazer.git", from: "0.12.0")
 ```
 
 ## Usage
@@ -155,7 +157,7 @@ var creation: Date
 
 ### Opening Paths
 
-#### FilePaths:
+#### FilePath:
 ```swift
 guard let file = FilePath("/tmp/test") else {
     fatalError("Path is not a file")
@@ -168,7 +170,7 @@ let content: String = try openFile.read()
 try openFile.write(content)
 ```
 
-#### DirectoryPaths:
+#### DirectoryPath:
 ```swift
 guard let dir = DirectoryPath("/tmp") else {
     fatalError("Path is not a directory")
@@ -235,12 +237,12 @@ guard let file = FilePath("/tmp/test") else {
     fatalError("Path is not a file")
 }
 
-// Any of the following examples could throw either an `OpenFileError` or a `ReadError`
+// All of the following operations are available on both a FilePath and an OpenFile
 
 // Read the whole file
 let contents: String = try file.read()
 
-// Read 1024 bytes
+// Read up to 1024 bytes
 let contents: String = try file.read(bytes: 1024)
 
 // Read content as ascii characters instead of utf8
@@ -249,14 +251,15 @@ let contents: String = try file.read(encoding: .ascii)
 // Read to the end, but starting at 1024 bytes from the beginning of the file
 let contents: String = try file.read(from: Offset(from: .beginning, bytes: 1024))
 
-// Read 64 bytes starting at 1024 bytes from the end using the ascii encoding
-let contents: String = try file.read(from: Offset(from: .end, bytes: 1024), bytes: 64, encoding: .ascii)
+// Read the last 1024 bytes from of the file using the ascii encoding
+let contents: String = try file.read(from: Offset(from: .end, bytes: -1024), bytes: 1024, encoding: .ascii)
 ```
 
 NOTES:<br />
-The file offset is tracked and updated after each read. If you wish to read from the beginning again then pass an offset of `Offset(from: .beginning, bytes: 0)`.<br />
+Reading from a `FilePath` is only intended to be used when performing a single read operation on a file since it will open the file, read from the file, and close the file. If you're going to read a file multiple times, then it would be best to open it (with `try file.open(permissions: .read)` and then read it as much as you want.<br />
+The file offset is updated after each read. If you wish to read from the beginning again then pass an offset of `Offset(from: .beginning, bytes: 0)`.<br />
 If the file was opened using the `.append` flag then any offsets passed will be ignored and the file offset is moved to the end of the file before any write operations.<br />
-Each of the read operations also has a `Data` based function, so be sure the object you're storing into is explicitly typed with either `Data` or `String`. Otherwise you will have an ambiguous use-case.
+Each of the read operations may either return `String` or  `Data`, so be sure the object you're storing into is explicitly typed, otherwise, you will have an ambiguous use-case.
 
 ### Writing Files
 
@@ -265,7 +268,7 @@ guard let file = FilePath("/tmp/test") else {
     fatalError("Path is not a file")
 }
 
-// Any of the following examples could throw either an `OpenFileError` or a `WriteError`
+// All of the following operations are available on both a FilePath and an OpenFile
 
 // Write a string at the current file position
 try file.write("Hello world")
@@ -273,7 +276,7 @@ try file.write("Hello world")
 // Write an ascii string at the end of the file
 try file.write("Goodbye", at: Offset(from: .end, bytes: 0), using: .ascii)
 ```
-NOTE: You can also pass a `Data` instance to the write function instead of a String and an encoding.
+NOTE: You can also pass a `Data` instance to the write function instead of a `String` with an encoding.
 
 
 ### Getting Directory Contents:
@@ -485,7 +488,7 @@ TrailBlazer.defaultLinkType = .hard
 
 ### Copy Paths:
 
-#### FilePaths:
+#### FilePath:
 ```swift
 guard let file = FilePath("/path/to/file") else {
     fatalError("Path is not a file")
@@ -500,7 +503,7 @@ try file.copy(to: copyPath)
 try file.copy(to: "/path/to/copy")
 ```
 
-#### DirectoryPaths:
+#### DirectoryPath:
 ```swift
 guard let dir = DirectoryPath("/path/to/directory") else {
     fatalError("Path is not a file")
@@ -544,6 +547,8 @@ try dir.copy(to: copyPath, options: [.recursive, .includeHidden])
   - [x] URL conversion
   - [x] Get/generate temporary files/directories
   - [x] Copy paths
+- OpenPaths
+  - [ ] Open only for closure
 - Misc. Additions
   - [x] Globbing
   - [x] LinkedPath (symlinks and hard links)
@@ -553,10 +558,10 @@ try dir.copy(to: copyPath, options: [.recursive, .includeHidden])
       - [ ] Storage: Either deletes itself (and everything in it) once all references to it are gone, or it doesn't
       - [ ] Base: Whether to generate or supply the root temporary directory (/tmp or not)
     - Used by the temporary() API call
-    - [ ] Temporary path in closure (deleted afterwards if specified)
-  - [ ] APIs for checking permissions to a path
-    - [ ] canRead/Write/Execute/Delete == Whether or not the calling process (or specified uid/gid/username/groupname) can read/write/execute/delete the path
-    - [ ] mayRead/Write == Whether or not the path was opened with read/write permissions
+    - [ ] Temporary path in closure (deleted afterwards)
+  - [x] APIs for checking permissions to a path
+    - [x] canRead/Write/Execute/Delete == Whether or not the calling process (or specified uid/gid/username/groupname) can read/write/execute/delete the path
+    - [x] mayRead/Write == Whether or not the path was opened with read/write permissions
   - [ ] SocketPath
   - [ ] FIFOPath?
   - [ ] BlockPath?
@@ -566,19 +571,21 @@ try dir.copy(to: copyPath, options: [.recursive, .includeHidden])
   - [ ] Change CWD/Root for closure only
   - [ ] Pattern matching (~=)
   - [ ] Useful operators (<<, >>, etc)
-  - [ ] Consolidate repeated/common errors
+  - [x] Consolidate repeated/common errors
   - [ ] Atomic writing (see Data.WritingOptions)
   - [ ] Make sure we support common Data.ReadingOptions
 - [ ] Investigate TypeErasure to see if it could benefit Paths and Open objects interact together more nicely
 - [ ] Investigate ARC best-practices and see if memory usage/performance/correctness can be improved
   - https://docs.swift.org/swift-book/LanguageGuide/AutomaticReferenceCounting.html
-- [ ] Investigate improved Hashable conformances
+- [x] Investigate improved Hashable conformances
   - https://developer.apple.com/documentation/swift/adopting_common_protocols
 - [ ] Study the Ownership Manifesto to see if anything can have improved memory semantics/performance
   - https://github.com/apple/swift/blob/master/docs/OwnershipManifesto.md
 - [ ] Investiagte class behaviors and ensure proper COW (or other) copy semantics
-  - Don't want to change a LinkedPath and end up changing some GenericPath of a FilePath in a PathCollection...
-    - [ ] Slicing/Collection APIs
+- [ ] Slicing/Collection APIs
+  - [x] Sequence conformance
+  - [ ] Slicing
+  - [ ] Joining Slices
 - [ ] Migrate usage examples to a separate Wiki
   - [ ] Document performance pitfalls
 - [ ] Make a FileSystem utility for easily getting some file system attributes

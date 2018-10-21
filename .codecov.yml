@@ -1,0 +1,4 @@
+ignore:
+    - "Sources/TrailBlazer/Utilities/NilHelpers.swift$"
+    - "Sources/TrailBlazer/Errors.swift$"
+    - "Tests"

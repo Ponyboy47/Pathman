@@ -6,19 +6,16 @@ import Darwin
 
 /// Protocol declaration for types that contain an offset which points to a
 /// byte location in the file and may be moved around
-public protocol Seekable: class {
-    /// Whether the offset is at the end of the file
-    var eof: Bool { get }
-
-    func seek(_ offset: Offset) throws -> OSOffsetInt
-
+public protocol Seekable: Opened {
     func seek(fromStart bytes: OSOffsetInt) throws -> OSOffsetInt
     func seek(fromEnd bytes: OSOffsetInt) throws -> OSOffsetInt
     func seek(fromCurrent bytes: OSOffsetInt) throws -> OSOffsetInt
     // These are available on the following filesystems:
     // Btrfs, OCFS, XFS, ext4, tmpfs, and the macOS filesystem
-    #if SEEK_DATA && SEEK_HOLE
+    #if SEEK_HOLE
     func seek(toNextHoleAfter offset: OSOffsetInt) throws -> OSOffsetInt
+    #endif
+    #if SEEK_DATA
     func seek(toNextDataAfter offset: OSOffsetInt) throws -> OSOffsetInt
     #endif
 
@@ -30,7 +27,7 @@ public extension Seekable {
     /// in bytes from the beginning of the path
     public var offset: OSOffsetInt {
         get { return (try? seek(fromCurrent: 0)) ?? -1 }
-        set { let _ = try? seek(fromStart: newValue) }
+        nonmutating set { let _ = try? seek(fromStart: newValue) }
     }
 
     /// Seeks using the specified offset
@@ -42,14 +39,16 @@ public extension Seekable {
         case .beginning: newOffset = try seek(fromStart: offset.bytes)
         case .end: newOffset = try seek(fromEnd: offset.bytes)
         case .current: newOffset = try seek(fromCurrent: offset.bytes)
-        #if SEEK_DATA && SEEK_HOLE
-        case .data: newOffset = try seek(toNextDataAfter: offset.bytes)
+        #if SEEK_HOLE
         case .hole: newOffset = try seek(toNextHoleAfter: offset.bytes)
+        #endif
+        #if SEEK_DATA
+        case .data: newOffset = try seek(toNextDataAfter: offset.bytes)
         #endif
         default: throw SeekError.unknownOffsetType
         }
 
-        return self.offset
+        return newOffset
     }
 }
 
@@ -66,11 +65,13 @@ public struct Offset {
         public static let end = OffsetType(rawValue: SEEK_END)
         /// Seek from the current offset of a path
         public static let current = OffsetType(rawValue: SEEK_CUR)
-        #if SEEK_DATA && SEEK_HOLE
-        /// Seek to the next data section of a path
-        public static let data = OffsetType(rawValue: SEEK_DATA)
+        #if SEEK_HOLE
         /// Seek to the next hole in the data of a path
         public static let hole = OffsetType(rawValue: SEEK_HOLE)
+        #endif
+        #if SEEK_DATA
+        /// Seek to the next data section of a path
+        public static let data = OffsetType(rawValue: SEEK_DATA)
         #endif
 
         public init(rawValue: RawValue) {
@@ -91,8 +92,7 @@ public struct Offset {
     var bytes: OSOffsetInt
 
     init(_ type: OffsetType, _ bytes: OSOffsetInt) {
-        self.type = type
-        self.bytes = bytes
+        self.init(type: type, bytes: bytes)
     }
 
     public init(type: OffsetType, bytes: OSOffsetInt) {

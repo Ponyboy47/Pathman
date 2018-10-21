@@ -16,79 +16,40 @@ private let cOpenFileWithMode = Darwin.open(_:_:_:)
 private let cCloseFile = Darwin.close
 #endif
 
-/// A dictionary of all the open files
-private var openFiles: [FilePath: OpenFile] = [:]
-
 /// A Path to a file
-open class FilePath: Path, Openable, Linkable {
-    public typealias OpenableType = FilePath
-    public typealias OpenOptionsType = (permissions: OpenFilePermissions, flags: OpenFileFlags, mode: FileMode?)
-
+public struct FilePath: Path, Openable {
+    public typealias OpenOptionsType = OpenOptions
+    
     public var _path: String
-    public internal(set) var fileDescriptor: FileDescriptor = -1
-    public internal(set) var openOptions: OpenOptionsType?
-    private var _tmpOpenOptions: OpenOptionsType?
-
-    public var openPermissions: OpenFilePermissions {
-        get { return openOptions?.permissions ?? .none }
-        set { openOptions = (permissions: newValue, flags: openFlags, mode: createMode) }
-    }
-    public var openFlags: OpenFileFlags {
-        get { return openOptions?.flags ?? .none }
-        set { openOptions = (permissions: openPermissions, flags: newValue, mode: createMode) }
-    }
-    public var createMode: FileMode? {
-        get { return openOptions?.mode }
-        set { openOptions = (permissions: openPermissions, flags: openFlags, mode: newValue) }
-    }
-
-    /// The currently opened file (if it has been opened previously)
-    /// Warning: The setter may be removed in a later release
-    public var opened: OpenFile? {
-        get { return openFiles[self] }
-        set { openFiles[self] = newValue }
-    }
 
     // This is to protect the info from being set externally
-    private var _info: StatInfo = StatInfo()
-    public var info: StatInfo {
-        try? _info.getInfo()
-        return _info
-    }
+    public let _info: StatInfo
 
     /// Initialize from an array of path elements
-    public required init?(_ components: [String]) {
+    public init?(_ components: [String]) {
         _path = components.filter({ !$0.isEmpty && $0 != FilePath.separator}).joined(separator: GenericPath.separator)
         if let first = components.first, first == FilePath.separator {
             _path = first + _path
         }
         _info = StatInfo(_path)
+        try? _info.getInfo()
 
-        if exists {
-            guard isFile else { return nil }
+        if _info.exists {
+            guard _info.type == .file else { return nil }
         }
     }
 
-    /// Initialize from a variadic array of path elements
-    public convenience init?(_ components: String...) {
-        self.init(components)
-    }
-
-    /// Initialize from a slice of an array of path elements
-    public convenience init?(_ components: ArraySlice<String>) {
-        self.init(Array(components))
-    }
-
-    public required init?(_ str: String) {
+    public init?(_ str: String) {
         if str.count > 1 && str.hasSuffix(FilePath.separator) {
             _path = String(str.dropLast())
         } else {
             _path = str
         }
         _info = StatInfo(_path)
+        try? _info.getInfo()
 
-        if exists {
-            guard isFile else { return nil }
+        if _info.exists {
+            guard _info.type == .file else { return nil }
         }
     }
 
@@ -97,9 +58,8 @@ open class FilePath: Path, Openable, Linkable {
 
     - Parameter  path: The path to copy
     */
-    public required init(_ path: FilePath) {
-        _path = path._path
-        _info = path.info
+    public init(_ path: FilePath) {
+        self = path
     }
 
     /**
@@ -109,19 +69,19 @@ open class FilePath: Path, Openable, Linkable {
 
     - Parameter path: The path to copy
     */
-    public required init?(_ path: GenericPath) {
+    public init?(_ path: GenericPath) {
         // Cannot initialize a file from a non-file type
         if path.exists {
-            guard path.isFile else { return nil }
+            guard path._info.type == .file else { return nil }
         }
 
         _path = path._path
-        _info = path.info
+        _info = StatInfo(path)
+        try? _info.getInfo()
     }
 
     @available(*, unavailable, message: "Cannot append to a FilePath")
     public static func + <PathType: Path>(lhs: FilePath, rhs: PathType) -> PathType { fatalError("Cannot append to a FilePath") }
-
 
     /**
     Opens the file
@@ -159,48 +119,21 @@ open class FilePath: Path, Openable, Linkable {
     - Warning: Beware opening the same file multiple times with non-overlapping options/permissions. In order to reduce the number of open file descriptors, a single file can only be opened once at a time. If you open the same path with different permissions or flags, then the previously opened instance will be closed before the new one is opened. ie: if youre going to use a path for reading and writing, then open it using the `.readWrite` permissions rather than first opening it with `.read` and then later opening it with `.write`
     - Note: A `CloseFileError` will only be thrown if the file has previously been opened and is now being reopened with non-overlapping `options` as the previous open. So we first will close the old open file and then open it with the new options
     */
-    @discardableResult
-    open func open() throws -> Open<FilePath> {
-        let options = try (_tmpOpenOptions ?? openOptions) ?! OpenFileError.invalidPermissions
-
+    public func open(options: OpenOptions) throws -> Open<FilePath> {
         guard options.permissions != .none else { throw OpenFileError.invalidPermissions }
-
-        // Check if the file is already opened
-        if let open = opened {
-            let openPermissions = open.path.openPermissions
-            let openFlags = open.path.openFlags
-
-            // If the last open had at least the options we need now, just return the already opened file
-            guard !openPermissions.contains(options.permissions) || !openFlags.contains(options.flags) else { return open }
-
-            // If the options are different, close the open file so we can
-            // re-open it with the new options
-            try open.close()
-            openFiles.removeValue(forKey: self)
-        }
 
         let rawOptions = options.permissions.rawValue | options.flags.rawValue
 
+        let fileDescriptor: FileDescriptor
         if let mode = options.mode {
             fileDescriptor = cOpenFileWithMode(string, rawOptions, mode.rawValue)
         } else {
-            guard !options.flags.contains(.create) else {
-                throw OpenFileError.createWithoutMode
-            }
             fileDescriptor = cOpenFile(string, rawOptions)
         }
 
         guard fileDescriptor != -1 else { throw OpenFileError.getError() }
 
-        let open = OpenFile(self)
-
-        defer {
-            self.openOptions = options
-            self._tmpOpenOptions = nil
-            self.opened = open
-        }
-
-        return open
+        return OpenFile(self, descriptor: fileDescriptor, options: options) !! "Failed to set the opened file object"
     }
 
     /**
@@ -243,10 +176,8 @@ open class FilePath: Path, Openable, Linkable {
     - Warning: Beware opening the same file multiple times with non-overlapping options/permissions. In order to reduce the number of open file descriptors, a single file can only be opened once at a time. If you open the same path with different permissions or flags, then the previously opened instance will be closed before the new one is opened. ie: if youre going to use a path for reading and writing, then open it using the `.readWrite` permissions rather than first opening it with `.read` and then later opening it with `.write`
     - Note: A `CloseFileError` will only be thrown if the file has previously been opened and is now being reopened with non-overlapping `options` as the previous open. So we first will close the old open file and then open it with the new options
     */
-    @discardableResult
-    open func open(permissions: OpenFilePermissions, flags: OpenFileFlags = [], mode: FileMode? = nil) throws -> Open<FilePath> {
-        _tmpOpenOptions = (permissions: permissions, flags: flags, mode: mode)
-        return try open()
+    public func open(permissions: OpenFilePermissions, flags: OpenFileFlags = [], mode: FileMode? = nil) throws -> Open<FilePath> {
+        return try open(options: OpenOptions(permissions: permissions, flags: flags, mode: mode))
     }
 
     /**
@@ -256,24 +187,29 @@ open class FilePath: Path, Openable, Linkable {
     - Throws: `CloseFileError.interruptedBySignal` when the call was interrupted by a signal handler
     - Throws: `CloseFileError.ioError` when an I/O error occurred
     */
-    open func close() throws {
+    public static func close(opened: Open<FilePath>) throws {
         // File is not open
-        guard fileDescriptor != -1 else { return }
+        guard opened.descriptor != -1 else { return }
 
-        // Remove the open file from the openFiles dict after we close it
-        defer {
-            openFiles.removeValue(forKey: self)
-            fileDescriptor = -1
-            openOptions = nil
-        }
-
-        guard cCloseFile(fileDescriptor) == 0 else {
+        guard cCloseFile(opened.descriptor) == 0 else {
             throw CloseFileError.getError()
         }
-    }
 
-    // Be sure to close any open files on deconstruction
-    deinit {
-        try? close()
+        opened.buffer = nil
+        opened.bufferSize = nil
+    }
+}
+
+extension FilePath {
+    public struct OpenOptions: Hashable {
+        public let permissions: OpenFilePermissions
+        public let flags: OpenFileFlags
+        public let mode: FileMode?
+
+        public init(permissions: OpenFilePermissions, flags: OpenFileFlags = [], mode: FileMode? = nil) {
+            self.permissions = permissions
+            self.flags = flags
+            self.mode = mode
+        }
     }
 }

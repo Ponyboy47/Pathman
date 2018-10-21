@@ -4,9 +4,7 @@ import Glibc
 import Darwin
 #endif
 
-extension Open: Seekable where PathType: FilePath {
-    public var eof: Bool { return offset >= size }
-
+extension Open: Seekable where PathType == FilePath {
     /**
     Moves the file offset from the beginning of the file by the specified number of bytes
 
@@ -18,10 +16,6 @@ extension Open: Seekable where PathType: FilePath {
     */
     @discardableResult
     public func seek(fromStart bytes: OSOffsetInt) throws -> OSOffsetInt {
-        // If the offset is at the bytes already, then nothing would happen so
-        // just go ahead and return
-        guard offset != bytes else { return offset }
-
         let newOffset = lseek(fileDescriptor, bytes, SEEK_SET)
 
         guard newOffset != -1 else {
@@ -42,10 +36,6 @@ extension Open: Seekable where PathType: FilePath {
     */
     @discardableResult
     public func seek(fromEnd bytes: OSOffsetInt) throws -> OSOffsetInt {
-        // If we're at the end of the file and we're not moving anywhere, go
-        // ahead and return the offset
-        if bytes == 0 && eof { return offset }
-
         let newOffset = lseek(fileDescriptor, bytes, SEEK_END)
 
         guard newOffset != -1 else {
@@ -88,7 +78,7 @@ extension Open: Seekable where PathType: FilePath {
         return try seek(fromStart: 0)
     }
 
-    #if SEEK_DATA && SEEK_HOLE
+    #if SEEK_HOLE
     /**
     Moves the file offset to the next hole in the file greater than the specified offset number of bytes (as measured from the beginning of the file)
 
@@ -108,7 +98,9 @@ extension Open: Seekable where PathType: FilePath {
 
         return newOffset
     }
-
+    #endif
+    
+    #if SEEK_DATA
     /**
     Moves the file offset to the next location containing data
 

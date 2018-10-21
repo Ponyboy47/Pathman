@@ -23,9 +23,7 @@ extension Path {
         let comps = components
         guard !comps.isEmpty else { return false }
         guard !comps.contains("..") else { return true }
-        for relativeItem in ["~", "."] {
-            guard !_path.hasPrefix(relativeItem) else { return true }
-        }
+        guard !["~", "."].contains(comps.first!) else { return true }
         return comps.first! != Self.separator && !_path.hasPrefix(Self.root._path)
     }
 }

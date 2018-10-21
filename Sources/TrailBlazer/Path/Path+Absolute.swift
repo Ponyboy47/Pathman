@@ -34,24 +34,30 @@ extension Path {
     */
     public mutating func expand() throws {
         // If the path is already absolute, then there's no point in calling realpath(3)
-        guard isRelative else { return }
+        guard isRelative || _path.contains("\(Self.separator)\(Self.separator)") else { return }
 
         // realpath(3) fails if the path is null
         guard !_path.isEmpty else { throw RealPathError.emptyPath }
+
+        // Whenever we leave this function we need to update the path used by StatInfo
+        defer { _info._path = _path }
 
         if _path.hasPrefix("~") {
             let home = try getHome()
             _path.replaceSubrange(..<_path.index(after: _path.startIndex), with: home.string)
         }
 
+        // If the path is absolute after expanding the home directory, then no need to call into realpath(3)
+        guard isRelative || _path.contains("\(Self.separator)\(Self.separator)") else { return }
+
         let realpath = try cRealpath(_path, nil) ?! RealPathError.getError()
+
+        _path = String(cString: realpath)
 
         // When realpath(3) is passed a nil buffer argument, the memory is
         // dynamically allocated and must be deallocated
-        defer { realpath.deallocate() }
-
-        _path = String(cString: realpath)
-        info._path = _path
+        realpath.deinitialize(count: 1)
+        realpath.deallocate()
     }
 
     /**
@@ -71,26 +77,8 @@ extension Path {
         - RealPathError.notADirectory: A component of the path prefix is not a directory.
     */
     public func expanded() throws -> Self {
-        // If the path is already absolute, then there's no point in calling realpath(3)
-        guard isRelative else { return self }
-
-        // realpath(3) fails if the path is null
-        guard !_path.isEmpty else { throw RealPathError.emptyPath }
-
-        var str = _path
-
-        if str.hasPrefix("~") {
-            let home = try getHome()
-            str.replaceSubrange(..<str.index(after: str.startIndex), with: home.string)
-        }
-
-        let realpath = try cRealpath(str, nil) ?! RealPathError.getError()
-
-        // When realpath(3) is passed a nil buffer argument, the memory is
-        // dynamically allocated and must be deallocated
-        defer { realpath.deallocate() }
-
-        let realpathString = String(cString: realpath)
-        return Self(realpathString) !! "In the time since this \(Self.self) object was created, a path of a different type has been created at the same location (\(realpathString))."
+        var toExpand = Self(_path) !! "The path '\(_path)' is not a \(Self.self)"
+        try toExpand.expand()
+        return toExpand
     }
 }
