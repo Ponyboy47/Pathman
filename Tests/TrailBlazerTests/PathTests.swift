@@ -257,4 +257,12 @@ class PathTests: XCTestCase {
         XCTAssertFalse(dir.isLink)
         #endif
     }
+
+    func testIterator() {
+        let path = FilePath("/path/to/test/location")!
+        let pieces = path.components
+        for (idx, piece) in path.enumerated() {
+            XCTAssertEqual(piece, pieces[idx])
+        }
+    }
 }
