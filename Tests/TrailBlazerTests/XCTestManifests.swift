@@ -212,6 +212,7 @@ extension PathTests {
         ("testArraySliceInit", testArraySliceInit),
         ("testChCWD", testChCWD),
         ("testChRoot", testChRoot),
+        ("testCodable", testCodable),
         ("testComponents", testComponents),
         ("testCustomStringConvertible", testCustomStringConvertible),
         ("testEquatable", testEquatable),

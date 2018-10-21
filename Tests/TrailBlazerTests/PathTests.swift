@@ -265,4 +265,16 @@ class PathTests: XCTestCase {
             XCTAssertEqual(piece, pieces[idx])
         }
     }
+
+    func testCodable() {
+        let path = FilePath("/path/to/test/location")!
+
+        do {
+            let encoded = try JSONEncoder().encode(path)
+            let decoded = try JSONDecoder().decode(FilePath.self, from: encoded)
+            XCTAssertEqual(path, decoded)
+        } catch {
+            XCTFail("Failed to encode/decode path")
+        }
+    }
 }
