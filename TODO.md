@@ -1,0 +1,84 @@
+# To Do
+- FilePath
+  - [x] Create new files
+    - [x] Create intermediate directories
+    - [ ] With specified contents
+- DirectoryPath
+  - [x] Get directory contents
+  - [x] Get directory contents recursively
+  - [x] Create new directories
+    - [x] Create intermediate directories
+  - [x] Delete directories
+  - [x] Recursively delete directory
+- GenericPath (AKA all Paths)
+  - [x] Change path ownership
+  - [x] Change path permissions
+    - [x] Allow octal numeric strings to be used for changing permissions
+  - [x] Move paths
+  - [x] Rename paths (move alias)
+  - [x] URL conversion
+  - [x] Get/generate temporary files/directories
+  - [x] Copy paths
+- OpenPaths
+  - [ ] Open only for closure
+- Misc. Additions
+  - [x] Globbing
+  - [x] LinkedPath (symlinks and hard links)
+  - [x] Make Paths Codable
+  - [ ] TemporaryPaths
+    - The path is initialized based on the following options:
+      - [ ] Storage: Either deletes itself (and everything in it) once all references to it are gone, or it doesn't
+      - [ ] Base: Whether to generate or supply the root temporary directory (/tmp or not)
+    - Used by the temporary() API call
+    - [ ] Temporary path in closure (deleted afterwards)
+  - [x] APIs for checking permissions to a path
+    - [x] canRead/Write/Execute/Delete == Whether or not the calling process (or specified uid/gid/username/groupname) can read/write/execute/delete the path
+    - [x] mayRead/Write == Whether or not the path was opened with read/write permissions
+  - [ ] SocketPath
+  - [ ] FIFOPath?
+  - [ ] BlockPath?
+  - [ ] CharacterPath?
+  - [ ] Place deleted items in trash (instead of deleting directly)
+  - [ ] Mount/unmount paths
+  - [ ] Change CWD/Root for closure only
+  - [ ] Pattern matching (~=)
+  - [ ] Useful operators (<<, >>, etc)
+  - [x] Consolidate repeated/common errors
+  - [ ] Atomic writing (see Data.WritingOptions)
+  - [ ] Make sure we support common Data.ReadingOptions
+- [ ] Investigate TypeErasure to see if it could benefit Paths and Open objects interact together more nicely
+- [ ] Investigate ARC best-practices and see if memory usage/performance/correctness can be improved
+  - https://docs.swift.org/swift-book/LanguageGuide/AutomaticReferenceCounting.html
+- [x] Investigate improved Hashable conformances
+  - https://developer.apple.com/documentation/swift/adopting_common_protocols
+- [ ] Study the Ownership Manifesto to see if anything can have improved memory semantics/performance
+  - https://github.com/apple/swift/blob/master/docs/OwnershipManifesto.md
+- [ ] Investiagte class behaviors and ensure proper COW (or other) copy semantics
+- [ ] Slicing/Collection APIs
+  - [x] Sequence conformance
+  - [ ] Slicing
+  - [ ] Joining Slices
+- [ ] Migrate usage examples to a separate Wiki
+  - [ ] Document performance pitfalls
+- [ ] Make a FileSystem utility for easily getting some file system attributes
+  - [ ] Free/Used bytes
+  - [ ] Total size
+  - [ ] Type
+  - [ ] More?
+- [ ] Annotate code with preconditions and assertions
+- Investigate Domains
+  - https://developer.apple.com/documentation/foundation/filemanager/searchpathdomainmask
+    - [ ] User (~)
+    - [ ] System (/)
+    - [ ] Local (/usr/local)
+    - [ ] Network (??)
+    - [ ] All
+- Investigate Common Search Paths
+  - https://developer.apple.com/documentation/foundation/filemanager/searchpathdirectory
+- [ ] Awesome logo/icon
+- Crazy Stuff
+  - [ ] `URLPath`
+    - [ ] Separate current `Path` protocol into a `FileSystemPath` sub-protocol (only keeping relevant stuff in `Path`)
+    - [ ] Opening a `URLPath` downloads data?
+    - [ ] Support relevant standards and common manipulations
+
