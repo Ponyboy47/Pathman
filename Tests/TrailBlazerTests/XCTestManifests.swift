@@ -220,6 +220,7 @@ extension PathTests {
         ("testExpand", testExpand),
         ("testGenericPathMath", testGenericPathMath),
         ("testGetHome", testGetHome),
+        ("testIses", testIses),
         ("testIsLink", testIsLink),
         ("testIterator", testIterator),
         ("testLastComponent", testLastComponent),

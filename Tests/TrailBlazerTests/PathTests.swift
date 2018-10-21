@@ -277,4 +277,11 @@ class PathTests: XCTestCase {
             XCTFail("Failed to encode/decode path")
         }
     }
+
+    func testIses() {
+        let path = DirectoryPath("/tmp")!
+        XCTAssertTrue(path.isReadable)
+        XCTAssertTrue(path.isWritable)
+        XCTAssertTrue(path.isExecutable)
+    }
 }
