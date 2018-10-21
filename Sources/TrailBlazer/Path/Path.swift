@@ -113,7 +113,7 @@ public extension Path {
     /// The last element of the path with the extension removed
     public var lastComponentWithoutExtension: String? {
         guard let last = lastComponent else { return nil }
-        return String(last.prefix(last.count - (`extension`?.count ?? 0)))
+        return String(last.prefix(last.count - ((`extension`?.count ?? -1) + 1)))
     }
 
     /// The extension of the path

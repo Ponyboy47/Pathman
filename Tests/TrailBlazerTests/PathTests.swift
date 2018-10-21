@@ -102,13 +102,31 @@ class PathTests: XCTestCase {
     func testLastComponent() {
         XCTAssertEqual(GenericPath("/tmp").lastComponent, "tmp")
         XCTAssertEqual(DirectoryPath("/tmp")!.lastComponent, "tmp")
-        XCTAssertEqual(FilePath("/tmp/flabbergasted")!.lastComponent, "flabbergasted")
+        XCTAssertEqual(FilePath("/tmp/flabbergasted.test")!.lastComponent, "flabbergasted.test")
+    }
+
+    func testLastComponentWithoutExtension() {
+        XCTAssertEqual(FilePath("/tmp/flabbergasted.test")!.lastComponentWithoutExtension, "flabbergasted")
     }
 
     func testParent() {
+        let dir = DirectoryPath("/tmp")!
         XCTAssertEqual(GenericPath("/tmp").parent.string, "/")
-        XCTAssertEqual(DirectoryPath("/tmp")!.parent.string, "/")
-        XCTAssertEqual(FilePath("/tmp/flabbergasted")!.parent.string, "/tmp")
+        XCTAssertEqual(dir.parent.string, "/")
+        XCTAssertEqual(dir.parent.parent.string, "/")
+        XCTAssertEqual(FilePath("flabbergasted/whatever")!.parent.parent.string, FilePath.cwd.string)
+    }
+
+    func testSetParent() {
+        let dir = DirectoryPath("/tmp")!
+        do {
+            var testPath = try FilePath.temporary(prefix: "com.trailblazer.test.").path
+            testPath.parent = dir
+            XCTAssertEqual(testPath.parent, dir)
+            try? testPath.delete()
+        } catch {
+            XCTFail("Failed to create test path")
+        }
     }
 
     func testExists() {
