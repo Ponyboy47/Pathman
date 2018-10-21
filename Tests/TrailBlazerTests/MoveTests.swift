@@ -57,7 +57,7 @@ class MoveTests: XCTestCase {
         guard var file = FilePath(home + "\(UUID()).test") else {
             return XCTFail("Path is not a file")
         }
-        guard let newDir = DirectoryPath(home + "\(UUID()).testdir") else {
+        guard var newDir = DirectoryPath(home + "\(UUID()).testdir") else {
             return XCTFail("Path is not a directory")
         }
 

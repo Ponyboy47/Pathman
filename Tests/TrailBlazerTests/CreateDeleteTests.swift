@@ -12,7 +12,7 @@ class CreateDeleteTests: XCTestCase {
     }()
 
     func testCreateFile() {
-        guard let file = FilePath(base + "\(UUID()).test") else {
+        guard var file = FilePath(base + "\(UUID()).test") else {
             XCTFail("Test path exists and is not a file")
             return
         }
@@ -30,7 +30,7 @@ class CreateDeleteTests: XCTestCase {
     }
 
     func testDeleteFile() {
-        guard let file = FilePath(base + "\(UUID()).test") else {
+        guard var file = FilePath(base + "\(UUID()).test") else {
             XCTFail("Test path exists and is not a file")
             return
         }
@@ -46,7 +46,7 @@ class CreateDeleteTests: XCTestCase {
     }
 
     func testCreateDirectory() {
-        guard let dir = DirectoryPath(base + "\(UUID())") else {
+        guard var dir = DirectoryPath(base + "\(UUID())") else {
             XCTFail("Test path exists and is not a directory")
             return
         }
@@ -59,7 +59,7 @@ class CreateDeleteTests: XCTestCase {
     }
 
     func testDeleteDirectory() {
-        guard let dir = DirectoryPath(base + "\(UUID())") else {
+        guard var dir = DirectoryPath(base + "\(UUID())") else {
             XCTFail("Test path exists and is not a directory")
             return
         }
@@ -75,7 +75,7 @@ class CreateDeleteTests: XCTestCase {
     }
 
     func testDeleteNonEmptyDirectory() {
-        guard let dir = DirectoryPath(base + "\(UUID())") else {
+        guard var dir = DirectoryPath(base + "\(UUID())") else {
             XCTFail("Test path exists and is not a directory")
             return
         }
@@ -112,7 +112,7 @@ class CreateDeleteTests: XCTestCase {
     }
 
     func testDeleteDirectoryRecursive() {
-        guard let dir = DirectoryPath(base + "\(UUID())") else {
+        guard var dir = DirectoryPath(base + "\(UUID())") else {
             XCTFail("Test path exists and is not a directory")
             return
         }
@@ -144,7 +144,7 @@ class CreateDeleteTests: XCTestCase {
     }
 
     func testCreateIntermediates() {
-        guard let dir = DirectoryPath(base + "\(UUID())") else {
+        guard var dir = DirectoryPath(base + "\(UUID())") else {
             XCTFail("Test path exists and is not a directory")
             return
         }

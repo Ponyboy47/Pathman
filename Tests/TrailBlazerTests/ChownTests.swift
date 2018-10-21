@@ -114,7 +114,7 @@ class ChownTests: XCTestCase {
             XCTAssertNotEqual(getegid(), openFile.group)
         }
 
-        try? openFile.delete()
+        try? openFile.path.delete()
     }
 
     func testSetRecursive() {
@@ -124,7 +124,7 @@ class ChownTests: XCTestCase {
         let base: DirectoryPath = DirectoryPath("/tmp")!
         #endif
 
-        guard let dir = DirectoryPath(base + "\(UUID())") else {
+        guard var dir = DirectoryPath(base + "\(UUID())") else {
             XCTFail("Test path exists and is not a directory")
             return
         }

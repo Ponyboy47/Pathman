@@ -8,7 +8,7 @@ class TemporaryTests: XCTestCase {
             XCTAssertTrue(tmpFile.path.lastComponent!.hasPrefix("Test-"))
 
             XCTAssertTrue(tmpFile.exists)
-            XCTAssertNoThrow(try tmpFile.delete())
+            XCTAssertNoThrow(try tmpFile.path.delete())
         } catch {
             XCTFail("Failed to create/open temporary file with error: \(type(of: error)).\(error)")
             return
@@ -21,7 +21,7 @@ class TemporaryTests: XCTestCase {
             XCTAssertTrue(tmpDirectory.path.lastComponent!.hasPrefix("Test-"))
 
             XCTAssertTrue(tmpDirectory.exists)
-            XCTAssertNoThrow(try tmpDirectory.delete())
+            XCTAssertNoThrow(try tmpDirectory.path.delete())
         } catch {
             XCTFail("Failed to create/open temporary file with error: \(type(of: error)).\(error)")
             return

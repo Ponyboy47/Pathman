@@ -75,7 +75,7 @@ public extension Path {
     /// The root directory for the process
     public var root: DirectoryPath {
         get { return Self.root }
-        set { Self.root = newValue }
+        nonmutating set { Self.root = newValue }
     }
 
     /// The current working directory for the process
@@ -89,7 +89,7 @@ public extension Path {
     /// The current working directory for the process
     public var cwd: DirectoryPath {
         get { return Self.cwd }
-        set { Self.cwd = newValue }
+        nonmutating set { Self.cwd = newValue }
     }
 
     /// The String representation of the path

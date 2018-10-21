@@ -7,7 +7,7 @@ import Darwin
 /// Paths that can be deleted
 public protocol Deletable {
     /// Deletes a path
-    func delete() throws
+    mutating func delete() throws
 }
 
 extension FilePath: Deletable {
@@ -29,7 +29,7 @@ extension FilePath: Deletable {
     - Throws: `CloseFileError.interruptedBySignal` when a signal interrupts the API call
     - Throws: `CloseFileError.ioError` when an I/O error occurred during the API call
     */
-    public func delete() throws {
+    public mutating func delete() throws {
         // Deleting files means unlinking them
         guard cUnlink(string) != -1 else {
             throw DeleteFileError.getError()
@@ -54,17 +54,10 @@ extension DirectoryPath: Deletable {
     - Throws: `DeleteDirectoryError.readOnlyFileSystem` when the file system is in read-only mode and so the directory cannot be deleted
     - Throws: `DeleteDirectoryError.ioError` (macOS only) when an I/O error occurred during the API call
     */
-    public func delete() throws {
+    public mutating func delete() throws {
         guard rmdir(string) != -1 else {
             throw DeleteDirectoryError.getError()
         }
-    }
-}
-
-extension Open: Deletable where PathType: Deletable {
-    /// Closes and deletes the opened path
-    public func delete() throws {
-        try path.delete()
     }
 }
 
@@ -105,7 +98,7 @@ extension Deletable where Self: DirectoryEnumerable {
     - Throws: `CloseFileError.interruptedBySignal` when a signal interrupts the API call
     - Throws: `CloseFileError.ioError` when an I/O error occurred during the API call
     */
-    public func recursiveDelete() throws {
+    public mutating func recursiveDelete() throws {
         let childPaths = try children(options: .includeHidden)
 
         // Throw an error if the path can't be deleted or else a DeleteDirectoryError.directoryNotEmpty error will be thrown later
@@ -114,12 +107,12 @@ extension Deletable where Self: DirectoryEnumerable {
         }
 
         // Delete all the files
-        for file in childPaths.files {
+        for var file in childPaths.files {
             try file.delete()
         }
 
         // Recursively delete any subdirectories
-        for directory in childPaths.directories {
+        for var directory in childPaths.directories {
             try directory.recursiveDelete()
         }
 

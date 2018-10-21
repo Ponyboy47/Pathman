@@ -7,14 +7,14 @@ class LinkTests: XCTestCase {
         do {
             let link = try FilePath.temporary(prefix: "com.trailblazer.tests.softlink.")
             DirectoryPath.cwd = link.path.parent
-            let _linked = FilePath("\(link.path.lastComponent!).link")!
+            var _linked = FilePath("\(link.path.lastComponent!).link")!
             let target = FilePath("\(link.path.lastComponent!)")!
             let symlink = try target.link(at: "\(link.path.lastComponent!).link")
             XCTAssertTrue(symlink.isLink)
             XCTAssertTrue(symlink.exists)
             XCTAssertEqual(symlink.linkType, .soft)
             XCTAssertFalse(symlink.isDangling)
-            try? link.delete()
+            try? link.path.delete()
             XCTAssertTrue(symlink.isDangling)
             try? _linked.delete()
         } catch {
@@ -27,12 +27,12 @@ class LinkTests: XCTestCase {
         do {
             let file = try FilePath.temporary(prefix: "com.trailblazer.tests.softlink.")
 
-            let symlink = try file.path.link(at: FilePath("\(file.path.string).link")!)
+            var symlink = try file.path.link(at: FilePath("\(file.path.string).link")!)
             XCTAssertTrue(symlink.isLink)
             XCTAssertTrue(symlink.exists)
             XCTAssertEqual(symlink.linkType, .symbolic)
             XCTAssertFalse(symlink.isDangling)
-            try? file.delete()
+            try? file.path.delete()
             XCTAssertTrue(symlink.isDangling)
             try? symlink.delete()
         } catch {
@@ -45,14 +45,14 @@ class LinkTests: XCTestCase {
         do {
             let link = try FilePath.temporary(prefix: "com.trailblazer.tests.hardlink.")
             DirectoryPath.cwd = link.path.parent
-            let _linked = FilePath("\(link.path.lastComponent!).link")!
+            var _linked = FilePath("\(link.path.lastComponent!).link")!
             let target = FilePath("\(link.path.lastComponent!)")!
-            let symlink = try target.link(at: _linked, type: .hard)
+            var symlink = try target.link(at: _linked, type: .hard)
             XCTAssertTrue(symlink.isLink)
             XCTAssertTrue(symlink.exists)
             XCTAssertEqual(symlink.linkType, .hard)
             XCTAssertFalse(symlink.isDangling)
-            try? link.delete()
+            try? link.path.delete()
             XCTAssertFalse(symlink.isDangling)
             try? _linked.delete()
             try? symlink.delete()
@@ -66,12 +66,12 @@ class LinkTests: XCTestCase {
         do {
             let file = try FilePath.temporary(prefix: "com.trailblazer.tests.hardlink.")
 
-            let symlink = try file.path.link(at: FilePath("\(file.path.string).link")!, type: .hard)
+            var symlink = try file.path.link(at: FilePath("\(file.path.string).link")!, type: .hard)
             XCTAssertTrue(symlink.isLink)
             XCTAssertTrue(symlink.exists)
             XCTAssertEqual(symlink.linkType, .hard)
             XCTAssertFalse(symlink.isDangling)
-            try? file.delete()
+            try? file.path.delete()
             XCTAssertFalse(symlink.isDangling)
             try? symlink.delete()
         } catch {
@@ -85,9 +85,9 @@ class LinkTests: XCTestCase {
         let toFile: FilePath
         do {
             let openFile1 = try FilePath.temporary(prefix: "com.trailblazer.link.")
-            try openFile1.delete()
+            try openFile1.path.delete()
             let openFile2 = try FilePath.temporary(prefix: "com.trailblazer.link.")
-            try openFile2.delete()
+            try openFile2.path.delete()
             fromFile = openFile1.path
             toFile = openFile2.path
         } catch {

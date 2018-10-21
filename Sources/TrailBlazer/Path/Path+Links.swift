@@ -168,7 +168,7 @@ public struct LinkedPath<LinkedPathType: Path>: Path {
 }
 
 extension LinkedPath: Deletable where LinkedPathType: Deletable {
-    public func delete() throws {
+    public mutating func delete() throws {
         try __path.delete()
     }
 }

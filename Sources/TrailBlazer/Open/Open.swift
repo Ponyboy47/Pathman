@@ -15,7 +15,7 @@ public protocol Opened: UpdatableStatDelegate, Ownable, Permissionable {
 }
 
 public final class Open<PathType: Openable>: Opened {
-    public let path: PathType
+    public internal(set) var path: PathType
     public let descriptor: PathType.DescriptorType
     public var fileDescriptor: FileDescriptor { return descriptor.fileDescriptor }
     public let openOptions: PathType.OpenOptionsType

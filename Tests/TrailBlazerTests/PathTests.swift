@@ -65,14 +65,20 @@ class PathTests: XCTestCase {
     }
 
     func testChRoot() {
+        let directory = DirectoryPath()!
         XCTAssertEqual(DirectoryPath.root.string, "/")
+        XCTAssertEqual(directory.root.string, "/")
 
+        DirectoryPath.root = DirectoryPath("/tmp")!
+        directory.root = DirectoryPath("/tmp")!
         if (geteuid() == 0) {
-            DirectoryPath.root = DirectoryPath("/tmp")!
             XCTAssertEqual(DirectoryPath.root.string, "/tmp")
+            XCTAssertEqual(directory.root.string, "/tmp")
             DirectoryPath.root = DirectoryPath("/")!
+            directory.root = DirectoryPath("/")!
         }
         XCTAssertEqual(DirectoryPath.root.string, "/")
+        XCTAssertEqual(directory.root.string, "/")
     }
 
     func testChCWD() {
