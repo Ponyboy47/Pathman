@@ -158,6 +158,7 @@ extension LinkTests {
         ("testAbsoluteHardLink", testAbsoluteHardLink),
         ("testAbsoluteSoftLink", testAbsoluteSoftLink),
         ("testFromLinking", testFromLinking),
+        ("testInits", testInits),
         ("testRelativeHardLink", testRelativeHardLink),
         ("testRelativeSoftLink", testRelativeSoftLink),
     ]

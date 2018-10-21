@@ -60,26 +60,32 @@ public struct LinkedPath<LinkedPathType: Path>: Path {
         return linkType == .hard ? false : link.exists.toggled()
     }
 
-    public init(_ path: String, linkedTo link: LinkedPathType, type: LinkType = TrailBlazer.defaultLinkType) throws {
+    public init(_ path: String, linkedTo linkPath: LinkedPathType, type: LinkType = TrailBlazer.defaultLinkType) throws {
         let pathLink = try LinkedPathType.init(path) ?! LinkError.pathTypeMismatch
-        try self.init(pathLink, linkedTo: link, type: type)
+        try self.init(pathLink, linkedTo: linkPath, type: type)
     }
 
-    public init(_ path: LinkedPathType, linkedTo link: String, type: LinkType = TrailBlazer.defaultLinkType) throws {
-        let linkedPath = try LinkedPathType.init(link) ?! LinkError.pathTypeMismatch
-        try self.init(path, linkedTo: linkedPath, type: type)
+    public init(_ pathLink: LinkedPathType, linkedTo link: String, type: LinkType = TrailBlazer.defaultLinkType) throws {
+        let linkPath = try LinkedPathType.init(link) ?! LinkError.pathTypeMismatch
+        try self.init(pathLink, linkedTo: linkPath, type: type)
     }
 
-    public func unlink() throws {
+    public init(_ path: String, linkedTo link: String, type: LinkType = TrailBlazer.defaultLinkType) throws {
+        let pathLink = try LinkedPathType.init(path) ?! LinkError.pathTypeMismatch
+        let linkPath = try LinkedPathType.init(link) ?! LinkError.pathTypeMismatch
+        try self.init(pathLink, linkedTo: linkPath, type: type)
+    }
+
+    public mutating func unlink() throws {
         guard cUnlink(_path) != -1 else { throw UnlinkError.getError() }
     }
 
-    public init(_ path: LinkedPathType, linkedTo link: LinkedPathType, type: LinkType = TrailBlazer.defaultLinkType) throws {
-        __path = LinkedPathType(path)
-        _info = StatInfo(path.string)
+    public init(_ pathLink: LinkedPathType, linkedTo linkPath: LinkedPathType, type: LinkType = TrailBlazer.defaultLinkType) throws {
+        __path = LinkedPathType(pathLink)
+        _info = StatInfo(pathLink.string)
 
-        try createLink(from: path, to: link, type: type)
-        self.link = link
+        try createLink(from: pathLink, to: linkPath, type: type)
+        self.link = linkPath
         linkType = type
     }
 
@@ -143,7 +149,7 @@ public struct LinkedPath<LinkedPathType: Path>: Path {
 
     /// Initialize a symbolic link from an array of Path components
     public init?(_ path: GenericPath) {
-        guard let _path = path as? LinkedPathType else { return nil }
+        guard let _path = LinkedPathType(path) else { return nil }
         __path = _path
         _info = StatInfo(_path.string)
         try? _info.getInfo()
@@ -167,9 +173,9 @@ public struct LinkedPath<LinkedPathType: Path>: Path {
     }
 }
 
-extension LinkedPath: Deletable where LinkedPathType: Deletable {
+extension LinkedPath: Deletable {
     public mutating func delete() throws {
-        try __path.delete()
+        try unlink()
     }
 }
 

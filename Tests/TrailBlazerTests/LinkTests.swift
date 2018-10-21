@@ -14,6 +14,7 @@ class LinkTests: XCTestCase {
             XCTAssertTrue(symlink.exists)
             XCTAssertEqual(symlink.linkType, .soft)
             XCTAssertFalse(symlink.isDangling)
+            XCTAssertEqual(symlink._path, _linked._path)
             try? link.path.delete()
             XCTAssertTrue(symlink.isDangling)
             try? _linked.delete()
@@ -52,6 +53,7 @@ class LinkTests: XCTestCase {
             XCTAssertTrue(symlink.exists)
             XCTAssertEqual(symlink.linkType, .hard)
             XCTAssertFalse(symlink.isDangling)
+            XCTAssertEqual(symlink._path, _linked._path)
             try? link.path.delete()
             XCTAssertFalse(symlink.isDangling)
             try? _linked.delete()
@@ -105,6 +107,41 @@ class LinkTests: XCTestCase {
         } catch {
             XCTFail("Failed to create link")
             return
+        }
+    }
+
+    func testInits() {
+        do {
+            let file = try FilePath.temporary(prefix: "com.trailblazer.tests.softlink.")
+            var symlink1 = try LinkedPath("\(file.path.string).link", linkedTo: file.path)
+            try? symlink1.delete()
+            var symlink2 = try LinkedPath(FilePath("\(file.path.string).link")!, linkedTo: file.path.string)
+            try? symlink2.delete()
+            var symlink3 = try LinkedPath<FilePath>("\(file.path.string).link", linkedTo: file.path.string)
+            let symlink4 = LinkedPath<FilePath>("\(file.path.string).link")
+            let symlink5 = LinkedPath<FilePath>(GenericPath("\(file.path.string).link").components)
+            let symlink6 = LinkedPath(symlink5!)
+            let symlink7 = LinkedPath<FilePath>(GenericPath("\(file.path.string).link"))
+
+            XCTAssertEqual(symlink1, symlink2)
+            XCTAssertEqual(symlink2, symlink3)
+            XCTAssertEqual(symlink3, symlink4)
+            XCTAssertEqual(symlink4, symlink5)
+            XCTAssertEqual(symlink5, symlink6)
+            XCTAssertEqual(symlink6, symlink7)
+
+            XCTAssertTrue(symlink1.exists)
+            XCTAssertTrue(symlink2.exists)
+            XCTAssertTrue(symlink3.exists)
+            XCTAssertTrue(symlink4!.exists)
+            XCTAssertTrue(symlink5!.exists)
+            XCTAssertTrue(symlink6.exists)
+            XCTAssertTrue(symlink7!.exists)
+
+            try? file.path.delete()
+            try? symlink3.delete()
+        } catch {
+            XCTFail("\(error)")
         }
     }
 }
