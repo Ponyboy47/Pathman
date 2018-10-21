@@ -4,24 +4,24 @@ import Foundation
 #if os(Linux)
 import Glibc
 /// The C stat(2) API call for checking symlinks
-let cStat = Glibc.lstat
+private let cStat = Glibc.lstat
 /// The C rename(2) API call for moving or renaming paths
-let cRename = Glibc.rename
+private let cRename = Glibc.rename
 #else
 import Darwin
 /// The C stat(2) API call for checking symlinks
-let cStat = Darwin.lstat
+private let cStat = Darwin.lstat
 /// The C rename(2) API call for moving or renaming paths
-let cRename = Darwin.rename
+private let cRename = Darwin.rename
 #endif
 
 /// The separator between components of a path
 let pathSeparator: String = "/"
 /// The root directory of the swift process using this library
-fileprivate var processRoot: DirectoryPath = DirectoryPath(pathSeparator) !! "The '\(pathSeparator)' path separator is incorrect for this system."
+private var processRoot: DirectoryPath = DirectoryPath(pathSeparator) !! "The '\(pathSeparator)' path separator is incorrect for this system."
 
 /// The working directory of the current process
-fileprivate var currentWorkingDirectory = DirectoryPath(String(cString: getcwd(nil, 0))) !! "Failed to get current working directory"
+private var currentWorkingDirectory = DirectoryPath(String(cString: getcwd(nil, 0))) !! "Failed to get current working directory"
 
 /**
 Whether or not a path exists
