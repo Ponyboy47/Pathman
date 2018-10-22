@@ -20,48 +20,20 @@ extension UnsafeMutablePointer: Descriptor where Pointee == DIR {
 /// A Path to a directory
 public struct DirectoryPath: Path, Openable, DirectoryEnumerable {
     public typealias DescriptorType = DIRType
+
+    public static let pathType: PathType = .directory
+
     public var _path: String
 
-    // This is to protect the info from being set externally
     public let _info: StatInfo
-
-    /// Initialize from an array of path elements
-    public init?(_ components: [String]) {
-        _path = components.filter({ !$0.isEmpty && $0 != DirectoryPath.separator}).joined(separator: GenericPath.separator)
-        if let first = components.first, first == DirectoryPath.separator {
-            _path = first + _path
-        }
-        _info = StatInfo(_path)
-        try? _info.getInfo()
-
-        if _info.exists {
-            guard _info.type == .directory else { return nil }
-        }
-    }
-
-    public init?(_ str: String) {
-        if str.count > 1 && str.hasSuffix(DirectoryPath.separator) {
-            _path = String(str.dropLast())
-        } else {
-            _path = str
-        }
-        _info = StatInfo(_path)
-        try? _info.getInfo()
-
-        if _info.exists {
-            guard _info.type == .directory else { return nil }
-        }
-    }
 
     /**
     Initialize from another DirectoryPath (copy constructor)
 
-    - Parameter path: The path to copy
+    - Parameter  path: The path to copy
     */
     public init(_ path: DirectoryPath) {
-        _path = path._path
-        _info = StatInfo(path)
-        try? _info.getInfo()
+        self = path
     }
 
     /**

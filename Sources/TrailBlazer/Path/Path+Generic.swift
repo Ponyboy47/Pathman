@@ -1,9 +1,10 @@
 /// A type used to express filesystem paths
 public struct GenericPath: Path, ExpressibleByStringLiteral, ExpressibleByArrayLiteral {
+    public static let pathType: PathType = .unknown
+
     /// The stored path to use and manipulate
     public var _path: String
 
-    // This is to protect the info from being set externally
     public let _info: StatInfo
 
     public init(_ str: String) {
@@ -34,6 +35,10 @@ public struct GenericPath: Path, ExpressibleByStringLiteral, ExpressibleByArrayL
     /// Initialize from a slice of an array of path elements
     public init(_ components: ArraySlice<String>) {
         self.init(Array(components))
+    }
+
+    public init(_ path: GenericPath) {
+        self = path
     }
 
     public init<PathType: Path>(_ path: PathType) {

@@ -274,7 +274,7 @@ class PathTests: XCTestCase {
             let decoded = try JSONDecoder().decode(FilePath.self, from: encoded)
             XCTAssertEqual(path, decoded)
         } catch {
-            XCTFail("Failed to encode/decode path")
+            XCTFail("Failed to encode/decode path \(error)")
         }
     }
 

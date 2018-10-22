@@ -41,6 +41,8 @@ extension Path {
 }
 
 public struct LinkedPath<LinkedPathType: Path>: Path {
+    public static var pathType: PathType { return .link }
+
     public var _path: String {
         get { return __path._path }
         set { __path._path = newValue }

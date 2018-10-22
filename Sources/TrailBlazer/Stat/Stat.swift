@@ -20,7 +20,7 @@ extension Stat {
     /// inode number
     public var inode: ino_t { return _buffer.st_ino }
     /// The type of the path
-    public var type: PathType? { return PathType(rawValue: _buffer.st_mode) }
+    public var type: PathType { return PathType(rawValue: _buffer.st_mode) }
     /// The path permissions
     public var permissions: FileMode { return FileMode(rawValue: _buffer.st_mode) }
     /// user ID of owner

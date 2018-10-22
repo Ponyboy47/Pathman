@@ -19,39 +19,12 @@ private let cCloseFile = Darwin.close
 /// A Path to a file
 public struct FilePath: Path, Openable {
     public typealias OpenOptionsType = OpenOptions
-    
+
+    public static let pathType: PathType = .file
+
     public var _path: String
 
-    // This is to protect the info from being set externally
     public let _info: StatInfo
-
-    /// Initialize from an array of path elements
-    public init?(_ components: [String]) {
-        _path = components.filter({ !$0.isEmpty && $0 != FilePath.separator}).joined(separator: GenericPath.separator)
-        if let first = components.first, first == FilePath.separator {
-            _path = first + _path
-        }
-        _info = StatInfo(_path)
-        try? _info.getInfo()
-
-        if _info.exists {
-            guard _info.type == .file else { return nil }
-        }
-    }
-
-    public init?(_ str: String) {
-        if str.count > 1 && str.hasSuffix(FilePath.separator) {
-            _path = String(str.dropLast())
-        } else {
-            _path = str
-        }
-        _info = StatInfo(_path)
-        try? _info.getInfo()
-
-        if _info.exists {
-            guard _info.type == .file else { return nil }
-        }
-    }
 
     /**
     Initialize from another FilePath (copy constructor)
@@ -63,14 +36,12 @@ public struct FilePath: Path, Openable {
     }
 
     /**
-    Initialize from GenericPath
-
-    If the path is a directory then this initializer fails
+    Initialize from another Path
 
     - Parameter path: The path to copy
     */
     public init?(_ path: GenericPath) {
-        // Cannot initialize a file from a non-file type
+        // Cannot initialize a directory from a non-directory type
         if path.exists {
             guard path._info.type == .file else { return nil }
         }

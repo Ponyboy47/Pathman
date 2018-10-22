@@ -20,7 +20,7 @@ public final class Open<PathType: Openable>: Opened {
     public var fileDescriptor: FileDescriptor { return descriptor.fileDescriptor }
     public let openOptions: PathType.OpenOptionsType
 
-    public var _info: StatInfo = StatInfo()
+    public let _info: StatInfo
 
     public var url: URL { return path.url }
 
@@ -39,7 +39,7 @@ public final class Open<PathType: Openable>: Opened {
         self.descriptor = descriptor
         openOptions = options
 
-        _info._descriptor = descriptor
+        _info = StatInfo(descriptor)
     }
 
     /**

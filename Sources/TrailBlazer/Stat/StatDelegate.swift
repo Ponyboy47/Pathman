@@ -39,7 +39,7 @@ public extension StatDelegate {
         return info.inode
     }
     /// The type of the path
-    public var type: PathType? {
+    public var type: PathType {
         return info.type
     }
     /// The path permissions

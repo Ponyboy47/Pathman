@@ -480,7 +480,8 @@ public enum GlobError: Error {
 public typealias MakeTemporaryError = CreateFileError
 
 public enum CodingError: Error {
-    case incorrectPathType(String)
+    case incorrectPathType
+    case unknownPathType
 }
 
 public enum CopyError: Error {

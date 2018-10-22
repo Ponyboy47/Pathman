@@ -5,38 +5,80 @@ import Darwin
 #endif
 
 /// A swift enum that wraps the C stat mode_t into a path type (see stat(2))
-public enum PathType: OSUInt, Hashable {
+public struct PathType: RawRepresentable, Hashable, ExpressibleByIntegerLiteral, ExpressibleByStringLiteral, CodingKey {
+    public let rawValue: OSUInt
+    public var intValue: Int? { return Int(rawValue) }
+    public var stringValue: String {
+        switch self {
+        case .socket: return "socket"
+        case .link: return "link"
+        case .regular: return "file"
+        case .block: return "block"
+        case .directory: return "directory"
+        case .character: return "character"
+        case .fifo: return "fifo"
+        default: return "unknown"
+        }
+    }
+
     /// Socket path
-    case socket
+    public static let socket = PathType(rawValue: S_IFSOCK)
     /// Symbolic link
-    case link
+    public static let link = PathType(rawValue: S_IFLNK)
     /// Regular file
-    case regular
+    public static let regular = PathType(rawValue: S_IFREG)
     /// Block device
-    case block
+    public static let block = PathType(rawValue: S_IFBLK)
     /// Directory path
-    case directory
+    public static let directory = PathType(rawValue: S_IFDIR)
     /// Character device
-    case character
+    public static let character = PathType(rawValue: S_IFCHR)
     /// FIFO path
-    case fifo
+    public static let fifo = PathType(rawValue: S_IFIFO)
     /// Regular file
     public static let file: PathType = .regular
 
-    public init?(rawValue: OSUInt) {
-        switch rawValue & S_IFMT {
-        case S_IFSOCK: self = .socket
-        case S_IFLNK: self = .link
-        case S_IFREG: self = .regular
-        case S_IFBLK: self = .block
-        case S_IFDIR: self = .directory
-        case S_IFCHR: self = .character
-        case S_IFIFO: self = .fifo
-        default: return nil
+    public static let unknown = PathType(rawValue: 0)
+
+    public init(rawValue: OSUInt) {
+        self.rawValue = rawValue & S_IFMT
+    }
+
+    public init(integerLiteral value: OSUInt) {
+        self.init(rawValue: value)
+    }
+
+    public init(stringLiteral value: String) {
+        switch value.lowercased() {
+        case "sock", "socket": self = .socket
+        case "file", "reg", "regular": self = .file
+        case "link", "symlink", "softlink", "hardlink": self = .link
+        case "blk", "block": self = .block
+        case "dir", "directory": self = .directory
+        case "character", "char", "chr": self = .character
+        case "fifo": self = .fifo
+        default: self = .unknown
         }
     }
 
     public init?(mode: FileMode) {
         self.init(rawValue: mode.rawValue)
+        if rawValue == PathType.unknown.rawValue {
+            return nil
+        }
+    }
+
+    public init?(stringValue value: String) {
+        self.init(stringLiteral: value)
+        if rawValue == PathType.unknown.rawValue {
+            return nil
+        }
+    }
+
+    public init?(intValue value: Int) {
+        self.init(integerLiteral: OSUInt(value))
+        if rawValue == PathType.unknown.rawValue {
+            return nil
+        }
     }
 }

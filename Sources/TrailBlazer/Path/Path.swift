@@ -49,15 +49,10 @@ public protocol Path: Hashable, CustomStringConvertible, UpdatableStatDelegate, 
     var isLink: Bool { get }
     /// The character used to separate components of a path
     static var separator: String { get }
+    static var pathType: PathType { get }
 
-    /// Initialize a Path from a String
-    init?(_ str: String)
-    /// Initialize a Path from another Path
     init(_ path: Self)
-    /// Initialize a Path from a GenericPath
     init?(_ path: GenericPath)
-    /// Initialize a Path from an array of path components
-    init?(_ components: [String])
 }
 
 public extension Path {
@@ -207,6 +202,25 @@ public extension Path {
         hasher.combine(_path)
     }
 
+    public init?(_ str: String) {
+        let path: GenericPath
+        if str.count > 1 && str.hasSuffix(Self.separator) {
+            path = GenericPath(String(str.dropLast()))
+        } else {
+            path = GenericPath(str)
+        }
+        self.init(path)
+    }
+
+    /// Initialize from an array of path elements
+    public init?(_ components: [String]) {
+        var path = components.filter({ !$0.isEmpty && $0 != Self.separator}).joined(separator: GenericPath.separator)
+        if let first = components.first, first == Self.separator {
+            path = first + path
+        }
+        self.init(path)
+    }
+
     /// Initialize from a variadic array of path elements
     public init?(_ components: String...) {
         self.init(components)
@@ -319,10 +333,12 @@ public extension Path {
     - Throws: `CodingError.incorrectPathType` when a path exists that does not match the encoded type
     */
     public init(from decoder: Decoder) throws {
-        var container = try decoder.unkeyedContainer()
-        let pathString = try container.decode(String.self)
+        let container = try decoder.container(keyedBy: PathType.self)
+        guard let pathString = try container.decodeIfPresent(String.self, forKey: Self.pathType) else {
+            throw CodingError.incorrectPathType
+        }
         guard let path = Self(pathString) else {
-            throw CodingError.incorrectPathType(pathString)
+            throw CodingError.incorrectPathType
         }
 
         self.init(path)
@@ -330,8 +346,8 @@ public extension Path {
 
     /// Encodes a Path to an unkeyed String container
     public func encode(to encoder: Encoder) throws {
-        var container = encoder.unkeyedContainer()
-        try container.encode(string)
+        var container = encoder.container(keyedBy: PathType.self)
+        try container.encode(string, forKey: Self.pathType)
     }
 
     public func makeIterator() -> PathIterator {
