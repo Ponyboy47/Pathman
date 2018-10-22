@@ -81,4 +81,5 @@
     - [ ] Separate current `Path` protocol into a `FileSystemPath` sub-protocol (only keeping relevant stuff in `Path`)
     - [ ] Opening a `URLPath` downloads data?
     - [ ] Support relevant standards and common manipulations
-
+- [ ] Validate code meets possible optimization points:
+  - https://github.com/apple/swift/blob/master/docs/OptimizationTips.rst
