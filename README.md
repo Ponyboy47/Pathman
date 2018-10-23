@@ -185,9 +185,23 @@ let children = openDir.children()
 let recursiveChildren = try openDir.recursiveChildren()
 ```
 
+#### With Closure:
+
+Paths may also be opened for the duration of a provided closure:
+```swift
+guard let dir = DirectoryPath("/tmp") else {
+    fatalError("Path is not a directory")
+}
+
+try dir.open() { openDirectory in
+    let children = openDirectory.children()
+    print(children)
+}
+```
+
 ### Creating Paths
 
-This is the same for all paths
+#### Any Path conforming to Openable:
 ```swift
 guard let file = FilePath("/tmp/test") else {
     fatalError("Path is not a file")
@@ -206,6 +220,33 @@ guard let file = FilePath("/tmp/test") else {
 }
 
 let openFile: OpenFile = try file.create(options: .createIntermediates)
+```
+
+#### With Contents:
+
+Paths whose Open<...> variation conforms to Writable can be created with predetermined contents:
+```swift
+guard let file = FilePath("/tmp/test") else {
+    fatalError("Path is not a file")
+}
+
+try file.create(contents: "Hello World")
+print(try file.read()) // "Hello World"
+```
+
+#### With Closure:
+
+Paths may also be opened for the duration of a provided closure:
+```swift
+guard let file = FilePath("/tmp/test") else {
+    fatalError("Path already exists and is not a file")
+}
+
+try file.create() { openFile in
+    try openFile.write("Hello world")
+    let contents: String = try openFile.read(from: .beginning)
+    print(contents) // Hello World
+}
 ```
 
 ### Deleting Paths
@@ -429,6 +470,7 @@ print(globData.other)
 
 ### Temporary Paths:
 
+#### Creating Temporary Paths:
 ```swift
 let tmpFile = try FilePath.temporary()
 // /tmp/vDjKM1C
@@ -442,6 +484,22 @@ let tmpFile = try FilePath.temporary(prefix: "com.trailblazer.")
 
 let tmpDirectory = try DirectoryPath.temporary(prefix: "com.trailblazer.")
 // /tmp/com.trailblazer.2eH4iB
+```
+
+#### With Closure:
+```swift
+// When creating a temporary path with a closure, the path of the temporary
+// file is returned instead of an Opened path
+let tmpFile: FilePath = try FilePath.temporary() { openFile in
+    try openFile.write("Hello World")
+}
+
+// You can also pass the .deleteOnCompletion option to the .temporary()
+// function in order to delete the temporary path after the closure exits
+// NOTE: This will recursively delete the temporary path if it is a DirectoryPath
+try FilePath.temporary(options: .deleteOnCompletion) { openFile in
+    try openFile.write("Hello World")
+}
 ```
 
 ### Links:
