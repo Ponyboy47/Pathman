@@ -174,7 +174,7 @@ class CreateDeleteTests: XCTestCase {
         }
 
         do {
-            let open = try file.create(contents: "Hello World")
+            try file.create(contents: "Hello World")
             XCTAssertTrue(file.exists)
             XCTAssertTrue(file.isFile)
             XCTAssertEqual(try! file.read(), "Hello World")
