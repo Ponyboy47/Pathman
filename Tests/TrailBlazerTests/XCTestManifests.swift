@@ -159,8 +159,12 @@ extension LinkTests {
     static let __allTests = [
         ("testAbsoluteHardLink", testAbsoluteHardLink),
         ("testAbsoluteSoftLink", testAbsoluteSoftLink),
+        ("testDirectoryEnumerable", testDirectoryEnumerable),
         ("testFromLinking", testFromLinking),
         ("testInits", testInits),
+        ("testOpenClosures", testOpenClosures),
+        ("testOpenDirectory", testOpenDirectory),
+        ("testOpenFile", testOpenFile),
         ("testRelativeHardLink", testRelativeHardLink),
         ("testRelativeSoftLink", testRelativeSoftLink),
     ]

@@ -144,4 +144,82 @@ class LinkTests: XCTestCase {
             XCTFail("\(error)")
         }
     }
+
+    func testDirectoryEnumerable() {
+        do {
+            let link = try DirectoryPath.temporary(prefix: "com.trailblazer.tests.softlink.")
+            DirectoryPath.cwd = link.path.parent
+            var _linked = DirectoryPath("\(link.path.lastComponent!).link")!
+            let target = DirectoryPath("\(link.path.lastComponent!)")!
+            let symlink = try target.link(at: "\(link.path.lastComponent!).link")
+            XCTAssertNoThrow(try symlink.children())
+            try? link.path.delete()
+            try? _linked.delete()
+        } catch {
+            XCTFail("\(error)")
+            return
+        }
+    }
+
+    func testOpenFile() {
+        do {
+            let link = try FilePath.temporary(prefix: "com.trailblazer.tests.softlink.")
+            DirectoryPath.cwd = link.path.parent
+            var _linked = FilePath("\(link.path.lastComponent!).link")!
+            let target = FilePath("\(link.path.lastComponent!)")!
+            let symlink = try target.link(at: "\(link.path.lastComponent!).link")
+            XCTAssertNoThrow(try symlink.open(permissions: .readWrite))
+            try? link.path.delete()
+            try? _linked.delete()
+        } catch {
+            XCTFail("\(error)")
+            return
+        }
+    }
+
+    func testOpenDirectory() {
+        do {
+            let link = try DirectoryPath.temporary(prefix: "com.trailblazer.tests.softlink.")
+            DirectoryPath.cwd = link.path.parent
+            var _linked = DirectoryPath("\(link.path.lastComponent!).link")!
+            let target = DirectoryPath("\(link.path.lastComponent!)")!
+            let symlink = try target.link(at: "\(link.path.lastComponent!).link")
+            XCTAssertNoThrow(try symlink.open())
+            try? link.path.delete()
+            try? _linked.delete()
+        } catch {
+            XCTFail("\(error)")
+            return
+        }
+    }
+
+    func testOpenClosures() {
+        do {
+            let link = try FilePath.temporary(prefix: "com.trailblazer.tests.softlink.")
+            DirectoryPath.cwd = link.path.parent
+            var _linked = FilePath("\(link.path.lastComponent!).link")!
+            let target = FilePath("\(link.path.lastComponent!)")!
+            let symlink = try target.link(at: "\(link.path.lastComponent!).link")
+            XCTAssertNoThrow(try symlink.open(permissions: .readWrite) { _ in })
+            try? link.path.delete()
+            try? _linked.delete()
+        } catch {
+            XCTFail("\(error)")
+            return
+        }
+
+        do {
+            let link = try DirectoryPath.temporary(prefix: "com.trailblazer.tests.softlink.")
+            DirectoryPath.cwd = link.path.parent
+            var _linked = DirectoryPath("\(link.path.lastComponent!).link")!
+            let target = DirectoryPath("\(link.path.lastComponent!)")!
+            let symlink = try target.link(at: "\(link.path.lastComponent!).link")
+            XCTAssertNoThrow(try symlink.open() { _ in })
+            try? link.path.delete()
+            try? _linked.delete()
+        } catch {
+            XCTFail("\(error)")
+            return
+        }
+    }
 }
