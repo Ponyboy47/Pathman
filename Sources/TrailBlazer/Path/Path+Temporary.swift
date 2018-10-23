@@ -105,3 +105,40 @@ extension DirectoryPath: TemporaryGeneratable {
         return try dir.open()
     }
 }
+
+public struct TemporaryOptions: OptionSet, ExpressibleByIntegerLiteral {
+    public let rawValue: Int
+
+    public static let deleteOnCompletion: TemporaryOptions = 1
+
+    public init(rawValue: Int) { self.rawValue = rawValue }
+    public init(integerLiteral value: Int) { self.init(rawValue: value) }
+}
+
+extension TemporaryGeneratable {
+    public static func temporary(prefix: String = "", options: TemporaryOptions = [], closure: (_ opened: Open<Self>) throws -> ()) throws -> Self {
+        let opened = try Self.temporary(prefix: prefix)
+
+        try closure(opened)
+
+        if options.contains(.deleteOnCompletion) {
+            try opened.path.delete()
+        }
+
+        return opened.path
+    }
+}
+
+extension TemporaryGeneratable where Self: DirectoryEnumerable {
+    public static func temporary(prefix: String = "", options: TemporaryOptions = [], closure: (_ opened: Open<Self>) throws -> ()) throws -> Self {
+        let opened = try Self.temporary(prefix: prefix)
+
+        try closure(opened)
+
+        if options.contains(.deleteOnCompletion) {
+            try opened.path.recursiveDelete()
+        }
+
+        return opened.path
+    }
+}
