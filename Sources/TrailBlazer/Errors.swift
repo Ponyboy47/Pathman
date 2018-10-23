@@ -196,11 +196,6 @@ public struct CloseDirectoryError: TrailBlazerError {
     public init(error: ErrNo?) { self.errors = error == nil ? [] : [error!] }
 }
 
-/// Thrown when a path is set to be deleted (via a recursiveDelete of a DirectoryPath) and it is not a deletable path
-public enum GenericDeleteError: Error {
-    case cannotDeleteGenericPath(GenericPath)
-}
-
 /// Errors thrown when a DirectoryPath is created (see mkdir(2))
 public struct CreateDirectoryError: TrailBlazerError {
     public var errors: [ErrNo]

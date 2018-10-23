@@ -74,9 +74,9 @@ extension Deletable where Self: DirectoryEnumerable {
     public mutating func recursiveDelete() throws {
         let childPaths = try children(options: .includeHidden)
 
-        // Throw an error if the path can't be deleted or else a DeleteDirectoryError.directoryNotEmpty error will be thrown later
-        guard childPaths.other.isEmpty else {
-            throw GenericDeleteError.cannotDeleteGenericPath(childPaths.other.first!)
+        // Delete all the generic paths
+        for var generic in childPaths.other {
+            try generic.delete()
         }
 
         // Delete all the files
