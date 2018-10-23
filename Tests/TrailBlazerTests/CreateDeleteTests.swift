@@ -166,4 +166,22 @@ class CreateDeleteTests: XCTestCase {
 
         try? dir.recursiveDelete()
     }
+
+    func testCreateWithContents() {
+        guard var file = FilePath(base + "\(UUID()).test") else {
+            XCTFail("Test path exists and is not a file")
+            return
+        }
+
+        do {
+            let open = try file.create(contents: "Hello World")
+            XCTAssertTrue(file.exists)
+            XCTAssertTrue(file.isFile)
+            XCTAssertEqual(try! file.read(), "Hello World")
+        } catch {
+            XCTFail("Failed to create test file with error \(error)")
+        }
+
+        try? file.delete()
+    }
 }

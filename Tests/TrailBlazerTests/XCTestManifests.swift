@@ -41,6 +41,7 @@ extension CreateDeleteTests {
         ("testCreateDirectory", testCreateDirectory),
         ("testCreateFile", testCreateFile),
         ("testCreateIntermediates", testCreateIntermediates),
+        ("testCreateWithContents", testCreateWithContents),
         ("testDeleteDirectory", testDeleteDirectory),
         ("testDeleteDirectoryRecursive", testDeleteDirectoryRecursive),
         ("testDeleteFile", testDeleteFile),
