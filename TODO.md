@@ -2,7 +2,7 @@
 - FilePath
   - [x] Create new files
     - [x] Create intermediate directories
-    - [ ] With specified contents
+    - [x] With specified contents
 - DirectoryPath
   - [x] Get directory contents
   - [x] Get directory contents recursively
