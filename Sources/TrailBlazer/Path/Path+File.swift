@@ -192,8 +192,7 @@ public struct FilePath: Path, Openable {
     - Note: A `CloseFileError` will only be thrown if the file has previously been opened and is now being reopened with non-overlapping `options` as the previous open. So we first will close the old open file and then open it with the new options
     */
     public func open(permissions: OpenFilePermissions, flags: OpenFileFlags = [], mode: FileMode? = nil, closure: (_ opened: Open<FilePath>) throws -> ()) throws {
-        let opened = try open(options: OpenOptions(permissions: permissions, flags: flags, mode: mode))
-        try closure(opened)
+        try open(options: OpenOptions(permissions: permissions, flags: flags, mode: mode), closure: closure)
     }
 
     /**
