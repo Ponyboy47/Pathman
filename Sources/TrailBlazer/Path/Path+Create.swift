@@ -23,7 +23,7 @@ public struct CreateOptions: RawRepresentable, OptionSet, ExpressibleByIntegerLi
 
 /// A Protocol for Path types that can be created
 public protocol Creatable: Openable {
-    associatedtype OpenedType: Opened = Open<Self>
+    associatedtype _OpenedType: Opened = Open<Self>
     /**
     Creates a path
 
@@ -31,7 +31,7 @@ public protocol Creatable: Openable {
     - Parameter forceMode: Whether or not to try and change the process's umask to guarentee that the FileMode is what you want (I've noticed that by default on Ubuntu, others' write access is disabled in the umask. Setting this to true should allow you to overcome this limitation)
     */
     @discardableResult
-    func create(mode: FileMode, options: CreateOptions) throws -> OpenedType
+    func create(mode: FileMode, options: CreateOptions) throws -> _OpenedType
 }
 
 /// The FilePath Creatable conformance
@@ -136,16 +136,16 @@ extension DirectoryPath: Creatable {
     }
 }
 
-extension Creatable where OpenedType: Writable {
+extension Creatable where _OpenedType: Writable {
     @discardableResult
-    public func create(mode: FileMode = FileMode.allPermissions.unmasked(), options: CreateOptions = [], contents: Data) throws -> OpenedType {
+    public func create(mode: FileMode = FileMode.allPermissions.unmasked(), options: CreateOptions = [], contents: Data) throws -> _OpenedType {
         let opened = try create(mode: mode, options: options)
         try opened.write(contents)
         return opened
     }
 
     @discardableResult
-    public func create(mode: FileMode = FileMode.allPermissions.unmasked(), options: CreateOptions = [], contents: String, using encoding: String.Encoding = .utf8) throws -> OpenedType {
+    public func create(mode: FileMode = FileMode.allPermissions.unmasked(), options: CreateOptions = [], contents: String, using encoding: String.Encoding = .utf8) throws -> _OpenedType {
         let data = try contents.data(using: encoding) ?! StringError.notConvertibleToData(using: encoding)
         return try create(mode: mode, options: options, contents: data)
     }
