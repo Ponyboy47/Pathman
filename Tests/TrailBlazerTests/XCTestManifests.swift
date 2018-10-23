@@ -230,6 +230,7 @@ extension PathTests {
         ("testParent", testParent),
         ("testPathInit", testPathInit),
         ("testPathType", testPathType),
+        ("testPathTypeInits", testPathTypeInits),
         ("testRelative", testRelative),
         ("testSetParent", testSetParent),
         ("testStringInit", testStringInit),

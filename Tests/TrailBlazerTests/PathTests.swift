@@ -220,6 +220,29 @@ class PathTests: XCTestCase {
         XCTAssertEqual(pathType, .directory)
     }
 
+    func testPathTypeInits() {
+        let socket: PathType = "socket"
+        let file: PathType = "file"
+        let link: PathType = "link"
+        let block: PathType = "block"
+        let dir: PathType = "directory"
+        let char: PathType = "character"
+        let fifo: PathType = "fifo"
+        let unknown: PathType = "bvhaerogae"
+
+        XCTAssertEqual(PathType(stringValue: "sock")!, socket)
+        XCTAssertEqual(PathType(stringValue: "regular")!, file)
+        XCTAssertEqual(PathType(stringValue: "symlink")!, link)
+        XCTAssertEqual(PathType(stringValue: "blk")!, block)
+        XCTAssertEqual(PathType(stringValue: "dir")!, dir)
+        XCTAssertEqual(PathType(stringValue: "char")!, char)
+        XCTAssertEqual(PathType(stringValue: "fifo")!, fifo)
+        XCTAssertEqual(unknown.stringValue, "unknown")
+        XCTAssertNil(PathType(stringValue: "nbiaoetra"))
+        XCTAssertNil(PathType(intValue: -1))
+        XCTAssertNil(PathType(intValue: Int(OSUInt.max)))
+    }
+
     func testGenericPathMath() {
         let path1: GenericPath = "/tmp"
         var path2: GenericPath = "/tmp"

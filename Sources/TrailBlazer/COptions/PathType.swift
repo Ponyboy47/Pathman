@@ -22,19 +22,19 @@ public struct PathType: RawRepresentable, Hashable, ExpressibleByIntegerLiteral,
     }
 
     /// Socket path
-    public static let socket = PathType(rawValue: S_IFSOCK)
+    public static let socket = PathType(integerLiteral: S_IFSOCK)
     /// Symbolic link
-    public static let link = PathType(rawValue: S_IFLNK)
+    public static let link = PathType(integerLiteral: S_IFLNK)
     /// Regular file
-    public static let regular = PathType(rawValue: S_IFREG)
+    public static let regular = PathType(integerLiteral: S_IFREG)
     /// Block device
-    public static let block = PathType(rawValue: S_IFBLK)
+    public static let block = PathType(integerLiteral: S_IFBLK)
     /// Directory path
-    public static let directory = PathType(rawValue: S_IFDIR)
+    public static let directory = PathType(integerLiteral: S_IFDIR)
     /// Character device
-    public static let character = PathType(rawValue: S_IFCHR)
+    public static let character = PathType(integerLiteral: S_IFCHR)
     /// FIFO path
-    public static let fifo = PathType(rawValue: S_IFIFO)
+    public static let fifo = PathType(integerLiteral: S_IFIFO)
     /// Regular file
     public static let file: PathType = .regular
 
@@ -52,7 +52,7 @@ public struct PathType: RawRepresentable, Hashable, ExpressibleByIntegerLiteral,
         switch value.lowercased() {
         case "sock", "socket": self = .socket
         case "file", "reg", "regular": self = .file
-        case "link", "symlink", "softlink", "hardlink": self = .link
+        case "lnk", "link", "symlink", "softlink", "hardlink": self = .link
         case "blk", "block": self = .block
         case "dir", "directory": self = .directory
         case "character", "char", "chr": self = .character
@@ -70,15 +70,14 @@ public struct PathType: RawRepresentable, Hashable, ExpressibleByIntegerLiteral,
 
     public init?(stringValue value: String) {
         self.init(stringLiteral: value)
-        if rawValue == PathType.unknown.rawValue {
-            return nil
-        }
+        guard rawValue != PathType.unknown.rawValue else { return nil }
     }
 
     public init?(intValue value: Int) {
-        self.init(integerLiteral: OSUInt(value))
-        if rawValue == PathType.unknown.rawValue {
+        if value < 0 {
             return nil
         }
+        self.init(integerLiteral: OSUInt(value))
+        guard stringValue != "unknown" else { return nil }
     }
 }
