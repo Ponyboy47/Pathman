@@ -22,10 +22,18 @@ public struct Empty: Hashable {
 extension Openable {
     public var mayRead: Bool { return true }
     public var mayWrite: Bool { return true }
+
+    public func open(options: OpenOptionsType, closure: (_ opened: Open<Self>) throws -> ()) throws {
+        try closure(open(options: options))
+    }
 }
 
 extension Openable where OpenOptionsType == Empty {
     public func open() throws -> Open<Self> {
         return try open(options: .default)
+    }
+
+    public func open(closure: (_ opened: Open<Self>) throws -> ()) throws {
+        try closure(open())
     }
 }

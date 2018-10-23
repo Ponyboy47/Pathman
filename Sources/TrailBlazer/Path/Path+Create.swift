@@ -34,6 +34,12 @@ public protocol Creatable: Openable {
     func create(mode: FileMode, options: CreateOptions) throws -> _OpenedType
 }
 
+extension Creatable {
+    func create(mode: FileMode = FileMode.allPermissions.unmasked(), options: CreateOptions = [], closure: (_ opened: _OpenedType) throws -> ()) throws {
+        try closure(create(mode: mode, options: options))
+    }
+}
+
 /// The FilePath Creatable conformance
 extension FilePath: Creatable {
     /**
