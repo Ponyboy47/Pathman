@@ -41,6 +41,7 @@ extension CreateDeleteTests {
         ("testCreateDirectory", testCreateDirectory),
         ("testCreateFile", testCreateFile),
         ("testCreateIntermediates", testCreateIntermediates),
+        ("testCreateWithClosure", testCreateWithClosure),
         ("testCreateWithContents", testCreateWithContents),
         ("testDeleteDirectory", testDeleteDirectory),
         ("testDeleteDirectoryRecursive", testDeleteDirectoryRecursive),
@@ -179,8 +180,10 @@ extension OpenTests {
         ("testGetDirectoryChildren", testGetDirectoryChildren),
         ("testHashable", testHashable),
         ("testOpenDirectory", testOpenDirectory),
+        ("testOpenDirectoryClosure", testOpenDirectoryClosure),
         ("testOpenDirectoryOptions", testOpenDirectoryOptions),
         ("testOpenFile", testOpenFile),
+        ("testOpenFileClosure", testOpenFileClosure),
         ("testOpenFileFlagsCustomStringConvertible", testOpenFileFlagsCustomStringConvertible),
         ("testOpenFileOptions", testOpenFileOptions),
         ("testOpenFilePermissionsCustomStringConvertible", testOpenFilePermissionsCustomStringConvertible),
@@ -266,6 +269,7 @@ extension TemporaryTests {
     static let __allTests = [
         ("testTemporaryDirectory", testTemporaryDirectory),
         ("testTemporaryFile", testTemporaryFile),
+        ("testTemporaryWithClosure", testTemporaryWithClosure),
     ]
 }
 

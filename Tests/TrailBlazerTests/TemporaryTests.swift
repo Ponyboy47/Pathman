@@ -27,4 +27,23 @@ class TemporaryTests: XCTestCase {
             return
         }
     }
+
+    func testTemporaryWithClosure() {
+        do {
+            let tmpFile = try FilePath.temporary(prefix: "com.trailblazer.test.", options: .deleteOnCompletion) { openFile in
+                XCTAssertTrue(openFile.path.exists)
+                XCTAssertNoThrow(try openFile.write("Hello world"))
+                XCTAssertEqual(try! openFile.path.read(), "Hello world")
+            }
+            XCTAssertFalse(tmpFile.exists)
+
+            let tmpDirectory = try DirectoryPath.temporary(prefix: "com.trailblazer.test.", options: .deleteOnCompletion) { openDirectory in
+                XCTAssertTrue(openDirectory.path.exists)
+                XCTAssertNoThrow(try FilePath(openDirectory.path + "test")!.create())
+            }
+            XCTAssertFalse(tmpDirectory.exists)
+        } catch {
+            XCTFail("Failed to create temporary file or directory")
+        }
+    }
 }

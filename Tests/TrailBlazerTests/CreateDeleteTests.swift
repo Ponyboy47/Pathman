@@ -184,4 +184,24 @@ class CreateDeleteTests: XCTestCase {
 
         try? file.delete()
     }
+
+    func testCreateWithClosure() {
+        guard var file = FilePath(base + "\(UUID()).test") else {
+            XCTFail("Test path exists and is not a file")
+            return
+        }
+
+        do {
+            try file.create() { openFile in
+                XCTAssertTrue(file.exists)
+                XCTAssertTrue(file.isFile)
+                XCTAssertNoThrow(try openFile.write("Hello World"))
+                XCTAssertEqual(try! file.read(), "Hello World")
+            }
+        } catch {
+            XCTFail("Failed to create test file with error \(error)")
+        }
+
+        try? file.delete()
+    }
 }
