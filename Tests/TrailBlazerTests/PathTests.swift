@@ -230,17 +230,17 @@ class PathTests: XCTestCase {
         let fifo: PathType = "fifo"
         let unknown: PathType = "bvhaerogae"
 
-        XCTAssertEqual(PathType(stringValue: "sock")!, socket)
-        XCTAssertEqual(PathType(stringValue: "regular")!, file)
-        XCTAssertEqual(PathType(stringValue: "symlink")!, link)
-        XCTAssertEqual(PathType(stringValue: "blk")!, block)
-        XCTAssertEqual(PathType(stringValue: "dir")!, dir)
-        XCTAssertEqual(PathType(stringValue: "char")!, char)
-        XCTAssertEqual(PathType(stringValue: "fifo")!, fifo)
+        XCTAssertEqual(PathType(stringValue: "sock"), socket)
+        XCTAssertEqual(PathType(stringValue: "regular"), file)
+        XCTAssertEqual(PathType(stringValue: "symlink"), link)
+        XCTAssertEqual(PathType(stringValue: "blk"), block)
+        XCTAssertEqual(PathType(stringValue: "dir"), dir)
+        XCTAssertEqual(PathType(stringValue: "char"), char)
+        XCTAssertEqual(PathType(stringValue: "fifo"), fifo)
         XCTAssertEqual(unknown.stringValue, "unknown")
-        XCTAssertNil(PathType(stringValue: "nbiaoetra"))
-        XCTAssertNil(PathType(intValue: -1))
-        XCTAssertNil(PathType(intValue: Int(OSUInt.max)))
+        XCTAssertEqual(PathType(stringValue: "nbiaoetra"), .unknown)
+        XCTAssertEqual(PathType(intValue: -1), .unknown)
+        XCTAssertEqual(PathType(intValue: Int(OSUInt.max)).rawValue, S_IFMT & OSUInt.max)
     }
 
     func testGenericPathMath() {

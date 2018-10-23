@@ -78,10 +78,6 @@ public struct LinkedPath<LinkedPathType: Path>: Path {
         try self.init(pathLink, linkedTo: linkPath, type: type)
     }
 
-    public mutating func unlink() throws {
-        guard cUnlink(_path) != -1 else { throw UnlinkError.getError() }
-    }
-
     public init(_ pathLink: LinkedPathType, linkedTo linkPath: LinkedPathType, type: LinkType = TrailBlazer.defaultLinkType) throws {
         __path = LinkedPathType(pathLink)
         _info = StatInfo(pathLink.string)
@@ -89,56 +85,6 @@ public struct LinkedPath<LinkedPathType: Path>: Path {
         try createLink(from: pathLink, to: linkPath, type: type)
         self.link = linkPath
         linkType = type
-    }
-
-    /// Initialize a symbolic link from an array of Path components
-    public init?(_ components: [String]) {
-        guard let path = LinkedPathType(components) else { return nil }
-        __path = path
-        _info = StatInfo(path.string)
-        try? _info.getInfo()
-
-        let buffer = UnsafeMutablePointer<CChar>.allocate(capacity: Int(PATH_MAX) + 1)
-        defer {
-            buffer.deinitialize(count: Int(PATH_MAX) + 1)
-            buffer.deallocate()
-        }
-
-        let linkSize = cReadlink(path.string, buffer, Int(PATH_MAX))
-        guard linkSize != -1 else { return nil }
-
-        // realink(2) does not null-terminate the string stored in the buffer,
-        // Swift expects it to be null-terminated to convert a cString to a Swift String
-        buffer[linkSize] = 0
-        guard let link = LinkedPathType.init(String(cString: buffer)) else { return nil }
-
-        self.link = link
-        linkType = .symbolic
-    }
-
-    /// Initialize a symbolic link from an array of Path components
-    public init?(_ str: String) {
-        guard let path = LinkedPathType(str) else { return nil }
-        __path = path
-        _info = StatInfo(path.string)
-        try? _info.getInfo()
-
-        let buffer = UnsafeMutablePointer<CChar>.allocate(capacity: Int(PATH_MAX) + 1)
-        defer {
-            buffer.deinitialize(count: Int(PATH_MAX) + 1)
-            buffer.deallocate()
-        }
-
-        let linkSize = cReadlink(path.string, buffer, Int(PATH_MAX))
-        guard linkSize != -1 else { return nil }
-
-        // realink(2) does not null-terminate the string stored in the buffer,
-        // Swift expects it to be null-terminated to convert a cString to a Swift String
-        buffer[linkSize] = 0
-        guard let link = LinkedPathType.init(String(cString: buffer)) else { return nil }
-
-        self.link = link
-        linkType = .symbolic
     }
 
     public init(_ path: LinkedPath<LinkedPathType>) {
@@ -172,6 +118,10 @@ public struct LinkedPath<LinkedPathType: Path>: Path {
 
         self.link = link
         linkType = .symbolic
+    }
+
+    public mutating func unlink() throws {
+        guard cUnlink(_path) != -1 else { throw UnlinkError.getError() }
     }
 
     public mutating func delete() throws {

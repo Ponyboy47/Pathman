@@ -39,6 +39,22 @@ public func pathExists(_ path: String) -> Bool {
     return cStat(path, &s) == 0
 }
 
+public func changeRoot(to dir: DirectoryPath) throws {
+    guard chroot(dir.string) == 0 else {
+        throw ChRootError.getError()
+    }
+
+    processRoot = dir
+}
+
+public func changeDirectory(to dir: DirectoryPath) throws {
+    guard chdir(dir.string) == 0 else {
+        throw ChDirError.getError()
+    }
+
+    currentWorkingDirectory = dir
+}
+
 /// A protocol that describes a Path type and the attributes available to it
 public protocol Path: Hashable, CustomStringConvertible, UpdatableStatDelegate, Ownable, Permissionable, Movable, Deletable, Codable, Sequence {
     /// The underlying path representation
@@ -63,8 +79,7 @@ public extension Path {
     public static var root: DirectoryPath {
         get { return processRoot }
         set {
-            guard chroot(newValue.string) == 0 else { return }
-            processRoot = newValue
+            try? changeRoot(to: newValue)
         }
     }
     /// The root directory for the process
@@ -77,8 +92,7 @@ public extension Path {
     public static var cwd: DirectoryPath {
         get { return currentWorkingDirectory }
         set {
-            guard chdir(newValue.string) == 0 else { return }
-            currentWorkingDirectory = newValue
+            try? changeDirectory(to: newValue)
         }
     }
     /// The current working directory for the process
@@ -108,7 +122,14 @@ public extension Path {
     /// The last element of the path with the extension removed
     public var lastComponentWithoutExtension: String? {
         guard let last = lastComponent else { return nil }
-        return String(last.prefix(last.count - ((`extension`?.count ?? -1) + 1)))
+
+        let extensionLength: Int
+        if let length = `extension`?.count {
+            extensionLength = length + 1
+        } else {
+            extensionLength = 0
+        }
+        return String(last.prefix(last.count - extensionLength))
     }
 
     /// The extension of the path

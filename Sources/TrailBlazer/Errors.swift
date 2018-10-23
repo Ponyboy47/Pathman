@@ -483,3 +483,25 @@ public enum CopyError: Error {
     case uncopyablePath(GenericPath)
     case nonEmptyDirectory
 }
+
+public struct ChRootError: TrailBlazerError {
+    public var errors: [ErrNo]
+
+    public static let allCases: [ChRootError] = [
+        .accessDenied, .segFault, .ioError, .tooManySymlinks, .pathnameTooLong,
+        .noRouteToPath, .noKernelMemory, .pathComponentNotDirectory, .permissionDenied
+    ]
+
+    public init(error: ErrNo?) { self.errors = error == nil ? [] : [error!] }
+}
+
+public struct ChDirError: TrailBlazerError {
+    public var errors: [ErrNo]
+
+    public static let allCases: [ChDirError] = [
+        .accessDenied, .segFault, .ioError, .tooManySymlinks, .pathnameTooLong,
+        .noRouteToPath, .noKernelMemory, .pathComponentNotDirectory
+    ]
+
+    public init(error: ErrNo?) { self.errors = error == nil ? [] : [error!] }
+}

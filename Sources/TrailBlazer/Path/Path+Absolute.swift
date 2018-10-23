@@ -33,11 +33,13 @@ extension Path {
         - RealPathError.notADirectory: A component of the path prefix is not a directory.
     */
     public mutating func expand() throws {
-        // If the path is already absolute, then there's no point in calling realpath(3)
-        guard isRelative || _path.contains("\(Self.separator)\(Self.separator)") else { return }
-
         // realpath(3) fails if the path is null
-        guard !_path.isEmpty else { throw RealPathError.emptyPath }
+        guard !_path.isEmpty else { return }
+
+        _path = _path.replacingOccurrences(of: "\(Self.separator)\(Self.separator)", with: "\(Self.separator)")
+
+        // If the path is already absolute, then there's no point in calling realpath(3)
+        guard isRelative else { return }
 
         // Whenever we leave this function we need to update the path used by StatInfo
         defer { _info._path = _path }
@@ -48,7 +50,7 @@ extension Path {
         }
 
         // If the path is absolute after expanding the home directory, then no need to call into realpath(3)
-        guard isRelative || _path.contains("\(Self.separator)\(Self.separator)") else { return }
+        guard isRelative else { return }
 
         let realpath = try cRealpath(_path, nil) ?! RealPathError.getError()
 

@@ -63,21 +63,15 @@ public struct PathType: RawRepresentable, Hashable, ExpressibleByIntegerLiteral,
 
     public init?(mode: FileMode) {
         self.init(rawValue: mode.rawValue)
-        if rawValue == PathType.unknown.rawValue {
-            return nil
-        }
+        guard [.socket, .link, .file, .block, .directory, .character, .fifo].contains(self) else { return nil }
     }
 
-    public init?(stringValue value: String) {
+    public init(stringValue value: String) {
         self.init(stringLiteral: value)
-        guard rawValue != PathType.unknown.rawValue else { return nil }
     }
 
-    public init?(intValue value: Int) {
-        if value < 0 {
-            return nil
-        }
+    public init(intValue value: Int) {
+        guard value >= 0 else { self = .unknown; return }
         self.init(integerLiteral: OSUInt(value))
-        guard stringValue != "unknown" else { return nil }
     }
 }
