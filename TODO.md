@@ -20,7 +20,7 @@
   - [x] Get/generate temporary files/directories
   - [x] Copy paths
 - OpenPaths
-  - [ ] Open only for closure
+  - [x] Open only for closure
 - Misc. Additions
   - [x] Globbing
   - [x] LinkedPath (symlinks and hard links)
@@ -30,7 +30,7 @@
       - [ ] Storage: Either deletes itself (and everything in it) once all references to it are gone, or it doesn't
       - [ ] Base: Whether to generate or supply the root temporary directory (/tmp or not)
     - Used by the temporary() API call
-    - [ ] Temporary path in closure (deleted afterwards)
+    - [x] Temporary path in closure (deleted afterwards)
   - [x] APIs for checking permissions to a path
     - [x] canRead/Write/Execute/Delete == Whether or not the calling process (or specified uid/gid/username/groupname) can read/write/execute/delete the path
     - [x] mayRead/Write == Whether or not the path was opened with read/write permissions
