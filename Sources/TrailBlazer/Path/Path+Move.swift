@@ -63,8 +63,7 @@ public extension Movable {
     - Throws: `MoveError.moveToDifferentPathType` when the current path and the newPath are not the same PathType
     */
     public mutating func move(to newPathString: String) throws {
-        let newPath = try Self(newPathString) ?! MoveError.moveToDifferentPathType
-        try move(to: newPath)
+        try move(to: GenericPath(newPathString))
     }
 
     /**
