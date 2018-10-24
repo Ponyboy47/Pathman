@@ -7,6 +7,7 @@ import Darwin
 /// Protocol declaration for Paths that can generate and create a unique temporary path
 public protocol TemporaryGeneratable: Creatable {
     static func temporary(prefix: String) throws -> Open<Self>
+    static func _delete(_ opened: Open<Self>) throws
 }
 
 public var temporaryDirectory: DirectoryPath = getTemporaryDirectory()
@@ -36,6 +37,10 @@ extension TemporaryGeneratable {
 
     public func temporaryPathTemplate(_ prefix: String) -> String {
         return Self.temporaryPathTemplate(prefix)
+    }
+
+    public static func _delete(_ opened: Open<Self>) throws {
+        try opened.path.delete()
     }
 }
 
@@ -120,7 +125,7 @@ extension TemporaryGeneratable {
         try closure(opened)
 
         if options.contains(.deleteOnCompletion) {
-            try opened.path.delete()
+            try Self._delete(opened)
         }
 
         return opened.path
@@ -128,16 +133,7 @@ extension TemporaryGeneratable {
 }
 
 extension TemporaryGeneratable where Self: DirectoryEnumerable {
-    @discardableResult
-    public static func temporary(prefix: String = "", options: TemporaryOptions = [], closure: (_ opened: Open<Self>) throws -> ()) throws -> Self {
-        let opened = try Self.temporary(prefix: prefix)
-
-        try closure(opened)
-
-        if options.contains(.deleteOnCompletion) {
-            try opened.path.recursiveDelete()
-        }
-
-        return opened.path
+    public static func _delete(_ opened: Open<Self>) throws {
+        try opened.path.recursiveDelete()
     }
 }
