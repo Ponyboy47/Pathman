@@ -9,6 +9,36 @@ public protocol TemporaryGeneratable: Creatable {
     static func temporary(prefix: String) throws -> Open<Self>
 }
 
+public var temporaryDirectory: DirectoryPath = getTemporaryDirectory()
+
+private func getTemporaryDirectory() -> DirectoryPath {
+    let tmpDir: DirectoryPath!
+    // If this is set, it's the first place to check. macOS uses this
+    // variable and it may or may not be set on Linux
+    #if TMPDIR
+    tmpDir = DirectoryPath(TMPDIR)
+    // This macro is referenced in C docs, but may or may not be set
+    #elseif P_tmpdir
+    tmpDir = DirectoryPath(P_tmpdir)
+    // Default to just /tmp if all else fails
+    #else
+    tmpDir = DirectoryPath("\(GenericPath.separator)tmp")
+    #endif
+
+    return tmpDir
+}
+
+extension TemporaryGeneratable {
+    // Both mkstemp(3) and mkdtemp(3) require 6 consecutive X's in the template
+    public static func temporaryPathTemplate(_ prefix: String) -> String {
+        return (temporaryDirectory + "\(prefix)XXXXXX").string
+    }
+
+    public func temporaryPathTemplate(_ prefix: String) -> String {
+        return Self.temporaryPathTemplate(prefix)
+    }
+}
+
 extension FilePath: TemporaryGeneratable {
     /**
     Creates a unique FilePath with the specified prefix
@@ -29,30 +59,12 @@ extension FilePath: TemporaryGeneratable {
     - Throws: `CreateFileError.ioErrorCreatingPath` when an I/O error occurred while creating the inode for the path
     */
     public static func temporary(prefix: String = "") throws -> Open<FilePath> {
-        var template: GenericPath
-
-        // If this is set, it's the first place to check. macOS uses this
-        // variable and it may or may not be set on Linux
-        #if TMPDIR
-        template = TMPDIR
-        // This macro is referenced in C docs, but may or may not be set
-        #elseif P_tmpdir
-        template = P_tmpdir
-        // Default to just /tmp if all else fails
-        #else
-        template = GenericPath("\(GenericPath.separator)tmp")
-        #endif
-        template += "\(prefix)XXXXXX"
-
-        // mkstemp(3) requires 6 consecutive X's in the template
-        let (fileDescriptor, path) = template._path.withCString { (ptr) -> (FileDescriptor, String) in
+        let (fileDescriptor, path) = temporaryPathTemplate(prefix).withCString { (ptr) -> (FileDescriptor, String) in
             let mutablePtr = UnsafeMutablePointer(mutating: ptr)
             return (mkstemp(mutablePtr), String(cString: mutablePtr))
         }
 
         guard fileDescriptor != -1 else { throw MakeTemporaryError.getError() }
-
-        let temporaryPath = FilePath(path) !! "Somehow, a random, uniquely generated path overwrote the \(FilePath.self) path that existed at \(path)"
 
         // mkstemp(3) opens the file with readWrite permissions, the
         // .create/.exclusive flags (to ensure this process is the only
@@ -60,7 +72,7 @@ extension FilePath: TemporaryGeneratable {
         // 0o0600
         let openOptions = FilePath.OpenOptions(permissions: OpenFilePermissions.readWrite, flags: [.create, .exclusive], mode: 0o0600)
 
-        return Open(temporaryPath, descriptor: fileDescriptor, options: openOptions)
+        return Open(FilePath(path)!, descriptor: fileDescriptor, options: openOptions)
     }
 }
 
@@ -83,27 +95,11 @@ extension DirectoryPath: TemporaryGeneratable {
     - Throws: `OpenDirectoryError.outOfMemory` when there is not enough available memory to open the directory
     */
     public static func temporary(prefix: String = "") throws -> Open<DirectoryPath> {
-        var path: GenericPath
-
-        // If this is set, it's the first place to check. macOS uses this
-        // variable and it may or may not be set on Linux
-        #if TMPDIR
-        path = TMPDIR
-        // This macro is referenced in C docs, but may or may not be set
-        #elseif P_tmpdir
-        path = P_tmpdir
-        // Default to just /tmp if all else fails
-        #else
-        path = GenericPath("\(GenericPath.separator)tmp")
-        #endif
-        path += "\(prefix)XXXXXX"
-
         // mkdtemp(s) require the last 6 characters to be X's in the template
-        path._path = path.string.withCString({ String(cString: mkdtemp(UnsafeMutablePointer(mutating: $0))) })
-        guard !path._path.isEmpty else { throw CreateDirectoryError.getError() }
+        let path = temporaryPathTemplate(prefix).withCString({ String(cString: mkdtemp(UnsafeMutablePointer(mutating: $0))) })
+        guard !path.isEmpty else { throw CreateDirectoryError.getError() }
 
-        let dir = DirectoryPath(path) !! "Somehow, a random, uniquely generated path overwrote the \(DirectoryPath.self) that existed at \(path)"
-        return try dir.open()
+        return try DirectoryPath(path)!.open()
     }
 }
 
