@@ -49,13 +49,7 @@ public struct GenericPath: Path, ExpressibleByStringLiteral, ExpressibleByArrayL
 
     /// Initialize from a string literal
     public init(stringLiteral value: String) {
-        if value.count > 1 && value.hasSuffix(GenericPath.separator) {
-            _path = String(value.dropLast())
-        } else {
-            _path = value
-        }
-        _info = StatInfo(_path)
-        try? _info.getInfo()
+        self.init(value)
     }
 
     /// Initialize from a string array literal

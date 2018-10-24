@@ -226,22 +226,12 @@ public extension Path {
     }
 
     public init?(_ str: String) {
-        let path: GenericPath
-        if str.count > 1 && str.hasSuffix(Self.separator) {
-            path = GenericPath(String(str.dropLast()))
-        } else {
-            path = GenericPath(str)
-        }
-        self.init(path)
+        self.init(GenericPath(str))
     }
 
     /// Initialize from an array of path elements
     public init?(_ components: [String]) {
-        var path = components.filter({ !$0.isEmpty && $0 != Self.separator}).joined(separator: GenericPath.separator)
-        if let first = components.first, first == Self.separator {
-            path = first + path
-        }
-        self.init(path)
+        self.init(GenericPath(components))
     }
 
     /// Initialize from a variadic array of path elements
