@@ -40,7 +40,7 @@
   - [ ] CharacterPath?
   - [ ] Place deleted items in trash (instead of deleting directly)
   - [ ] Mount/unmount paths
-  - [ ] Change CWD/Root for closure only
+  - [x] Change CWD/Root for closure only
   - [ ] Pattern matching (~=)
   - [ ] Useful operators (<<, >>, etc)
   - [x] Consolidate repeated/common errors

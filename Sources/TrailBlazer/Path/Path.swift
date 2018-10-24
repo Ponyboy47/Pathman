@@ -16,12 +16,20 @@ private let cRename = Darwin.rename
 #endif
 
 /// The separator between components of a path
-let pathSeparator: String = "/"
-/// The root directory of the swift process using this library
-private var processRoot: DirectoryPath = DirectoryPath(pathSeparator) !! "The '\(pathSeparator)' path separator is incorrect for this system."
+public var pathSeparator: String = "/"
+let processRoot: DirectoryPath = DirectoryPath(pathSeparator)!
 
 /// The working directory of the current process
-private var currentWorkingDirectory = DirectoryPath(String(cString: getcwd(nil, 0))) !! "Failed to get current working directory"
+private var currentWorkingDirectory = (try? getCurrentWorkingDirectory()) !! "Failed to get the initial current working directory"
+
+private func getCurrentWorkingDirectory() throws -> DirectoryPath {
+    let buffer = try getcwd(nil, 0) ?! CWDError.getError()
+
+    // getcwd(3) states that the pointer returned by the C call needs to be freed
+    defer { free(buffer) }
+
+    return DirectoryPath(String(cString: buffer))!
+}
 
 /**
 Whether or not a path exists
@@ -39,20 +47,19 @@ public func pathExists(_ path: String) -> Bool {
     return cStat(path, &s) == 0
 }
 
-public func changeRoot(to dir: DirectoryPath) throws {
-    guard chroot(dir.string) == 0 else {
-        throw ChRootError.getError()
-    }
-
-    processRoot = dir
-}
-
-public func changeDirectory(to dir: DirectoryPath) throws {
+public func changeCWD(to dir: DirectoryPath) throws {
     guard chdir(dir.string) == 0 else {
         throw ChDirError.getError()
     }
 
     currentWorkingDirectory = dir
+}
+
+public func changeCWD(to dir: DirectoryPath, closure: () throws -> ()) throws {
+    let oldCWD = currentWorkingDirectory
+    try changeCWD(to: dir)
+    try closure()
+    try changeCWD(to: oldCWD)
 }
 
 /// A protocol that describes a Path type and the attributes available to it
@@ -73,26 +80,21 @@ public protocol Path: Hashable, CustomStringConvertible, UpdatableStatDelegate, 
 
 public extension Path {
     /// The character used to separate components of a path
-    public static var separator: String { return pathSeparator }
-
-    /// The root directory for the process
-    public static var root: DirectoryPath {
-        get { return processRoot }
-        set {
-            try? changeRoot(to: newValue)
-        }
+    public static var separator: String {
+        get { return pathSeparator }
+        set { pathSeparator = newValue }
     }
-    /// The root directory for the process
-    public var root: DirectoryPath {
-        get { return Self.root }
-        nonmutating set { Self.root = newValue }
+    /// The character used to separate components of a path
+    public var separator: String {
+        get { return pathSeparator }
+        nonmutating set { pathSeparator = newValue }
     }
 
     /// The current working directory for the process
     public static var cwd: DirectoryPath {
-        get { return currentWorkingDirectory }
+        get { return (try? getCurrentWorkingDirectory()) ?? currentWorkingDirectory }
         set {
-            try? changeDirectory(to: newValue)
+            try? changeCWD(to: newValue)
         }
     }
     /// The current working directory for the process

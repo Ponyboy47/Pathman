@@ -64,23 +64,6 @@ class PathTests: XCTestCase {
         XCTAssertEqual(path1.string, "/tmp")
     }
 
-    func testChRoot() {
-        let directory = DirectoryPath()!
-        XCTAssertEqual(DirectoryPath.root.string, "/")
-        XCTAssertEqual(directory.root.string, "/")
-
-        DirectoryPath.root = DirectoryPath("/tmp")!
-        directory.root = DirectoryPath("/tmp")!
-        if (geteuid() == 0) {
-            XCTAssertEqual(DirectoryPath.root.string, "/tmp")
-            XCTAssertEqual(directory.root.string, "/tmp")
-            DirectoryPath.root = DirectoryPath("/")!
-            directory.root = DirectoryPath("/")!
-        }
-        XCTAssertEqual(DirectoryPath.root.string, "/")
-        XCTAssertEqual(directory.root.string, "/")
-    }
-
     func testChCWD() {
         let directory = DirectoryPath()!
         DirectoryPath.cwd = DirectoryPath("/tmp")!
@@ -91,6 +74,15 @@ class PathTests: XCTestCase {
         directory.cwd = DirectoryPath("/")!
         XCTAssertEqual(DirectoryPath.cwd.string, "/")
         XCTAssertEqual(directory.cwd.string, "/")
+
+        do {
+            try changeCWD(to: DirectoryPath("/tmp")!) {
+                XCTAssertEqual(directory.cwd, DirectoryPath("/tmp")!)
+            }
+            XCTAssertEqual(directory.cwd.string, "/")
+        } catch {
+            XCTFail("Failed to change current directory")
+        }
     }
 
     func testComponents() {
@@ -131,7 +123,6 @@ class PathTests: XCTestCase {
 
     func testExists() {
         XCTAssertTrue(DirectoryPath("/tmp")!.exists)
-        XCTAssertTrue(GenericPath.root.exists)
         XCTAssertTrue(DirectoryPath.cwd.exists)
         // If this path actually exists...I don't even know...
         XCTAssertFalse(DirectoryPath("/aneriuflaer/faeirgoait")!.exists)
@@ -306,5 +297,17 @@ class PathTests: XCTestCase {
         XCTAssertTrue(path.isReadable)
         XCTAssertTrue(path.isWritable)
         XCTAssertTrue(path.isExecutable)
+    }
+
+    func testChangeSeparator() {
+        let path = DirectoryPath("/path/to/file")!
+        let components = path.components
+        path.separator = "$"
+        XCTAssertEqual(path.separator, "$")
+        XCTAssertEqual(DirectoryPath.separator, "$")
+        let newPath = DirectoryPath(["$"] + components.dropFirst())!
+        XCTAssertEqual(newPath.string, "$path$to$file")
+        XCTAssertEqual(newPath.components.dropFirst(), components.dropFirst())
+        path.separator = "/"
     }
 }

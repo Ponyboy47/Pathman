@@ -29,30 +29,30 @@ extension FilePath: TemporaryGeneratable {
     - Throws: `CreateFileError.ioErrorCreatingPath` when an I/O error occurred while creating the inode for the path
     */
     public static func temporary(prefix: String = "") throws -> Open<FilePath> {
-        let tmpDir: DirectoryPath
+        var template: GenericPath
 
         // If this is set, it's the first place to check. macOS uses this
         // variable and it may or may not be set on Linux
         #if TMPDIR
-        tmpDir = DirectoryPath(TMPDIR)!
+        template = TMPDIR
         // This macro is referenced in C docs, but may or may not be set
         #elseif P_tmpdir
-        tmpDir = DirectoryPath(P_tmpdir)!
+        template = P_tmpdir
         // Default to just /tmp if all else fails
         #else
-        tmpDir = DirectoryPath("/tmp")!
+        template = GenericPath("\(GenericPath.separator)tmp")
         #endif
-        let template = (tmpDir + "\(prefix)XXXXXX").string
+        template += "\(prefix)XXXXXX"
 
         // mkstemp(3) requires 6 consecutive X's in the template
-        let (fileDescriptor, path) = template.withCString { (ptr) -> (FileDescriptor, String) in
+        let (fileDescriptor, path) = template._path.withCString { (ptr) -> (FileDescriptor, String) in
             let mutablePtr = UnsafeMutablePointer(mutating: ptr)
             return (mkstemp(mutablePtr), String(cString: mutablePtr))
         }
 
         guard fileDescriptor != -1 else { throw MakeTemporaryError.getError() }
 
-        let temporaryPath = FilePath("\(path)") !! "Somehow, a random, uniquely generated path overwrote the \(FilePath.self) path that existed at \(path)"
+        let temporaryPath = FilePath(path) !! "Somehow, a random, uniquely generated path overwrote the \(FilePath.self) path that existed at \(path)"
 
         // mkstemp(3) opens the file with readWrite permissions, the
         // .create/.exclusive flags (to ensure this process is the only
@@ -83,23 +83,24 @@ extension DirectoryPath: TemporaryGeneratable {
     - Throws: `OpenDirectoryError.outOfMemory` when there is not enough available memory to open the directory
     */
     public static func temporary(prefix: String = "") throws -> Open<DirectoryPath> {
-        let tmpDir: DirectoryPath
+        var path: GenericPath
 
         // If this is set, it's the first place to check. macOS uses this
         // variable and it may or may not be set on Linux
         #if TMPDIR
-        tmpDir = DirectoryPath(TMPDIR)!
+        path = TMPDIR
         // This macro is referenced in C docs, but may or may not be set
         #elseif P_tmpdir
-        tmpDir = DirectoryPath(P_tmpdir)!
+        path = P_tmpdir
         // Default to just /tmp if all else fails
         #else
-        tmpDir = DirectoryPath("/tmp")!
+        path = GenericPath("\(GenericPath.separator)tmp")
         #endif
+        path += "\(prefix)XXXXXX"
 
         // mkdtemp(s) require the last 6 characters to be X's in the template
-        let path = (tmpDir + "\(prefix)XXXXXX").string.withCString({ String(cString: mkdtemp(UnsafeMutablePointer(mutating: $0))) })
-        guard !path.isEmpty else { throw CreateDirectoryError.getError() }
+        path._path = path.string.withCString({ String(cString: mkdtemp(UnsafeMutablePointer(mutating: $0))) })
+        guard !path._path.isEmpty else { throw CreateDirectoryError.getError() }
 
         let dir = DirectoryPath(path) !! "Somehow, a random, uniquely generated path overwrote the \(DirectoryPath.self) that existed at \(path)"
         return try dir.open()
