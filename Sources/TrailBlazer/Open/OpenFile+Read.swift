@@ -13,7 +13,7 @@ private let cReadFile = Darwin.read
 
 /// Protocol declaration of types that can be read from
 public protocol Readable: Opened {
-    func read(bytes bytesToRead: Int) throws -> Data
+    func read(bytes bytesToRead: ByteRepresentable) throws -> Data
 }
 
 extension Readable {
@@ -55,7 +55,7 @@ extension Readable {
      - Throws: `OpenFileError.ioErrorCreatingPath` (macOS only) when an I/O error occurred while creating the inode for the path
      - Throws: `OpenFileError.operationNotSupported` (macOS only) when the `.sharedLock` or `.exclusiveLock` flags were specified and the underlying filesystem doesn't support locking or the path is a socket and opening a socket is not supported yet
      */
-    public func read(bytes bytesToRead: Int = .max, encoding: String.Encoding = .utf8) throws -> String? {
+    public func read(bytes bytesToRead: ByteRepresentable = Int.max, encoding: String.Encoding = .utf8) throws -> String? {
         return try String(data: read(bytes: bytesToRead), encoding: encoding)
     }
 }
@@ -99,7 +99,7 @@ extension Readable where Self: Seekable {
      - Throws: `OpenFileError.ioErrorCreatingPath` (macOS only) when an I/O error occurred while creating the inode for the path
      - Throws: `OpenFileError.operationNotSupported` (macOS only) when the `.sharedLock` or `.exclusiveLock` flags were specified and the underlying filesystem doesn't support locking or the path is a socket and opening a socket is not supported yet
      */
-    public func read(from offset: Offset, bytes bytesToRead: Int = .max) throws -> Data {
+    public func read(from offset: Offset, bytes bytesToRead: ByteRepresentable = Int.max) throws -> Data {
         try seek(offset)
         return try read(bytes: bytesToRead)
     }
@@ -143,7 +143,7 @@ extension Readable where Self: Seekable {
     - Throws: `OpenFileError.ioErrorCreatingPath` (macOS only) when an I/O error occurred while creating the inode for the path
     - Throws: `OpenFileError.operationNotSupported` (macOS only) when the `.sharedLock` or `.exclusiveLock` flags were specified and the underlying filesystem doesn't support locking or the path is a socket and opening a socket is not supported yet
     */
-    public func read(from offset: Offset, bytes bytesToRead: Int = .max, encoding: String.Encoding = .utf8) throws -> String? {
+    public func read(from offset: Offset, bytes bytesToRead: ByteRepresentable = Int.max, encoding: String.Encoding = .utf8) throws -> String? {
         return try String(data: read(from: offset, bytes: bytesToRead), encoding: encoding)
     }
 }
@@ -203,12 +203,13 @@ extension Open: Readable where PathType == FilePath {
     - Throws: `ReadError.cannotReadFileDescriptor` when the underlying file descriptor is attached to a path which is unsuitable for reading or the file was opened with the `.direct` flag and either the buffer addres, the byteCount, or the offset are not suitably aligned
     - Throws: `ReadError.ioError` when an I/O error occured during the API call
     */
-    public func read(bytes bytesToRead: Int = .max) throws -> Data {
+    public func read(bytes sizeToRead: ByteRepresentable = Int.max) throws -> Data {
         guard mayRead else {
             throw ReadError.cannotReadFileDescriptor
         }
+        let bytes = sizeToRead.bytes
 
-        let bytesToRead = bytesToRead > size ? Int(size) : bytesToRead
+        let bytesToRead = bytes > size ? Int(size) : bytes
 
         // If we haven't allocated a buffer before, then allocate one now
         if buffer == nil {
@@ -269,7 +270,7 @@ public extension FilePath {
     - Throws: `CloseFileError.interruptedBySignal` when the call was interrupted by a signal handler
     - Throws: `CloseFileError.ioError` when an I/O error occurred
     */
-    public func read(from offset: Offset = .current, bytes bytesToRead: Int = .max) throws -> Data {
+    public func read(from offset: Offset = .current, bytes bytesToRead: ByteRepresentable = Int.max) throws -> Data {
         return try open(permissions: .read).read(from: offset, bytes: bytesToRead)
     }
 
@@ -315,7 +316,7 @@ public extension FilePath {
     - Throws: `CloseFileError.interruptedBySignal` when the call was interrupted by a signal handler
     - Throws: `CloseFileError.ioError` when an I/O error occurred
     */
-    public func read(from offset: Offset = .current, bytes bytesToRead: Int = .max, encoding: String.Encoding = .utf8) throws -> String? {
+    public func read(from offset: Offset = .current, bytes bytesToRead: ByteRepresentable = Int.max, encoding: String.Encoding = .utf8) throws -> String? {
         return try String(data: read(from: offset, bytes: bytesToRead), encoding: encoding)
     }
 }
