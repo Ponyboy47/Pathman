@@ -23,7 +23,7 @@ extension Openable {
     public var mayRead: Bool { return true }
     public var mayWrite: Bool { return true }
 
-    public func open(options: OpenOptionsType, closure: (_ opened: Open<Self>) throws -> ()) throws {
+    public func open(options: OpenOptionsType, closure: (_ opened: Open<Self>) throws -> Void) throws {
         try closure(open(options: options))
     }
 }
@@ -33,7 +33,7 @@ extension Openable where OpenOptionsType == Empty {
         return try open(options: .default)
     }
 
-    public func open(closure: (_ opened: Open<Self>) throws -> ()) throws {
+    public func open(closure: (_ opened: Open<Self>) throws -> Void) throws {
         try closure(open())
     }
 }

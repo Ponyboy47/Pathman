@@ -114,4 +114,3 @@ class CopyTests: XCTestCase {
         try? newPath.recursiveDelete()
     }
 }
-

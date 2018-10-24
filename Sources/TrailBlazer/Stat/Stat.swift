@@ -69,6 +69,6 @@ extension Stat {
 
     /// Converts a timespec to a Swift TimeInterval (AKA Double)
     private static func timespecToTimeInterval(_ spec: timespec) -> TimeInterval {
-        return TimeInterval(spec.tv_sec) + (Double(spec.tv_nsec) * pow(10.0,-9.0))
+        return TimeInterval(spec.tv_sec) + (Double(spec.tv_nsec) * pow(10.0, -9.0))
     }
 }

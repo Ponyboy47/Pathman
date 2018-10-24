@@ -64,4 +64,3 @@ class UtilityTests: XCTestCase {
         XCTAssertEqual(Float(byteAmount).pb, pbAmount)
     }
 }
-

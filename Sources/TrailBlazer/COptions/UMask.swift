@@ -23,7 +23,7 @@ public var originalUMask: UMask = {
     let mask = FileMode(rawValue: cUmask(FileMode.allPermissions.rawValue))
 
     // Reset the mask back to it's original value
-    defer { let _ = cUmask(mask.rawValue) }
+    defer { _ = cUmask(mask.rawValue) }
 
     return mask
 }()

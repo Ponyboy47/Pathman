@@ -113,4 +113,3 @@ class FilePermissionsTests: XCTestCase {
         XCTAssertEqual(~(write | execute), read)
     }
 }
-

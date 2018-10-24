@@ -117,5 +117,3 @@ class FileBitsTests: XCTestCase {
         XCTAssertEqual(~(gid | sticky), uid)
     }
 }
-
-

@@ -2,3 +2,4 @@ disabled_rules:
   - force_cast
 included:
   - Sources
+  - Tests

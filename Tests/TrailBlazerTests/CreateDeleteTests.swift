@@ -192,7 +192,7 @@ class CreateDeleteTests: XCTestCase {
         }
 
         do {
-            try file.create() { openFile in
+            try file.create { openFile in
                 XCTAssertTrue(file.exists)
                 XCTAssertTrue(file.isFile)
                 XCTAssertNoThrow(try openFile.write("Hello World"))

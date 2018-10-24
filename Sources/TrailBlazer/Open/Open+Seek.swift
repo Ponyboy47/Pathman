@@ -27,7 +27,7 @@ public extension Seekable {
     /// in bytes from the beginning of the path
     public var offset: OSOffsetInt {
         get { return (try? seek(fromCurrent: 0)) ?? -1 }
-        nonmutating set { let _ = try? seek(fromStart: newValue) }
+        nonmutating set { _ = try? seek(fromStart: newValue) }
     }
 
     /// Seeks using the specified offset

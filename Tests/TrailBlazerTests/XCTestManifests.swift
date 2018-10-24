@@ -11,7 +11,7 @@ extension ChmodTests {
         ("testSetOwnerGroup", testSetOwnerGroup),
         ("testSetOwnerGroupOthers", testSetOwnerGroupOthers),
         ("testSetOwnerOthers", testSetOwnerOthers),
-        ("testSetProperties", testSetProperties),
+        ("testSetProperties", testSetProperties)
     ]
 }
 
@@ -23,7 +23,7 @@ extension ChownTests {
         ("testSetOpen", testSetOpen),
         ("testSetOwner", testSetOwner),
         ("testSetRecursive", testSetRecursive),
-        ("testSetString", testSetString),
+        ("testSetString", testSetString)
     ]
 }
 
@@ -32,7 +32,7 @@ extension CopyTests {
         ("testCopyDirectoryEmpty", testCopyDirectoryEmpty),
         ("testCopyDirectoryNotEmpty", testCopyDirectoryNotEmpty),
         ("testCopyDirectoryRecursive", testCopyDirectoryRecursive),
-        ("testCopyFile", testCopyFile),
+        ("testCopyFile", testCopyFile)
     ]
 }
 
@@ -46,7 +46,7 @@ extension CreateDeleteTests {
         ("testDeleteDirectory", testDeleteDirectory),
         ("testDeleteDirectoryRecursive", testDeleteDirectoryRecursive),
         ("testDeleteFile", testDeleteFile),
-        ("testDeleteNonEmptyDirectory", testDeleteNonEmptyDirectory),
+        ("testDeleteNonEmptyDirectory", testDeleteNonEmptyDirectory)
     ]
 }
 
@@ -58,7 +58,7 @@ extension FileBitsTests {
         ("testEquality", testEquality),
         ("testHasNone", testHasNone),
         ("testNotOperator", testNotOperator),
-        ("testOrOperator", testOrOperator),
+        ("testOrOperator", testOrOperator)
     ]
 }
 
@@ -126,7 +126,7 @@ extension FileModeTests {
         ("testUidGidStickyBits", testUidGidStickyBits),
         ("testUidStickyBits", testUidStickyBits),
         ("testUMask", testUMask),
-        ("testUnmask", testUnmask),
+        ("testUnmask", testUnmask)
     ]
 }
 
@@ -142,7 +142,7 @@ extension FilePermissionsTests {
         ("testReadWrite", testReadWrite),
         ("testReadWriteExecute", testReadWriteExecute),
         ("testWrite", testWrite),
-        ("testWriteExecute", testWriteExecute),
+        ("testWriteExecute", testWriteExecute)
     ]
 }
 
@@ -151,7 +151,7 @@ extension GlobTests {
         ("testGlob", testGlob),
         ("testGlobDirectory", testGlobDirectory),
         ("testGlobFlagsCustomStringConvertible", testGlobFlagsCustomStringConvertible),
-        ("testGlobFlagsInit", testGlobFlagsInit),
+        ("testGlobFlagsInit", testGlobFlagsInit)
     ]
 }
 
@@ -166,7 +166,7 @@ extension LinkTests {
         ("testOpenDirectory", testOpenDirectory),
         ("testOpenFile", testOpenFile),
         ("testRelativeHardLink", testRelativeHardLink),
-        ("testRelativeSoftLink", testRelativeSoftLink),
+        ("testRelativeSoftLink", testRelativeSoftLink)
     ]
 }
 
@@ -174,7 +174,7 @@ extension MoveTests {
     static let __allTests = [
         ("testMove", testMove),
         ("testMoveInto", testMoveInto),
-        ("testRename", testRename),
+        ("testRename", testRename)
     ]
 }
 
@@ -198,7 +198,7 @@ extension OpenTests {
         ("testSeekReadWrite", testSeekReadWrite),
         ("testURL", testURL),
         ("testWriteFile", testWriteFile),
-        ("testWriteThenRead", testWriteThenRead),
+        ("testWriteThenRead", testWriteThenRead)
     ]
 }
 
@@ -208,7 +208,7 @@ extension PathCollectionTests {
         ("testEquality", testEquality),
         ("testNotEmpty", testNotEmpty),
         ("testPlus", testPlus),
-        ("testPlusEqual", testPlusEqual),
+        ("testPlusEqual", testPlusEqual)
     ]
 }
 
@@ -242,7 +242,7 @@ extension PathTests {
         ("testSetParent", testSetParent),
         ("testStringInit", testStringInit),
         ("testStringLiteral", testStringLiteral),
-        ("testVariadicInit", testVariadicInit),
+        ("testVariadicInit", testVariadicInit)
     ]
 }
 
@@ -265,7 +265,7 @@ extension StatTests {
         ("testPermissions", testPermissions),
         ("testSize", testSize),
         ("testStatDelegate", testStatDelegate),
-        ("testType", testType),
+        ("testType", testType)
     ]
 }
 
@@ -273,7 +273,7 @@ extension TemporaryTests {
     static let __allTests = [
         ("testTemporaryDirectory", testTemporaryDirectory),
         ("testTemporaryFile", testTemporaryFile),
-        ("testTemporaryWithClosure", testTemporaryWithClosure),
+        ("testTemporaryWithClosure", testTemporaryWithClosure)
     ]
 }
 
@@ -283,7 +283,7 @@ extension UtilityTests {
         ("testKilobytes", testKilobytes),
         ("testMegabytes", testMegabytes),
         ("testPetabytes", testPetabytes),
-        ("testTerabytes", testTerabytes),
+        ("testTerabytes", testTerabytes)
     ]
 }
 
@@ -305,7 +305,7 @@ public func __allTests() -> [XCTestCaseEntry] {
         testCase(PathTests.__allTests),
         testCase(StatTests.__allTests),
         testCase(TemporaryTests.__allTests),
-        testCase(UtilityTests.__allTests),
+        testCase(UtilityTests.__allTests)
     ]
 }
 #endif

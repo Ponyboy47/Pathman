@@ -99,7 +99,7 @@ extension Open: Seekable where PathType == FilePath {
         return newOffset
     }
     #endif
-    
+
     #if SEEK_DATA
     /**
     Moves the file offset to the next location containing data

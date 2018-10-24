@@ -69,7 +69,7 @@ public final class Glob {
     #endif
 
     /// The C function to use to close directories (default is closedir(2))
-    public var closedir: (@convention(c) (UnsafeMutableRawPointer?) -> ()) {
+    public var closedir: (@convention(c) (UnsafeMutableRawPointer?) -> Void) {
         get { return _glob.pointee.gl_closedir }
         set {
             _glob.pointee.gl_closedir = newValue

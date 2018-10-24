@@ -214,7 +214,7 @@ class LinkTests: XCTestCase {
             var _linked = DirectoryPath("\(link.path.lastComponent!).link")!
             let target = DirectoryPath("\(link.path.lastComponent!)")!
             let symlink = try target.link(at: "\(link.path.lastComponent!).link")
-            XCTAssertNoThrow(try symlink.open() { _ in })
+            XCTAssertNoThrow(try symlink.open { _ in })
             try? link.path.delete()
             try? _linked.delete()
         } catch {

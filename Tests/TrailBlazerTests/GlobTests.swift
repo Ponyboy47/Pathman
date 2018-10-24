@@ -45,4 +45,3 @@ class GlobTests: XCTestCase {
         XCTAssertEqual(other.description, "GlobFlags(none)")
     }
 }
-

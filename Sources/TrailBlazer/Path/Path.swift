@@ -55,7 +55,7 @@ public func changeCWD(to dir: DirectoryPath) throws {
     currentWorkingDirectory = dir
 }
 
-public func changeCWD(to dir: DirectoryPath, closure: () throws -> ()) throws {
+public func changeCWD(to dir: DirectoryPath, closure: () throws -> Void) throws {
     let oldCWD = currentWorkingDirectory
     try changeCWD(to: dir)
     try closure()

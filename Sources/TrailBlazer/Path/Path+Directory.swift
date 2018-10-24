@@ -16,7 +16,6 @@ extension UnsafeMutablePointer: Descriptor where Pointee == DIR {
 }
 #endif
 
-
 /// A Path to a directory
 public struct DirectoryPath: Path, Openable, DirectoryEnumerable {
     public typealias DescriptorType = DIRType

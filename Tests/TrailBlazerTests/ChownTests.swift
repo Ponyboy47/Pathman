@@ -135,7 +135,7 @@ class ChownTests: XCTestCase {
             return
         }
 
-        let _ = try? file.create(options: .createIntermediates)
+        _ = try? file.create(options: .createIntermediates)
 
         do {
             var open = try dir.open()

@@ -9,4 +9,3 @@ public typealias OSUInt = UInt16
 #endif
 public typealias OptionInt = Int32
 public typealias FileDescriptor = Int32
-

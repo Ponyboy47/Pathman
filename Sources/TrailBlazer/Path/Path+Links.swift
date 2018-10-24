@@ -140,7 +140,7 @@ extension LinkedPath where LinkedPathType: Openable {
         return try __path.open(options: options)
     }
 
-    public func open(options: LinkedPathType.OpenOptionsType, closure: (_ opened: Open<LinkedPathType>) throws -> ()) throws {
+    public func open(options: LinkedPathType.OpenOptionsType, closure: (_ opened: Open<LinkedPathType>) throws -> Void) throws {
         try closure(open(options: options))
     }
 }
@@ -150,7 +150,7 @@ extension LinkedPath where LinkedPathType: Openable, LinkedPathType.OpenOptionsT
         return try open(options: .default)
     }
 
-    public func open(closure: (_ opened: Open<LinkedPathType>) throws -> ()) throws {
+    public func open(closure: (_ opened: Open<LinkedPathType>) throws -> Void) throws {
         try closure(open())
     }
 }
@@ -240,7 +240,7 @@ extension LinkedPath where LinkedPathType == FilePath {
     - Warning: Beware opening the same file multiple times with non-overlapping options/permissions. In order to reduce the number of open file descriptors, a single file can only be opened once at a time. If you open the same path with different permissions or flags, then the previously opened instance will be closed before the new one is opened. ie: if youre going to use a path for reading and writing, then open it using the `.readWrite` permissions rather than first opening it with `.read` and then later opening it with `.write`
     - Note: A `CloseFileError` will only be thrown if the file has previously been opened and is now being reopened with non-overlapping `options` as the previous open. So we first will close the old open file and then open it with the new options
     */
-    public func open(permissions: OpenFilePermissions, flags: OpenFileFlags = [], mode: FileMode? = nil, closure: (_ opened: Open<LinkedPathType>) throws -> ()) throws {
+    public func open(permissions: OpenFilePermissions, flags: OpenFileFlags = [], mode: FileMode? = nil, closure: (_ opened: Open<LinkedPathType>) throws -> Void) throws {
         try open(options: FilePath.OpenOptions(permissions: permissions, flags: flags, mode: mode), closure: closure)
     }
 }

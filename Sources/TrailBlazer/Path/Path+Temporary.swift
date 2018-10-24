@@ -119,7 +119,7 @@ public struct TemporaryOptions: OptionSet, ExpressibleByIntegerLiteral {
 
 extension TemporaryGeneratable {
     @discardableResult
-    public static func temporary(prefix: String = "", options: TemporaryOptions = [], closure: (_ opened: Open<Self>) throws -> ()) throws -> Self {
+    public static func temporary(prefix: String = "", options: TemporaryOptions = [], closure: (_ opened: Open<Self>) throws -> Void) throws -> Self {
         let opened = try Self.temporary(prefix: prefix)
 
         try closure(opened)
