@@ -68,8 +68,13 @@ class PathTests: XCTestCase {
         let directory = DirectoryPath()!
         DirectoryPath.cwd = DirectoryPath("/tmp")!
         directory.cwd = DirectoryPath("/tmp")!
+        #if os(macOS)
+        XCTAssertEqual(DirectoryPath.cwd.string, "/private/tmp")
+        XCTAssertEqual(directory.cwd.string, "/private/tmp")
+        #else
         XCTAssertEqual(DirectoryPath.cwd.string, "/tmp")
         XCTAssertEqual(directory.cwd.string, "/tmp")
+        #endif
         DirectoryPath.cwd = DirectoryPath("/")!
         directory.cwd = DirectoryPath("/")!
         XCTAssertEqual(DirectoryPath.cwd.string, "/")
@@ -77,7 +82,11 @@ class PathTests: XCTestCase {
 
         do {
             try changeCWD(to: DirectoryPath("/tmp")!) {
+                #if os(macOS)
+                XCTAssertEqual(directory.cwd, DirectoryPath("/private/tmp")!)
+                #else
                 XCTAssertEqual(directory.cwd, DirectoryPath("/tmp")!)
+                #endif
             }
             XCTAssertEqual(directory.cwd.string, "/")
         } catch {
