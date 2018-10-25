@@ -80,8 +80,6 @@ extension FilePath: Creatable {
     @discardableResult
     public mutating func create(mode: FileMode? = nil,
                                 options: CreateOptions = []) throws -> Open<FilePath> {
-        guard !exists else { throw CreateFileError.pathExists }
-
         // Create and immediately close any intermediates that don't exist when
         // the .createIntermediates options is used
         if options.contains(.createIntermediates) && !parent.exists {
@@ -129,8 +127,6 @@ extension DirectoryPath: Creatable {
     @discardableResult
     public mutating func create(mode: FileMode? = nil,
                                 options: CreateOptions = []) throws -> Open<DirectoryPath> {
-        guard !exists else { throw CreateDirectoryError.pathExists }
-
         // Create and immediately close any intermediates that don't exist when
         // the .createIntermediates options is used
         if options.contains(.createIntermediates) && !parent.exists {
