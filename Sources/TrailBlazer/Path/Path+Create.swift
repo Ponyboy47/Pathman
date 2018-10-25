@@ -35,13 +35,13 @@ public protocol Creatable: Openable {
                this to true should allow you to overcome this limitation)
     */
     @discardableResult
-    func create(mode: FileMode, options: CreateOptions) throws -> _OpenedType
+    mutating func create(mode: FileMode?, options: CreateOptions) throws -> _OpenedType
 }
 
 extension Creatable {
-    func create(mode: FileMode = FileMode.allPermissions.unmasked(),
-                options: CreateOptions = [],
-                closure: (_ opened: _OpenedType) throws -> Void) throws {
+    mutating func create(mode: FileMode? = nil,
+                         options: CreateOptions = [],
+                         closure: (_ opened: _OpenedType) throws -> Void) throws {
         try closure(create(mode: mode, options: options))
     }
 }
@@ -78,25 +78,19 @@ extension FilePath: Creatable {
     - Throws: `CreateFileError.pathExists` when creating a path that already exists
     */
     @discardableResult
-    public func create(mode: FileMode = FileMode.allPermissions.unmasked(),
-                       options: CreateOptions = []) throws -> Open<FilePath> {
+    public mutating func create(mode: FileMode? = nil,
+                                options: CreateOptions = []) throws -> Open<FilePath> {
         guard !exists else { throw CreateFileError.pathExists }
-
-        // If the mode is not allowed by the umask, then we'll have to force it
-        let forced = !mode.checkAgainstUMask()
-        if forced {
-            setUMask(for: mode)
-        }
-        defer {
-            if forced {
-                resetUMask()
-            }
-        }
 
         // Create and immediately close any intermediates that don't exist when
         // the .createIntermediates options is used
         if options.contains(.createIntermediates) && !parent.exists {
             try parent.create(mode: mode, options: options)
+        }
+
+        // If the mode is not allowed by the umask, then we'll have to force it
+        if let mode = mode {
+            try self.change(permissions: mode)
         }
 
         return try open(permissions: .readWrite, flags: [.create, .exclusive], mode: mode)
@@ -131,20 +125,9 @@ extension DirectoryPath: Creatable {
     - Throws: `CreateDirectoryError.pathIsRootDirectory` when the path points to the user's root directory
     */
     @discardableResult
-    public func create(mode: FileMode = FileMode.allPermissions.unmasked(),
-                       options: CreateOptions = []) throws -> Open<DirectoryPath> {
+    public mutating func create(mode: FileMode? = nil,
+                                options: CreateOptions = []) throws -> Open<DirectoryPath> {
         guard !exists else { throw CreateDirectoryError.pathExists }
-
-        // If the mode is not allowed by the umask, then we'll have to force it
-        let forced = !mode.checkAgainstUMask()
-        if forced {
-            setUMask(for: mode)
-        }
-        defer {
-            if forced {
-                resetUMask()
-            }
-        }
 
         // Create and immediately close any intermediates that don't exist when
         // the .createIntermediates options is used
@@ -152,8 +135,13 @@ extension DirectoryPath: Creatable {
             try parent.create(mode: mode, options: options)
         }
 
-        guard mkdir(string, mode.rawValue) != -1 else {
+        guard mkdir(string, (mode ?? .allPermissions).rawValue) != -1 else {
             throw CreateDirectoryError.getError()
+        }
+
+        // If the mode is not allowed by the umask, then we'll have to force it
+        if let mode = mode {
+            try self.change(permissions: mode)
         }
 
         return try self.open()
@@ -162,19 +150,19 @@ extension DirectoryPath: Creatable {
 
 extension Creatable where _OpenedType: Writable {
     @discardableResult
-    public func create(mode: FileMode = FileMode.allPermissions.unmasked(),
-                       options: CreateOptions = [],
-                       contents: Data) throws -> _OpenedType {
+    public mutating func create(mode: FileMode? = nil,
+                                options: CreateOptions = [],
+                                contents: Data) throws -> _OpenedType {
         let opened = try create(mode: mode, options: options)
         try opened.write(contents)
         return opened
     }
 
     @discardableResult
-    public func create(mode: FileMode = FileMode.allPermissions.unmasked(),
-                       options: CreateOptions = [],
-                       contents: String,
-                       using encoding: String.Encoding = .utf8) throws -> _OpenedType {
+    public mutating func create(mode: FileMode? = nil,
+                                options: CreateOptions = [],
+                                contents: String,
+                                using encoding: String.Encoding = .utf8) throws -> _OpenedType {
         let data = try contents.data(using: encoding) ?! StringError.notConvertibleToData(using: encoding)
         return try create(mode: mode, options: options, contents: data)
     }

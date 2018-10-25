@@ -23,7 +23,7 @@ public struct CopyOptions: OptionSet {
 public protocol Copyable {
     associatedtype CopyablePathType: Openable = Self
     @discardableResult
-    func copy(to newPath: CopyablePathType, options: CopyOptions) throws -> Open<CopyablePathType>
+    func copy(to newPath: inout CopyablePathType, options: CopyOptions) throws -> Open<CopyablePathType>
 }
 
 public extension Copyable where Self: Path {
@@ -31,14 +31,14 @@ public extension Copyable where Self: Path {
         // swiftlint:disable identifier_name
         let _newPath = directory + lastComponent!
         // swiftlint:enable identifier_name
-        let newPath = CopyablePathType(_newPath) !! "Somehow, a different type of path ended up at \(_newPath)"
-        try copy(to: newPath, options: options)
+        var newPath = CopyablePathType(_newPath) !! "Somehow, a different type of path ended up at \(_newPath)"
+        try copy(to: &newPath, options: options)
     }
 }
 
 extension FilePath: Copyable {
     @discardableResult
-    public func copy(to newPath: FilePath, options: CopyOptions = []) throws -> Open<CopyablePathType> {
+    public func copy(to newPath: inout FilePath, options: CopyOptions = []) throws -> Open<CopyablePathType> {
         // Open self with read permissions
         let openPath = try open(permissions: .read)
 
@@ -62,7 +62,7 @@ extension FilePath: Copyable {
 
 extension DirectoryPath: Copyable {
     @discardableResult
-    public func copy(to newPath: DirectoryPath, options: CopyOptions) throws -> Open<CopyablePathType> {
+    public func copy(to newPath: inout DirectoryPath, options: CopyOptions) throws -> Open<CopyablePathType> {
         let childPaths = try children(options: options.contains(.includeHidden) ? .includeHidden : [])
 
         // The cp(1) utility skips directories unless the recursive options is
@@ -89,8 +89,8 @@ extension Open: Copyable where PathType: Copyable {
     public typealias CopyablePathType = PathType.CopyablePathType
 
     @discardableResult
-    public func copy(to newPath: PathType.CopyablePathType,
+    public func copy(to newPath: inout PathType.CopyablePathType,
                      options: CopyOptions = []) throws -> Open<PathType.CopyablePathType> {
-        return try path.copy(to: newPath, options: options)
+        return try path.copy(to: &newPath, options: options)
     }
 }
