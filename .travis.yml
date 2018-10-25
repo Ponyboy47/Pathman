@@ -1,6 +1,3 @@
-env:
-  global:
-    - CC_TEST_REPORTER_ID=feaa535c70e1b21f71c8587a2508d86e9260c96cc566bdbfccf859c3e58d8601
 os:
   - linux
   - osx
@@ -9,15 +6,11 @@ dist: trusty
 language: generic
 before_install:
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then eval "$(curl -sL https://swiftenv.fuller.li/install.sh)"; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-darwin-amd64 > ./cc-test-reporter && chmod +x ./cc-test-reporter; fi
 install:
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then swiftenv install $(cat .swift-version) | grep -qe "\(been\|already\) installed"; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then swift package generate-xcodeproj --enable-code-coverage; fi
-before_script:
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then ./cc-test-reporter before-build; fi
 script:
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then travis_wait swift test; fi
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then xcodebuild -project TrailBlazer.xcodeproj -scheme TrailBlazer-Package build test; fi
 after_script:
 - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then bash <(curl -s https://codecov.io/bash) -J 'TrailBlazer'; fi
-- if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT; fi
