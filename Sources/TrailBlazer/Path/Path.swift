@@ -89,8 +89,8 @@ public extension Path {
     }
     /// The character used to separate components of a path
     public var separator: String {
-        get { return pathSeparator }
-        nonmutating set { pathSeparator = newValue }
+        get { return Self.separator }
+        nonmutating set { Self.separator = newValue }
     }
 
     /// The current working directory for the process
