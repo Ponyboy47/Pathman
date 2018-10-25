@@ -6,6 +6,10 @@ public struct DirectoryEnumerationOptions: OptionSet, Hashable {
     public init(rawValue: UInt8) {
         self.rawValue = rawValue
     }
+
+    public init(copyOptions: CopyOptions) {
+        self = copyOptions.contains(.includeHidden) ? .includeHidden : []
+    }
 }
 
 public protocol DirectoryEnumerable {
