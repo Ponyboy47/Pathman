@@ -1,6 +1,6 @@
 # TrailBlazer
 
-[![Build Status](https://travis-ci.org/Ponyboy47/Trailblazer.svg?branch=master)](https://travis-ci.org/Ponyboy47/Trailblazer) [![codecov](https://codecov.io/gh/Ponyboy47/Trailblazer/branch/master/graph/badge.svg)](https://codecov.io/gh/Ponyboy47/Trailblazer) [![Current Version](https://img.shields.io/badge/version-0.13.0-blue.svg)](https://github.com/Ponyboy47/Trailblazer/releases/tag/0.13.0) ![Supported Platforms](https://img.shields.io/badge/platform-macOS%20%7C%20linux-lightgrey.svg) [![Language](https://img.shields.io/badge/language-swift-orange.svg)](https://swift.org) [![Language Version](https://img.shields.io/badge/swift%20version-4.2-blue.svg)](https://swift.org/download/) [![License](https://img.shields.io/badge/license-MIT-black.svg)](https://github.com/Ponyboy47/Trailblazer/blob/master/LICENSE)<br>
+[![Build Status](https://travis-ci.org/Ponyboy47/Trailblazer.svg?branch=master)](https://travis-ci.org/Ponyboy47/Trailblazer) [![codecov](https://codecov.io/gh/Ponyboy47/Trailblazer/branch/master/graph/badge.svg)](https://codecov.io/gh/Ponyboy47/Trailblazer) [![Code Climate](http://img.shields.io/codeclimate/github/ponyboy47/trailblazer.svg?style=flat)](https://codeclimate.com/github/ponyboy47/trailblazer) [![Current Version](https://img.shields.io/badge/version-0.14.0-blue.svg)](https://github.com/Ponyboy47/Trailblazer/releases/tag/0.14.0) ![Supported Platforms](https://img.shields.io/badge/platform-macOS%20%7C%20linux-lightgrey.svg) [![Language](https://img.shields.io/badge/language-swift-orange.svg)](https://swift.org) [![Language Version](https://img.shields.io/badge/swift%20version-4.2-blue.svg)](https://swift.org/download/) [![License](https://img.shields.io/badge/license-MIT-black.svg)](https://github.com/Ponyboy47/Trailblazer/blob/master/LICENSE)<br>
 A type-safe path library for Apple's Swift language.
 
 ## Motivation
@@ -33,7 +33,7 @@ So I built TrailBlazer! The first type-safe swift path library built around the 
 ### Swift Package Manager:
 Add this to your Package.swift dependencies:
 ```swift
-.package(url: "https://github.com/Ponyboy47/Trailblazer.git", from: "0.13.0")
+.package(url: "https://github.com/Ponyboy47/Trailblazer.git", from: "0.14.0")
 ```
 
 ## Usage
@@ -203,7 +203,7 @@ try dir.open() { openDirectory in
 
 #### Any Path conforming to Openable:
 ```swift
-guard let file = FilePath("/tmp/test") else {
+guard var file = FilePath("/tmp/test") else {
     fatalError("Path is not a file")
 }
 
@@ -215,7 +215,7 @@ let openFile: OpenFile = try file.create(mode: FileMode(owner: .readWriteExecute
 
 In the event you need to create the intermediate paths as well:
 ```swift
-guard let file = FilePath("/tmp/test") else {
+guard var file = FilePath("/tmp/testdir/test") else {
     fatalError("Path is not a file")
 }
 
@@ -226,7 +226,7 @@ let openFile: OpenFile = try file.create(options: .createIntermediates)
 
 Paths whose Open<...> variation conforms to Writable can be created with predetermined contents:
 ```swift
-guard let file = FilePath("/tmp/test") else {
+guard var file = FilePath("/tmp/test") else {
     fatalError("Path is not a file")
 }
 
@@ -238,7 +238,7 @@ print(try file.read()) // "Hello World"
 
 Paths may also be opened for the duration of a provided closure:
 ```swift
-guard let file = FilePath("/tmp/test") else {
+guard var file = FilePath("/tmp/test") else {
     fatalError("Path already exists and is not a file")
 }
 
@@ -254,7 +254,7 @@ try file.create() { openFile in
 #### The current path only:
 This is the same for all paths
 ```swift
-guard let file = FilePath("/tmp/test") else {
+guard var file = FilePath("/tmp/test") else {
     fatalError("Path is not a file")
 }
 
@@ -263,7 +263,7 @@ try file.delete()
 
 #### Recursively delete directories:
 ```swift
-guard let dir = DirectoryPath("/tmp/test") else {
+guard var dir = DirectoryPath("/tmp/test") else {
     fatalError("Path is not a directory")
 }
 
@@ -371,7 +371,7 @@ let recursiveChildren = try dir.recursiveChildren(depth: 5, options: .includeHid
 
 #### Ownership:
 ```swift
-let path = GenericPath("/tmp")
+var path = GenericPath("/tmp")
 
 // Owner/Group can be changed separately or together
 try path.change(owner: "ponyboy47")
@@ -388,7 +388,7 @@ path.ownerName = "root"
 path.groupName = "wheel"
 
 // If you have a DirectoryPath, then changes can be made recursively:
-guard let dir = DirectoryPath(path) else {
+guard var dir = DirectoryPath(path) else {
     fatalError("Path is not a directory")
 }
 
@@ -397,7 +397,7 @@ try dir.recursiveChange(owner: "ponyboy47")
 
 #### Permissions:
 ```swift
-let path = GenericPath("/tmp")
+var path = GenericPath("/tmp")
 
 // Owner/Group/Others permissions can each be changed separately or in any combination (permissions that are not specified are not changed)
 try path.change(owner: [.read, .write, .execute]) // Only changes the owner's permissions
@@ -426,7 +426,7 @@ path.permissions.others = .read
 path.permissions.bits = .none
 
 // If you have a DirectoryPath, then changes can be made recursively:
-guard let dir = DirectoryPath(path) else {
+guard var dir = DirectoryPath(path) else {
     fatalError("Path is not a directory")
 }
 
@@ -436,7 +436,7 @@ try dir.recursiveChange(owner: .readWriteExecute, group: .readWrite, others: .re
 ### Moving Paths:
 
 ```swift
-let path = GenericPath("/tmp/testFile")
+var path = GenericPath("/tmp/testFile")
 
 // Both of these things will move testFile from /tmp/testFile to ~/testFile
 try path.move(to: DirectoryPath.home! + "testFile")
