@@ -1,8 +1,11 @@
+// swiftlint:disable file_length
+
 import ErrNo
-import Cglob
 
 /// The Error type used by anything that throws in this library
-public protocol TrailBlazerError: Error, Equatable, CaseIterable, ExpressibleByIntegerLiteral where AllCases == [Self], IntegerLiteralType == ErrNo.RawValue {
+public protocol TrailBlazerError: Error, Equatable, CaseIterable, ExpressibleByIntegerLiteral
+                                  where AllCases == [Self],
+                                  IntegerLiteralType == ErrNo.RawValue {
     var errors: [ErrNo] { get set }
 
     init(error: ErrNo?)
@@ -361,11 +364,6 @@ public struct RealPathError: TrailBlazerError {
     public init(error: ErrNo?) { self.errors = error == nil ? [] : [error!] }
 }
 
-/// Errors thrown during String conversions from Data
-public enum StringError: Error {
-    case notConvertibleToData(using: String.Encoding)
-}
-
 /// Errors thrown by trying to write to a fileDescriptor (see write(2))
 public struct WriteError: TrailBlazerError {
     public var errors: [ErrNo]
@@ -433,7 +431,7 @@ public struct MoveError: TrailBlazerError {
 
     public static let pathInUse = MoveError(error: .EBUSY)
     public static let invalidNewPath = MoveError(error: .EINVAL)
-    public static let newPathIsDirectory_OldPathIsNot = MoveError(error: .EISDIR)
+    public static let newPathIsDirectoryButOldPathIsNot = MoveError(error: .EISDIR)
     public static let symlinkLimitReached = MoveError(error: .EMLINK)
     public static let newPathIsNonEmptyDirectory = MoveError(errors: .ENOTEMPTY, .EEXIST)
     public static let pathsOnDifferentDevices = MoveError(error: .EXDEV)
@@ -441,7 +439,7 @@ public struct MoveError: TrailBlazerError {
 
     public static let allCases: [MoveError] = [
         .accessDenied, .permissionDenied, .pathInUse, .quotaReached, .segFault,
-        .invalidNewPath, .newPathIsDirectory_OldPathIsNot, .tooManySymlinks,
+        .invalidNewPath, .newPathIsDirectoryButOldPathIsNot, .tooManySymlinks,
         .symlinkLimitReached, .pathnameTooLong, .noRouteToPath, .noKernelMemory,
         .deviceFull, .pathComponentNotDirectory, .newPathIsNonEmptyDirectory,
         .readOnlyFileSystem, .pathsOnDifferentDevices
@@ -450,39 +448,8 @@ public struct MoveError: TrailBlazerError {
     public init(error: ErrNo?) { self.errors = error == nil ? [] : [error!] }
 }
 
-/// Errors thrown by globbing (see glob(3))
-public enum GlobError: Error {
-    public typealias ErrorHandler = (@convention(c) (UnsafePointer<CChar>?, OptionInt) -> OptionInt)
-    case unknown
-    case outOfMemory
-    case readError
-    case noMatches
-
-    public static func getError(_ returnVal: OptionInt) -> GlobError {
-        if returnVal == GLOB_NOSPACE {
-            return .outOfMemory
-        } else if returnVal == GLOB_ABORTED {
-            return .readError
-        } else if returnVal == GLOB_NOMATCH {
-            return .noMatches
-        }
-
-        return .unknown
-    }
-}
-
 /// Errors thrown by creating/opening a temporary file/directory (see mkstemp(3)/mkdtemp(3))
 public typealias MakeTemporaryError = CreateFileError
-
-public enum CodingError: Error {
-    case incorrectPathType
-    case unknownPathType
-}
-
-public enum CopyError: Error {
-    case uncopyablePath(GenericPath)
-    case nonEmptyDirectory
-}
 
 public struct ChDirError: TrailBlazerError {
     public var errors: [ErrNo]

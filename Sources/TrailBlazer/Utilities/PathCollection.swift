@@ -54,7 +54,9 @@ public struct PathCollection: Equatable, CustomStringConvertible {
 
     /// Combine two PathCollections into a single new PathCollection
     public static func + (lhs: PathCollection, rhs: PathCollection) -> PathCollection {
-        return PathCollection(files: lhs.files + rhs.files, directories: lhs.directories + rhs.directories, other: lhs.other + rhs.other)
+        return PathCollection(files: lhs.files + rhs.files,
+                              directories: lhs.directories + rhs.directories,
+                              other: lhs.other + rhs.other)
     }
 
     /// Combines the items from one PathCollection into this PathCollection

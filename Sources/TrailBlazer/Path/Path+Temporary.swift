@@ -7,7 +7,9 @@ import Darwin
 /// Protocol declaration for Paths that can generate and create a unique temporary path
 public protocol TemporaryGeneratable: Creatable {
     static func temporary(prefix: String) throws -> Open<Self>
+    // swiftlint:disable identifier_name
     static func _delete(_ opened: Open<Self>) throws
+    // swiftlint:enable identifier_name
 }
 
 public var temporaryDirectory: DirectoryPath = getTemporaryDirectory()
@@ -39,9 +41,11 @@ extension TemporaryGeneratable {
         return Self.temporaryPathTemplate(prefix)
     }
 
+    // swiftlint:disable identifier_name
     public static func _delete(_ opened: Open<Self>) throws {
         try opened.path.delete()
     }
+    // swiftlint:enable identifier_name
 }
 
 extension FilePath: TemporaryGeneratable {
@@ -51,9 +55,12 @@ extension FilePath: TemporaryGeneratable {
     - Parameter prefix: The path's prefix
     - Returns: The opened temporary path
 
-    - Throws: `MakeTemporaryError.alreadyExists` when the "unique" path that was generated already exists (hopefully shouldn't occur)
-    - Throws: `CreateFileError.permissionDenied` when write access is not allowed to the path or if search permissions were denied on one of the components of the path
-    - Throws: `CreateFileError.quotaReached` when the user's quota of disk blocks or inodes on the filesystem has been exhausted
+    - Throws: `MakeTemporaryError.alreadyExists` when the "unique" path that was generated already exists (hopefully
+               shouldn't occur)
+    - Throws: `CreateFileError.permissionDenied` when write access is not allowed to the path or if search permissions
+               were denied on one of the components of the path
+    - Throws: `CreateFileError.quotaReached` when the user's quota of disk blocks or inodes on the filesystem has been
+               exhausted
     - Throws: `CreateFileError.interruptedBySignal` when the call was interrupted by a signal handler
     - Throws: `CreateFileError.noProcessFileDescriptors` when the calling process has no more available file descriptors
     - Throws: `CreateFileError.noSystemFileDescriptors` when the entire system has no more available file descriptors
@@ -75,7 +82,9 @@ extension FilePath: TemporaryGeneratable {
         // .create/.exclusive flags (to ensure this process is the only
         // owner/creator of the uniquely generated tmp file), and a mode of
         // 0o0600
-        let openOptions = FilePath.OpenOptions(permissions: OpenFilePermissions.readWrite, flags: [.create, .exclusive], mode: 0o0600)
+        let openOptions = FilePath.OpenOptions(permissions: OpenFilePermissions.readWrite,
+                                               flags: [.create, .exclusive],
+                                               mode: 0o0600)
 
         return Open(FilePath(path)!, descriptor: fileDescriptor, options: openOptions)
     }
@@ -89,19 +98,26 @@ extension DirectoryPath: TemporaryGeneratable {
     - Returns: The opened temporary path
 
     - Throws: `CreateDirectoryError.permissionDenied` when the calling process does not have access to the path location
-    - Throws: `CreateDirectoryError.quotaReached` when the user's quota of disk blocks or inodes on the filesystem has been exhausted
+    - Throws: `CreateDirectoryError.quotaReached` when the user's quota of disk blocks or inodes on the filesystem has
+               been exhausted
     - Throws: `CreateDirectoryError.noKernelMemory` when there is no memory available for creating the path
     - Throws: `CreateDirectoryError.fileSystemFull` when there is no available disk space for creating the path
-    - Throws: `CreateDirectoryError.readOnlyFileSystem` when the filesystem is in read only mode and cannot create the path
-    - Throws: `CreateDirectoryError.ioError` when an I/O error occurred while creating the inode for the pathIsRootDirectory
+    - Throws: `CreateDirectoryError.readOnlyFileSystem` when the filesystem is in read only mode and cannot create the
+               path
+    - Throws: `CreateDirectoryError.ioError` when an I/O error occurred while creating the inode for the
+               pathIsRootDirectory
     - Throws: `OpenDirectoryError.permissionDenied` when the calling process does not have access to the path
-    - Throws: `OpenDirectoryError.noProcessFileDescriptors` when the process has used all of its available file descriptors
-    - Throws: `OpenDirectoryError.noSystemFileDescriptors` when the entire system has run out of available file descriptors
+    - Throws: `OpenDirectoryError.noProcessFileDescriptors` when the process has used all of its available file
+               descriptors
+    - Throws: `OpenDirectoryError.noSystemFileDescriptors` when the entire system has run out of available file
+               descriptors
     - Throws: `OpenDirectoryError.outOfMemory` when there is not enough available memory to open the directory
     */
     public static func temporary(prefix: String = "") throws -> Open<DirectoryPath> {
         // mkdtemp(s) require the last 6 characters to be X's in the template
-        let path = temporaryPathTemplate(prefix).withCString({ String(cString: mkdtemp(UnsafeMutablePointer(mutating: $0))) })
+        let path = temporaryPathTemplate(prefix).withCString({
+            return String(cString: mkdtemp(UnsafeMutablePointer(mutating: $0)))
+        })
         guard !path.isEmpty else { throw CreateDirectoryError.getError() }
 
         return try DirectoryPath(path)!.open()
@@ -119,7 +135,9 @@ public struct TemporaryOptions: OptionSet, ExpressibleByIntegerLiteral {
 
 extension TemporaryGeneratable {
     @discardableResult
-    public static func temporary(prefix: String = "", options: TemporaryOptions = [], closure: (_ opened: Open<Self>) throws -> Void) throws -> Self {
+    public static func temporary(prefix: String = "",
+                                 options: TemporaryOptions = [],
+                                 closure: (_ opened: Open<Self>) throws -> Void) throws -> Self {
         let opened = try Self.temporary(prefix: prefix)
 
         try closure(opened)
@@ -133,7 +151,9 @@ extension TemporaryGeneratable {
 }
 
 extension TemporaryGeneratable where Self: DirectoryEnumerable {
+    // swiftlint:disable identifier_name
     public static func _delete(_ opened: Open<Self>) throws {
         try opened.path.recursiveDelete()
     }
+    // swiftlint:enable identifier_name
 }

@@ -6,7 +6,7 @@ import Glibc
 import Darwin
 #endif
 
-public protocol Opened: UpdatableStatDelegate, Ownable, Permissionable {
+public protocol Opened: UpdatableStatable, Ownable, Permissionable {
     associatedtype PathType: Openable
 
     var path: PathType { get }
@@ -20,7 +20,9 @@ public final class Open<PathType: Openable>: Opened {
     public var fileDescriptor: FileDescriptor { return descriptor.fileDescriptor }
     public let openOptions: PathType.OpenOptionsType
 
+    // swiftlint:disable identifier_name
     public let _info: StatInfo
+    // swiftlint:enable identifier_name
 
     public var url: URL { return path.url }
 
@@ -48,8 +50,10 @@ public final class Open<PathType: Openable>: Opened {
     - Parameter owner: The uid of the owner of the path
     - Parameter group: The gid of the group with permissions to access the path
 
-    - Throws: `ChangeOwnershipError.permissionDenied` when the calling process does not have the proper permissions to modify path ownership
-    - Throws: `ChangeOwnershipError.badAddress` when the path points to a location outside your addressible address space
+    - Throws: `ChangeOwnershipError.permissionDenied` when the calling process does not have the proper permissions to
+               modify path ownership
+    - Throws: `ChangeOwnershipError.badAddress` when the path points to a location outside your addressible address
+               space
     - Throws: `ChangeOwnershipError.tooManySymlinks` when too many symlinks were encounter while resolving the path
     - Throws: `ChangeOwnershipError.pathnameTooLong` when the path has more than `PATH_MAX` number of characters
     - Throws: `ChangeOwnershipError.pathDoesNotExist` when the path does not exist
@@ -70,8 +74,10 @@ public final class Open<PathType: Openable>: Opened {
 
     - Parameter permissions: The new permissions to use on the path
 
-    - Throws: `ChangePermissionsError.permissionDenied` when the calling process does not have the proper permissions to modify path permissions
-    - Throws: `ChangePermissionsError.badAddress` when the path points to a location outside your accessible address space
+    - Throws: `ChangePermissionsError.permissionDenied` when the calling process does not have the proper permissions to
+               modify path permissions
+    - Throws: `ChangePermissionsError.badAddress` when the path points to a location outside your accessible address
+               space
     - Throws: `ChangePermissionsError.ioError` when an I/O error occurred during the API call
     - Throws: `ChangePermissionsError.tooManySymlinks` when too many symlinks were encountered while resolving the path
     - Throws: `ChangePermissionsError.pathnameTooLong` when the path has more than `PATH_MAX` number of characters

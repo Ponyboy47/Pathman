@@ -7,33 +7,35 @@ import Darwin
 #endif
 
 /// A protocol exposing access to information using the stat(2) utility
-public protocol StatDelegate {
+public protocol Statable {
     var info: StatInfo { get }
 }
 
-public protocol UpdatableStatDelegate: StatDelegate {
+public protocol UpdatableStatable: Statable {
+    // swiftlint:disable identifier_name
     var _info: StatInfo { get }
+    // swiftlint:enable identifier_name
 }
 
-extension UpdatableStatDelegate {
+extension UpdatableStatable {
     public var info: StatInfo {
-        get {
-            try? _info.getInfo()
-            return _info
-        }
+        try? _info.getInfo()
+        return _info
     }
 }
 
-public extension StatDelegate {
+public extension Statable {
     /// Whether or not the path exists (or is accessible)
     public var exists: Bool {
         return info.exists
     }
 
+    // swiftlint:disable identifier_name
     /// ID of device containing path
     public var id: dev_t {
         return info.id
     }
+    // swiftlint:enable identifier_name
     /// inode number
     public var inode: ino_t {
         return info.inode

@@ -11,7 +11,8 @@ extension Open: Seekable where PathType == FilePath {
     - Parameter bytes: The byte position to seek to in the file
     - Returns: The new file offset as measured in bytes from the beginning of the file
 
-    - Throws: `SeekError.invalidOffset` when the resulting file offset would be negative or beyond the end of a seekable device
+    - Throws: `SeekError.invalidOffset` when the resulting file offset would be negative or beyond the end of a seekable
+               device
     - Throws: `SeekError.offsetTooLarge` when the resulting file offset cannot be represented in an off_t
     */
     @discardableResult
@@ -31,7 +32,8 @@ extension Open: Seekable where PathType == FilePath {
     - Parameter bytes: The number of bytes to move from the end of the file
     - Returns: The new file offset as measured in bytes from the beginning of the file
 
-    - Throws: `SeekError.invalidOffset` when the resulting file offset would be negative or beyond the end of a seekable device
+    - Throws: `SeekError.invalidOffset` when the resulting file offset would be negative or beyond the end of a seekable
+               device
     - Throws: `SeekError.offsetTooLarge` when the resulting file offset cannot be represented in an off_t
     */
     @discardableResult
@@ -51,7 +53,8 @@ extension Open: Seekable where PathType == FilePath {
     - Parameter bytes: The number of bytes to move from the current file offset
     - Returns: The new file offset as measured in bytes from the beginning of the file
 
-    - Throws: `SeekError.invalidOffset` when the resulting file offset would be negative or beyond the end of a seekable device
+    - Throws: `SeekError.invalidOffset` when the resulting file offset would be negative or beyond the end of a seekable
+               device
     - Throws: `SeekError.offsetTooLarge` when the resulting file offset cannot be represented in an off_t
     */
     @discardableResult
@@ -70,7 +73,8 @@ extension Open: Seekable where PathType == FilePath {
 
     - Returns: The new file offset as measured in bytes from the beginning of the file
 
-    - Throws: `SeekError.invalidOffset` when the resulting file offset would be negative or beyond the end of a seekable device
+    - Throws: `SeekError.invalidOffset` when the resulting file offset would be negative or beyond the end of a seekable
+               device
     - Throws: `SeekError.offsetTooLarge` when the resulting file offset cannot be represented in an off_t
     */
     @discardableResult
@@ -80,12 +84,14 @@ extension Open: Seekable where PathType == FilePath {
 
     #if SEEK_HOLE
     /**
-    Moves the file offset to the next hole in the file greater than the specified offset number of bytes (as measured from the beginning of the file)
+    Moves the file offset to the next hole in the file greater than the specified offset number of bytes (as measured
+    from the beginning of the file)
 
     - Parameter offset: The starting location in the file to begin looking for the next hole
     - Returns: The new file offset as measured in bytes from the beginning of the file
 
-    - Throws: `SeekError.invalidOffset` when the resulting file offset would be negative or beyond the end of a seekable device
+    - Throws: `SeekError.invalidOffset` when the resulting file offset would be negative or beyond the end of a seekable
+               device
     - Throws: `SeekError.offsetTooLarge` when the resulting file offset cannot be represented in an off_t
     */
     @discardableResult
@@ -107,7 +113,8 @@ extension Open: Seekable where PathType == FilePath {
     - Parameter bytes: The starting locatin in the file to begin looking for data
     - Returns: The new file offset as measured in bytes from the beginning of the file
 
-    - Throws: `SeekError.invalidOffset` when the resulting file offset would be negative or beyond the end of a seekable device
+    - Throws: `SeekError.invalidOffset` when the resulting file offset would be negative or beyond the end of a seekable
+               device
     - Throws: `SeekError.offsetTooLarge` when the resulting file offset cannot be represented in an off_t
     - Throws: `SeekError.noData` when there is no more data from the `offset` to the end of the file
     */

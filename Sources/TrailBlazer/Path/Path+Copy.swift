@@ -28,7 +28,10 @@ public protocol Copyable {
 
 public extension Copyable where Self: Path {
     public func copy(into directory: DirectoryPath, options: CopyOptions = []) throws {
-        let newPath = CopyablePathType(directory + lastComponent!) !! "Somehow, a different type of path ended up at \(directory + lastComponent!)"
+        // swiftlint:disable identifier_name
+        let _newPath = directory + lastComponent!
+        // swiftlint:enable identifier_name
+        let newPath = CopyablePathType(_newPath) !! "Somehow, a different type of path ended up at \(_newPath)"
         try copy(to: newPath, options: options)
     }
 }
@@ -86,7 +89,8 @@ extension Open: Copyable where PathType: Copyable {
     public typealias CopyablePathType = PathType.CopyablePathType
 
     @discardableResult
-    public func copy(to newPath: PathType.CopyablePathType, options: CopyOptions = []) throws -> Open<PathType.CopyablePathType> {
+    public func copy(to newPath: PathType.CopyablePathType,
+                     options: CopyOptions = []) throws -> Open<PathType.CopyablePathType> {
         return try path.copy(to: newPath, options: options)
     }
 }

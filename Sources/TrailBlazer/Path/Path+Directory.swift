@@ -22,9 +22,11 @@ public struct DirectoryPath: Path, Openable, DirectoryEnumerable {
 
     public static let pathType: PathType = .directory
 
+    // swiftlint:disable identifier_name
     public var _path: String
 
     public let _info: StatInfo
+    // swiftlint:enable identifier_name
 
     /**
     Initialize from another DirectoryPath (copy constructor)
@@ -57,11 +59,15 @@ public struct DirectoryPath: Path, Openable, DirectoryEnumerable {
     - Returns: The opened directory
 
     - Throws: `OpenDirectoryError.permissionDenied` when the calling process does not have access to the path
-    - Throws: `OpenDirectoryError.noProcessFileDescriptors` when the process has used all of its available file descriptors
-    - Throws: `OpenDirectoryError.noSystemFileDescriptors` when the entire system has run out of available file descriptors
+    - Throws: `OpenDirectoryError.noProcessFileDescriptors` when the process has used all of its available file
+               descriptors
+    - Throws: `OpenDirectoryError.noSystemFileDescriptors` when the entire system has run out of available file
+               descriptors
     - Throws: `OpenDirectoryError.pathDoesNotExist` when the path does not exist
     - Throws: `OpenDirectoryError.outOfMemory` when there is not enough available memory to open the directory
-    - Throws: `OpenDirectoryError.pathNotDirectory` when the path you're trying to open exists and is not a directory. This should only occur if your DirectoryPath object was created before the path existed and then the path was created as a non-directory path type
+    - Throws: `OpenDirectoryError.pathNotDirectory` when the path you're trying to open exists and is not a directory.
+               This should only occur if your DirectoryPath object was created before the path existed and then the path
+               was created as a non-directory path type
     */
     public func open(options: Empty) throws -> Open<DirectoryPath> {
         guard let dir = opendir(string) else {
@@ -88,14 +94,19 @@ public struct DirectoryPath: Path, Openable, DirectoryEnumerable {
     - Parameter options: The options used while enumerating the children of the directory
 
     - Returns: A PathCollection of all the files, directories, and other paths that are contained in self
-    - Note: Opens the directory if it is unopened and will close it afterwards if the directory was only opened for this API call
+    - Note: Opens the directory if it is unopened and will close it afterwards if the directory was only opened for this
+            API call
 
     - Throws: `OpenDirectoryError.permissionDenied` when the calling process does not have access to the path
-    - Throws: `OpenDirectoryError.noProcessFileDescriptors` when the process has used all of its available file descriptors
-    - Throws: `OpenDirectoryError.noSystemFileDescriptors` when the entire system has run out of available file descriptors
+    - Throws: `OpenDirectoryError.noProcessFileDescriptors` when the process has used all of its available file
+               descriptors
+    - Throws: `OpenDirectoryError.noSystemFileDescriptors` when the entire system has run out of available file
+               descriptors
     - Throws: `OpenDirectoryError.pathDoesNotExist` when the path does not exist
     - Throws: `OpenDirectoryError.outOfMemory` when there is not enough available memory to open the directory
-    - Throws: `OpenDirectoryError.pathNotDirectory` when the path you're trying to open exists and is not a directory. This should only occur if your DirectoryPath object was created before the path existed and then the path was created as a non-directory path type
+    - Throws: `OpenDirectoryError.pathNotDirectory` when the path you're trying to open exists and is not a directory.
+               This should only occur if your DirectoryPath object was created before the path existed and then the path
+               was created as a non-directory path type
     */
     public func children(options: DirectoryEnumerationOptions = []) throws -> PathCollection {
         return PathCollection(try open())
@@ -135,7 +146,7 @@ public struct DirectoryPath: Path, Openable, DirectoryEnumerable {
             newPath += right
         }
 
-        return PathType(newPath) !! "Failed to instantiate \(PathType.self) from \(Swift.type(of: newPath)) '\(newPath)'"
+        return PathType(newPath) !! "Failed to initialize \(PathType.self) from \(Swift.type(of: newPath)) '\(newPath)'"
     }
 
     /**
@@ -145,9 +156,13 @@ public struct DirectoryPath: Path, Openable, DirectoryEnumerable {
     - Parameter rhs: The DirectoryPath to append
     */
     public static func += (lhs: inout DirectoryPath, rhs: DirectoryPath) {
+        // swiftlint:disable shorthand_operator
         lhs = lhs + rhs
+        // swiftlint:enable shorthand_operator
     }
 
+    // swiftlint:disable line_length
     @available(*, unavailable, message: "Appending FilePath to DirectoryPath results in a FilePath, but it is impossible to change the type of the left-hand object from a DirectoryPath to a FilePath")
     public static func += (lhs: inout DirectoryPath, rhs: FilePath) {}
+    // swiftlint:enable line_length
 }

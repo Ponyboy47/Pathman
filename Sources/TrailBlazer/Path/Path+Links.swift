@@ -21,20 +21,20 @@ public enum LinkType {
 public var defaultLinkType: LinkType = .symbolic
 
 extension Path {
-    public func link(at linkedPath: Self, type: LinkType = TrailBlazer.defaultLinkType) throws -> LinkedPath<Self> {
+    public func link(at linkedPath: Self, type: LinkType = defaultLinkType) throws -> LinkedPath<Self> {
         return try LinkedPath(linkedPath, linkedTo: self, type: type)
     }
 
-    public func link(at linkedString: String, type: LinkType = TrailBlazer.defaultLinkType) throws -> LinkedPath<Self> {
+    public func link(at linkedString: String, type: LinkType = defaultLinkType) throws -> LinkedPath<Self> {
         guard let linkedPath = Self(linkedString) else { throw LinkError.pathTypeMismatch }
         return try self.link(at: linkedPath, type: type)
     }
 
-    public func link(from targetPath: Self, type: LinkType = TrailBlazer.defaultLinkType) throws -> LinkedPath<Self> {
+    public func link(from targetPath: Self, type: LinkType = defaultLinkType) throws -> LinkedPath<Self> {
         return try LinkedPath(self, linkedTo: targetPath, type: type)
     }
 
-    public func link(from targetString: String, type: LinkType = TrailBlazer.defaultLinkType) throws -> LinkedPath<Self> {
+    public func link(from targetString: String, type: LinkType = defaultLinkType) throws -> LinkedPath<Self> {
         guard let targetPath = Self(targetString) else { throw LinkError.pathTypeMismatch }
         return try link(from: targetPath, type: type)
     }
@@ -43,6 +43,7 @@ extension Path {
 public struct LinkedPath<LinkedPathType: Path>: Path {
     public static var pathType: PathType { return .link }
 
+    // swiftlint:disable identifier_name
     public var _path: String {
         get { return __path._path }
         set { __path._path = newValue }
@@ -50,6 +51,7 @@ public struct LinkedPath<LinkedPathType: Path>: Path {
     private var __path: LinkedPathType
 
     public let _info: StatInfo
+    // swiftlint:enable identifier_name
 
     public private(set) var link: LinkedPathType
     public private(set) var linkType: LinkType
@@ -62,12 +64,16 @@ public struct LinkedPath<LinkedPathType: Path>: Path {
         return linkType == .hard ? false : link.exists.toggled()
     }
 
-    public init(_ path: String, linkedTo linkPath: LinkedPathType, type: LinkType = TrailBlazer.defaultLinkType) throws {
+    public init(_ path: String,
+                linkedTo linkPath: LinkedPathType,
+                type: LinkType = TrailBlazer.defaultLinkType) throws {
         let pathLink = try LinkedPathType.init(path) ?! LinkError.pathTypeMismatch
         try self.init(pathLink, linkedTo: linkPath, type: type)
     }
 
-    public init(_ pathLink: LinkedPathType, linkedTo link: String, type: LinkType = TrailBlazer.defaultLinkType) throws {
+    public init(_ pathLink: LinkedPathType,
+                linkedTo link: String,
+                type: LinkType = TrailBlazer.defaultLinkType) throws {
         let linkPath = try LinkedPathType.init(link) ?! LinkError.pathTypeMismatch
         try self.init(pathLink, linkedTo: linkPath, type: type)
     }
@@ -78,7 +84,9 @@ public struct LinkedPath<LinkedPathType: Path>: Path {
         try self.init(pathLink, linkedTo: linkPath, type: type)
     }
 
-    public init(_ pathLink: LinkedPathType, linkedTo linkPath: LinkedPathType, type: LinkType = TrailBlazer.defaultLinkType) throws {
+    public init(_ pathLink: LinkedPathType,
+                linkedTo linkPath: LinkedPathType,
+                type: LinkType = TrailBlazer.defaultLinkType) throws {
         __path = LinkedPathType(pathLink)
         _info = StatInfo(pathLink.string)
 
@@ -97,7 +105,9 @@ public struct LinkedPath<LinkedPathType: Path>: Path {
 
     /// Initialize a symbolic link from an array of Path components
     public init?(_ path: GenericPath) {
+        // swiftlint:disable identifier_name
         guard let _path = LinkedPathType(path) else { return nil }
+        // swiftlint:enable identifier_name
         __path = _path
         _info = StatInfo(_path.string)
         try? _info.getInfo()
@@ -140,7 +150,8 @@ extension LinkedPath where LinkedPathType: Openable {
         return try __path.open(options: options)
     }
 
-    public func open(options: LinkedPathType.OpenOptionsType, closure: (_ opened: Open<LinkedPathType>) throws -> Void) throws {
+    public func open(options: LinkedPathType.OpenOptionsType,
+                     closure: (_ opened: Open<LinkedPathType>) throws -> Void) throws {
         try closure(open(options: options))
     }
 }
@@ -165,14 +176,19 @@ extension LinkedPath where LinkedPathType == FilePath {
         - mode: The permissions to use if creating a file
     - Returns: The opened file
 
-    - Throws: `OpenFileError.permissionDenied` when write access is not allowed to the path or if search permissions were denied on one of the components of the path
-    - Throws: `OpenFileError.quotaReached` when the file does not exist and the user's quota of disk blocks or inodes on the filesystem has been exhausted
+    - Throws: `OpenFileError.permissionDenied` when write access is not allowed to the path or if search permissions
+               were denied on one of the components of the path
+    - Throws: `OpenFileError.quotaReached` when the file does not exist and the user's quota of disk blocks or inodes on
+               the filesystem has been exhausted
     - Throws: `OpenFileError.pathExists` when creating a path that already exists
     - Throws: `OpenFileError.badAddress` when the path points to a location outside your accessible address space
-    - Throws: `OpenFileError.fileTooLarge` when the path is a file that is too large to be opened. Generally occurs on a 32-bit platform when opening a file whose size is larger than a 32-bit integer
+    - Throws: `OpenFileError.fileTooLarge` when the path is a file that is too large to be opened. Generally occurs on a
+               32-bit platform when opening a file whose size is larger than a 32-bit integer
     - Throws: `OpenFileError.interruptedBySignal` when the call was interrupted by a signal handler
-    - Throws: `OpenFileError.invalidFlags` when an invalid value is specified in the `options`. May also mean the `.direct` flag was used and this system does not support it
-    - Throws: `OpenFileError.shouldNotFollowSymlinks` when the `.noFollow` flag was used and a symlink was discovered to be part of the path's components
+    - Throws: `OpenFileError.invalidFlags` when an invalid value is specified in the `options`. May also mean the
+               `.direct` flag was used and this system does not support it
+    - Throws: `OpenFileError.shouldNotFollowSymlinks` when the `.noFollow` flag was used and a symlink was discovered to
+               be part of the path's components
     - Throws: `OpenFileError.tooManySymlinks` when too many symlinks were encountered while resolving the path name
     - Throws: `OpenFileError.noProcessFileDescriptors` when the calling process has no more available file descriptors
     - Throws: `OpenFileError.noSystemFileDescriptors` when the entire system has no more available file descriptors
@@ -184,19 +200,23 @@ extension LinkedPath where LinkedPathType == FilePath {
     - Throws: `OpenFileError.pathComponentNotDirectory` when a component of the path is not a directory
     - Throws: `OpenFileError.readOnlyFileSystem` when the filesystem is in read only mode
     - Throws: `OpenFileError.pathBusy` when the path is an executable image which is currently being executed
-    - Throws: `OpenFileError.wouldBlock` when the `.nonBlock` flag was used and an incompatible lease is held on the file (see fcntl(2))
+    - Throws: `OpenFileError.wouldBlock` when the `.nonBlock` flag was used and an incompatible lease is held on the
+               file (see fcntl(2))
     - Throws: `OpenFileError.createWithoutMode` when creating a path and the mode is nil
     - Throws: `OpenFileError.lockedDevice` when the device where path exists is locked from writing
-    - Throws: `OpenFileError.ioErrorCreatingPath` (macOS only) when an I/O error occurred while creating the inode for the path
-    - Throws: `OpenFileError.operationNotSupported` (macOS only) when the `.sharedLock` or `.exclusiveLock` flags were specified and the underlying filesystem doesn't support locking or the path is a socket and opening a socket is not supported yet
-    - Throws: `CloseFileError.badFileDescriptor` when the underlying file descriptor being closed is already closed or is not a valid file descriptor
+    - Throws: `OpenFileError.ioErrorCreatingPath` (macOS only) when an I/O error occurred while creating the inode for
+               the path
+    - Throws: `OpenFileError.operationNotSupported` (macOS only) when the `.sharedLock` or `.exclusiveLock` flags were
+               specified and the underlying filesystem doesn't support locking or the path is a socket and opening a
+               socket is not supported yet
+    - Throws: `CloseFileError.badFileDescriptor` when the underlying file descriptor being closed is already closed or
+               is not a valid file descriptor
     - Throws: `CloseFileError.interruptedBySignal` when the call was interrupted by a signal handler
     - Throws: `CloseFileError.ioError` when an I/O error occurred
-
-    - Warning: Beware opening the same file multiple times with non-overlapping options/permissions. In order to reduce the number of open file descriptors, a single file can only be opened once at a time. If you open the same path with different permissions or flags, then the previously opened instance will be closed before the new one is opened. ie: if youre going to use a path for reading and writing, then open it using the `.readWrite` permissions rather than first opening it with `.read` and then later opening it with `.write`
-    - Note: A `CloseFileError` will only be thrown if the file has previously been opened and is now being reopened with non-overlapping `options` as the previous open. So we first will close the old open file and then open it with the new options
     */
-    public func open(permissions: OpenFilePermissions, flags: OpenFileFlags = [], mode: FileMode? = nil) throws -> Open<LinkedPathType> {
+    public func open(permissions: OpenFilePermissions,
+                     flags: OpenFileFlags = [],
+                     mode: FileMode? = nil) throws -> Open<LinkedPathType> {
         return try open(options: FilePath.OpenOptions(permissions: permissions, flags: flags, mode: mode))
     }
 
@@ -209,14 +229,19 @@ extension LinkedPath where LinkedPathType == FilePath {
         - mode: The permissions to use if creating a file
         - closue: The closure to run with the opened file
 
-    - Throws: `OpenFileError.permissionDenied` when write access is not allowed to the path or if search permissions were denied on one of the components of the path
-    - Throws: `OpenFileError.quotaReached` when the file does not exist and the user's quota of disk blocks or inodes on the filesystem has been exhausted
+    - Throws: `OpenFileError.permissionDenied` when write access is not allowed to the path or if search permissions
+               were denied on one of the components of the path
+    - Throws: `OpenFileError.quotaReached` when the file does not exist and the user's quota of disk blocks or inodes on
+               the filesystem has been exhausted
     - Throws: `OpenFileError.pathExists` when creating a path that already exists
     - Throws: `OpenFileError.badAddress` when the path points to a location outside your accessible address space
-    - Throws: `OpenFileError.fileTooLarge` when the path is a file that is too large to be opened. Generally occurs on a 32-bit platform when opening a file whose size is larger than a 32-bit integer
+    - Throws: `OpenFileError.fileTooLarge` when the path is a file that is too large to be opened. Generally occurs on a
+               32-bit platform when opening a file whose size is larger than a 32-bit integer
     - Throws: `OpenFileError.interruptedBySignal` when the call was interrupted by a signal handler
-    - Throws: `OpenFileError.invalidFlags` when an invalid value is specified in the `options`. May also mean the `.direct` flag was used and this system does not support it
-    - Throws: `OpenFileError.shouldNotFollowSymlinks` when the `.noFollow` flag was used and a symlink was discovered to be part of the path's components
+    - Throws: `OpenFileError.invalidFlags` when an invalid value is specified in the `options`. May also mean the
+               `.direct` flag was used and this system does not support it
+    - Throws: `OpenFileError.shouldNotFollowSymlinks` when the `.noFollow` flag was used and a symlink was discovered to
+               be part of the path's components
     - Throws: `OpenFileError.tooManySymlinks` when too many symlinks were encountered while resolving the path name
     - Throws: `OpenFileError.noProcessFileDescriptors` when the calling process has no more available file descriptors
     - Throws: `OpenFileError.noSystemFileDescriptors` when the entire system has no more available file descriptors
@@ -228,28 +253,33 @@ extension LinkedPath where LinkedPathType == FilePath {
     - Throws: `OpenFileError.pathComponentNotDirectory` when a component of the path is not a directory
     - Throws: `OpenFileError.readOnlyFileSystem` when the filesystem is in read only mode
     - Throws: `OpenFileError.pathBusy` when the path is an executable image which is currently being executed
-    - Throws: `OpenFileError.wouldBlock` when the `.nonBlock` flag was used and an incompatible lease is held on the file (see fcntl(2))
+    - Throws: `OpenFileError.wouldBlock` when the `.nonBlock` flag was used and an incompatible lease is held on the
+               file (see fcntl(2))
     - Throws: `OpenFileError.createWithoutMode` when creating a path and the mode is nil
     - Throws: `OpenFileError.lockedDevice` when the device where path exists is locked from writing
-    - Throws: `OpenFileError.ioErrorCreatingPath` (macOS only) when an I/O error occurred while creating the inode for the path
-    - Throws: `OpenFileError.operationNotSupported` (macOS only) when the `.sharedLock` or `.exclusiveLock` flags were specified and the underlying filesystem doesn't support locking or the path is a socket and opening a socket is not supported yet
-    - Throws: `CloseFileError.badFileDescriptor` when the underlying file descriptor being closed is already closed or is not a valid file descriptor
+    - Throws: `OpenFileError.ioErrorCreatingPath` (macOS only) when an I/O error occurred while creating the inode for
+               the path
+    - Throws: `OpenFileError.operationNotSupported` (macOS only) when the `.sharedLock` or `.exclusiveLock` flags were
+               specified and the underlying filesystem doesn't support locking or the path is a socket and opening a
+               socket is not supported yet
+    - Throws: `CloseFileError.badFileDescriptor` when the underlying file descriptor being closed is already closed or
+               is not a valid file descriptor
     - Throws: `CloseFileError.interruptedBySignal` when the call was interrupted by a signal handler
     - Throws: `CloseFileError.ioError` when an I/O error occurred
-
-    - Warning: Beware opening the same file multiple times with non-overlapping options/permissions. In order to reduce the number of open file descriptors, a single file can only be opened once at a time. If you open the same path with different permissions or flags, then the previously opened instance will be closed before the new one is opened. ie: if youre going to use a path for reading and writing, then open it using the `.readWrite` permissions rather than first opening it with `.read` and then later opening it with `.write`
-    - Note: A `CloseFileError` will only be thrown if the file has previously been opened and is now being reopened with non-overlapping `options` as the previous open. So we first will close the old open file and then open it with the new options
     */
-    public func open(permissions: OpenFilePermissions, flags: OpenFileFlags = [], mode: FileMode? = nil, closure: (_ opened: Open<LinkedPathType>) throws -> Void) throws {
+    public func open(permissions: OpenFilePermissions,
+                     flags: OpenFileFlags = [],
+                     mode: FileMode? = nil,
+                     closure: (_ opened: Open<LinkedPathType>) throws -> Void) throws {
         try open(options: FilePath.OpenOptions(permissions: permissions, flags: flags, mode: mode), closure: closure)
     }
 }
 
-private func createLink<PathType: Path>(from: PathType, to: PathType, type: LinkType) throws {
+private func createLink<PathType: Path>(from linkPath: PathType, to targetPath: PathType, type: LinkType) throws {
     switch type {
     case .hard:
-        guard cLink(to.string, from.string) != -1 else { throw LinkError.getError() }
+        guard cLink(targetPath.string, linkPath.string) != -1 else { throw LinkError.getError() }
     case .soft, .symbolic:
-        guard cSymlink(to.string, from.string) != -1 else { throw SymlinkError.getError() }
+        guard cSymlink(targetPath.string, linkPath.string) != -1 else { throw SymlinkError.getError() }
     }
 }

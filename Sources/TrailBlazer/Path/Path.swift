@@ -1,26 +1,23 @@
-// Used to import the URL type
 import Foundation
 
 #if os(Linux)
 import Glibc
 /// The C stat(2) API call for checking symlinks
 private let cStat = Glibc.lstat
-/// The C rename(2) API call for moving or renaming paths
-private let cRename = Glibc.rename
 #else
 import Darwin
 /// The C stat(2) API call for checking symlinks
 private let cStat = Darwin.lstat
-/// The C rename(2) API call for moving or renaming paths
-private let cRename = Darwin.rename
 #endif
 
 /// The separator between components of a path
 public var pathSeparator: String = "/"
 let processRoot: DirectoryPath = DirectoryPath(pathSeparator)!
 
+// swiftlint:disable line_length
 /// The working directory of the current process
 private var currentWorkingDirectory = (try? getCurrentWorkingDirectory()) !! "Failed to get the initial current working directory"
+// swiftlint:enable line_length
 
 private func getCurrentWorkingDirectory() throws -> DirectoryPath {
     let buffer = try getcwd(nil, 0) ?! CWDError.getError()
@@ -34,17 +31,20 @@ private func getCurrentWorkingDirectory() throws -> DirectoryPath {
 /**
 Whether or not a path exists
 
-- Parameter path: A String representation of the path to test for. This must either be relative from the currentWorkingDirectory, or absolute from the processRoot
+- Parameter path: A String representation of the path to test for. This must either be relative from the
+           currentWorkingDirectory, or absolute from the processRoot
 - Returns: Whether or not the path exists
 */
 public func pathExists(_ path: String) -> Bool {
-    var s: stat
+    // swiftlint:disable identifier_name
+    var _stat: stat
+    // swiftlint:enable identifier_name
     #if os(Linux)
-    s = Glibc.stat()
+    _stat = Glibc.stat()
     #else
-    s = Darwin.stat()
+    _stat = Darwin.stat()
     #endif
-    return cStat(path, &s) == 0
+    return cStat(path, &_stat) == 0
 }
 
 public func changeCWD(to dir: DirectoryPath) throws {
@@ -63,9 +63,12 @@ public func changeCWD(to dir: DirectoryPath, closure: () throws -> Void) throws 
 }
 
 /// A protocol that describes a Path type and the attributes available to it
-public protocol Path: Hashable, CustomStringConvertible, UpdatableStatDelegate, Ownable, Permissionable, Movable, Deletable, Codable, Sequence {
+public protocol Path: Hashable, CustomStringConvertible, UpdatableStatable, Ownable, Permissionable, Movable,
+                      Deletable, Codable, Sequence {
+    // swiftlint:disable identifier_name
     /// The underlying path representation
     var _path: String { get set }
+    // swiftlint:enable identifier_name
     /// A String representation of self
     var string: String { get }
     /// Whether or not the path is a link
@@ -265,104 +268,6 @@ public extension Path {
     */
     public static func == <PathType: Path>(lhs: Self, rhs: PathType) -> Bool {
         return lhs.string == rhs.string
-    }
-
-    /**
-    Changes the owner and/or group of the path
-
-    - Parameter owner: The uid of the owner of the path
-    - Parameter group: The gid of the group with permissions to access the path
-
-    - Throws: `ChangeOwnershipError.permissionDenied` when the calling process does not have the proper permissions to modify path ownership
-    - Throws: `ChangeOwnershipError.badAddress` when the path points to a location outside your addressible address space
-    - Throws: `ChangeOwnershipError.tooManySymlinks` when too many symlinks were encounter while resolving the path
-    - Throws: `ChangeOwnershipError.pathnameTooLong` when the path has more than `PATH_MAX` number of characters
-    - Throws: `ChangeOwnershipError.pathDoesNotExist` when the path does not exist
-    - Throws: `ChangeOwnershipError.noKernelMemory` when there is insufficient memory to change the path's ownership
-    - Throws: `ChangeOwnershipError.pathComponentNotDirectory` when a component of the path is not a directory
-    - Throws: `ChangeOwnershipError.readOnlyFileSystem` when the file system is in read-only mode
-    - Throws: `ChangeOwnershipError.ioError` when an I/O error occurred during the API call
-    */
-    public mutating func change(owner uid: uid_t = ~0, group gid: gid_t = ~0) throws {
-        guard chown(string, uid, gid) == 0 else {
-            throw ChangeOwnershipError.getError()
-        }
-    }
-
-    /**
-    Changes the permissions of the path
-
-    - Parameter permissions: The new permissions to use on the path
-
-    - Throws: `ChangePermissionsError.permissionDenied` when the calling process does not have the proper permissions to modify path permissions
-    - Throws: `ChangePermissionsError.badAddress` when the path points to a location outside your accessible address space
-    - Throws: `ChangePermissionsError.ioError` when an I/O error occurred during the API call
-    - Throws: `ChangePermissionsError.tooManySymlinks` when too many symlinks were encountered while resolving the path
-    - Throws: `ChangePermissionsError.pathnameTooLong` when the path has more than `PATH_MAX` number of characters
-    - Throws: `ChangePermissionsError.pathDoesNotExist` when the path does not exist
-    - Throws: `ChangePermissionsError.noKernelMemory` when there is insufficient memory to change the path's permissions
-    - Throws: `ChangePermissionsError.pathComponentNotDirectory` when a component of the path is not a directory
-    - Throws: `ChangePermissionsError.readOnlyFileSystem` when the file system is in read-only mode
-    */
-    public mutating func change(permissions: FileMode) throws {
-        guard chmod(string, permissions.rawValue) == 0 else {
-            throw ChangePermissionsError.getError()
-        }
-    }
-
-    /**
-    Moves a path to a new location
-
-    - Parameter newPath: The new location for the path
-
-    - Throws: `MoveError.permissionDenied` the calling process does not have write permissions to either the directory containing the current path or the directory where the newPath is located, or search permission is denied for one of the components of either the current path or the newPath, or the current path is a directory and does not allow write permissions
-    - Throws: `MoveError.pathInUse` when the current path or the newPath is a directory that is in use by some process or the system
-    - Throws: `MoveError.quotaReached` when the user's quota of disk blocks on the file system has been exhausted
-    - Throws: `MoveError.badAddress` when either the current path or the newPath points to a location outside your accessible address space
-    - Throws: `MoveError.invalidNewPath` when the newPath contains a prefix of the current path, or more generally, an attempt was made to make a directory a subdirectory of itself
-    - Throws: `MoveError.newPathIsDirectory_OldPathIsNot` when the new path points to a directory, but the current path does not
-    - Throws: `MoveError.tooManySymlinks` when too many symlinks were encountere while resolving the path
-    - Throws: `MoveError.symlinkLimitReached` when the current path already has the maximum number of links to it, or it was a directory and the directory containing newPath has the maximum number of links
-    - Throws: `MoveError.pathnameTooLong` when either the current path or newPath have more than `PATH_MAX` number of characters
-    - Throws: `MoveError.pathDoesNotExist` when either the current path does not exist, a component of the newPath does not exist, or either the current path or newPath is empty
-    - Throws: `MoveError.noKernelMemory` when there is insufficient memory to move the path
-    - Throws: `MoveError.fileSystemFull` when the file system has no space available
-    - Throws: `MoveError.pathComponentNotDirectory` when a component of either the current path or newPath is not a directory
-    - Throws: `MoveError.newPathIsNonEmptyDirectory` when newPath is a non-empty directory
-    - Throws: `MoveError.readOnlyFileSystem` when the file system is in read-only mode
-    - Throws: `MoveError.pathsOnDifferentFileSystems` when the current path and newPath are on separate file systems
-    */
-    public mutating func move(to newPath: Self) throws {
-        guard cRename(string, newPath.string) == 0 else {
-            throw MoveError.getError()
-        }
-
-        _path = newPath.string
-    }
-
-    /**
-    Deletes the path
-
-    - Throws: `DeleteFileError.permissionDenied` when the calling process does not have write access to the directory containing the path or the calling process does not have search permissions to one of the path's components or the calling process does not have permission to delete the path
-    - Throws: `DeleteFileError.pathInUse` when the path is in use by the system or another process
-    - Throws: `DeleteFileError.badAddress` when the path points to a location outside your accessible address space
-    - Throws: `DeleteFileError.ioError` when an I/O error occurred
-    - Throws: `DeleteFileError.isDirectory` when the path is a directory (Should only occur if the FilePath object was created before the path existed and it was later created as a directory)
-    - Throws: `DeleteFileError.tooManySymlinks` when too many symlinks were encountered while resolving the path
-    - Throws: `DeleteFileError.pathnameTooLong` when the path has more than `PATH_MAX` number of characters
-    - Throws: `DeleteFileError.noRouteToPath` when the path could not be resolved
-    - Throws: `DeleteFileError.pathComponentNotDirectory` when a component of the path was not a directory
-    - Throws: `DeleteFileError.noKernelMemory` when there is no available mermory to delete the file
-    - Throws: `DeleteFileError.readOnlyFileSystem` when the file system is in read-only mode and so the file cannot be deleted
-    - Throws: `CloseFileError.badFileDescriptor` when the file descriptor isn't open or valid (should only occur if you're manually closing it outside of the normal TrailBlazer API)
-    - Throws: `CloseFileError.interruptedBySignal` when a signal interrupts the API call
-    - Throws: `CloseFileError.ioError` when an I/O error occurred during the API call
-    */
-    public mutating func delete() throws {
-        // Deleting files means unlinking them
-        guard cUnlink(string) != -1 else {
-            throw DeleteFileError.getError()
-        }
     }
 
     /**

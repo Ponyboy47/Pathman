@@ -2,6 +2,7 @@ public protocol ByteRepresentable {
     var bytes: Int { get }
 }
 
+// swiftlint:disable identifier_name
 extension ByteRepresentable {
     /// Returns the number of bytes assuming self is kilobytes
     public var kilobytes: Int { return bytes * 1024 }
@@ -24,6 +25,7 @@ extension ByteRepresentable {
     /// Returns the number of bytes assuming self is petabytes
     public var pb: Int { return petabytes }
 }
+// swiftlint:enable identifier_name
 
 extension Int: ByteRepresentable {
     public var bytes: Int { return self }

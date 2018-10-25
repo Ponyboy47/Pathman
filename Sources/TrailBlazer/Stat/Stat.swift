@@ -8,15 +8,19 @@ import Darwin
 
 /// A protocol specification for objects making stat(2) C API calls
 protocol Stat {
+    // swiftlint:disable identifier_name
     /// The underlying stat struct that stores the information from the stat(2) C API calls
     var _buffer: stat { get set }
+    // swiftlint:enable identifier_name
 
     init()
 }
 
 extension Stat {
+    // swiftlint:disable identifier_name
     /// ID of device containing path
     public var id: dev_t { return _buffer.st_dev }
+    // swiftlint:enable identifier_name
     /// inode number
     public var inode: ino_t { return _buffer.st_ino }
     /// The type of the path

@@ -2,10 +2,11 @@
 public struct GenericPath: Path, ExpressibleByStringLiteral, ExpressibleByArrayLiteral {
     public static let pathType: PathType = .unknown
 
-    /// The stored path to use and manipulate
+    // swiftlint:disable identifier_name
     public var _path: String
 
     public let _info: StatInfo
+    // swiftlint:enable identifier_name
 
     public init(_ str: String) {
         if str.count > 1 && str.hasSuffix(GenericPath.separator) {
@@ -19,7 +20,9 @@ public struct GenericPath: Path, ExpressibleByStringLiteral, ExpressibleByArrayL
 
     /// Initialize from an array of path elements
     public init(_ components: [String]) {
-        _path = components.filter({ !$0.isEmpty && $0 != GenericPath.separator}).joined(separator: GenericPath.separator)
+        _path = components.filter({ comp in
+            return !comp.isEmpty && comp != GenericPath.separator
+        }).joined(separator: GenericPath.separator)
         if let first = components.first, first == GenericPath.separator {
             _path = first + _path
         }
@@ -82,6 +85,7 @@ public struct GenericPath: Path, ExpressibleByStringLiteral, ExpressibleByArrayL
         return GenericPath(lhs) + rhs
     }
 
+    // swiftlint:disable shorthand_operator
     public static func += (lhs: inout GenericPath, rhs: GenericPath) {
         lhs = lhs + rhs
     }
@@ -89,4 +93,5 @@ public struct GenericPath: Path, ExpressibleByStringLiteral, ExpressibleByArrayL
     public static func += (lhs: inout GenericPath, rhs: String) {
         lhs = lhs + rhs
     }
+    // swiftlint:enable shorthand_operator
 }

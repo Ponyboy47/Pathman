@@ -2,8 +2,10 @@ import Cglob
 
 /// The construct used and returned by globbing
 public final class Glob {
+    // swiftlint:disable identifier_name
     /// A pointer to the underlying glob_t struct used for the C glob(3) API calls
     var _glob: UnsafeMutablePointer<glob_t>
+    // swiftlint:enable identifier_name
     /// Whether or not this library owns the underlying glob_t struct and can
     /// safely free it's memory on deinitialization
     private let owned: Bool

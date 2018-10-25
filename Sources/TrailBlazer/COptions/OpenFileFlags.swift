@@ -15,9 +15,10 @@ public struct OpenFileFlags: OptionSet, ExpressibleByIntegerLiteral, Hashable {
     descriptor. This feature is available only for terminals, pseudoterminals,
     sockets, and (since Linux 2.6) pipes and FIFOs. See fcntl(2) for further
     details.
-    NOTE: This is commented out because open(2) says, "Currently, it is not possible to enable signal-driven I/O by specifying O_ASYNC when calling open(); use fcntl(2) to enable this flag.
     */
+    // swiftlint:disable line_length
     @available(*, unavailable, message: "Currently, it is not possible to enable signal-driven I/O by specifying O_ASYNC when calling open(); use fcntl(2) to enable this flag.")
+    // swiftlint:enable line_length
     public static let async = OpenFileFlags(rawValue: O_ASYNC)
 
     /**
@@ -30,7 +31,9 @@ public struct OpenFileFlags: OptionSet, ExpressibleByIntegerLiteral, Hashable {
     */
     public static let append = OpenFileFlags(rawValue: O_APPEND)
     /**
-    Enable the close-on-exec flag for the opened path. Specifying this flag permits a program to avoid additional fcntl(2) F_SETFD operations to set the FD_CLOEXEC flag.
+    Enable the close-on-exec flag for the opened path. Specifying this flag
+    permits a program to avoid additional fcntl(2) F_SETFD operations to set
+    the FD_CLOEXEC flag.
 
     NOTE: Use of this flag is essential in some multithreaded programs, because
     using a separate fcntl(2) F_SETFD operation to set the FD_CLOEXEC flag does
@@ -139,7 +142,10 @@ public struct OpenFileFlags: OptionSet, ExpressibleByIntegerLiteral, Hashable {
     public static let sync = OpenFileFlags(rawValue: O_SYNC)
 
     /// All flags
-    public static let all: OpenFileFlags = [.append, .closeOnExec, .create, .directory, .exclusive, .noCTTY, .noFollow, .nonBlock, .truncate, .dsync, .sync]
+    public static let all: OpenFileFlags = [
+        .append, .closeOnExec, .create, .directory, .exclusive, .noCTTY,
+        .noFollow, .nonBlock, .truncate, .dsync, .sync
+    ]
     #else
     /// Atomically obtain a shared lock
     public static let sharedLock = OpenFileFlags(rawValue: O_SHLOCK)
@@ -151,7 +157,11 @@ public struct OpenFileFlags: OptionSet, ExpressibleByIntegerLiteral, Hashable {
     public static let evtOnly = OpenFileFlags(rawValue: O_EVTONLY)
 
     /// All flags
-    public static let all: OpenFileFlags = [.append, .closeOnExec, .create, .directory, .exclusive, .noCTTY, .noFollow, .nonBlock, .truncate, .sharedLock, .exclusiveLock, .symlink, .evtOnly]
+    public static let all: OpenFileFlags = [
+        .append, .closeOnExec, .create, .directory, .exclusive, .noCTTY,
+        .noFollow, .nonBlock, .truncate, .sharedLock, .exclusiveLock, .symlink,
+        .evtOnly
+    ]
     #endif
 
     public static let none: OpenFileFlags = []

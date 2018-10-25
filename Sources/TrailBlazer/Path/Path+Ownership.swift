@@ -58,8 +58,10 @@ public extension Ownable {
     - Throws: `GroupInfoError.noMoreProcessFileDescriptors` when the process has no more available file descriptors
     - Throws: `GroupInfoError.noMoreSystemFileDescriptors` when the system has no more available file descriptors
     - Throws: `GroupInfoError.outOfMemory` when there is insufficient memory to allocate the underlying C group struct
-    - Throws: `ChangeOwnershipError.permissionDenied` when the calling process does not have the proper permissions to modify path ownership
-    - Throws: `ChangeOwnershipError.badAddress` when the path points to a location outside your addressible address space
+    - Throws: `ChangeOwnershipError.permissionDenied` when the calling process does not have the proper permissions to
+               modify path ownership
+    - Throws: `ChangeOwnershipError.badAddress` when the path points to a location outside your addressible address
+               space
     - Throws: `ChangeOwnershipError.tooManySymlinks` when too many symlinks were encounter while resolving the path
     - Throws: `ChangeOwnershipError.pathnameTooLong` when the path has more than `PATH_MAX` number of characters
     - Throws: `ChangeOwnershipError.pathDoesNotExist` when the path does not exist
@@ -96,8 +98,10 @@ extension Ownable where Self: DirectoryEnumerable {
     - Parameter group: The gid of the group with permissions to access the path
     - Parameter options: The options used while enumerating the children of the directory
 
-    - Throws: `ChangeOwnershipError.permissionDenied` when the calling process does not have the proper permissions to modify path ownership
-    - Throws: `ChangeOwnershipError.badAddress` when the path points to a location outside your addressible address space
+    - Throws: `ChangeOwnershipError.permissionDenied` when the calling process does not have the proper permissions to
+               modify path ownership
+    - Throws: `ChangeOwnershipError.badAddress` when the path points to a location outside your addressible address
+               space
     - Throws: `ChangeOwnershipError.tooManySymlinks` when too many symlinks were encounter while resolving the path
     - Throws: `ChangeOwnershipError.pathnameTooLong` when the path has more than `PATH_MAX` number of characters
     - Throws: `ChangeOwnershipError.pathDoesNotExist` when the path does not exist
@@ -106,13 +110,19 @@ extension Ownable where Self: DirectoryEnumerable {
     - Throws: `ChangeOwnershipError.readOnlyFileSystem` when the file system is in read-only mode
     - Throws: `ChangeOwnershipError.ioError` when an I/O error occurred during the API call
     - Throws: `OpenDirectoryError.permissionDenied` when the calling process does not have access to the path
-    - Throws: `OpenDirectoryError.noProcessFileDescriptors` when the process has used all of its available file descriptors
-    - Throws: `OpenDirectoryError.noSystemFileDescriptors` when the entire system has run out of available file descriptors
+    - Throws: `OpenDirectoryError.noProcessFileDescriptors` when the process has used all of its available file
+               descriptors
+    - Throws: `OpenDirectoryError.noSystemFileDescriptors` when the entire system has run out of available file
+               descriptors
     - Throws: `OpenDirectoryError.pathDoesNotExist` when the path does not exist
     - Throws: `OpenDirectoryError.outOfMemory` when there is not enough available memory to open the directory
-    - Throws: `OpenDirectoryError.pathNotDirectory` when the path you're trying to open exists and is not a directory. This should only occur if your DirectoryPath object was created before the path existed and then the path was created as a non-directory path type
+    - Throws: `OpenDirectoryError.pathNotDirectory` when the path you're trying to open exists and is not a directory.
+               This should only occur if your DirectoryPath object was created before the path existed and then the path
+               was created as a non-directory path type
     */
-    public mutating func changeRecursive(owner uid: uid_t = ~0, group gid: gid_t = ~0, options: DirectoryEnumerationOptions = .includeHidden) throws {
+    public mutating func changeRecursive(owner uid: uid_t = ~0,
+                                         group gid: gid_t = ~0,
+                                         options: DirectoryEnumerationOptions = .includeHidden) throws {
         let childPaths = try children(options: options)
 
         for var file in childPaths.files {
@@ -137,8 +147,10 @@ extension Ownable where Self: DirectoryEnumerable {
     - Parameter group: The name of the group with permissions to access the path
     - Parameter options: The options used while enumerating the children of the directory
 
-    - Throws: `ChangeOwnershipError.permissionDenied` when the calling process does not have the proper permissions to modify path ownership
-    - Throws: `ChangeOwnershipError.badAddress` when the path points to a location outside your addressible address space
+    - Throws: `ChangeOwnershipError.permissionDenied` when the calling process does not have the proper permissions to
+               modify path ownership
+    - Throws: `ChangeOwnershipError.badAddress` when the path points to a location outside your addressible address
+               space
     - Throws: `ChangeOwnershipError.tooManySymlinks` when too many symlinks were encounter while resolving the path
     - Throws: `ChangeOwnershipError.pathnameTooLong` when the path has more than `PATH_MAX` number of characters
     - Throws: `ChangeOwnershipError.pathDoesNotExist` when the path does not exist
@@ -159,13 +171,19 @@ extension Ownable where Self: DirectoryEnumerable {
     - Throws: `GroupInfoError.noMoreSystemFileDescriptors` when the system has no more available file descriptors
     - Throws: `GroupInfoError.outOfMemory` when there is insufficient memory to allocate the underlying C group struct
     - Throws: `OpenDirectoryError.permissionDenied` when the calling process does not have access to the path
-    - Throws: `OpenDirectoryError.noProcessFileDescriptors` when the process has used all of its available file descriptors
-    - Throws: `OpenDirectoryError.noSystemFileDescriptors` when the entire system has run out of available file descriptors
+    - Throws: `OpenDirectoryError.noProcessFileDescriptors` when the process has used all of its available file
+               descriptors
+    - Throws: `OpenDirectoryError.noSystemFileDescriptors` when the entire system has run out of available file
+               descriptors
     - Throws: `OpenDirectoryError.pathDoesNotExist` when the path does not exist
     - Throws: `OpenDirectoryError.outOfMemory` when there is not enough available memory to open the directory
-    - Throws: `OpenDirectoryError.pathNotDirectory` when the path you're trying to open exists and is not a directory. This should only occur if your DirectoryPath object was created before the path existed and then the path was created as a non-directory path type
+    - Throws: `OpenDirectoryError.pathNotDirectory` when the path you're trying to open exists and is not a directory.
+               This should only occur if your DirectoryPath object was created before the path existed and then the path
+               was created as a non-directory path type
     */
-    public mutating func changeRecursive(owner username: String? = nil, group groupname: String? = nil, options: DirectoryEnumerationOptions = .includeHidden) throws {
+    public mutating func changeRecursive(owner username: String? = nil,
+                                         group groupname: String? = nil,
+                                         options: DirectoryEnumerationOptions = .includeHidden) throws {
         let uid: uid_t
         let gid: gid_t
 
@@ -185,7 +203,7 @@ extension Ownable where Self: DirectoryEnumerable {
     }
 }
 
-extension Ownable where Self: StatDelegate {
+extension Ownable where Self: Statable {
     /// The uid of the owner of the path
     public var owner: uid_t {
         get { return info.owner }
@@ -196,5 +214,31 @@ extension Ownable where Self: StatDelegate {
     public var group: gid_t {
         get { return info.group }
         set { try? change(owner: ~0, group: newValue) }
+    }
+}
+
+extension Path {
+    /**
+    Changes the owner and/or group of the path
+
+    - Parameter owner: The uid of the owner of the path
+    - Parameter group: The gid of the group with permissions to access the path
+
+    - Throws: `ChangeOwnershipError.permissionDenied` when the calling process does not have the proper permissions to
+               modify path ownership
+    - Throws: `ChangeOwnershipError.badAddress` when the path points to a location outside your addressible address
+               space
+    - Throws: `ChangeOwnershipError.tooManySymlinks` when too many symlinks were encounter while resolving the path
+    - Throws: `ChangeOwnershipError.pathnameTooLong` when the path has more than `PATH_MAX` number of characters
+    - Throws: `ChangeOwnershipError.pathDoesNotExist` when the path does not exist
+    - Throws: `ChangeOwnershipError.noKernelMemory` when there is insufficient memory to change the path's ownership
+    - Throws: `ChangeOwnershipError.pathComponentNotDirectory` when a component of the path is not a directory
+    - Throws: `ChangeOwnershipError.readOnlyFileSystem` when the file system is in read-only mode
+    - Throws: `ChangeOwnershipError.ioError` when an I/O error occurred during the API call
+    */
+    public mutating func change(owner uid: uid_t = ~0, group gid: gid_t = ~0) throws {
+        guard chown(string, uid, gid) == 0 else {
+            throw ChangeOwnershipError.getError()
+        }
     }
 }

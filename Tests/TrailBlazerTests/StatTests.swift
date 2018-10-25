@@ -117,7 +117,7 @@ class StatTests: XCTestCase {
     }
 
     func testStatDelegate() {
-        struct Foo: UpdatableStatDelegate {
+        struct Foo: UpdatableStatable {
             var _info: StatInfo
 
             init(_ path: String) {

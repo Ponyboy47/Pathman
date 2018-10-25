@@ -56,8 +56,7 @@ public extension Seekable {
 public struct Offset {
     /// The type of seeking to be performed
     public struct OffsetType: RawRepresentable, Equatable {
-        public typealias RawValue = OptionInt
-        public let rawValue: RawValue
+        public let rawValue: OptionInt
 
         /// Seek from the beginning of a path
         public static let beginning = OffsetType(rawValue: SEEK_SET)
@@ -74,7 +73,7 @@ public struct Offset {
         public static let data = OffsetType(rawValue: SEEK_DATA)
         #endif
 
-        public init(rawValue: RawValue) {
+        public init(rawValue: OptionInt) {
             self.rawValue = rawValue
         }
     }
