@@ -6,13 +6,13 @@ import Darwin
 
 /// Protocol declaration for Paths that can generate and create a unique temporary path
 public protocol TemporaryGeneratable: Creatable {
-    static func temporary(prefix: String) throws -> Open<Self>
+    static func temporary(base tmpDir: DirectoryPath, prefix: String) throws -> Open<Self>
     // swiftlint:disable identifier_name
     static func _delete(_ opened: Open<Self>) throws
     // swiftlint:enable identifier_name
 }
 
-public var temporaryDirectory: DirectoryPath = getTemporaryDirectory()
+public let temporaryDirectory: DirectoryPath = getTemporaryDirectory()
 
 private func getTemporaryDirectory() -> DirectoryPath {
     let tmpDir: DirectoryPath!
@@ -33,12 +33,12 @@ private func getTemporaryDirectory() -> DirectoryPath {
 
 extension TemporaryGeneratable {
     // Both mkstemp(3) and mkdtemp(3) require 6 consecutive X's in the template
-    public static func temporaryPathTemplate(_ prefix: String) -> String {
-        return (temporaryDirectory + "\(prefix)XXXXXX").string
+    fileprivate static func temporaryPathTemplate(_ base: DirectoryPath, _ prefix: String) -> String {
+        return (base + "\(prefix)XXXXXX").string
     }
 
-    public func temporaryPathTemplate(_ prefix: String) -> String {
-        return Self.temporaryPathTemplate(prefix)
+    fileprivate func temporaryPathTemplate(_ base: DirectoryPath, _ prefix: String) -> String {
+        return Self.temporaryPathTemplate(base, prefix)
     }
 
     // swiftlint:disable identifier_name
@@ -52,7 +52,8 @@ extension FilePath: TemporaryGeneratable {
     /**
     Creates a unique FilePath with the specified prefix
 
-    - Parameter prefix: The path's prefix
+    - Parameter base: The base directory where the temporary path will be placed
+    - Parameter prefix: The file name's prefix (before the randomly generated part of the path)
     - Returns: The opened temporary path
 
     - Throws: `MakeTemporaryError.alreadyExists` when the "unique" path that was generated already exists (hopefully
@@ -70,11 +71,14 @@ extension FilePath: TemporaryGeneratable {
     - Throws: `CreateFileError.lockedDevice` when the device where path exists is locked from writing
     - Throws: `CreateFileError.ioErrorCreatingPath` when an I/O error occurred while creating the inode for the path
     */
-    public static func temporary(prefix: String = "") throws -> Open<FilePath> {
-        let (fileDescriptor, path) = temporaryPathTemplate(prefix).withCString { (ptr) -> (FileDescriptor, String) in
+    public static func temporary(base tmpDir: DirectoryPath = temporaryDirectory,
+                                 prefix: String = "") throws -> Open<FilePath> {
+        // swiftlint:disable line_length
+        let (fileDescriptor, path) = temporaryPathTemplate(tmpDir, prefix).withCString { ptr -> (FileDescriptor, String) in
             let mutablePtr = UnsafeMutablePointer(mutating: ptr)
             return (mkstemp(mutablePtr), String(cString: mutablePtr))
         }
+        // swiftlint:enable line_length
 
         guard fileDescriptor != -1 else { throw MakeTemporaryError.getError() }
 
@@ -94,7 +98,8 @@ extension DirectoryPath: TemporaryGeneratable {
     /**
     Creates a unique DirectoryPath with the specified prefix
 
-    - Parameter prefix: The path's prefix
+    - Parameter base: The base directory where the temporary path will be placed
+    - Parameter prefix: The directory name's prefix (before the randomly generated part of the path)
     - Returns: The opened temporary path
 
     - Throws: `CreateDirectoryError.permissionDenied` when the calling process does not have access to the path location
@@ -113,9 +118,10 @@ extension DirectoryPath: TemporaryGeneratable {
                descriptors
     - Throws: `OpenDirectoryError.outOfMemory` when there is not enough available memory to open the directory
     */
-    public static func temporary(prefix: String = "") throws -> Open<DirectoryPath> {
+    public static func temporary(base tmpDir: DirectoryPath = temporaryDirectory,
+                                 prefix: String = "") throws -> Open<DirectoryPath> {
         // mkdtemp(s) require the last 6 characters to be X's in the template
-        let path = temporaryPathTemplate(prefix).withCString({
+        let path = temporaryPathTemplate(tmpDir, prefix).withCString({
             return String(cString: mkdtemp(UnsafeMutablePointer(mutating: $0)))
         })
         guard !path.isEmpty else { throw CreateDirectoryError.getError() }
@@ -135,10 +141,11 @@ public struct TemporaryOptions: OptionSet, ExpressibleByIntegerLiteral {
 
 extension TemporaryGeneratable {
     @discardableResult
-    public static func temporary(prefix: String = "",
+    public static func temporary(base tmpDir: DirectoryPath = temporaryDirectory,
+                                 prefix: String = "",
                                  options: TemporaryOptions = [],
                                  closure: (_ opened: Open<Self>) throws -> Void) throws -> Self {
-        let opened = try Self.temporary(prefix: prefix)
+        let opened = try Self.temporary(base: tmpDir, prefix: prefix)
 
         try closure(opened)
 
