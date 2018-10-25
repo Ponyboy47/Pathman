@@ -22,6 +22,22 @@ extension UpdatableStatable {
         try? _info.getInfo()
         return _info
     }
+
+    /// Whether or not the path is a directory
+    public var isDirectory: Bool {
+        return _info.exists && _info.type == .directory
+    }
+
+    /// Whether or not the path is a file
+    public var isFile: Bool {
+        return _info.exists && _info.type == .file
+    }
+
+    /// Whether or not the path is a symlink
+    public var isLink: Bool {
+        try? _info.getInfo(options: .getLinkInfo)
+        return _info.exists && _info.type == .link
+    }
 }
 
 public extension Statable {

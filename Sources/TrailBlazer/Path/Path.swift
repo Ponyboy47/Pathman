@@ -165,22 +165,6 @@ public extension Path {
         }
     }
 
-    /// Whether or not the path is a directory
-    public var isDirectory: Bool {
-        return _info.exists && _info.type == .directory
-    }
-
-    /// Whether or not the path is a file
-    public var isFile: Bool {
-        return _info.exists && _info.type == .file
-    }
-
-    /// Whether or not the path is a symlink
-    public var isLink: Bool {
-        try? _info.getInfo(options: .getLinkInfo)
-        return _info.exists && _info.type == .link
-    }
-
     /// The URL representation of the path
     public var url: URL {
         return URL(fileURLWithPath: _path, isDirectory: exists ? isDirectory : self is DirectoryPath)
@@ -189,39 +173,6 @@ public extension Path {
     /// A printable description of the current path
     public var description: String {
         return "\(Swift.type(of: self))(\"\(string)\")"
-    }
-
-    /// Whether or not the path may be read from by the calling process
-    public var isReadable: Bool {
-        if geteuid() == owner && permissions.owner.isReadable {
-            return true
-        } else if getegid() == group && permissions.group.isReadable {
-            return true
-        }
-
-        return permissions.others.isReadable
-    }
-
-    /// Whether or not the path may be read from by the calling process
-    public var isWritable: Bool {
-        if geteuid() == owner && permissions.owner.isWritable {
-            return true
-        } else if getegid() == group && permissions.group.isWritable {
-            return true
-        }
-
-        return permissions.others.isWritable
-    }
-
-    /// Whether or not the path may be read from by the calling process
-    public var isExecutable: Bool {
-        if geteuid() == owner && permissions.owner.isExecutable {
-            return true
-        } else if getegid() == group && permissions.group.isExecutable {
-            return true
-        }
-
-        return permissions.others.isExecutable
     }
 
     public func hash(into hasher: inout Hasher) {

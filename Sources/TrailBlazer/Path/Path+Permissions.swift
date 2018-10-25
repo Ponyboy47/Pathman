@@ -177,6 +177,41 @@ public extension Permissionable {
     }
 }
 
+extension Permissionable where Self: Statable {
+    /// Whether or not the path may be read from by the calling process
+    public var isReadable: Bool {
+        if geteuid() == owner && permissions.owner.isReadable {
+            return true
+        } else if getegid() == group && permissions.group.isReadable {
+            return true
+        }
+
+        return permissions.others.isReadable
+    }
+
+    /// Whether or not the path may be read from by the calling process
+    public var isWritable: Bool {
+        if geteuid() == owner && permissions.owner.isWritable {
+            return true
+        } else if getegid() == group && permissions.group.isWritable {
+            return true
+        }
+
+        return permissions.others.isWritable
+    }
+
+    /// Whether or not the path may be read from by the calling process
+    public var isExecutable: Bool {
+        if geteuid() == owner && permissions.owner.isExecutable {
+            return true
+        } else if getegid() == group && permissions.group.isExecutable {
+            return true
+        }
+
+        return permissions.others.isExecutable
+    }
+}
+
 extension Path {
     /**
     Changes the permissions of the path
