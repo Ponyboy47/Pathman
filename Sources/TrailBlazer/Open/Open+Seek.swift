@@ -19,6 +19,7 @@ public protocol Seekable: Opened {
     func seek(toNextDataAfter offset: OSOffsetInt) throws -> OSOffsetInt
     #endif
 
+    /// Moves the file offset back to the beginning of the file
     func rewind() throws -> OSOffsetInt
 }
 
@@ -33,22 +34,27 @@ public extension Seekable {
     /// Seeks using the specified offset
     @discardableResult
     public func seek(_ offset: Offset) throws -> OSOffsetInt {
-        let newOffset: OSOffsetInt
+        let seekFunc: (OSOffsetInt) throws -> OSOffsetInt
 
         switch offset.type {
-        case .beginning: newOffset = try seek(fromStart: offset.bytes)
-        case .end: newOffset = try seek(fromEnd: offset.bytes)
-        case .current: newOffset = try seek(fromCurrent: offset.bytes)
+        case .beginning: seekFunc = seek(fromStart:)
+        case .end: seekFunc = seek(fromEnd:)
+        case .current: seekFunc = seek(fromCurrent:)
         #if SEEK_HOLE
-        case .hole: newOffset = try seek(toNextHoleAfter: offset.bytes)
+        case .hole: seekFunc = seek(toNextHoleAfter:)
         #endif
         #if SEEK_DATA
-        case .data: newOffset = try seek(toNextDataAfter: offset.bytes)
+        case .data: seekFunc = seek(toNextDataAfter:)
         #endif
         default: throw SeekError.unknownOffsetType
         }
 
-        return newOffset
+        return try seekFunc(offset.bytes)
+    }
+
+    @discardableResult
+    public func rewind() throws -> OSOffsetInt {
+        return try seek(fromStart: 0)
     }
 }
 

@@ -68,20 +68,6 @@ extension Open: Seekable where PathType == FilePath {
         return newOffset
     }
 
-    /**
-    Moves the file offset back to the beginning of the file
-
-    - Returns: The new file offset as measured in bytes from the beginning of the file
-
-    - Throws: `SeekError.invalidOffset` when the resulting file offset would be negative or beyond the end of a seekable
-               device
-    - Throws: `SeekError.offsetTooLarge` when the resulting file offset cannot be represented in an off_t
-    */
-    @discardableResult
-    public func rewind() throws -> OSOffsetInt {
-        return try seek(fromStart: 0)
-    }
-
     #if SEEK_HOLE
     /**
     Moves the file offset to the next hole in the file greater than the specified offset number of bytes (as measured
