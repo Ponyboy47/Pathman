@@ -55,6 +55,12 @@ public struct FileMode: OptionSet, ExpressibleByIntegerLiteral, ExpressibleByStr
         self.init(rawValue: value)
     }
 
+    private static let validStringSizes = 9...11
+
+    private static func calcFileBit(from index: Int) -> FileBits {
+        return (index / 3) == 0 ? .uid : (index / 3) == 1 ? .gid : .sticky
+    }
+
     /**
         Initialize from a Unix permissions string (-rwxrwxrwx)
     */
@@ -66,43 +72,38 @@ public struct FileMode: OptionSet, ExpressibleByIntegerLiteral, ExpressibleByStr
         // 11 characters are sometimes present on macOS where the first
         //   character is like linux, but the last character is either empty, a
         //   '+', or an '@'
-        guard [9, 10, 11].contains(value.count) else { return }
+        guard FileMode.validStringSizes.contains(value.count) else { return }
 
-        var value = value
+        var startIndex = value.startIndex
+        var endIndex = value.endIndex
         if value.count >= 10 {
-            value = String(value.dropFirst())
-            if value.count == 10 {
-                value = String(value.dropLast())
-            }
+            startIndex = value.index(after: startIndex)
         }
+        if value.count == 11 {
+            endIndex = value.index(before: endIndex)
+        }
+        let sub = value[startIndex..<endIndex]
 
         var raw: IntegerLiteralType = 0
-        var sticky = false
-        for (index, char) in value.enumerated() {
+        for (index, char) in sub.enumerated() {
             if index % 3 == 0 {
                 rawValue |= raw << (9 - index)
                 raw = 0
-                if sticky {
-                    rawValue |= ((index / 3) == 1 ? FileBits.uid : FileBits.gid).rawValue << 9
-                    sticky = false
-                }
             }
 
             switch char {
             case "r": raw |= 0o4
             case "w": raw |= 0o2
-            case "T": sticky = true
+            case "T":
+                rawValue |= FileMode.calcFileBit(from: index).rawValue << 9
             case "S", "t":
-                sticky = true
+                rawValue |= FileMode.calcFileBit(from: index).rawValue << 9
                 fallthrough
             case "x": raw |= 0o1
             default: continue
             }
         }
         rawValue |= raw
-        if sticky {
-            rawValue |= FileBits.sticky.rawValue << 9
-        }
     }
 
     public init(stringLiteral value: StringLiteralType) {
