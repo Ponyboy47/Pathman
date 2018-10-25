@@ -1,6 +1,6 @@
 env:
   global:
-    - CC_TEST_REPORTER_ID=a535c70e1b21f71c8587a2508d86e9260c96cc566bdbfccf859c3e58d8601
+    - CC_TEST_REPORTER_ID=feaa535c70e1b21f71c8587a2508d86e9260c96cc566bdbfccf859c3e58d8601
 os:
   - linux
   - osx
