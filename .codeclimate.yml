@@ -31,5 +31,7 @@ checks:
     config:
       threshold: # language-specific defaults. an override will affect all languages.
 plugins:
-    swiftlint:
-        enabled: true
+  swiftlint:
+    enabled: true
+exclude_patterns:
+  - Tests
