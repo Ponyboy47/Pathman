@@ -36,21 +36,18 @@ extension DirectoryEnumerable {
                was created as a non-directory path type
      */
     public func recursiveChildren(depth: Int = -1, options: DirectoryEnumerationOptions = []) throws -> PathCollection {
-        var children: PathCollection = PathCollection()
         // Make sure we're not below the specified depth
-        guard depth != 0 else { return children }
-        let depth = depth - 1
+        guard depth != 0 else { return PathCollection() }
 
-        let immediateChildren = try self.children(options: options)
+        var children = try self.children(options: options)
 
-        if depth != 0 {
-            let dirs = immediateChildren.directories
-            children += immediateChildren
-            for dir in dirs {
-                children += try dir.recursiveChildren(depth: depth, options: options)
+        // If we still have remaining depth left (Depth of 1 means only the
+        // immediate children), then get and add the children from any
+        // directories
+        if depth != 1 {
+            for dir in children.directories {
+                children += try dir.recursiveChildren(depth: depth - 1, options: options)
             }
-        } else {
-            children += immediateChildren
         }
 
         return children
