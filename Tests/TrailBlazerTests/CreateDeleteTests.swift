@@ -88,7 +88,7 @@ class CreateDeleteTests: XCTestCase {
         }
 
         for num in 1...10 {
-            guard let file = FilePath(dir + "\(num).test") else {
+            guard var file = FilePath(dir + "\(num).test") else {
                 XCTFail("Test path exists and is not a file")
                 return
             }
@@ -125,7 +125,7 @@ class CreateDeleteTests: XCTestCase {
         }
 
         for num in 1...10 {
-            guard let file = FilePath(dir + "\(num).test") else {
+            guard var file = FilePath(dir + "\(num).test") else {
                 XCTFail("Test path exists and is not a file")
                 return
             }
@@ -150,7 +150,7 @@ class CreateDeleteTests: XCTestCase {
         }
         XCTAssertFalse(dir.exists)
 
-        guard let file = FilePath(dir + "\(UUID())" + "\(UUID()).test") else {
+        guard var file = FilePath(dir + "\(UUID())" + "\(UUID()).test") else {
             XCTFail("Test path exists and is not a file")
             return
         }
@@ -193,10 +193,10 @@ class CreateDeleteTests: XCTestCase {
 
         do {
             try file.create { openFile in
-                XCTAssertTrue(file.exists)
-                XCTAssertTrue(file.isFile)
+                XCTAssertTrue(openFile.exists)
+                XCTAssertTrue(openFile.isFile)
                 XCTAssertNoThrow(try openFile.write("Hello World"))
-                XCTAssertEqual(try! file.read(), "Hello World")
+                XCTAssertEqual(try! openFile.read(from: .beginning), "Hello World")
             }
         } catch {
             XCTFail("Failed to create test file with error \(error)")

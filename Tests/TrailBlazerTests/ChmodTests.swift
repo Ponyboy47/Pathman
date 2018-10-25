@@ -393,7 +393,7 @@ class ChmodTests: XCTestCase {
         }
         XCTAssertFalse(dir.exists)
 
-        guard let file = FilePath(dir + "\(UUID())" + "\(UUID()).test") else {
+        guard var file = FilePath(dir + "\(UUID())" + "\(UUID()).test") else {
             XCTFail("Test path exists and is not a file")
             return
         }

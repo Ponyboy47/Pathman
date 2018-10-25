@@ -39,7 +39,8 @@ class TemporaryTests: XCTestCase {
 
             let tmpDirectory = try DirectoryPath.temporary(prefix: "com.trailblazer.test.", options: .deleteOnCompletion) { openDirectory in
                 XCTAssertTrue(openDirectory.path.exists)
-                XCTAssertNoThrow(try FilePath(openDirectory.path + "test")!.create())
+                var path = FilePath(openDirectory.path + "test")!
+                XCTAssertNoThrow(try path.create())
             }
             XCTAssertFalse(tmpDirectory.exists)
         } catch {
