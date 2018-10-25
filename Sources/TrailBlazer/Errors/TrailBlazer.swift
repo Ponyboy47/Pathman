@@ -13,6 +13,7 @@ public protocol TrailBlazerError: Error, Equatable, CaseIterable, ExpressibleByI
 
 extension ErrNo {
     static var EIRRELEVANT: ErrNo { return ErrNo(rawValue: -1000) }
+    static var EIRRELEVANT2: ErrNo { return ErrNo(rawValue: -1001) }
 }
 
 extension TrailBlazerError {
@@ -78,6 +79,7 @@ public struct OpenFileError: TrailBlazerError {
     public static let fileTooLarge = OpenFileError(error: .EFBIG)
     public static let improperUseOfDirectory = OpenFileError(error: .EISDIR)
     public static let invalidPermissions = OpenFileError(error: .EIRRELEVANT)
+    public static let createWithoutMode = OpenFileError(error: .EIRRELEVANT2)
     public static let invalidFlags = OpenFileError(error: .EINVAL)
     public static let deviceNotOpened = OpenFileError(error: .ENXIO)
     public static let pathBusy = OpenFileError(error: .ETXTBSY)

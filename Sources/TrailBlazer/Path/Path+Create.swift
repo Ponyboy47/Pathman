@@ -88,12 +88,14 @@ extension FilePath: Creatable {
             try parent.create(mode: mode, options: options)
         }
 
+        let opened = try open(permissions: .readWrite, flags: [.create, .exclusive], mode: mode ?? .allPermissions)
+
         // If the mode is not allowed by the umask, then we'll have to force it
         if let mode = mode {
-            try self.change(permissions: mode)
+            try opened.change(permissions: mode)
         }
 
-        return try open(permissions: .readWrite, flags: [.create, .exclusive], mode: mode)
+        return opened
     }
 }
 
