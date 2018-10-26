@@ -179,6 +179,15 @@ public extension Path {
         hasher.combine(_path)
     }
 
+    /**
+    Initialize from another SocketPath (copy constructor)
+
+    - Parameter  path: The path to copy
+    */
+    public init(_ path: Self) {
+        self = path
+    }
+
     public init?(_ str: String) {
         self.init(GenericPath(str))
     }

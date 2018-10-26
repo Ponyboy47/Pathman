@@ -29,15 +29,6 @@ public struct FilePath: Path, Openable {
     // swiftlint:enable identifier_name
 
     /**
-    Initialize from another FilePath (copy constructor)
-
-    - Parameter  path: The path to copy
-    */
-    public init(_ path: FilePath) {
-        self = path
-    }
-
-    /**
     Initialize from another Path
 
     - Parameter path: The path to copy

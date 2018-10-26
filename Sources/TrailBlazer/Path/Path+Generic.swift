@@ -40,10 +40,6 @@ public struct GenericPath: Path, ExpressibleByStringLiteral, ExpressibleByArrayL
         self.init(Array(components))
     }
 
-    public init(_ path: GenericPath) {
-        self = path
-    }
-
     public init<PathType: Path>(_ path: PathType) {
         _path = path._path
         _info = StatInfo(path)

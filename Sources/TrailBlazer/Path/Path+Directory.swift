@@ -29,15 +29,6 @@ public struct DirectoryPath: Path, Openable, DirectoryEnumerable {
     // swiftlint:enable identifier_name
 
     /**
-    Initialize from another DirectoryPath (copy constructor)
-
-    - Parameter  path: The path to copy
-    */
-    public init(_ path: DirectoryPath) {
-        self = path
-    }
-
-    /**
     Initialize from another Path
 
     - Parameter path: The path to copy
