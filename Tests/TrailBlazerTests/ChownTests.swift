@@ -114,7 +114,8 @@ class ChownTests: XCTestCase {
             XCTAssertNotEqual(getegid(), openFile.group)
         }
 
-        try? openFile.path.delete()
+        var file = openFile.path
+        try? file.delete()
     }
 
     func testSetRecursive() {
