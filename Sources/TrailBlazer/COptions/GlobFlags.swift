@@ -1,4 +1,22 @@
-import Cglob
+import let Cglob.GLOB_ERR
+import let Cglob.GLOB_NOSORT
+import let Cglob.GLOB_DOOFFS
+import let Cglob.GLOB_NOCHECK
+import let Cglob.GLOB_APPEND
+import let Cglob.GLOB_NOESCAPE
+import let Cglob.GLOB_ALTDIRFUNC
+import let Cglob.GLOB_BRACE
+import let Cglob.GLOB_NOMAGIC
+import let Cglob.GLOB_TILDE
+
+#if os(Linux)
+import let Cglob.GLOB_PERIOD
+import let Cglob.GLOB_TILDE_CHECK
+import let Cglob.GLOB_ONLYDIR
+#else
+import let Cglob.GLOB_MAGCHAR
+import let Cglob.GLOB_LIMIT
+#endif
 
 /// A Swift wrapper around the C globbing options (see glob(3))
 public struct GlobFlags: OptionSet, ExpressibleByIntegerLiteral, Hashable {

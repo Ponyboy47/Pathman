@@ -1,7 +1,7 @@
 #if os(Linux)
-import Glibc
+import func Glibc.rewinddir
 #else
-import Darwin
+import func Darwin.rewinddir
 #endif
 
 public typealias OpenDirectory = Open<DirectoryPath>

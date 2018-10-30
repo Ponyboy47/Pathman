@@ -1,12 +1,10 @@
 #if os(Linux)
-import Glibc
-/// The C rename(2) API call for moving or renaming paths
-private let cRename = Glibc.rename
+import func Glibc.rename
 #else
-import Darwin
-/// The C rename(2) API call for moving or renaming paths
-private let cRename = Darwin.rename
+import func Darwin.rename
 #endif
+/// The C rename(2) API call for moving or renaming paths
+private let cRename = rename
 
 /// Paths that can be moved
 public protocol Movable {

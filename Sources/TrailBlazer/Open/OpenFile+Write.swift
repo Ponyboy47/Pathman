@@ -1,11 +1,11 @@
-import Foundation
 #if os(Linux)
-import Glibc
-private let cWriteFile = Glibc.write
+import func Glibc.write
 #else
-import Darwin
-private let cWriteFile = Darwin.write
+import func Darwin.write
 #endif
+private let cWriteFile = write
+
+import struct Foundation.Data
 
 /// Protocol declaration of types that can be written to
 public protocol Writable: Opened {

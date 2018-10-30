@@ -1,8 +1,11 @@
 #if os(Linux)
-import Glibc
+import func Glibc.rmdir
+import func Glibc.unlink
 #else
-import Darwin
+import func Darwin.rmdir
+import func Darwin.unlink
 #endif
+private let cUnlink = unlink
 
 /// Paths that can be deleted
 public protocol Deletable {

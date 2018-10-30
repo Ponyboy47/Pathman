@@ -1,16 +1,20 @@
 #if os(Linux)
-import Glibc
-let cLink = Glibc.link
-let cSymlink = Glibc.symlink
-let cUnlink = Glibc.unlink
-let cReadlink = Glibc.readlink
+import let Glibc.PATH_MAX
+import func Glibc.link
+import func Glibc.symlink
+import func Glibc.unlink
+import func Glibc.readlink
 #else
-import Darwin
-let cLink = Darwin.link
-let cSymlink = Darwin.symlink
-let cUnlink = Darwin.unlink
-let cReadlink = Darwin.readlink
+import let Darwin.PATH_MAX
+import func Darwin.link
+import func Darwin.symlink
+import func Darwin.unlink
+import func Darwin.readlink
 #endif
+private let cLink = link
+private let cSymlink = symlink
+private let cUnlink = unlink
+private let cReadlink = readlink
 
 public enum LinkType {
     case hard

@@ -1,8 +1,16 @@
+// swiftlint:disable identifier_name
 #if os(Linux)
-import Glibc
+import let Glibc.P_tmpdir
+import func Glibc.mkstemp
+import func Glibc.mkdtemp
+private let _osTmpDir = P_tmpdir
 #else
-import Darwin
+import let Darwin.TMPDIR
+import func Darwin.mkstemp
+import func Darwin.mkdtemp
+private let _osTmpDir = TMPDIR
 #endif
+// swiftlint:enable identifier_name
 
 /// Protocol declaration for Paths that can generate and create a unique temporary path
 public protocol TemporaryGeneratable: Creatable {
@@ -16,17 +24,12 @@ public let temporaryDirectory: DirectoryPath = getTemporaryDirectory()
 
 private func getTemporaryDirectory() -> DirectoryPath {
     let tmpDir: DirectoryPath!
-    // If this is set, it's the first place to check. macOS uses this
-    // variable and it may or may not be set on Linux
-    #if TMPDIR
-    tmpDir = DirectoryPath(TMPDIR)
-    // This macro is referenced in C docs, but may or may not be set
-    #elseif P_tmpdir
-    tmpDir = DirectoryPath(P_tmpdir)
-    // Default to just /tmp if all else fails
-    #else
-    tmpDir = DirectoryPath("\(GenericPath.separator)tmp")
-    #endif
+
+    if _osTmpDir.isEmpty {
+        tmpDir = DirectoryPath("\(GenericPath.separator)tmp")
+    } else {
+        tmpDir = DirectoryPath(_osTmpDir)
+    }
 
     return tmpDir
 }
@@ -43,7 +46,8 @@ extension TemporaryGeneratable {
 
     // swiftlint:disable identifier_name
     public static func _delete(_ opened: Open<Self>) throws {
-        try opened.path.delete()
+        var path = opened.path
+        try path.delete()
     }
     // swiftlint:enable identifier_name
 }
@@ -160,7 +164,8 @@ extension TemporaryGeneratable {
 extension TemporaryGeneratable where Self: DirectoryEnumerable {
     // swiftlint:disable identifier_name
     public static func _delete(_ opened: Open<Self>) throws {
-        try opened.path.recursiveDelete()
+        var path = opened.path
+        try path.recursiveDelete()
     }
     // swiftlint:enable identifier_name
 }

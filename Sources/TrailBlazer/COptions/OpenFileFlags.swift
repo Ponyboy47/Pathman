@@ -1,7 +1,35 @@
 #if os(Linux)
-import Glibc
+import let Glibc.O_ASYNC
+import let Glibc.O_APPEND
+import let Glibc.O_CLOEXEC
+import let Glibc.O_CREAT
+import let Glibc.O_DIRECTORY
+import let Glibc.O_EXCL
+import let Glibc.O_NOCTTY
+import let Glibc.O_NOFOLLOW
+import let Glibc.O_NONBLOCK
+import let Glibc.O_NDELAY
+import let Glibc.O_TRUNC
+
+import let Glibc.O_DSYNC
+import let Glibc.O_SYNC
 #else
-import Darwin
+import let Darwin.O_ASYNC
+import let Darwin.O_APPEND
+import let Darwin.O_CLOEXEC
+import let Darwin.O_CREAT
+import let Darwin.O_DIRECTORY
+import let Darwin.O_EXCL
+import let Darwin.O_NOCTTY
+import let Darwin.O_NOFOLLOW
+import let Darwin.O_NONBLOCK
+import let Darwin.O_NDELAY
+import let Darwin.O_TRUNC
+
+import let Darwin.O_SHLOCK
+import let Darwin.O_EXLOCK
+import let Darwin.O_SYMLINK
+import let Darwin.O_EVTONLY
 #endif
 
 /// A swift wrapper around the C open path API options

@@ -1,4 +1,6 @@
-import Cdirent
+import func Cdirent.dirfd
+import func Cdirent.opendir
+import func Cdirent.closedir
 
 #if os(Linux)
 /// The directory stream type used for readding directory entries

@@ -1,7 +1,11 @@
 #if os(Linux)
-import Glibc
+import func Glibc.chmod
+import func Glibc.geteuid
+import func Glibc.getegid
 #else
-import Darwin
+import func Darwin.chmod
+import func Darwin.geteuid
+import func Darwin.getegid
 #endif
 
 /// A Path that can be constrained with permissions

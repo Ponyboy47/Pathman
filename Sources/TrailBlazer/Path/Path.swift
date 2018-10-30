@@ -1,4 +1,4 @@
-import Foundation
+import struct Foundation.URL
 
 #if os(Linux)
 import Glibc
@@ -23,7 +23,7 @@ private func getCurrentWorkingDirectory() throws -> DirectoryPath {
     let buffer = try getcwd(nil, 0) ?! CWDError.getError()
 
     // getcwd(3) states that the pointer returned by the C call needs to be freed
-    defer { free(buffer) }
+    defer { buffer.deallocate() }
 
     return DirectoryPath(String(cString: buffer))!
 }
@@ -37,13 +37,13 @@ Whether or not a path exists
 */
 public func pathExists(_ path: String) -> Bool {
     // swiftlint:disable identifier_name
-    var _stat: stat
-    // swiftlint:enable identifier_name
     #if os(Linux)
-    _stat = Glibc.stat()
+    var _stat = Glibc.stat()
     #else
-    _stat = Darwin.stat()
+    var _stat = Darwin.stat()
     #endif
+    // swiftlint:enable identifier_name
+
     return cStat(path, &_stat) == 0
 }
 

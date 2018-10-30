@@ -1,7 +1,13 @@
 #if os(Linux)
-import Glibc
+import let Glibc.SEEK_SET
+import let Glibc.SEEK_END
+import let Glibc.SEEK_CUR
 #else
-import Darwin
+import let Darwin.SEEK_SET
+import let Darwin.SEEK_END
+import let Darwin.SEEK_CUR
+import let Darwin.SEEK_DATA
+import let Darwin.SEEK_HOLE
 #endif
 
 /// Protocol declaration for types that contain an offset which points to a

@@ -1,7 +1,21 @@
 #if os(Linux)
-import Glibc
+import let Glibc.S_IFSOCK
+import let Glibc.S_IFLNK
+import let Glibc.S_IFREG
+import let Glibc.S_IFBLK
+import let Glibc.S_IFDIR
+import let Glibc.S_IFCHR
+import let Glibc.S_IFIFO
+import let Glibc.S_IFMT
 #else
-import Darwin
+import let Darwin.S_IFSOCK
+import let Darwin.S_IFLNK
+import let Darwin.S_IFREG
+import let Darwin.S_IFBLK
+import let Darwin.S_IFDIR
+import let Darwin.S_IFCHR
+import let Darwin.S_IFIFO
+import let Darwin.S_IFMT
 #endif
 
 /// A swift enum that wraps the C stat mode_t into a path type (see stat(2))

@@ -1,7 +1,29 @@
 #if os(Linux)
-import Glibc
+import let Glibc.AF_UNIX
+import let Glibc.AF_LOCAL
+import let Glibc.AF_INET
+import let Glibc.AF_INET6
+import let Glibc.AF_IPX
+import let Glibc.AF_NETLINK
+import let Glibc.AF_X25
+import let Glibc.AF_AX25
+import let Glibc.AF_ATMPVC
+import let Glibc.AF_APPLETALK
+import let Glibc.AF_PACKET
+import let Glibc.AF_ALG
 #else
-import Darwin
+import let Darwin.AF_UNIX
+import let Darwin.AF_LOCAL
+import let Darwin.AF_INET
+import let Darwin.AF_INET6
+import let Darwin.AF_IPX
+import let Darwin.AF_NETLINK
+import let Darwin.AF_X25
+import let Darwin.AF_AX25
+import let Darwin.AF_ATMPVC
+import let Darwin.AF_APPLETALK
+import let Darwin.AF_PACKET
+import let Darwin.AF_ALG
 #endif
 
 public struct SocketDomain: Hashable {

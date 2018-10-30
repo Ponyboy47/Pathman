@@ -1,7 +1,15 @@
 #if os(Linux)
-import Glibc
+import func Glibc.lseek
+import let Glibc.SEEK_SET
+import let Glibc.SEEK_END
+import let Glibc.SEEK_CUR
 #else
-import Darwin
+import func Darwin.lseek
+import let Darwin.SEEK_SET
+import let Darwin.SEEK_END
+import let Darwin.SEEK_CUR
+import let Darwin.SEEK_DATA
+import let Darwin.SEEK_HOLE
 #endif
 
 extension Open: Seekable where PathType == FilePath {

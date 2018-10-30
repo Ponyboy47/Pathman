@@ -1,14 +1,12 @@
 #if os(Linux)
-import Glibc
-private let cSocket = Glibc.socket
-private let cShutdown = Glibc.shutdown
-private let cCloseSocket = Glibc.close
+import func Glibc.socket
+import func Glibc.close
 #else
-import Darwin
-private let cSocket = Darwin.socket
-private let cShutdown = Darwin.shutdown
-private let cCloseSocket = Darwin.close
+import func Darwin.socket
+import func Darwin.close
 #endif
+private let cSocket = socket
+private let cCloseSocket = close
 
 public protocol SocketOption: Hashable {
     var domain: SocketDomain { get }
@@ -64,7 +62,7 @@ public struct GenericSocket: SocketOption {
 
 public struct SocketPath: Path, Openable {
     public typealias OpenOptionsType = GenericSocket
-    public static var pathType: PathType { return .socket }
+    public static let pathType: PathType = .socket
 
     // swiftlint:disable identifier_name
     public var _path: String
@@ -100,17 +98,13 @@ public struct SocketPath: Path, Openable {
     }
 
     public func open(options: GenericSocket) throws -> Open<SocketPath> {
-        let fileDescriptor = try socket(options.domain.rawValue,
+        let fileDescriptor = try cSocket(options.domain.rawValue,
                                         options.type.rawValue | options.options.rawValue,
                                         options.protocol.rawValue) ?! SocketError.getError()
         return Open<SocketPath>(self, descriptor: fileDescriptor, options: options)
     }
 
     public static func close(opened: Open<SocketPath>) throws {
-        if !opened.openOptions.type.connectionless {
-            guard cShutdown(opened.descriptor, OptionInt(SHUT_RDWR)) != -1 else { throw ShutdownError.getError() }
-        }
-
         guard cCloseSocket(opened.descriptor) != -1 else { throw CloseSocketError.getError() }
     }
 }

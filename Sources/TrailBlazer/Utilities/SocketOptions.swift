@@ -1,7 +1,9 @@
 #if os(Linux)
-import Glibc
+import let Glibc.SOCK_NONBLOCK
+import let Glibc.SOCK_CLOEXEC
 #else
-import Darwin
+import let Darwin.SOCK_NONBLOCK
+import let Darwin.SOCK_CLOEXEC
 #endif
 
 public struct SocketOptions: OptionSet, ExpressibleByIntegerLiteral, Hashable {

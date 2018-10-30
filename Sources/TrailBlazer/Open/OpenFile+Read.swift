@@ -1,15 +1,13 @@
-import Foundation
-import ErrNo
-
 #if os(Linux)
-import Glibc
-/// The C function to read from an open file descriptor
-private let cReadFile = Glibc.read
+import func Glibc.read
 #else
-import Darwin
-/// The C function to read from an open file descriptor
-private let cReadFile = Darwin.read
+import func Darwin.read
 #endif
+/// The C function to read from an open file descriptor
+private let cReadFile = read
+
+import struct Foundation.Data
+import ErrNo
 
 /// Protocol declaration of types that can be read from
 public protocol Readable: Opened {

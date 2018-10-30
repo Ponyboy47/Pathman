@@ -1,9 +1,10 @@
 #if os(Linux)
-import Glibc
+import func Glibc.mkdir
 #else
-import Darwin
+import func Darwin.mkdir
 #endif
-import Foundation
+
+import struct Foundation.Data
 
 public struct CreateOptions: RawRepresentable, OptionSet, ExpressibleByIntegerLiteral {
     public typealias IntegerLiteralType = UInt8

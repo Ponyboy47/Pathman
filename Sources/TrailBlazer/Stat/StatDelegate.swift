@@ -1,10 +1,17 @@
-import Foundation
+import struct Foundation.Date
 
 #if os(Linux)
-import Glibc
+import typealias Glibc.dev_t
+import typealias Glibc.ino_t
+import typealias Glibc.blksize_t
 #else
-import Darwin
+import typealias Darwin.dev_t
+import typealias Darwin.ino_t
 #endif
+
+public typealias DeviceID = dev_t
+public typealias Inode = ino_t
+public typealias BlockSize = blksize_t
 
 /// A protocol exposing access to information using the stat(2) utility
 public protocol Statable {
@@ -48,12 +55,12 @@ public extension Statable {
 
     // swiftlint:disable identifier_name
     /// ID of device containing path
-    public var id: dev_t {
+    public var id: DeviceID {
         return info.id
     }
     // swiftlint:enable identifier_name
     /// inode number
-    public var inode: ino_t {
+    public var inode: Inode {
         return info.inode
     }
     /// The type of the path
@@ -65,15 +72,15 @@ public extension Statable {
         return info.permissions
     }
     /// user ID of owner
-    public var owner: uid_t {
+    public var owner: UID {
         return info.owner
     }
     /// group ID of owner
-    public var group: gid_t {
+    public var group: GID {
         return info.group
     }
     /// device ID (if special file)
-    public var device: dev_t {
+    public var device: DeviceID {
         return info.device
     }
     /// total size, in bytes
@@ -81,7 +88,7 @@ public extension Statable {
         return info.size
     }
     /// blocksize for filesystem I/O
-    public var blockSize: blksize_t {
+    public var blockSize: BlockSize {
         return info.blockSize
     }
     /// number of 512B blocks allocated

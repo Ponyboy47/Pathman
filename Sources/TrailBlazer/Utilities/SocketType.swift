@@ -1,13 +1,22 @@
 #if os(Linux)
-import Glibc
+import let Glibc.SOCK_STREAM
+import let Glibc.SOCK_DGRAM
+import let Glibc.SOCK_SEQPACKET
+import let Glibc.SOCK_RAW
+import let Glibc.SOCK_RDM
+import struct Glibc.__socket_type
 #else
-import Darwin
+import let Darwin.SOCK_STREAM
+import let Darwin.SOCK_DGRAM
+import let Darwin.SOCK_SEQPACKET
+import let Darwin.SOCK_RAW
+import let Darwin.SOCK_RDM
+import struct Darwin.__socket_type
 #endif
 
 public struct SocketType: Hashable {
     let rawValue: OptionInt
     let connectionless: Bool
-    var connectionType: ConnectionType?
 
     /// Provides sequenced, reliable, two-way, connection-based byte streams.
     /// An out-of-band data transmission mechanism may be supported.
@@ -22,15 +31,10 @@ public struct SocketType: Hashable {
     /// Provides raw network protocol access.
     public static let raw = SocketType(rawValue: SOCK_RAW, connectionless: true)
     /// Provides a reliable datagram layer that does not guarantee ordering.
-    public static let reliableDatagram = SocketType(rawValue: SOCK_RDM, connectionless: false)
+    public static let reliableDatagram = SocketType(rawValue: SOCK_RDM, connectionless: true)
 
     private init(rawValue: __socket_type, connectionless: Bool) {
         self.rawValue = OptionInt(rawValue.rawValue)
         self.connectionless = connectionless
     }
-}
-
-public enum ConnectionType {
-    case client
-    case server
 }

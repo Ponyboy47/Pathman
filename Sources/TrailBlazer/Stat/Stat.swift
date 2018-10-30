@@ -1,4 +1,5 @@
-import Foundation
+import struct Foundation.Date
+import typealias Foundation.TimeInterval
 
 #if os(Linux)
 import Glibc

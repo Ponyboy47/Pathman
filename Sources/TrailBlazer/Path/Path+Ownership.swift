@@ -1,21 +1,27 @@
 #if os(Linux)
-import Glibc
+import typealias Glibc.uid_t
+import typealias Glibc.gid_t
+import func Glibc.chown
 #else
-import Darwin
+import typealias Darwin.uid_t
+import typealias Darwin.gid_t
+import func Darwin.chown
 #endif
+public typealias UID = uid_t
+public typealias GID = gid_t
 
 /// A Path that has an owner and a group associated with it
 public protocol Ownable {
     /// The uid of the user that owns the file
-    var owner: uid_t { get set }
+    var owner: UID { get set }
     /// The gid of the group that owns the file
-    var group: gid_t { get set }
+    var group: GID { get set }
     /// The name of the user that owns the file
     var ownerName: String? { get set }
     /// The name of the group that owns the file
     var groupName: String? { get set }
 
-    mutating func change(owner uid: uid_t, group gid: gid_t) throws
+    mutating func change(owner uid: UID, group gid: GID) throws
 }
 
 public extension Ownable {
@@ -71,8 +77,8 @@ public extension Ownable {
     - Throws: `ChangeOwnershipError.ioError` when an I/O error occurred during the API call
     */
     public mutating func change(owner username: String? = nil, group groupname: String? = nil) throws {
-        let uid: uid_t
-        let gid: gid_t
+        let uid: UID
+        let gid: GID
 
         if let username = username {
             uid = try getUserInfo(username: username).pw_uid
@@ -120,8 +126,8 @@ extension Ownable where Self: DirectoryEnumerable {
                This should only occur if your DirectoryPath object was created before the path existed and then the path
                was created as a non-directory path type
     */
-    public mutating func changeRecursive(owner uid: uid_t = ~0,
-                                         group gid: gid_t = ~0,
+    public mutating func changeRecursive(owner uid: UID = ~0,
+                                         group gid: GID = ~0,
                                          options: DirectoryEnumerationOptions = .includeHidden) throws {
         let childPaths = try children(options: options)
 
@@ -184,8 +190,8 @@ extension Ownable where Self: DirectoryEnumerable {
     public mutating func changeRecursive(owner username: String? = nil,
                                          group groupname: String? = nil,
                                          options: DirectoryEnumerationOptions = .includeHidden) throws {
-        let uid: uid_t
-        let gid: gid_t
+        let uid: UID
+        let gid: GID
 
         if let username = username {
             uid = try getUserInfo(username: username).pw_uid
@@ -205,13 +211,13 @@ extension Ownable where Self: DirectoryEnumerable {
 
 extension Ownable where Self: Statable {
     /// The uid of the owner of the path
-    public var owner: uid_t {
+    public var owner: UID {
         get { return info.owner }
         set { try? change(owner: newValue, group: ~0) }
     }
 
     /// The gid of the group that owns the path
-    public var group: gid_t {
+    public var group: GID {
         get { return info.group }
         set { try? change(owner: ~0, group: newValue) }
     }
@@ -236,7 +242,7 @@ extension Path {
     - Throws: `ChangeOwnershipError.readOnlyFileSystem` when the file system is in read-only mode
     - Throws: `ChangeOwnershipError.ioError` when an I/O error occurred during the API call
     */
-    public mutating func change(owner uid: uid_t = ~0, group gid: gid_t = ~0) throws {
+    public mutating func change(owner uid: UID = ~0, group gid: GID = ~0) throws {
         guard chown(string, uid, gid) == 0 else {
             throw ChangeOwnershipError.getError()
         }

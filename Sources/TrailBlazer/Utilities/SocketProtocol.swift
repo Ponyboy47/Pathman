@@ -1,7 +1,15 @@
 #if os(Linux)
-import Glibc
+import let Glibc.IPPROTO_TCP
+import let Glibc.IPPROTO_UDP
+import struct Glibc.protoent
+import func Glibc.getprotobyname
+import func Glibc.getprotobynumber
 #else
-import Darwin
+import let Darwin.IPPROTO_TCP
+import let Darwin.IPPROTO_UDP
+import struct Darwin.protoent
+import func Darwin.getprotobyname
+import func Darwin.getprotobynumber
 #endif
 
 public struct SocketProtocol: Hashable {

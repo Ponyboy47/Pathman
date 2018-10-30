@@ -1,9 +1,11 @@
-import Foundation
+import struct Foundation.URL
 
 #if os(Linux)
-import Glibc
+import func Glibc.fchown
+import func Glibc.fchmod
 #else
-import Darwin
+import func Darwin.fchown
+import func Darwin.fchmod
 #endif
 
 public protocol Opened: UpdatableStatable, Ownable, Permissionable {
@@ -15,9 +17,9 @@ public protocol Opened: UpdatableStatable, Ownable, Permissionable {
 }
 
 public final class Open<PathType: Openable>: Opened {
-    public internal(set) var path: PathType
+    public let path: PathType
     public let descriptor: PathType.DescriptorType
-    public var fileDescriptor: FileDescriptor { return descriptor.fileDescriptor }
+    public lazy var fileDescriptor: FileDescriptor = { return descriptor.fileDescriptor }()
     public let openOptions: PathType.OpenOptionsType
 
     // swiftlint:disable identifier_name
@@ -36,7 +38,7 @@ public final class Open<PathType: Openable>: Opened {
         return path.mayWrite && path.isWritable
     }
 
-    public init(_ path: PathType, descriptor: PathType.DescriptorType, options: PathType.OpenOptionsType) {
+    init(_ path: PathType, descriptor: PathType.DescriptorType, options: PathType.OpenOptionsType) {
         self.path = PathType(path)
         self.descriptor = descriptor
         openOptions = options
@@ -63,7 +65,7 @@ public final class Open<PathType: Openable>: Opened {
     - Throws: `ChangeOwnershipError.badFileDescriptor` when the file descriptor is not valid or open
     - Throws: `ChangeOwnershipError.ioError` when an I/O error occurred during the API call
     */
-    public func change(owner uid: uid_t = ~0, group gid: gid_t = ~0) throws {
+    public func change(owner uid: UID = ~0, group gid: GID = ~0) throws {
         guard fchown(fileDescriptor, uid, gid) == 0 else {
             throw ChangeOwnershipError.getError()
         }

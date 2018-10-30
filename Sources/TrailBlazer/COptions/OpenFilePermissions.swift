@@ -1,7 +1,11 @@
 #if os(Linux)
-import Glibc
+import let Glibc.O_RDONLY
+import let Glibc.O_WRONLY
+import let Glibc.O_RDWR
 #else
-import Darwin
+import let Darwin.O_RDONLY
+import let Darwin.O_WRONLY
+import let Darwin.O_RDWR
 #endif
 
 public struct OpenFilePermissions: Equatable, ExpressibleByIntegerLiteral, Hashable {
