@@ -492,17 +492,4 @@ public struct SocketError: TrailBlazerError {
     public init(error: ErrNo?) { self.errors = error == nil ? [] : [error!] }
 }
 
-public struct ShutdownError: TrailBlazerError {
-    public var errors: [ErrNo]
-
-    public static let notConnected = ShutdownError(error: .ENOTCONN)
-    public static let notASocket = ShutdownError(error: .ENOTSOCK)
-
-    public static let allCases: [ShutdownError] = [
-        .badFileDescriptor, .notConnected, .notASocket
-    ]
-
-    public init(error: ErrNo?) { self.errors = error == nil ? [] : [error!] }
-}
-
 public typealias CloseSocketError = CloseFileError

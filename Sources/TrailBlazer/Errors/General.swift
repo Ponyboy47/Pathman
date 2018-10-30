@@ -1,4 +1,6 @@
-import Cglob
+import let Cglob.GLOB_NOSPACE
+import let Cglob.GLOB_ABORTED
+import let Cglob.GLOB_NOMATCH
 
 /// Errors thrown by globbing (see glob(3))
 public enum GlobError: Error {
