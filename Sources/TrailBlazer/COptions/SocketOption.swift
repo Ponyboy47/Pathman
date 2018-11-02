@@ -29,6 +29,43 @@ public struct UDPSocket: SocketOption {
     }
 }
 
+public struct UnixSocket: SocketOption {
+    #if os(Linux)
+    public let domain: SocketDomain = .unix
+    #else
+    public let domain: SocketDomain = .local
+    #endif
+    public let type: SocketType
+    public let `protocol`: SocketProtocol
+    public let options: SocketOptions
+
+    private static let validTypes: [SocketType: SocketProtocol] = [
+        .stream: .tcp,
+        .datagram: .udp
+    ]
+
+    public init?(type: SocketType, options: SocketOptions = []) {
+        guard let proto = UnixSocket.validTypes[type] else { return nil }
+        self.type = type
+        self.protocol = proto
+        self.options = options
+    }
+
+    public init(socket: TCPSocket) {
+        self.type = socket.type
+        self.protocol = socket.protocol
+        self.options = socket.options
+    }
+
+    public init(socket: UDPSocket) {
+        self.type = socket.type
+        self.protocol = socket.protocol
+        self.options = socket.options
+    }
+}
+
+public typealias LocalSocket = UnixSocket
+
 public struct GenericSocket: SocketOption {
     public let domain: SocketDomain
     public let type: SocketType

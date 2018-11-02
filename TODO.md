@@ -31,7 +31,7 @@
   - [x] APIs for checking permissions to a path
     - [x] canRead/Write/Execute/Delete == Whether or not the calling process (or specified uid/gid/username/groupname) can read/write/execute/delete the path
     - [x] mayRead/Write == Whether or not the path was opened with read/write permissions
-  - [ ] SocketPath
+  - [x] SocketPath
   - [ ] FIFOPath?
   - [ ] BlockPath?
   - [ ] CharacterPath?

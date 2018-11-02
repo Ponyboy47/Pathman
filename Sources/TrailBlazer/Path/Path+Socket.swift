@@ -55,4 +55,9 @@ public struct SocketPath: Path, Openable {
     public static func close(opened: Open<SocketPath>) throws {
         guard cCloseSocket(opened.descriptor) != -1 else { throw CloseSocketError.getError() }
     }
+
+    @available(*, unavailable, message: "Cannot append to a SocketPath")
+    public static func + <PathType: Path>(lhs: SocketPath, rhs: PathType) -> PathType {
+        fatalError("Cannot append to a SocketPath")
+    }
 }
