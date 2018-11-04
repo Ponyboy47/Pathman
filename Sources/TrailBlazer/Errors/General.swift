@@ -37,3 +37,15 @@ public enum CopyError: Error {
     case uncopyablePath(GenericPath)
     case nonEmptyDirectory
 }
+
+public enum AddressError: Error {
+    case invalidDomain
+}
+
+public enum IPAddressError: Error {
+    case invalidAddressString
+}
+
+public enum LocalAddressError: Error {
+    case pathnameTooLong
+}

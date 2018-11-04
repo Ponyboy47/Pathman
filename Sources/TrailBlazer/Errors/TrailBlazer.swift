@@ -493,3 +493,43 @@ public struct SocketError: TrailBlazerError {
 }
 
 public typealias CloseSocketError = CloseFileError
+
+public struct ShutdownError: TrailBlazerError {
+    public var errors: [ErrNo]
+
+    public static let notConnected = ShutdownError(error: .ENOTCONN)
+    public static let notASocket = ShutdownError(error: .ENOTSOCK)
+
+    public static let allCases: [ShutdownError] = [
+        .badFileDescriptor, .notConnected, .notASocket
+    ]
+
+    public init(error: ErrNo?) { self.errors = error == nil ? [] : [error!] }
+}
+
+public struct ConnectionError: TrailBlazerError {
+    public var errors: [ErrNo]
+
+    public static let addressInUse = ConnectionError(error: .EADDRINUSE)
+    public static let addressUnavailable = ConnectionError(error: .EADDRNOTAVAIL)
+    public static let invalidAddressForDomain = ConnectionError(error: .EAFNOSUPPORT)
+    public static let noRouteInCache = ConnectionError(error: .EAGAIN)
+    public static let wouldBlock = ConnectionError(error: .EALREADY)
+    public static let connectionRefused = ConnectionError(error: .ECONNREFUSED)
+    public static let previousConnectionInProgress = ConnectionError(error: .EINPROGRESS)
+    public static let alreadyConnected = ConnectionError(error: .EISCONN)
+    public static let networkUnreachable = ConnectionError(error: .ENETUNREACH)
+    public static let notASocket = ConnectionError(error: .ENOTSOCK)
+    public static let invalidTypeForDomain = ConnectionError(error: .EPROTOTYPE)
+    public static let timedOut = ConnectionError(error: .ETIMEDOUT)
+
+    public static let allCases: [ConnectionError] = [
+        .accessDenied, .permissionDenied, .addressInUse, .addressUnavailable,
+        .invalidAddressForDomain, .noRouteInCache, .wouldBlock,
+        .badFileDescriptor, .connectionRefused, .segFault,
+        .previousConnectionInProgress, .interruptedBySignal, .alreadyConnected,
+        .networkUnreachable, .notASocket, .invalidTypeForDomain, .timedOut
+    ]
+
+    public init(error: ErrNo?) { self.errors = error == nil ? [] : [error!] }
+}

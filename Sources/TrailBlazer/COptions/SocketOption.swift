@@ -29,12 +29,8 @@ public struct UDPSocket: SocketOption {
     }
 }
 
-public struct UnixSocket: SocketOption {
-    #if os(Linux)
-    public let domain: SocketDomain = .unix
-    #else
+public struct LocalSocket: SocketOption {
     public let domain: SocketDomain = .local
-    #endif
     public let type: SocketType
     public let `protocol`: SocketProtocol
     public let options: SocketOptions
@@ -64,7 +60,7 @@ public struct UnixSocket: SocketOption {
     }
 }
 
-public typealias LocalSocket = UnixSocket
+public typealias UnixSocket = LocalSocket
 
 public struct GenericSocket: SocketOption {
     public let domain: SocketDomain
