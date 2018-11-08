@@ -22,7 +22,7 @@ public struct SocketDomain: Hashable {
     public static let local = SocketDomain(rawValue: PF_LOCAL)
     #endif
 
-    private init(rawValue: OptionInt) {
+    init(rawValue: OptionInt) {
         self.rawValue = rawValue
     }
 }

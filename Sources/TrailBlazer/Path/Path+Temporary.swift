@@ -3,13 +3,12 @@
 import let Glibc.P_tmpdir
 import func Glibc.mkstemp
 import func Glibc.mkdtemp
-private let _osTmpDir = P_tmpdir
 #else
-import let Darwin.TMPDIR
+import let Darwin.P_tmpdir
 import func Darwin.mkstemp
 import func Darwin.mkdtemp
-private let _osTmpDir = TMPDIR
 #endif
+private let _osTmpDir = P_tmpdir
 // swiftlint:enable identifier_name
 
 /// Protocol declaration for Paths that can generate and create a unique temporary path

@@ -6,17 +6,15 @@ import let Glibc.MSG_MORE
 import let Glibc.MSG_NOSIGNAL
 import let Glibc.MSG_OOB
 #else
-import let Darwin.MSG_CONFIRM
 import let Darwin.MSG_DONTROUTE
 import let Darwin.MSG_DONTWAIT
-import let Darwin.MSG_MORE
-import let Darwin.MSG_NOSIGNAL
 import let Darwin.MSG_OOB
 #endif
 
 public struct SendFlags: OptionSet, ExpressibleByIntegerLiteral, Hashable {
-    public let rawValue: Int
+    public let rawValue: OptionInt
 
+    #if os(Linux)
     /**
     Tell the link layer that forward progress happened: you got a successful
     reply from the other side. If the link layer doesn't get this it will
@@ -24,6 +22,28 @@ public struct SendFlags: OptionSet, ExpressibleByIntegerLiteral, Hashable {
     datagram sockets.
     */
     public static let confirm = SendFlags(integerLiteral: MSG_CONFIRM)
+    /**
+     The caller has more data to send. This flag is used with TCP sockets to
+     obtain the same effect as the TCP_CORK socket option (see tcp(7)), with the
+     difference that this flag can be set on a per-call basis.
+
+     Since  Linux  2.6, this flag is also supported for UDP sockets, and informs
+     the kernel to package all of the data sent in calls with this flag set into
+     a single datagram which is transmitted only when a call is performed that
+     does not specifythis flag. (See also the UDP_CORK socket option described
+     in udp(7).)
+     */
+    public static let more = SendFlags(integerLiteral: MSG_MORE)
+    /**
+     Don't  generate a SIGPIPE signal if the peer on a stream-oriented socket
+     has closed the connection. The EPIPE error isstill returned. This provides
+     similar behavior to using sigaction(2) to ignore SIGPIPE, but, whereas
+     .noSignal is a per-call feature, ignoring SIGPIPE sets a process attribute
+     that affects all threads in the process.
+     */
+    public static let noSignal = SendFlags(integerLiteral: MSG_NOSIGNAL)
+    #endif
+
     /**
     Don't use a gateway to send out the packet, send to hosts only on directly
     connected networks. This is usually used only by diagnostic or routing
@@ -42,26 +62,6 @@ public struct SendFlags: OptionSet, ExpressibleByIntegerLiteral, Hashable {
     */
     public static let dontWait = SendFlags(integerLiteral: MSG_DONTWAIT)
     /**
-    The caller has more data to send. This flag is used with TCP sockets to
-    obtain the same effect as the TCP_CORK socket option (see tcp(7)), with the
-    difference that this flag can be set on a per-call basis.
-
-    Since  Linux  2.6, this flag is also supported for UDP sockets, and informs
-    the kernel to package all of the data sent in calls with this flag set into
-    a single datagram which is transmitted only when a call is performed that
-    does not specifythis flag. (See also the UDP_CORK socket option described
-    in udp(7).)
-    */
-    public static let more = SendFlags(integerLiteral: MSG_MORE)
-    /**
-    Don't  generate a SIGPIPE signal if the peer on a stream-oriented socket
-    has closed the connection. The EPIPE error isstill returned. This provides
-    similar behavior to using sigaction(2) to ignore SIGPIPE, but, whereas
-    .noSignal is a per-call feature, ignoring SIGPIPE sets a process attribute
-    that affects all threads in the process.
-    */
-    public static let noSignal = SendFlags(integerLiteral: MSG_NOSIGNAL)
-    /**
     Sends out-of-band data on sockets that support this notion (e.g., of type
     SOCK_STREAM); the underlying protocol must also support out-of-band data.
     */
@@ -69,11 +69,17 @@ public struct SendFlags: OptionSet, ExpressibleByIntegerLiteral, Hashable {
 
     public static let none: SendFlags = 0
 
-    public init(rawValue: Int) {
+    public init(rawValue: OptionInt) {
         self.rawValue = rawValue
     }
 
+    #if os(Linux)
     public init(integerLiteral value: Int) {
+        self.init(rawValue: OptionInt(value))
+    }
+    #else
+    public init(integerLiteral value: OptionInt) {
         self.init(rawValue: value)
     }
+    #endif
 }

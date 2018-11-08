@@ -22,11 +22,9 @@ public struct Offset {
         public static let end = OffsetType(rawValue: SEEK_END)
         /// Seek from the current offset of a path
         public static let current = OffsetType(rawValue: SEEK_CUR)
-        #if SEEK_HOLE
+        #if os(macOS)
         /// Seek to the next hole in the data of a path
         public static let hole = OffsetType(rawValue: SEEK_HOLE)
-        #endif
-        #if SEEK_DATA
         /// Seek to the next data section of a path
         public static let data = OffsetType(rawValue: SEEK_DATA)
         #endif

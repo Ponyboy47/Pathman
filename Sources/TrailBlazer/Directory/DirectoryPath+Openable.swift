@@ -10,6 +10,8 @@ extension DIRType: Descriptor {
     public var fileDescriptor: FileDescriptor { return dirfd(self) }
 }
 #else
+import struct Cdirent.DIR
+
 /// The directory stream type used for readding directory entries
 public typealias DIRType = UnsafeMutablePointer<DIR>
 

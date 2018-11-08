@@ -6,7 +6,6 @@ import let Glibc.MSG_PEEK
 import let Glibc.MSG_TRUNC
 import let Glibc.MSG_WAITALL
 #else
-import let Darwin.MSG_CMSG_CLOEXEC
 import let Darwin.MSG_DONTWAIT
 import let Darwin.MSG_OOB
 import let Darwin.MSG_PEEK
@@ -15,8 +14,9 @@ import let Darwin.MSG_WAITALL
 #endif
 
 public struct ReceiveFlags: OptionSet, ExpressibleByIntegerLiteral, Hashable {
-    public let rawValue: Int
+    public let rawValue: OptionInt
 
+    #if os(Linux)
     /**
     Set the close-on-exec flag for the file descriptor received via a UNIX
     domain file descriptor using the SCM_RIGHTS operation (described in
@@ -24,6 +24,8 @@ public struct ReceiveFlags: OptionSet, ExpressibleByIntegerLiteral, Hashable {
     flag of open(2).
     */
     public static let closeOnExec = ReceiveFlags(integerLiteral: MSG_CMSG_CLOEXEC)
+    #endif
+
     /**
     Enables  nonblocking  operation; if the operation would block, the call
     fails with the error .wouldBlock. This provides similar behavior to setting
@@ -63,11 +65,17 @@ public struct ReceiveFlags: OptionSet, ExpressibleByIntegerLiteral, Hashable {
 
     public static let none: ReceiveFlags = 0
 
-    public init(rawValue: Int) {
+    public init(rawValue: OptionInt) {
         self.rawValue = rawValue
     }
 
+    #if os(Linux)
     public init(integerLiteral value: Int) {
+        self.init(rawValue: OptionInt(value))
+    }
+    #else
+    public init(integerLiteral value: OptionInt) {
         self.init(rawValue: value)
     }
+    #endif
 }

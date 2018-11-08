@@ -8,6 +8,7 @@ import struct Darwin.sockaddr
 import struct Darwin.sockaddr_un
 import typealias Darwin.socklen_t
 import func Darwin.strncpy
+import let Darwin.PF_UNIX
 #endif
 
 public typealias SocketAddress = sockaddr
@@ -42,7 +43,12 @@ extension DomainRestrictedAddress {
 }
 
 public struct LocalAddress: DomainRestrictedAddress {
+    #if os(Linux)
     public static let validDomains: [SocketDomain] = [.unix, .local]
+    #else
+    public static let validDomains: [SocketDomain] = [SocketDomain(rawValue: PF_UNIX), .local]
+    #endif
+
     public static let defaultDomain: SocketDomain = .local
 
     // swiftlint:disable identifier_name

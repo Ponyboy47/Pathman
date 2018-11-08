@@ -38,8 +38,15 @@ public struct SocketProtocol: Hashable {
         self.init(protoent)
     }
 
+    #if os(Linux)
     public init?(number: Int) {
         guard let protoent = getprotobynumber(OptionInt(number)) else { return nil }
         self.init(protoent)
     }
+    #else
+    public init?(number: Int32) {
+        guard let protoent = getprotobynumber(number) else { return nil }
+        self.init(protoent)
+    }
+    #endif
 }

@@ -20,12 +20,12 @@ extension Open: Seekable where PathType: SeekableByOpened {
     #if os(macOS)
     @discardableResult
     public func seek(toNextHoleAfter offset: OSOffsetInt) throws -> OSOffsetInt {
-        return try PathType.seek(fromtoNextHoleAfter: bytes, in: self)
+        return try PathType.seek(toNextHoleAfter: offset, in: self)
     }
 
     @discardableResult
     public func seek(toNextDataAfter offset: OSOffsetInt) throws -> OSOffsetInt {
-        return try PathType.seek(fromtoNextDataAfter: bytes, in: self)
+        return try PathType.seek(toNextDataAfter: offset, in: self)
     }
     #endif
 }
