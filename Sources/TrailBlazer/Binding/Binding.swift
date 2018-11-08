@@ -1,14 +1,10 @@
 import struct Foundation.URL
 
-public final class Connection {
+public final class Binding {
     public let path: SocketPath
     public let descriptor: SocketPath.DescriptorType
     public let fileDescriptor: FileDescriptor
     public let openOptions: SocketPath.OpenOptionsType
-
-    public static let defaultByteCount: ByteRepresentable = Int.max
-    public static let emptyReadFlags: ReceiveFlags = .none
-    public static let emptyWriteFlags: SendFlags = .none
 
     let opened: Open<SocketPath>
 
@@ -22,20 +18,21 @@ public final class Connection {
     }
 
     deinit {
-        try? SocketPath.shutdown(connected: self)
+        var path = self.path
+        try? path.delete()
         // No need to close the opened object. It should become deinitialized
         // (and therefore closed) now since this connection object holds the
         // only reference to it
     }
 }
 
-extension Connection: Equatable {
-    public static func == (lhs: Connection, rhs: Connection) -> Bool {
+extension Binding: Equatable {
+    public static func == (lhs: Binding, rhs: Binding) -> Bool {
         return lhs.path == rhs.path && lhs.fileDescriptor == rhs.fileDescriptor
     }
 }
 
-extension Connection: Hashable {
+extension Binding: Hashable {
     public func hash(into hasher: inout Hasher) {
         hasher.combine(path)
         hasher.combine(fileDescriptor)
@@ -43,7 +40,7 @@ extension Connection: Hashable {
     }
 }
 
-extension Connection: CustomStringConvertible {
+extension Binding: CustomStringConvertible {
     public var description: String {
         var data: [(key: String, value: CustomStringConvertible)] = []
 

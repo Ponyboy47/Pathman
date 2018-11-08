@@ -202,7 +202,7 @@ extension OpenTests {
     ]
 }
 
-extension PathCollectionTests {
+extension DirectoryChildrenTests {
     static let __allTests = [
         ("testEmpty", testEmpty),
         ("testEquality", testEquality),
@@ -301,7 +301,7 @@ public func __allTests() -> [XCTestCaseEntry] {
         testCase(LinkTests.__allTests),
         testCase(MoveTests.__allTests),
         testCase(OpenTests.__allTests),
-        testCase(PathCollectionTests.__allTests),
+        testCase(DirectoryChildrenTests.__allTests),
         testCase(PathTests.__allTests),
         testCase(StatTests.__allTests),
         testCase(TemporaryTests.__allTests),

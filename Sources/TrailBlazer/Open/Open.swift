@@ -8,15 +8,7 @@ import func Darwin.fchown
 import func Darwin.fchmod
 #endif
 
-public protocol Opened: UpdatableStatable, Ownable, Permissionable {
-    associatedtype PathType: Openable
-
-    var path: PathType { get }
-    var descriptor: PathType.DescriptorType { get }
-    var openOptions: PathType.OpenOptionsType { get }
-}
-
-public final class Open<PathType: Openable>: Opened {
+public final class Open<PathType: Openable>: UpdatableStatable, Ownable, Permissionable {
     public let path: PathType
     public let descriptor: PathType.DescriptorType
     public lazy var fileDescriptor: FileDescriptor = { return descriptor.fileDescriptor }()

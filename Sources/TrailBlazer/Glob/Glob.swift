@@ -21,9 +21,9 @@ public final class Glob {
         it more than once. (Getting the files and then getting the directories
         constitutes multiple accesses and therefore multiple computations)
     */
-    public var matches: PathCollection {
+    public var matches: DirectoryChildren {
         // Create the children collection
-        var children = PathCollection()
+        var children = DirectoryChildren()
 
         // Array of Strings of the matched paths. (char **)
         var item = _glob.pointee.gl_pathv
