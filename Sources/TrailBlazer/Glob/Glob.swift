@@ -37,16 +37,7 @@ public final class Glob {
         // end. The glob(3) docs say the array is null-terminated.
         while let pointee = item?.pointee {
             // Cast the char * pointee to a swift String
-            let path = String(cString: pointee)
-
-            // Get the path type and append it to the corresponding array
-            if let file = FilePath(path) {
-                children.files.append(file)
-            } else if let dir = DirectoryPath(path) {
-                children.directories.append(dir)
-            } else {
-                children.other.append(GenericPath(path))
-            }
+            children.append(String(cString: pointee))
 
             // Advance to the next item in the array
             item = item?.successor()

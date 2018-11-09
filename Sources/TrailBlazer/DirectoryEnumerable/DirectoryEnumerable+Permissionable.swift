@@ -31,11 +31,7 @@ extension Permissionable where Self: DirectoryEnumerable {
                                          options: DirectoryEnumerationOptions = .includeHidden) throws {
         let childPaths = try children(options: options)
 
-        for var file in childPaths.files {
-            try file.change(permissions: permissions)
-        }
-
-        for var path in childPaths.other {
+        for var path in childPaths.notDirectories {
             try path.change(permissions: permissions)
         }
 

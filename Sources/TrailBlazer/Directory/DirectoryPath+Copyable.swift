@@ -19,7 +19,9 @@ extension DirectoryPath: Copyable {
             try directory.copy(into: newPath, options: options)
         }
 
-        guard childPaths.other.isEmpty else { throw CopyError.uncopyablePath(childPaths.other.first!) }
+        // Sockets and undetermined path types cannot be copied
+        let uncopyable = childPaths.sockets + childPaths.other
+        guard uncopyable.isEmpty else { throw CopyError.uncopyablePath(uncopyable.first!) }
 
         return newOpenPath
     }

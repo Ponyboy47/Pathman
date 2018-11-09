@@ -53,14 +53,9 @@ extension Deletable where Self: DirectoryEnumerable {
     public mutating func recursiveDelete() throws {
         let childPaths = try children(options: .includeHidden)
 
-        // Delete all the generic paths
-        for var generic in childPaths.other {
-            try generic.delete()
-        }
-
-        // Delete all the files
-        for var file in childPaths.files {
-            try file.delete()
+        // Delete everything except for directories
+        for var path in childPaths.notDirectories {
+            try path.delete()
         }
 
         // Recursively delete any subdirectories

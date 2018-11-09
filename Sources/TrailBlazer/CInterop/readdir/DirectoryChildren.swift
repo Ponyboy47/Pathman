@@ -7,11 +7,13 @@ import struct Cdirent.dirent
 */
 public struct DirectoryChildren: Equatable, CustomStringConvertible {
     /// The file paths
-    public internal(set) var files: [FilePath] = []
+    public private(set) var files: [FilePath]
     /// The directory paths
-    public internal(set) var directories: [DirectoryPath] = []
+    public private(set) var directories: [DirectoryPath]
+    /// The socket paths
+    public private(set) var sockets: [SocketPath]
     /// Other paths
-    public internal(set) var other: [GenericPath] = []
+    public private(set) var other: [GenericPath]
 
     /// Whether or not this collection is empty
     public var isEmpty: Bool { return files.isEmpty && directories.isEmpty && other.isEmpty }
@@ -27,9 +29,10 @@ public struct DirectoryChildren: Equatable, CustomStringConvertible {
         - Parameter directories: The DirectoryPaths to begin with as a part of this collection
         - Parameter other: The remaining Paths to begin with as a part of this collection
     */
-    public init(files: [FilePath] = [], directories: [DirectoryPath] = [], other: [GenericPath] = []) {
+    public init(files: [FilePath] = [], directories: [DirectoryPath] = [], sockets: [SocketPath] = [], other: [GenericPath] = []) {
         self.files = files
         self.directories = directories
+        self.sockets = sockets
         self.other = other
     }
 
@@ -38,18 +41,43 @@ public struct DirectoryChildren: Equatable, CustomStringConvertible {
     }
 
     private init(_ iterator: DirectoryIterator, options: DirectoryEnumerationOptions = []) {
+        files = []
+        directories = []
+        sockets = []
+        other = []
+
         while let path = iterator.next() {
             guard !["..", "."].contains(path.lastComponent) else { continue }
 
             guard options.contains(.includeHidden) || !(path.lastComponent ?? ".").hasPrefix(".") else { continue }
 
-            if let file = FilePath(path) {
-                files.append(file)
-            } else if let dir = DirectoryPath(path) {
-                directories.append(dir)
-            } else {
-                other.append(path)
-            }
+            self.append(path)
+        }
+    }
+
+    public mutating func append(_ element: String) {
+        if let file = FilePath(element) {
+            files.append(file)
+        } else if let dir = DirectoryPath(element) {
+            directories.append(dir)
+        } else if let socket = SocketPath(element) {
+            sockets.append(socket)
+        } else {
+            other.append(GenericPath(element))
+        }
+    }
+
+    public mutating func append<PathType: Path>(_ element: PathType) {
+        if element is GenericPath {
+            self.append(element._path)
+        } else if element is FilePath {
+            files.append(element as! FilePath)
+        } else if element is DirectoryPath {
+            directories.append(element as! DirectoryPath)
+        } else if element is SocketPath {
+            sockets.append(element as! SocketPath)
+        } else {
+            fatalError("Unimplemented PathType => \(PathType.self)")
         }
     }
 
@@ -57,6 +85,7 @@ public struct DirectoryChildren: Equatable, CustomStringConvertible {
     public static func + (lhs: DirectoryChildren, rhs: DirectoryChildren) -> DirectoryChildren {
         return DirectoryChildren(files: lhs.files + rhs.files,
                               directories: lhs.directories + rhs.directories,
+                              sockets: lhs.sockets + rhs.sockets,
                               other: lhs.other + rhs.other)
     }
 
@@ -64,12 +93,13 @@ public struct DirectoryChildren: Equatable, CustomStringConvertible {
     public static func += (lhs: inout DirectoryChildren, rhs: DirectoryChildren) {
         lhs.files += rhs.files
         lhs.directories += rhs.directories
+        lhs.sockets += rhs.sockets
         lhs.other += rhs.other
     }
 
     /// Whether or not two DirectoryChildrens are equivalent
     public static func == (lhs: DirectoryChildren, rhs: DirectoryChildren) -> Bool {
-        return lhs.files == rhs.files && lhs.directories == rhs.directories && lhs.other == rhs.other
+        return lhs.files == rhs.files && lhs.directories == rhs.directories && lhs.sockets == rhs.sockets && lhs.other == rhs.other
     }
 }
 
