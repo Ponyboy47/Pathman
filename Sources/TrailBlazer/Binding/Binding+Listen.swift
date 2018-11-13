@@ -7,7 +7,9 @@ private let cListenToSocket = listen
 
 extension Binding {
     public func listen(max: OptionInt) throws {
-        guard cListenToSocket(fileDescriptor, max) == 0 else {
+        isListening = cListenToSocket(fileDescriptor, max) == 0
+
+        guard isListening else {
             throw ListenError.getError()
         }
     }

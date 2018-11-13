@@ -9,7 +9,6 @@ private let localSocketAddressSize = MemoryLayout<LocalSocketAddress>.size
 
 extension Binding {
     public func accept() throws -> Connection {
-
         var address = SocketAddress()
         var addressSize = SocketAddressSize()
 

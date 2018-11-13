@@ -6,6 +6,8 @@ public final class Binding {
     public let fileDescriptor: FileDescriptor
     public let openOptions: SocketPath.OpenOptionsType
 
+    public var isListening = false
+
     let opened: Open<SocketPath>
 
     init(_ opened: Open<SocketPath>) {
