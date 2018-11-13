@@ -34,4 +34,8 @@ extension Binding {
 
         return Connection(Open(localAddressPath, descriptor: connectionFileDescriptor, options: openOptions))
     }
+
+    public func accept(_ closure: @escaping (Connection) throws -> ()) throws {
+        try closure(accept())
+    }
 }

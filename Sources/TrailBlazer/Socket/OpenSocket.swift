@@ -11,8 +11,8 @@ private let cBindSocket = bind
 public typealias OpenSocket = Open<SocketPath>
 
 extension Open where PathType == SocketPath {
-    public func connect<AddressType: Address>(to address: AddressType) throws -> Connection {
-        var (addr, addrSize) = try address.convertToConnectableAddress()
+    public func connect() throws -> Connection {
+        var (addr, addrSize) = try path.convertToCAddress()
 
         guard cConnectSocket(descriptor, &addr, addrSize) == 0 else {
             throw ConnectionError.getError()
@@ -21,8 +21,8 @@ extension Open where PathType == SocketPath {
         return Connection(self)
     }
 
-    public func bind<AddressType: Address>(to address: AddressType) throws -> Binding {
-        var (addr, addrSize) = try address.convertToConnectableAddress()
+    public func bind() throws -> Binding {
+        var (addr, addrSize) = try path.convertToCAddress()
 
         guard cBindSocket(descriptor, &addr, addrSize) == 0 else {
             throw BindError.getError()
