@@ -48,21 +48,27 @@ public struct SocketPath: Path {
         try? _info.getInfo()
     }
 
-    public func convertToCAddress() throws -> (SocketAddress, SocketAddressSize) {
+    private func generateLocalSocketAddressPointer() -> UnsafeMutablePointer<LocalSocketAddress> {
+        let ptr = UnsafeMutablePointer<LocalSocketAddress>.allocate(capacity: 1)
+        ptr.pointee = LocalSocketAddress()
+        return ptr
+    }
+
+    public func convertToCAddress() throws -> UnsafePointer<SocketAddress> {
         guard string.count < SocketPath.PATH_MAX else {
             throw LocalAddressError.pathnameTooLong
         }
 
-        var addr = LocalSocketAddress()
+        let addr = generateLocalSocketAddressPointer()
 
-        let strlen = MemoryLayout.size(ofValue: addr.sun_path)
-        withUnsafeMutablePointer(to: &addr.sun_path) {
+        let strlen = MemoryLayout.size(ofValue: addr.pointee.sun_path)
+        withUnsafeMutablePointer(to: &addr.pointee.sun_path) {
             $0.withMemoryRebound(to: Int8.self, capacity: strlen) {
                 _ = strncpy($0, string, strlen)
             }
         }
 
-        return (unsafeBitCast(addr, to: SocketAddress.self), SocketAddressSize(MemoryLayout.size(ofValue: addr)))
+        return UnsafeRawPointer(addr).assumingMemoryBound(to: SocketAddress.self)
     }
 
     @available(*, unavailable, message: "Cannot append to a SocketPath")

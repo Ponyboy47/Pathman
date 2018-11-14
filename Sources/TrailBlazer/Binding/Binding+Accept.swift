@@ -8,11 +8,17 @@ private let cAcceptConnection = accept
 private let localSocketAddressSize = MemoryLayout<LocalSocketAddress>.size
 
 extension Binding {
+    private func generateSocketAddressPointer() -> UnsafeMutablePointer<SocketAddress> {
+        let ptr = UnsafeMutablePointer<SocketAddress>.allocate(capacity: 1)
+        ptr.pointee = SocketAddress()
+        return ptr
+    }
+
     public func accept() throws -> Connection {
-        var address = SocketAddress()
+        let address = generateSocketAddressPointer()
         var addressSize = SocketAddressSize()
 
-        let connectionFileDescriptor = cAcceptConnection(fileDescriptor, &address, &addressSize)
+        let connectionFileDescriptor = cAcceptConnection(fileDescriptor, address, &addressSize)
 
         guard connectionFileDescriptor != -1 else {
             throw AcceptError.getError()
@@ -24,9 +30,9 @@ extension Binding {
             throw AcceptError.connectionTypeMismatch
         }
 
-        var localAddress = unsafeBitCast(address, to: LocalSocketAddress.self)
-        let localAddressSize = MemoryLayout.size(ofValue: localAddress.sun_path)
-        let localAddressPath = withUnsafePointer(to: &localAddress.sun_path) { ptr -> SocketPath in
+        let localAddress = UnsafeRawPointer(address).assumingMemoryBound(to: LocalSocketAddress.self)
+        let localAddressSize = MemoryLayout.size(ofValue: localAddress.pointee.sun_path)
+        let localAddressPath = withUnsafePointer(to: localAddress.pointee.sun_path) { ptr -> SocketPath in
             return SocketPath(ptr.withMemoryRebound(to: CChar.self, capacity: localAddressSize) {
                 return String(cString: $0)
             }) !! "Accepted socket connection is somehow not a local/unix socket path"

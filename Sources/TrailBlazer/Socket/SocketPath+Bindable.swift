@@ -9,6 +9,10 @@ extension SocketPath {
         return try SocketPath.bind(to: address, options: SocketOptions(type: type))
     }
 
+    public static func bind(to address: SocketPath) throws -> Binding {
+        return try SocketPath.bind(to: address, type: TCPSocket.self)
+    }
+
     public static func bind(to address: SocketPath,
                             options: SocketOptions,
                             closure: (Binding) throws -> ()) throws {
@@ -21,6 +25,11 @@ extension SocketPath {
         try closure(bind(to: address, type: type))
     }
 
+    public static func bind(to address: SocketPath,
+                            closure: (Binding) throws -> ()) throws {
+        try closure(bind(to: address))
+    }
+
     public func bind(options: SocketOptions) throws -> Binding {
         return try SocketPath.bind(to: self, options: options)
     }
@@ -29,13 +38,21 @@ extension SocketPath {
         return try SocketPath.bind(to: self, type: type)
     }
 
+    public func bind() throws -> Binding {
+        return try SocketPath.bind(to: self)
+    }
+
     public func bind(options: SocketOptions,
                      closure: (Binding) throws -> ()) throws {
         try closure(bind(options: options))
     }
 
     public func bind<Socket: SocketOption>(type: Socket.Type,
-                     closure: (Binding) throws -> ()) throws {
+                                           closure: (Binding) throws -> ()) throws {
         try closure(bind(type: type))
+    }
+
+    public func bind(closure: (Binding) throws -> ()) throws {
+        try closure(bind())
     }
 }

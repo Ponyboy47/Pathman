@@ -10,11 +10,13 @@ private let cBindSocket = bind
 
 public typealias OpenSocket = Open<SocketPath>
 
+private let addressSize = SocketAddressSize(MemoryLayout<LocalSocketAddress>.size)
+
 extension Open where PathType == SocketPath {
     public func connect() throws -> Connection {
-        var (addr, addrSize) = try path.convertToCAddress()
+        let addr = try path.convertToCAddress()
 
-        guard cConnectSocket(descriptor, &addr, addrSize) == 0 else {
+        guard cConnectSocket(descriptor, addr, addressSize) == 0 else {
             throw ConnectionError.getError()
         }
 
@@ -22,9 +24,9 @@ extension Open where PathType == SocketPath {
     }
 
     public func bind() throws -> Binding {
-        var (addr, addrSize) = try path.convertToCAddress()
+        let addr = try path.convertToCAddress()
 
-        guard cBindSocket(descriptor, &addr, addrSize) == 0 else {
+        guard cBindSocket(descriptor, addr, addressSize) == 0 else {
             throw BindError.getError()
         }
 
