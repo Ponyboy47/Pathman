@@ -44,9 +44,22 @@ public struct SocketProtocol: Hashable {
         self.init(protoent)
     }
     #else
-    public init?(number: Int32) {
+    public init?(number: OptionInt) {
         guard let protoent = getprotobynumber(number) else { return nil }
         self.init(protoent)
     }
     #endif
+}
+
+extension SocketProtocol: CustomStringConvertible {
+    public var description: String {
+        let proto: String
+        switch self {
+        case .tcp: proto = "tcp"
+        case .udp: proto = "udp"
+        default: proto = "unknown"
+        }
+
+        return "\(type(of: self))(\(proto))"
+    }
 }

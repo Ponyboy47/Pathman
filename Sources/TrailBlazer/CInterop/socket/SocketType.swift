@@ -31,3 +31,16 @@ public struct SocketType: Hashable {
         self.rawValue = rawValue
     }
 }
+
+extension SocketType: CustomStringConvertible {
+    public var description: String {
+        let type: String
+        switch self {
+        case .stream: type = "stream"
+        case .datagram: type = "datagram"
+        default: type = "unknown"
+        }
+
+        return "\(Swift.type(of: self))(\(type))"
+    }
+}

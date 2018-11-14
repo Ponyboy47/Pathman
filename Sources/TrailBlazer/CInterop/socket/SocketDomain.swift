@@ -26,3 +26,20 @@ public struct SocketDomain: Hashable {
         self.rawValue = rawValue
     }
 }
+
+extension SocketDomain: CustomStringConvertible {
+    public var description: String {
+        let domain: String
+        switch self {
+        case .local: domain = "local"
+        #if os(Linux)
+        case .unix: domain = "unix"
+        #else
+        case SocketDomain(rawValue: PF_UNIX): domain = "unix"
+        #endif
+        default: domain = "unknown"
+        }
+
+        return "\(type(of: self))(\(domain))"
+    }
+}
