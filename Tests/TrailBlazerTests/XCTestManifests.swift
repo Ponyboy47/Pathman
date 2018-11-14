@@ -1,5 +1,11 @@
 import XCTest
 
+extension BindingTests {
+    static let __allTests = [
+        ("testAccepting", testAccepting),
+    ]
+}
+
 extension ChmodTests {
     static let __allTests = [
         ("testOpenFile", testOpenFile),
@@ -290,6 +296,7 @@ extension UtilityTests {
 #if !os(macOS)
 public func __allTests() -> [XCTestCaseEntry] {
     return [
+        testCase(BindingTests.__allTests),
         testCase(ChmodTests.__allTests),
         testCase(ChownTests.__allTests),
         testCase(CopyTests.__allTests),
