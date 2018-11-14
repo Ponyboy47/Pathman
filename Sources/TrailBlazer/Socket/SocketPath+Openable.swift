@@ -27,9 +27,14 @@ extension SocketPath: Openable {
     }
 
     public func open(options: SocketOptions) throws -> Open<SocketPath> {
-        let fileDescriptor = try cSocket(options.domain.rawValue,
-                                        options.type.rawValue,
-                                        options.protocol.rawValue) ?! SocketError.getError()
+        let fileDescriptor = cSocket(options.domain.rawValue,
+                                     options.type.rawValue,
+                                     options.protocol.rawValue)
+
+        guard fileDescriptor != -1 else {
+            throw SocketError.getError()
+        }
+
         return Open<SocketPath>(self, descriptor: fileDescriptor, options: options)
     }
 

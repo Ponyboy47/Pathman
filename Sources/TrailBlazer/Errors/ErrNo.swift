@@ -334,7 +334,7 @@ public struct SeekError: TrailBlazerError {
     public static let invalidOffset = SeekError(error: .EINVAL)
     public static let offsetTooLarge = SeekError(error: .EOVERFLOW)
     public static let fileDescriptorIsPipe = SeekError(error: .ESPIPE)
-    #if SEEK_DATA || SEEK_HOLE
+    #if os(macOS)
     public static let noData = SeekError(error: .ENXIO)
     #endif
 
@@ -343,7 +343,7 @@ public struct SeekError: TrailBlazerError {
             .fileDescriptorIsNotOpen, .invalidOffset, .offsetTooLarge, .fileDescriptorIsPipe
         ]
 
-        #if SEEK_DATA || SEEK_HOLE
+        #if os(macOS)
         cases.append(.noData)
         #endif
 
@@ -484,12 +484,23 @@ public struct SocketError: TrailBlazerError {
     public static let unsupportedDomain = SocketError(error: .EAFNOSUPPORT)
     public static let domainNotAvailable = SocketError(error: .EINVAL)
     public static let noKernelMemory = SocketError(errors: .ENOBUFS, .ENOMEM)
-    public static let unsupportedProtocol = SocketError(errors: .EPROTONOSUPPORT)
+    public static let unsupportedProtocol = SocketError(error: .EPROTONOSUPPORT)
+    #if os(macOS)
+    public static let unsupportedType = SocketError(error: .EPROTOTYPE)
+    #endif
 
-    public static let allCases: [SocketError] = [
-        .accessDenied, .unsupportedDomain, .domainNotAvailable, .noProcessFileDescriptors,
-        .noSystemFileDescriptors, .noKernelMemory, .unsupportedProtocol
-    ]
+    public static let allCases: [SocketError] = {
+        var cases: [SocketError] = [
+            .accessDenied, .unsupportedDomain, .domainNotAvailable, .noProcessFileDescriptors,
+            .noSystemFileDescriptors, .noKernelMemory, .unsupportedProtocol
+        ]
+
+        #if os(macOS)
+        cases.append(unsupportedType)
+        #endif
+
+        return cases
+    }()
 
     public init(error: ErrNo?) { self.errors = error == nil ? [] : [error!] }
 }
