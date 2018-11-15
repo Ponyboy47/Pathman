@@ -14,22 +14,20 @@ extension SocketPath: Openable {
     public struct SocketOptions: OpenOptionable {
         public let domain: SocketDomain = .local
         public let type: SocketType
-        public let `protocol`: SocketProtocol
 
-        public init<SocketType: SocketOption>(type socket: SocketType.Type) {
-            self.type = socket.type
-            self.protocol = socket.protocol
+        public init(type: SocketType) {
+            self.type = type
         }
     }
 
-    public func open<SocketType: SocketOption>(type: SocketType.Type) throws -> Open<SocketPath> {
+    public func open(type: SocketType) throws -> Open<SocketPath> {
         return try open(options: SocketOptions(type: type))
     }
 
     public func open(options: SocketOptions) throws -> Open<SocketPath> {
         let fileDescriptor = cSocket(options.domain.rawValue,
                                      options.type.rawValue,
-                                     options.protocol.rawValue)
+                                     0)
 
         guard fileDescriptor != -1 else {
             throw SocketError.getError()
@@ -41,19 +39,4 @@ extension SocketPath: Openable {
     public static func close(opened: Open<SocketPath>) throws {
         guard cCloseSocket(opened.descriptor) != -1 else { throw CloseSocketError.getError() }
     }
-}
-
-public protocol SocketOption: Hashable {
-    static var type: SocketType { get }
-    static var `protocol`: SocketProtocol { get }
-}
-
-public struct TCPSocket: SocketOption {
-    public static let type: SocketType = .stream
-    public static let `protocol`: SocketProtocol = .tcp
-}
-
-public struct UDPSocket: SocketOption {
-    public static let type: SocketType = .datagram
-    public static let `protocol`: SocketProtocol = .udp
 }

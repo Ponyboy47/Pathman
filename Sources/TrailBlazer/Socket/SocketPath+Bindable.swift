@@ -4,13 +4,13 @@ extension SocketPath {
         return try address.open(options: options).bind()
     }
 
-    public static func bind<Socket: SocketOption>(to address: SocketPath,
-                                                  type: Socket.Type) throws -> Binding {
+    public static func bind(to address: SocketPath,
+                            type: SocketType) throws -> Binding {
         return try SocketPath.bind(to: address, options: SocketOptions(type: type))
     }
 
     public static func bind(to address: SocketPath) throws -> Binding {
-        return try SocketPath.bind(to: address, type: TCPSocket.self)
+        return try SocketPath.bind(to: address, type: .stream)
     }
 
     public static func bind(to address: SocketPath,
@@ -19,9 +19,9 @@ extension SocketPath {
         try closure(bind(to: address, options: options))
     }
 
-    public static func bind<Socket: SocketOption>(to address: SocketPath,
-                                                  type: Socket.Type,
-                                                  closure: (Binding) throws -> ()) throws {
+    public static func bind(to address: SocketPath,
+                            type: SocketType,
+                            closure: (Binding) throws -> ()) throws {
         try closure(bind(to: address, type: type))
     }
 
@@ -34,7 +34,7 @@ extension SocketPath {
         return try SocketPath.bind(to: self, options: options)
     }
 
-    public func bind<Socket: SocketOption>(type: Socket.Type) throws -> Binding {
+    public func bind(type: SocketType) throws -> Binding {
         return try SocketPath.bind(to: self, type: type)
     }
 
@@ -47,8 +47,8 @@ extension SocketPath {
         try closure(bind(options: options))
     }
 
-    public func bind<Socket: SocketOption>(type: Socket.Type,
-                                           closure: (Binding) throws -> ()) throws {
+    public func bind(type: SocketType,
+                     closure: (Binding) throws -> ()) throws {
         try closure(bind(type: type))
     }
 

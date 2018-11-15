@@ -9,24 +9,24 @@ private let cShutdown = shutdown
 
 extension SocketPath {
     public static func connect(to address: SocketPath,
-                        options: SocketOptions) throws -> Connection {
+                               options: SocketOptions) throws -> Connection {
         return try address.open(options: options).connect()
     }
 
-    public static func connect<Socket: SocketOption>(to address: SocketPath,
-                                              type: Socket.Type) throws -> Connection {
+    public static func connect(to address: SocketPath,
+                               type: SocketType) throws -> Connection {
         return try connect(to: address, options: SocketOptions(type: type))
     }
 
     public static func connect(to address: SocketPath,
                                options: SocketOptions,
-                               closure: (Connection) throws -> ()) throws {
+                               closure: (Connection) throws -> Void) throws {
         try closure(connect(to: address, options: options))
     }
 
-    public static func connect<Socket: SocketOption>(to address: SocketPath,
-                                                     type: Socket.Type,
-                                                     closure: (Connection) throws -> ()) throws {
+    public static func connect(to address: SocketPath,
+                               type: SocketType,
+                               closure: (Connection) throws -> Void) throws {
         try closure(connect(to: address, type: type))
     }
 
@@ -34,17 +34,17 @@ extension SocketPath {
         return try SocketPath.connect(to: self, options: options)
     }
 
-    public func connect<Socket: SocketOption>(type: Socket.Type) throws -> Connection {
+    public func connect(type: SocketType) throws -> Connection {
         return try SocketPath.connect(to: self, type: type)
     }
 
     public func connect(options: SocketOptions,
-                        closure: (Connection) throws -> ()) throws {
+                        closure: (Connection) throws -> Void) throws {
         try closure(connect(options: options))
     }
 
-    public func connect<Socket: SocketOption>(type: Socket.Type,
-                                              closure: (Connection) throws -> ()) throws {
+    public func connect(type: SocketType,
+                        closure: (Connection) throws -> Void) throws {
         try closure(connect(type: type))
     }
 

@@ -14,13 +14,14 @@ class BindingTests: XCTestCase {
             return
         }
 
+        #if os(macOS)
         XCTAssertNoThrow(try binding.listen(maxQueued: 1))
 
         let acceptConnection = XCTestExpectation(description: "Ensure connection is properly accepted")
 
         DispatchQueue.global(qos: .background).async {
             do {
-                try binding.accept() { connection in
+                try binding.accept { connection in
                     print(connection.path)
                     acceptConnection.fulfill()
                 }
@@ -30,5 +31,6 @@ class BindingTests: XCTestCase {
         XCTAssertNoThrow(try socket.connect(type: TCPSocket.self))
 
         XCTAssertEqual(XCTWaiter.wait(for: [acceptConnection], timeout: 5.0), .completed)
+        #endif
     }
 }
