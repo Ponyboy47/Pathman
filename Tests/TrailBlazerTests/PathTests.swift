@@ -15,6 +15,9 @@ class PathTests: XCTestCase {
         let file = FilePath("/tmp/flabbergasted/")
         XCTAssertNotNil(file)
         XCTAssertEqual(file!.string, "/tmp/flabbergasted")
+        let socket = SocketPath("/tmp/flabbergasted/")
+        XCTAssertNotNil(socket)
+        XCTAssertEqual(socket!.string, "/tmp/flabbergasted")
     }
 
     func testPathInit() {
@@ -24,25 +27,26 @@ class PathTests: XCTestCase {
 
         XCTAssertEqual(DirectoryPath(GenericPath("/tmp"))!.string, "/tmp")
         XCTAssertEqual(DirectoryPath(DirectoryPath("/tmp")!).string, "/tmp")
-        // Disallowed now
-        // XCTAssertNil(DirectoryPath(FilePath("/tmp/flabbergasted")!))
 
         XCTAssertEqual(FilePath(GenericPath("/tmp/flabbergasted"))!.string, "/tmp/flabbergasted")
-        // Disallowed now
-        // XCTAssertNil(FilePath(DirectoryPath("/tmp")!))
         XCTAssertEqual(FilePath(FilePath("/tmp/flabbergasted")!).string, "/tmp/flabbergasted")
+
+        XCTAssertEqual(SocketPath(GenericPath("/tmp/flabbergasted"))!.string, "/tmp/flabbergasted")
+        XCTAssertEqual(SocketPath(SocketPath("/tmp/flabbergasted")!).string, "/tmp/flabbergasted")
     }
 
     func testVariadicInit() {
         XCTAssertEqual(GenericPath("/", "tmp").string, "/tmp")
         XCTAssertEqual(DirectoryPath("/", "tmp")!.string, "/tmp")
         XCTAssertEqual(FilePath("/", "tmp", "flabbergasted")!.string, "/tmp/flabbergasted")
+        XCTAssertEqual(SocketPath("/", "tmp", "flabbergasted")!.string, "/tmp/flabbergasted")
     }
 
     func testArrayInit() {
         XCTAssertEqual(GenericPath(["/", "tmp"]).string, "/tmp")
         XCTAssertEqual(DirectoryPath(["/", "tmp"])!.string, "/tmp")
         XCTAssertEqual(FilePath(["/", "tmp", "flabbergasted"])!.string, "/tmp/flabbergasted")
+        XCTAssertEqual(SocketPath(["/", "tmp", "flabbergasted"])!.string, "/tmp/flabbergasted")
         XCTAssertNil(FilePath(["/", "tmp"]))
     }
 
@@ -50,6 +54,7 @@ class PathTests: XCTestCase {
         XCTAssertEqual(GenericPath(["/", "tmp", "test"].dropLast()).string, "/tmp")
         XCTAssertEqual(DirectoryPath(["/", "tmp", "test"].dropLast())!.string, "/tmp")
         XCTAssertEqual(FilePath(["/", "tmp", "flabbergasted", "other"].dropLast())!.string, "/tmp/flabbergasted")
+        XCTAssertEqual(SocketPath(["/", "tmp", "flabbergasted", "other"].dropLast())!.string, "/tmp/flabbergasted")
     }
 
     func testStringLiteral() {
@@ -98,16 +103,19 @@ class PathTests: XCTestCase {
         XCTAssertEqual(GenericPath("/tmp").components, ["/", "tmp"])
         XCTAssertEqual(DirectoryPath("/tmp")!.components, ["/", "tmp"])
         XCTAssertEqual(FilePath("/tmp/flabbergasted")!.components, ["/", "tmp", "flabbergasted"])
+        XCTAssertEqual(SocketPath("/tmp/flabbergasted")!.components, ["/", "tmp", "flabbergasted"])
     }
 
     func testLastComponent() {
         XCTAssertEqual(GenericPath("/tmp").lastComponent, "tmp")
         XCTAssertEqual(DirectoryPath("/tmp")!.lastComponent, "tmp")
         XCTAssertEqual(FilePath("/tmp/flabbergasted.test")!.lastComponent, "flabbergasted.test")
+        XCTAssertEqual(SocketPath("/tmp/flabbergasted.test")!.lastComponent, "flabbergasted.test")
     }
 
     func testLastComponentWithoutExtension() {
         XCTAssertEqual(FilePath("/tmp/flabbergasted.test")!.lastComponentWithoutExtension, "flabbergasted")
+        XCTAssertEqual(SocketPath("/tmp/flabbergasted.sock")!.lastComponentWithoutExtension, "flabbergasted")
     }
 
     func testParent() {
@@ -116,6 +124,7 @@ class PathTests: XCTestCase {
         XCTAssertEqual(dir.parent.string, "/")
         XCTAssertEqual(dir.parent.parent.string, "/")
         XCTAssertEqual(FilePath("flabbergasted/whatever")!.parent.parent.string, FilePath.cwd.string)
+        XCTAssertEqual(SocketPath("flabbergasted/whatever")!.parent.parent.string, SocketPath.cwd.string)
     }
 
     func testSetParent() {
