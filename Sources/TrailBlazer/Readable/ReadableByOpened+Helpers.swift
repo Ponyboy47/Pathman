@@ -52,6 +52,23 @@ extension ReadableByOpened where Self: SeekableByOpened {
     }
 }
 
+// Allows seeking in the path prior to reading
+extension ReadableByOpened where Self: SeekableByOpened, Self: DefaultReadByteCount {
+    public static func read(from offset: Offset,
+                            bytes bytesToRead: ByteRepresentable = Self.defaultByteCount,
+                            from opened: Open<Self>) throws -> Data {
+        try Self.seek(offset, in: opened)
+        return try Self.read(bytes: bytesToRead, from: opened)
+    }
+
+    public static func read(from offset: Offset,
+                            bytes bytesToRead: ByteRepresentable = Self.defaultByteCount,
+                            encoding: String.Encoding = .utf8,
+                            from opened: Open<Self>) throws -> String? {
+        return try String(data: Self.read(from: offset, bytes: bytesToRead, from: opened), encoding: encoding)
+    }
+}
+
 // This extension mimicks the Readable & Seekable extension
 extension ReadableByOpened where Self: SeekableByOpened, OpenOptionsType: DefaultReadableOpenOption {
     public func read(from offset: Offset, bytes bytesToRead: ByteRepresentable) throws -> Data {
