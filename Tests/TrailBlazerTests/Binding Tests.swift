@@ -22,13 +22,14 @@ class BindingTests: XCTestCase {
         DispatchQueue.global(qos: .background).async {
             do {
                 try binding.accept { connection in
-                    print(connection.path)
                     acceptConnection.fulfill()
                 }
-            } catch {}
+            } catch {
+                print("Failed to accept connection with error \(type(of: error)).\(error)")
+            }
         }
 
-        XCTAssertNoThrow(try socket.connect(type: TCPSocket.self))
+        XCTAssertNoThrow(try socket.connect(type: .stream))
 
         XCTAssertEqual(XCTWaiter.wait(for: [acceptConnection], timeout: 5.0), .completed)
         #endif

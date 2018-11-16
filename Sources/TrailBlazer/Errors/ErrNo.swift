@@ -581,8 +581,6 @@ public struct AcceptError: TrailBlazerError {
     public static let invalidSocketType = AcceptError(error: .EOPNOTSUPP)
     public static let protocolError = AcceptError(error: .EPROTO)
 
-    public static let connectionTypeMismatch = AcceptError(error: .EIRRELEVANT)
-
     public static let allCases: [AcceptError] = [
         .wouldBlock, .badFileDescriptor, .connectionAborted, .segFault,
         .interruptedBySignal, .notListening, .noProcessFileDescriptors,
