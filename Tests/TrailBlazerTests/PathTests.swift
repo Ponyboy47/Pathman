@@ -338,6 +338,16 @@ class PathTests: XCTestCase {
             XCTAssertEqual(contents, "Hello world")
         } catch {
             XCTFail("Failed to open and read path")
+            return
+        }
+
+        XCTAssertNoThrow(try path.write("\nMy name is Jacob", at: Offset(.end, 0)))
+
+        do {
+            let contents: String! = try path.read(from: Offset(.beginning, 12))
+            XCTAssertEqual(contents, "My name is Jacob")
+        } catch {
+            XCTFail("Failed to open and read path from offset")
         }
     }
 }

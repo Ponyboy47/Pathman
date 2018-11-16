@@ -11,7 +11,7 @@ import struct Foundation.Data
 private var _buffers: [FilePath: UnsafeMutablePointer<CChar>] = [:]
 private var _bufferSizes: [FilePath: Int] = [:]
 
-extension FilePath: ReadableByOpened, Readable, DefaultReadByteCount {
+extension FilePath: ReadableByOpened, DefaultReadByteCount {
     /// The buffer used to store data read from a path
     var buffer: UnsafeMutablePointer<CChar>? {
         get { return _buffers[self] }
