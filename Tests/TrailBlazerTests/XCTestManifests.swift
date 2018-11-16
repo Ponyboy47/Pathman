@@ -3,9 +3,9 @@ import XCTest
 extension BindingTests {
     static let __allTests = [
         ("testAccepting", testAccepting),
+        ("testCustomStringConvertible", testCustomStringConvertible),
         ("testEquatable", testEquatable),
         ("testHashable", testHashable),
-        ("testCustomStringConvertible", testCustomStringConvertible),
     ]
 }
 
