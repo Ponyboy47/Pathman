@@ -41,6 +41,6 @@ extension SocketType: CustomStringConvertible {
         default: type = "unknown"
         }
 
-        return "\(Swift.type(of: self))(\(type))"
+        return "\(Swift.type(of: self)).\(type)"
     }
 }

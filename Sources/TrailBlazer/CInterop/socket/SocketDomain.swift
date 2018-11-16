@@ -40,6 +40,6 @@ extension SocketDomain: CustomStringConvertible {
         default: domain = "unknown"
         }
 
-        return "\(type(of: self))(\(domain))"
+        return "\(type(of: self)).\(domain)"
     }
 }
