@@ -328,4 +328,16 @@ class PathTests: XCTestCase {
         XCTAssertEqual(newPath.components.dropFirst(), components.dropFirst())
         path.separator = "/"
     }
+
+    func testAutoOpenFunctions() {
+        let path = try! FilePath.temporary(prefix: "com.trailblazer.test").path
+
+        XCTAssertNoThrow(try path.write("Hello world"))
+        do {
+            let contents: String! = try path.read()
+            XCTAssertEqual(contents, "Hello world")
+        } catch {
+            XCTFail("Failed to open and read path")
+        }
+    }
 }

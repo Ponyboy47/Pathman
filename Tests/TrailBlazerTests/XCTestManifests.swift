@@ -228,6 +228,7 @@ extension PathTests {
         ("testArrayInit", testArrayInit),
         ("testArrayLiteral", testArrayLiteral),
         ("testArraySliceInit", testArraySliceInit),
+        ("testAutoOpenFunctions", testAutoOpenFunctions),
         ("testChangeSeparator", testChangeSeparator),
         ("testChCWD", testChCWD),
         ("testCodable", testCodable),
