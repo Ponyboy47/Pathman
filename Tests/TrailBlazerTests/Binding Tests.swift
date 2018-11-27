@@ -78,7 +78,6 @@ class BindingTests: XCTestCase {
         }
 
         // swiftlint:disable line_length
-        XCTAssertEqual(binding.description,
-                       "Binding(path: SocketPath(\"/tmp/com.trailblazer.sock\"), options: SocketOptions(domain: SocketDomain.local, type: SocketType.stream))")
+        XCTAssertEqual(binding.description, "Binding(path: SocketPath(\"/tmp/com.trailblazer.sock1\"), options: SocketOptions(domain: SocketDomain.local, type: SocketType.stream))")
     }
 }
