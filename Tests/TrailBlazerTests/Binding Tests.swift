@@ -4,9 +4,11 @@ import Dispatch
 
 class BindingTests: XCTestCase {
     func testAccepting() {
-        let socket = SocketPath("/tmp/com.trailblazer.sock")!
+        var socket = SocketPath("/tmp/com.trailblazer.sock")!
 
-        var binding: Binding?
+        defer { try? socket.delete() }
+
+        let binding: Binding
         do {
             binding = try socket.bind()
         } catch {
@@ -14,7 +16,7 @@ class BindingTests: XCTestCase {
             return
         }
 
-        XCTAssertNoThrow(try binding?.listen(maxQueued: 1))
+        XCTAssertNoThrow(try binding.listen(maxQueued: 1))
 
         #if os(macOS)
         let acceptConnection = expectation(description: "Ensure connection is properly accepted")
@@ -22,7 +24,7 @@ class BindingTests: XCTestCase {
 
         DispatchQueue.global(qos: .background).async {
             do {
-                try binding?.accept { conn in
+                try binding.accept { conn in
                     #if os(macOS)
                     acceptConnection.fulfill()
                     #endif
@@ -44,8 +46,6 @@ class BindingTests: XCTestCase {
         #if os(macOS)
         wait(for: [acceptConnection], timeout: 5.0)
         #endif
-
-        binding = nil
     }
 
     func testEquatable() {
