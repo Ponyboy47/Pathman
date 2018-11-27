@@ -6,7 +6,7 @@ class BindingTests: XCTestCase {
     func testAccepting() {
         let socket = SocketPath("/tmp/com.trailblazer.sock")!
 
-        let binding: Binding
+        var binding: Binding?
         do {
             binding = try socket.bind()
         } catch {
@@ -14,7 +14,7 @@ class BindingTests: XCTestCase {
             return
         }
 
-        XCTAssertNoThrow(try binding.listen(maxQueued: 1))
+        XCTAssertNoThrow(try binding?.listen(maxQueued: 1))
 
         #if os(macOS)
         let acceptConnection = expectation(description: "Ensure connection is properly accepted")
@@ -22,10 +22,18 @@ class BindingTests: XCTestCase {
 
         DispatchQueue.global(qos: .background).async {
             do {
-                try binding.accept { _ in
+                try binding?.accept { conn in
                     #if os(macOS)
                     acceptConnection.fulfill()
                     #endif
+                    XCTAssertEqual(conn, conn)
+                    XCTAssertNotEqual(conn.hashValue, 0)
+                    XCTAssertTrue(conn.description.count > 30)
+
+                    do {
+                        _ = try conn.read(flags: .dontWait)
+                        XCTFail("Reading a connection did not wait")
+                    } catch {}
                 }
             } catch {
                 XCTFail("Failed to accept connection with error \(type(of: error)).\(error)")
@@ -36,6 +44,8 @@ class BindingTests: XCTestCase {
         #if os(macOS)
         wait(for: [acceptConnection], timeout: 5.0)
         #endif
+
+        binding = nil
     }
 
     func testEquatable() {
