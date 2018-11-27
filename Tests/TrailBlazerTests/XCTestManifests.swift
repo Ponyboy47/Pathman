@@ -227,6 +227,7 @@ extension PathTests {
     static let __allTests = [
         ("testAbsolute", testAbsolute),
         ("testAddable", testAddable),
+        ("testAncestors", testAncestors),
         ("testArrayInit", testArrayInit),
         ("testArrayLiteral", testArrayLiteral),
         ("testArraySliceInit", testArraySliceInit),
