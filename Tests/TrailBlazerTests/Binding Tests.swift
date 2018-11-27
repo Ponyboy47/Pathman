@@ -38,6 +38,12 @@ class BindingTests: XCTestCase {
                     } catch {
                         XCTFail("Failed to read content from connection")
                     }
+
+                    do {
+                        try conn.write("Hello World")
+                    } catch {
+                        XCTFail("Failed to write content to connection")
+                    }
                 }
             } catch {
                 XCTFail("Failed to accept connection with error \(type(of: error)).\(error)")
