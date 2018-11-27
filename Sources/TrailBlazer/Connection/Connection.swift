@@ -6,7 +6,7 @@ public final class Connection {
     public let fileDescriptor: FileDescriptor
     public let openOptions: SocketPath.OpenOptionsType
 
-    public static let defaultByteCount: ByteRepresentable = Int.max
+    public static var defaultByteCount: ByteRepresentable = 32.kb
     public static let emptyReadFlags: ReceiveFlags = .none
     public static let emptyWriteFlags: SendFlags = .none
 

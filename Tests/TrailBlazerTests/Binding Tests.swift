@@ -33,9 +33,11 @@ class BindingTests: XCTestCase {
                     XCTAssertTrue(conn.description.count > 30)
 
                     do {
-                        _ = try conn.read(flags: .dontWait)
-                        XCTFail("Reading a connection did not wait")
-                    } catch {}
+                        let content: Data = try conn.read(flags: .dontWait)
+                        XCTAssertTrue(content.isEmpty)
+                    } catch {
+                        XCTFail("Failed to read content from connection")
+                    }
                 }
             } catch {
                 XCTFail("Failed to accept connection with error \(type(of: error)).\(error)")
