@@ -14,10 +14,9 @@ class BindingTests: XCTestCase {
             return
         }
 
-        #if os(macOS)
         XCTAssertNoThrow(try binding.listen(maxQueued: 1))
 
-        let acceptConnection = XCTestExpectation(description: "Ensure connection is properly accepted")
+        let acceptConnection = expectation(description: "Ensure connection is properly accepted")
 
         DispatchQueue.global(qos: .background).async {
             do {
@@ -25,13 +24,13 @@ class BindingTests: XCTestCase {
                     acceptConnection.fulfill()
                 }
             } catch {
-                print("Failed to accept connection with error \(type(of: error)).\(error)")
+                XCTFail("Failed to accept connection with error \(type(of: error)).\(error)")
             }
         }
 
         XCTAssertNoThrow(try socket.connect(type: .stream))
-
-        XCTAssertEqual(XCTWaiter.wait(for: [acceptConnection], timeout: 5.0), .completed)
+        #if os(macOS)
+        wait(for: [acceptConnection], timeout: 5.0)
         #endif
     }
 
@@ -74,6 +73,8 @@ class BindingTests: XCTestCase {
             return
         }
 
-        XCTAssertEqual(binding.description, "Binding(path: SocketPath(\"/tmp/com.trailblazer.sock\"), options: SocketOptions(domain: SocketDomain.local, type: SocketType.stream))")
+        // swiftlint:disable line_length
+        XCTAssertEqual(binding.description,
+                       "Binding(path: SocketPath(\"/tmp/com.trailblazer.sock\"), options: SocketOptions(domain: SocketDomain.local,type: SocketType.stream))")
     }
 }
