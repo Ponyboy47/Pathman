@@ -16,12 +16,16 @@ class BindingTests: XCTestCase {
 
         XCTAssertNoThrow(try binding.listen(maxQueued: 1))
 
+        #if os(macOS)
         let acceptConnection = expectation(description: "Ensure connection is properly accepted")
+        #endif
 
         DispatchQueue.global(qos: .background).async {
             do {
                 try binding.accept { _ in
+                    #if os(macOS)
                     acceptConnection.fulfill()
+                    #endif
                 }
             } catch {
                 XCTFail("Failed to accept connection with error \(type(of: error)).\(error)")
@@ -63,7 +67,7 @@ class BindingTests: XCTestCase {
     }
 
     func testCustomStringConvertible() {
-        let socket = SocketPath("/tmp/com.trailblazer.sock")!
+        let socket = SocketPath("/tmp/com.trailblazer.sock1")!
 
         let binding: Binding
         do {
