@@ -47,7 +47,9 @@ extension SocketPath: ReadableByOpenedWithFlags {
         }
     }
 
-    public static func read(bytes sizeToRead: ByteRepresentable, flags: ReceiveFlags, from opened: Open<SocketPath>) throws -> Data {
+    public static func read(bytes sizeToRead: ByteRepresentable,
+                            flags: ReceiveFlags,
+                            from opened: Open<SocketPath>) throws -> Data {
         let bytesToRead = sizeToRead.bytes
 
         // If we haven't allocated a buffer before, then allocate one now

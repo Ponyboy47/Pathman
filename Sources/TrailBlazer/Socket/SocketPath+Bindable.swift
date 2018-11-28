@@ -6,7 +6,7 @@ extension SocketPath {
 
     public static func bind(to address: SocketPath,
                             type: SocketType) throws -> Binding {
-        return try SocketPath.bind(to: address, options: SocketOptions(type: type))
+        return try address.open(type: type).bind()
     }
 
     public static func bind(to address: SocketPath) throws -> Binding {
@@ -15,18 +15,18 @@ extension SocketPath {
 
     public static func bind(to address: SocketPath,
                             options: SocketOptions,
-                            closure: (Binding) throws -> ()) throws {
+                            closure: (Binding) throws -> Void) throws {
         try closure(bind(to: address, options: options))
     }
 
     public static func bind(to address: SocketPath,
                             type: SocketType,
-                            closure: (Binding) throws -> ()) throws {
+                            closure: (Binding) throws -> Void) throws {
         try closure(bind(to: address, type: type))
     }
 
     public static func bind(to address: SocketPath,
-                            closure: (Binding) throws -> ()) throws {
+                            closure: (Binding) throws -> Void) throws {
         try closure(bind(to: address))
     }
 
@@ -43,16 +43,16 @@ extension SocketPath {
     }
 
     public func bind(options: SocketOptions,
-                     closure: (Binding) throws -> ()) throws {
+                     closure: (Binding) throws -> Void) throws {
         try closure(bind(options: options))
     }
 
     public func bind(type: SocketType,
-                     closure: (Binding) throws -> ()) throws {
+                     closure: (Binding) throws -> Void) throws {
         try closure(bind(type: type))
     }
 
-    public func bind(closure: (Binding) throws -> ()) throws {
+    public func bind(closure: (Binding) throws -> Void) throws {
         try closure(bind())
     }
 }
