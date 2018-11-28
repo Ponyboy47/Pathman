@@ -590,3 +590,24 @@ public struct AcceptError: TrailBlazerError {
 
     public init(error: ErrNo?) { self.errors = error == nil ? [] : [error!] }
 }
+
+public struct SendError: TrailBlazerError {
+    public var errors: [ErrNo]
+
+    public static let connectionReset = SendError(error: .ECONNRESET)
+    public static let missingDestination = SendError(error: .EDESTADDRREQ)
+    public static let invalidFlags = SendError(error: .EINVAL)
+    public static let alreadyConnected = SendError(error: .EISCONN)
+    public static let notConnected = SendError(error: .ENOTCONN)
+    public static let invalidMessageSize = SendError(error: .EMSGSIZE)
+    public static let connectionShutdown = SendError(error: .EPIPE)
+
+    public static let allCases: [SendError] = [
+        .accessDenied, .wouldBlock, .badFileDescriptor, .connectionReset,
+        .missingDestination, .segFault, .interruptedBySignal, .invalidFlags,
+        .alreadyConnected, .notConnected, .invalidMessageSize, .noKernelMemory,
+        .notASocket, .connectionShutdown
+    ]
+
+    public init(error: ErrNo?) { self.errors = error == nil ? [] : [error!] }
+}
