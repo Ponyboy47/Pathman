@@ -15,7 +15,8 @@ class LinkTests: XCTestCase {
             XCTAssertEqual(symlink.linkType, .soft)
             XCTAssertFalse(symlink.isDangling)
             XCTAssertEqual(symlink._path, _linked._path)
-            try? link.path.delete()
+            var file = link.path
+            try? file.delete()
             XCTAssertTrue(symlink.isDangling)
             try? _linked.delete()
         } catch {
@@ -33,7 +34,8 @@ class LinkTests: XCTestCase {
             XCTAssertTrue(symlink.exists)
             XCTAssertEqual(symlink.linkType, .symbolic)
             XCTAssertFalse(symlink.isDangling)
-            try? file.path.delete()
+            var _file = file.path
+            try? _file.delete()
             XCTAssertTrue(symlink.isDangling)
             try? symlink.delete()
         } catch {
@@ -54,7 +56,8 @@ class LinkTests: XCTestCase {
             XCTAssertEqual(symlink.linkType, .hard)
             XCTAssertFalse(symlink.isDangling)
             XCTAssertEqual(symlink._path, _linked._path)
-            try? link.path.delete()
+            var file = link.path
+            try? file.delete()
             XCTAssertFalse(symlink.isDangling)
             try? _linked.delete()
             try? symlink.delete()
@@ -73,7 +76,8 @@ class LinkTests: XCTestCase {
             XCTAssertTrue(symlink.exists)
             XCTAssertEqual(symlink.linkType, .hard)
             XCTAssertFalse(symlink.isDangling)
-            try? file.path.delete()
+            var _file = file.path
+            try? _file.delete()
             XCTAssertFalse(symlink.isDangling)
             try? symlink.delete()
         } catch {
@@ -87,9 +91,11 @@ class LinkTests: XCTestCase {
         let toFile: FilePath
         do {
             let openFile1 = try FilePath.temporary(prefix: "com.trailblazer.link.")
-            try openFile1.path.delete()
+            var file1 = openFile1.path
+            try? file1.delete()
             let openFile2 = try FilePath.temporary(prefix: "com.trailblazer.link.")
-            try openFile2.path.delete()
+            var file2 = openFile2.path
+            try? file2.delete()
             fromFile = openFile1.path
             toFile = openFile2.path
         } catch {
@@ -138,7 +144,8 @@ class LinkTests: XCTestCase {
             XCTAssertTrue(symlink6.exists)
             XCTAssertTrue(symlink7!.exists)
 
-            try? file.path.delete()
+            var _file = file.path
+            try? _file.delete()
             try? symlink3.delete()
         } catch {
             XCTFail("\(error)")
@@ -153,7 +160,8 @@ class LinkTests: XCTestCase {
             let target = DirectoryPath("\(link.path.lastComponent!)")!
             let symlink = try target.link(at: "\(link.path.lastComponent!).link")
             XCTAssertNoThrow(try symlink.children())
-            try? link.path.delete()
+            var file = link.path
+            try? file.delete()
             try? _linked.delete()
         } catch {
             XCTFail("\(error)")
@@ -169,7 +177,8 @@ class LinkTests: XCTestCase {
             let target = FilePath("\(link.path.lastComponent!)")!
             let symlink = try target.link(at: "\(link.path.lastComponent!).link")
             XCTAssertNoThrow(try symlink.open(permissions: .readWrite))
-            try? link.path.delete()
+            var file = link.path
+            try? file.delete()
             try? _linked.delete()
         } catch {
             XCTFail("\(error)")
@@ -185,7 +194,8 @@ class LinkTests: XCTestCase {
             let target = DirectoryPath("\(link.path.lastComponent!)")!
             let symlink = try target.link(at: "\(link.path.lastComponent!).link")
             XCTAssertNoThrow(try symlink.open())
-            try? link.path.delete()
+            var file = link.path
+            try? file.delete()
             try? _linked.delete()
         } catch {
             XCTFail("\(error)")
@@ -201,7 +211,8 @@ class LinkTests: XCTestCase {
             let target = FilePath("\(link.path.lastComponent!)")!
             let symlink = try target.link(at: "\(link.path.lastComponent!).link")
             XCTAssertNoThrow(try symlink.open(permissions: .readWrite) { _ in })
-            try? link.path.delete()
+            var file = link.path
+            try? file.delete()
             try? _linked.delete()
         } catch {
             XCTFail("\(error)")
@@ -215,7 +226,8 @@ class LinkTests: XCTestCase {
             let target = DirectoryPath("\(link.path.lastComponent!)")!
             let symlink = try target.link(at: "\(link.path.lastComponent!).link")
             XCTAssertNoThrow(try symlink.open { _ in })
-            try? link.path.delete()
+            var file = link.path
+            try? file.delete()
             try? _linked.delete()
         } catch {
             XCTFail("\(error)")

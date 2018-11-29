@@ -1,10 +1,9 @@
 #if os(Linux)
-import Glibc
-let cRealpath = Glibc.realpath
+import func Glibc.realpath
 #else
-import Darwin
-let cRealpath = Darwin.realpath
+import func Darwin.realpath
 #endif
+let cRealpath = realpath
 
 extension Path {
     /// The full canonicalized path

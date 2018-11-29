@@ -1,8 +1,25 @@
 #if os(Linux)
-import Glibc
+import var Glibc.errno
+import struct Glibc.passwd
+import struct Glibc.group
+import func Glibc.getpwnam
+import func Glibc.getpwuid
+import func Glibc.getgrnam
+import func Glibc.getgrgid
+import func Glibc.geteuid
 #else
-import Darwin
+import var Darwin.errno
+import struct Darwin.passwd
+import struct Darwin.group
+import func Darwin.getpwnam
+import func Darwin.getpwuid
+import func Darwin.getgrnam
+import func Darwin.getgrgid
+import func Darwin.geteuid
 #endif
+
+public typealias Passwd = passwd
+public typealias Group = group
 
 extension Path {
     /// The home directory for the calling process's user
@@ -45,7 +62,7 @@ Returns the home directory for a specified user
 - Throws: `UserInfoError.noMoreSystemFileDescriptors` when the system has no more available file descriptors
 - Throws: `UserInfoError.outOfMemory` when there is insufficient memory to allocate the underlying C passwd struct
 */
-public func getHome(uid: uid_t = geteuid()) throws -> DirectoryPath {
+public func getHome(uid: UID = geteuid()) throws -> DirectoryPath {
     let info = try getUserInfo(uid: uid)
     return try DirectoryPath(String(cString: info.pw_dir)) ?! UserInfoError.invalidHomeDirectory
 }
@@ -54,7 +71,7 @@ public func getHome(uid: uid_t = geteuid()) throws -> DirectoryPath {
 Returns information about the user requested
 
 - Parameter username: The username of the user whose information you wish to retrieve
-- Returns: A passwd struct containing information about the user. (see getpwnam(3))
+- Returns: A Passwd struct containing information about the user. (see getpwnam(3))
 
 - Throws: `UserInfoError.userDoesNotExist` when there was no user found with the specified username
 - Throws: `UserInfoError.interruptedBySignal` when the API call was interrupted by a signal handler
@@ -63,7 +80,7 @@ Returns information about the user requested
 - Throws: `UserInfoError.noMoreSystemFileDescriptors` when the system has no more available file descriptors
 - Throws: `UserInfoError.outOfMemory` when there is insufficient memory to allocate the underlying C passwd struct
 */
-func getUserInfo(username: String) throws -> passwd {
+func getUserInfo(username: String) throws -> Passwd {
     // getpwnam(2) documentation says "If one wants to check errno after
     // the call, it should be set to zero before the call."
     errno = 0
@@ -74,7 +91,7 @@ func getUserInfo(username: String) throws -> passwd {
 Returns information about the user requested
 
 - Parameter uid: The uid of the user whose information you wish to retrieve
-- Returns: A passwd struct containing information about the user. (see getpwuid(3))
+- Returns: A Passwd struct containing information about the user. (see getpwuid(3))
 
 - Throws: `UserInfoError.userDoesNotExist` when there was no user found with the specified uid
 - Throws: `UserInfoError.interruptedBySignal` when the API call was interrupted by a signal handler
@@ -83,7 +100,7 @@ Returns information about the user requested
 - Throws: `UserInfoError.noMoreSystemFileDescriptors` when the system has no more available file descriptors
 - Throws: `UserInfoError.outOfMemory` when there is insufficient memory to allocate the underlying C passwd struct
 */
-func getUserInfo(uid: uid_t) throws -> passwd {
+func getUserInfo(uid: UID) throws -> Passwd {
     // getpwuid(2) documentation says "If one wants to check errno after
     // the call, it should be set to zero before the call."
     errno = 0
@@ -94,7 +111,7 @@ func getUserInfo(uid: uid_t) throws -> passwd {
 Returns information about the group requested
 
 - Parameter groupname: The name of the group whose information you wish to retrieve
-- Returns: A group struct containing information about the group. (see getgrnam(3))
+- Returns: A Group struct containing information about the group. (see getgrnam(3))
 
 - Throws: `GroupInfoError.groupDoesNotExist` when there was no group found with the specified group name
 - Throws: `GroupInfoError.interruptedBySignal` when the API call was interrupted by a signal handler
@@ -103,7 +120,7 @@ Returns information about the group requested
 - Throws: `GroupInfoError.noMoreSystemFileDescriptors` when the system has no more available file descriptors
 - Throws: `GroupInfoError.outOfMemory` when there is insufficient memory to allocate the underlying C group struct
 */
-func getGroupInfo(groupname: String) throws -> group {
+func getGroupInfo(groupname: String) throws -> Group {
     // getgrnam(2) documentation says "If one wants to check errno after
     // the call, it should be set to zero before the call."
     errno = 0
@@ -114,7 +131,7 @@ func getGroupInfo(groupname: String) throws -> group {
 Returns information about the group requested
 
 - Parameter gid: The gid of the group whose information you wish to retrieve
-- Returns: A group struct containing information about the group. (see getgrgid(3))
+- Returns: A Group struct containing information about the group. (see getgrgid(3))
 
 - Throws: `GroupInfoError.groupDoesNotExist` when there was no group found with the specified gid
 - Throws: `GroupInfoError.interruptedBySignal` when the API call was interrupted by a signal handler
@@ -123,7 +140,7 @@ Returns information about the group requested
 - Throws: `GroupInfoError.noMoreSystemFileDescriptors` when the system has no more available file descriptors
 - Throws: `GroupInfoError.outOfMemory` when there is insufficient memory to allocate the underlying C group struct
 */
-func getGroupInfo(gid: gid_t) throws -> group {
+func getGroupInfo(gid: GID) throws -> Group {
     // getgrgid(2) documentation says "If one wants to check errno after
     // the call, it should be set to zero before the call."
     errno = 0

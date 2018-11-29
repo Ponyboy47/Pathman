@@ -21,9 +21,9 @@ public final class Glob {
         it more than once. (Getting the files and then getting the directories
         constitutes multiple accesses and therefore multiple computations)
     */
-    public var matches: PathCollection {
+    public var matches: DirectoryChildren {
         // Create the children collection
-        var children = PathCollection()
+        var children = DirectoryChildren()
 
         // Array of Strings of the matched paths. (char **)
         var item = _glob.pointee.gl_pathv
@@ -37,16 +37,7 @@ public final class Glob {
         // end. The glob(3) docs say the array is null-terminated.
         while let pointee = item?.pointee {
             // Cast the char * pointee to a swift String
-            let path = String(cString: pointee)
-
-            // Get the path type and append it to the corresponding array
-            if let file = FilePath(path) {
-                children.files.append(file)
-            } else if let dir = DirectoryPath(path) {
-                children.directories.append(dir)
-            } else {
-                children.other.append(GenericPath(path))
-            }
+            children.append(String(cString: pointee))
 
             // Advance to the next item in the array
             item = item?.successor()

@@ -11,6 +11,7 @@ class CopyTests: XCTestCase {
             XCTFail("Failed to create temporary file for copying with error: \(error)")
             return
         }
+        var tmpPath = tmpFile.path
 
         XCTAssertNoThrow(try tmpFile.write("Hello world"))
 
@@ -20,9 +21,11 @@ class CopyTests: XCTestCase {
         do {
             XCTAssertFalse(newPath.exists)
             newOpenPath = try tmpFile.copy(to: &newPath)
+            XCTAssertTrue(newPath.exists)
         } catch {
             XCTFail("Failed to copy the path: \(type(of: error)).\(error)")
-            try? tmpFile.path.delete()
+            try? tmpPath.delete()
+            try? newPath.delete()
             return
         }
 
@@ -34,8 +37,8 @@ class CopyTests: XCTestCase {
             XCTFail("Failed to read path with error: \(type(of: error)).\(error)")
         }
 
-        try? tmpFile.path.delete()
-        try? newOpenPath.path.delete()
+        try? tmpPath.delete()
+        try? newPath.delete()
     }
 
     func testCopyDirectoryEmpty() {
@@ -52,7 +55,8 @@ class CopyTests: XCTestCase {
         XCTAssertNoThrow(try tmpDirectory.copy(to: &newPath))
         XCTAssertTrue(newPath.exists)
 
-        try? tmpDirectory.path.delete()
+        var tmpPath = tmpDirectory.path
+        try? tmpPath.delete()
         try? newPath.delete()
     }
 
@@ -84,7 +88,8 @@ class CopyTests: XCTestCase {
             XCTFail("Expected CopyError.nonEmptyDirectory received \(type(of: error)).\(error)")
         }
 
-        try? tmpDirectory.path.recursiveDelete()
+        var dir = tmpDirectory.path
+        try? dir.recursiveDelete()
         try? newPath.recursiveDelete()
     }
 
@@ -110,7 +115,8 @@ class CopyTests: XCTestCase {
         var newPath = DirectoryPath(tmpDirectory.path.parent + "com.trailblazer.copied.\(UUID())")!
         XCTAssertNoThrow(try tmpDirectory.copy(to: &newPath, options: .recursive))
 
-        try? tmpDirectory.path.recursiveDelete()
+        var dir = tmpDirectory.path
+        try? dir.recursiveDelete()
         try? newPath.recursiveDelete()
     }
 }
