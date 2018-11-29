@@ -73,10 +73,10 @@ guard let directory = DirectoryPath("/tmp") else {
 // NOTE: Certain properties are only available for paths that exist
 
 /// The system id of the path
-var id: dev_t
+var id: DeviceID
 
 /// The inode of the path
-var inode: ino_t
+var inode: Inode
 
 /// The type of the path, if it exists
 var type: PathType
@@ -100,19 +100,19 @@ var url: URL
 var permissions: FileMode
 
 /// The user id of the user that owns the path
-var owner: uid_t
+var owner: UID
 
 // The name of the user that owns the path
 var ownerName: String?
 
 /// The group id of the user that owns the path
-var group: gid_t
+var group: GID
 
 /// The name of the group that owns the path
 var groupName: String?
 
 /// The device id (if special file)
-var device: dev_t
+var device: DeviceID
 
 /// The total size, in bytes
 var size: OSOffsetInt
@@ -120,7 +120,7 @@ var size: OSOffsetInt
 // Linux -> Int
 
 /// The blocksize for filesystem I/O
-var blockSize: blksize_t
+var blockSize: BlockSize
 
 /// The number of 512B block allocated
 var blocks: OSOffsetInt
