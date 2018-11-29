@@ -1,41 +1,55 @@
 import struct Foundation.Data
 
 extension Writable {
-    public func write(_ string: String, using encoding: String.Encoding = .utf8) throws {
+    @discardableResult
+    public func write(_ string: String, using encoding: String.Encoding = .utf8) throws -> WriteReturnType {
         let data = try string.data(using: encoding) ?! StringError.notConvertibleToData(using: encoding)
-        try write(data)
+        return try write(data)
     }
 }
 
 extension Writable where Self: Seekable {
-    public func write(_ buffer: Data, at offset: Offset) throws {
+    @discardableResult
+    public func write(_ buffer: Data, at offset: Offset) throws -> WriteReturnType {
         try seek(offset)
-        try write(buffer)
+        return try write(buffer)
     }
 
-    public func write(_ string: String, at offset: Offset, using encoding: String.Encoding = .utf8) throws {
+    @discardableResult
+    public func write(_ string: String, at offset: Offset, using encoding: String.Encoding = .utf8) throws -> WriteReturnType {
         let data = try string.data(using: encoding) ?! StringError.notConvertibleToData(using: encoding)
-        try write(data, at: offset)
+        return try write(data, at: offset)
     }
 }
 
 extension WritableWithFlags {
-    public func write(_ buffer: Data) throws {
-        try write(buffer, flags: Self.emptyWriteFlags)
+    @discardableResult
+    public func write(_ buffer: Data) throws -> WriteReturnType {
+        return try write(buffer, flags: Self.emptyWriteFlags)
+    }
+
+    @discardableResult
+    public func write(_ string: String,
+                      flags: WriteFlagsType,
+                      using encoding: String.Encoding = .utf8) throws -> WriteReturnType {
+        let data = try string.data(using: encoding) ?! StringError.notConvertibleToData(using: encoding)
+        return try write(data, flags: flags)
     }
 }
 
 extension WritableWithFlags where Self: Seekable {
-    public func write(_ buffer: Data, flags: WriteFlagsType, at offset: Offset) throws {
+    @discardableResult
+    public func write(_ buffer: Data, flags: WriteFlagsType, at offset: Offset) throws -> WriteReturnType {
         try seek(offset)
-        try write(buffer, flags: flags)
+        return try write(buffer, flags: flags)
     }
 
+    @discardableResult
     public func write(_ string: String,
                       flags: WriteFlagsType,
                       at offset: Offset,
-                      using encoding: String.Encoding = .utf8) throws {
+                      using encoding: String.Encoding = .utf8) throws -> WriteReturnType {
         let data = try string.data(using: encoding) ?! StringError.notConvertibleToData(using: encoding)
-        try write(data, flags: flags, at: offset)
+        return try write(data, flags: flags, at: offset)
     }
 }

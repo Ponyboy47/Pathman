@@ -46,7 +46,7 @@ extension Creatable where _OpenedType: Writable {
                                 options: CreateOptions = [],
                                 contents: Data) throws -> _OpenedType {
         let opened = try create(mode: mode, options: options)
-        try opened.write(contents)
+        _ = try opened.write(contents)
         return opened
     }
 

@@ -1,7 +1,11 @@
 import struct Foundation.Data
 
-public protocol Writable {
-    func write(_ buffer: Data) throws
+public protocol WritableReturnable {
+    associatedtype WriteReturnType = Void
+}
+
+public protocol Writable: WritableReturnable {
+    func write(_ buffer: Data) throws -> WriteReturnType
 }
 
 public protocol _WritesWithFlags {
@@ -10,13 +14,13 @@ public protocol _WritesWithFlags {
 }
 
 public protocol WritableWithFlags: Writable, _WritesWithFlags {
-    func write(_ buffer: Data, flags: WriteFlagsType) throws
+    func write(_ buffer: Data, flags: WriteFlagsType) throws -> WriteReturnType
 }
 
-public protocol WritableByOpened: Openable {
-    static func write(_ buffer: Data, to opened: Open<Self>) throws
+public protocol WritableByOpened: Openable, WritableReturnable {
+    static func write(_ buffer: Data, to opened: Open<Self>) throws -> WriteReturnType
 }
 
 public protocol WritableByOpenedWithFlags: WritableByOpened, _WritesWithFlags {
-    static func write(_ buffer: Data, flags: WriteFlagsType, to opened: Open<Self>) throws
+    static func write(_ buffer: Data, flags: WriteFlagsType, to opened: Open<Self>) throws -> WriteReturnType
 }
