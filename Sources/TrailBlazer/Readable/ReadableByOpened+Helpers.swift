@@ -34,11 +34,6 @@ extension ReadableByOpened where Self: SeekableByOpened,
                                  OpenOptionsType: DefaultReadableOpenOption,
                                  Self: DefaultReadByteCount {
     public func read(from offset: Offset,
-                     bytes bytesToRead: ByteRepresentable = Self.defaultByteCount) throws -> Data {
-        return try open(options: OpenOptionsType.readableDefault).read(from: offset, bytes: bytesToRead)
-    }
-
-    public func read(from offset: Offset,
                      bytes bytesToRead: ByteRepresentable = Self.defaultByteCount,
                      encoding: String.Encoding = .utf8) throws -> String? {
         return try String(data: open(options: OpenOptionsType.readableDefault).read(from: offset,
