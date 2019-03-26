@@ -140,8 +140,8 @@ class PathTests: XCTestCase {
     }
 
     func testAncestors() {
-        let short = GenericPath("/tmp/test")!
-        let long = GenericPath("/tmp/test/dir/with/a/file.txt")!
+        let short = GenericPath("/tmp/test")
+        let long = GenericPath("/tmp/test/dir/with/a/file.txt")
 
         XCTAssertEqual(short.commonAncestor(with: long), DirectoryPath(short)!)
         XCTAssertEqual(long.commonAncestor(with: short), DirectoryPath(short)!)

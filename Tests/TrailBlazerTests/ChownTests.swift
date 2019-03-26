@@ -131,7 +131,7 @@ class ChownTests: XCTestCase {
         }
         XCTAssertFalse(dir.exists)
 
-        guard var file = FilePath(dir + "\(UUID())" + "\(UUID()).test") else {
+        guard let parent = DirectoryPath(dir + "\(UUID())"), var file = FilePath(parent + "\(UUID()).test") else {
             XCTFail("Test path exists and is not a file")
             return
         }
