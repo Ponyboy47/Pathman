@@ -123,9 +123,9 @@ public extension ReadableByOpened where Self: SeekableByOpened, OpenOptionsType:
         return try open(options: OpenOptionsType.readableDefault).read(from: offset, bytes: bytesToRead)
     }
 
-    public func read(from offset: Offset,
-                     bytes bytesToRead: ByteRepresentable,
-                     encoding: String.Encoding = .utf8) throws -> String? {
+    func read(from offset: Offset,
+              bytes bytesToRead: ByteRepresentable,
+              encoding: String.Encoding = .utf8) throws -> String? {
         return try String(data: open(options: OpenOptionsType.readableDefault).read(from: offset,
                                                                                     bytes: bytesToRead),
                           encoding: encoding)
