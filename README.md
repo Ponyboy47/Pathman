@@ -1,6 +1,6 @@
 # TrailBlazer
 
-[![Build Status](https://travis-ci.org/Ponyboy47/Trailblazer.svg?branch=master)](https://travis-ci.org/Ponyboy47/Trailblazer) [![codecov](https://codecov.io/gh/Ponyboy47/Trailblazer/branch/master/graph/badge.svg)](https://codecov.io/gh/Ponyboy47/Trailblazer) [![Maintainability](https://api.codeclimate.com/v1/badges/4bafeb6b0d65f0c57fa6/maintainability)](https://codeclimate.com/github/Ponyboy47/Trailblazer/maintainability) [![Current Version](https://img.shields.io/badge/version-0.14.1-blue.svg)](https://github.com/Ponyboy47/Trailblazer/releases/tag/0.14.1) ![Supported Platforms](https://img.shields.io/badge/platform-macOS%20%7C%20linux-lightgrey.svg) [![Language](https://img.shields.io/badge/language-swift-orange.svg)](https://swift.org) [![Language Version](https://img.shields.io/badge/swift%20version-4.2-blue.svg)](https://swift.org/download/) [![License](https://img.shields.io/badge/license-MIT-black.svg)](https://github.com/Ponyboy47/Trailblazer/blob/master/LICENSE)<br>
+[![Build Status](https://travis-ci.org/Ponyboy47/Trailblazer.svg?branch=master)](https://travis-ci.org/Ponyboy47/Trailblazer) [![codecov](https://codecov.io/gh/Ponyboy47/Trailblazer/branch/master/graph/badge.svg)](https://codecov.io/gh/Ponyboy47/Trailblazer) [![Maintainability](https://api.codeclimate.com/v1/badges/4bafeb6b0d65f0c57fa6/maintainability)](https://codeclimate.com/github/Ponyboy47/Trailblazer/maintainability) [![Current Version](https://img.shields.io/badge/version-0.15.0-blue.svg)](https://github.com/Ponyboy47/Trailblazer/releases/tag/0.15.0) ![Supported Platforms](https://img.shields.io/badge/platform-macOS%20%7C%20linux-lightgrey.svg) [![Language](https://img.shields.io/badge/language-swift-orange.svg)](https://swift.org) [![Language Version](https://img.shields.io/badge/swift%20version-4.2-blue.svg)](https://swift.org/download/) [![License](https://img.shields.io/badge/license-MIT-black.svg)](https://github.com/Ponyboy47/Trailblazer/blob/master/LICENSE)<br>
 A type-safe path library for Apple's Swift language.
 
 ## Motivation
@@ -26,14 +26,14 @@ So I built TrailBlazer! The first type-safe swift path library built around the 
 
 ## Installation
 ### Compatibility:
-- Swift 4.2
+- Swift 5.0
 - Ubuntu
 - macOS
 
 ### Swift Package Manager:
 Add this to your Package.swift dependencies:
 ```swift
-.package(url: "https://github.com/Ponyboy47/Trailblazer.git", from: "0.14.1")
+.package(url: "https://github.com/Ponyboy47/Trailblazer.git", from: "0.15.0")
 ```
 
 ## Usage
