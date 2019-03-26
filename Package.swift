@@ -12,7 +12,7 @@ let package = Package(
             targets: ["TrailBlazer"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/Ponyboy47/ErrNo", from: "0.4.1"),
+        .package(url: "https://github.com/Ponyboy47/ErrNo", from: "0.5.0"),
         .package(url: "https://github.com/Ponyboy47/Cdirent", from: "0.1.0"),
         .package(url: "https://github.com/Ponyboy47/Cglob", from: "0.1.0"),
         .package(url: "https://github.com/kareman/SwiftShell", from: "4.1.0"),

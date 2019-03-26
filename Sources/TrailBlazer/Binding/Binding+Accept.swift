@@ -5,8 +5,8 @@ import func Darwin.accept
 #endif
 private let cAcceptConnection = accept
 
-extension Binding {
-    public func accept() throws -> Connection {
+public extension Binding {
+    func accept() throws -> Connection {
         // No sense storing/casting the accepted connection. We know exactly
         // which path it's connected to and which protocol and there are no ports
         let connectionFileDescriptor = cAcceptConnection(fileDescriptor, nil, nil)
@@ -18,7 +18,7 @@ extension Binding {
         return Connection(Open(path, descriptor: connectionFileDescriptor, options: openOptions))
     }
 
-    public func accept(_ closure: @escaping (Connection) throws -> ()) throws {
+    func accept(_ closure: @escaping (Connection) throws -> Void) throws {
         try closure(accept())
     }
 }

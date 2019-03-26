@@ -29,7 +29,10 @@ public struct DirectoryChildren: Equatable, CustomStringConvertible {
         - Parameter directories: The DirectoryPaths to begin with as a part of this collection
         - Parameter other: The remaining Paths to begin with as a part of this collection
     */
-    public init(files: [FilePath] = [], directories: [DirectoryPath] = [], sockets: [SocketPath] = [], other: [GenericPath] = []) {
+    public init(files: [FilePath] = [],
+                directories: [DirectoryPath] = [],
+                sockets: [SocketPath] = [],
+                other: [GenericPath] = []) {
         self.files = files
         self.directories = directories
         self.sockets = sockets
@@ -68,6 +71,7 @@ public struct DirectoryChildren: Equatable, CustomStringConvertible {
     }
 
     public mutating func append<PathType: Path>(_ element: PathType) {
+        //swiftlint:disable force_cast
         if element is GenericPath {
             self.append(element._path)
         } else if element is FilePath {
@@ -79,6 +83,7 @@ public struct DirectoryChildren: Equatable, CustomStringConvertible {
         } else {
             fatalError("Unimplemented PathType => \(PathType.self)")
         }
+        //swiftlint:enable force_cast
     }
 
     /// Combine two DirectoryChildrens into a single new DirectoryChildren
@@ -99,7 +104,10 @@ public struct DirectoryChildren: Equatable, CustomStringConvertible {
 
     /// Whether or not two DirectoryChildrens are equivalent
     public static func == (lhs: DirectoryChildren, rhs: DirectoryChildren) -> Bool {
-        return lhs.files == rhs.files && lhs.directories == rhs.directories && lhs.sockets == rhs.sockets && lhs.other == rhs.other
+        return lhs.files == rhs.files
+               && lhs.directories == rhs.directories
+               && lhs.sockets == rhs.sockets
+               && lhs.other == rhs.other
     }
 }
 

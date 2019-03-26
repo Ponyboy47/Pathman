@@ -5,14 +5,14 @@ import func Darwin.realpath
 #endif
 let cRealpath = realpath
 
-extension Path {
+public extension Path {
     /// The full canonicalized path
-    public var absolute: Self? {
+    var absolute: Self? {
         return try? self.expanded()
     }
 
     /// Whether or not the current path is absolute
-    public var isAbsolute: Bool {
+    var isAbsolute: Bool {
         return !isRelative
     }
 
@@ -31,7 +31,7 @@ extension Path {
         - RealPathError.pathDoesNotExist: The named file does not exist.
         - RealPathError.notADirectory: A component of the path prefix is not a directory.
     */
-    public mutating func expand() throws {
+    mutating func expand() throws {
         // realpath(3) fails if the path is null
         guard !_path.isEmpty else { return }
 
@@ -77,7 +77,7 @@ extension Path {
         - RealPathError.pathDoesNotExist: The named file does not exist.
         - RealPathError.notADirectory: A component of the path prefix is not a directory.
     */
-    public func expanded() throws -> Self {
+    func expanded() throws -> Self {
         var toExpand = Self(_path) !! "The path '\(_path)' is not a \(Self.self)"
         try toExpand.expand()
         return toExpand

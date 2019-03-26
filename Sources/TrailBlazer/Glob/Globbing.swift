@@ -71,7 +71,7 @@ public func glob(pattern: String, flags: GlobFlags = [],
     }
 }
 
-extension DirectoryPath {
+public extension DirectoryPath {
     /** Locates all paths matching the pattern specified using this DirectoryPath as the base directory for the glob
 
      - Parameter pattern: The glob pattern to use for finding paths
@@ -95,9 +95,9 @@ extension DirectoryPath {
                This should only occur if your DirectoryPath object was created before the path existed and then the path
                was created as a non-directory path type
      */
-    public func glob(pattern: String,
-                     flags: GlobFlags = [],
-                     errorClosure: GlobError.ErrorHandler? = nil) throws -> Glob {
+    func glob(pattern: String,
+              flags: GlobFlags = [],
+              errorClosure: GlobError.ErrorHandler? = nil) throws -> Glob {
         return try TrailBlazer.glob(pattern: (self + pattern).string, flags: flags, errorClosure: errorClosure)
     }
 
@@ -124,10 +124,10 @@ extension DirectoryPath {
                This should only occur if your DirectoryPath object was created before the path existed and then the path
                was created as a non-directory path type
      */
-    public func glob(pattern: String,
-                     flags: GlobFlags = [],
-                     errorClosure: GlobError.ErrorHandler? = nil,
-                     glob: inout Glob) throws {
+    func glob(pattern: String,
+              flags: GlobFlags = [],
+              errorClosure: GlobError.ErrorHandler? = nil,
+              glob: inout Glob) throws {
         try TrailBlazer.glob(pattern: (self + pattern).string, flags: flags, errorClosure: errorClosure, glob: &glob)
     }
 }

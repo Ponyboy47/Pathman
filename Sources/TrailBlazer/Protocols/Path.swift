@@ -82,36 +82,36 @@ public protocol Path: Hashable, CustomStringConvertible, UpdatableStatable, Owna
 
 public extension Path {
     /// The character used to separate components of a path
-    public static var separator: String {
+    static var separator: String {
         get { return pathSeparator }
         set { pathSeparator = newValue }
     }
     /// The character used to separate components of a path
-    public var separator: String {
+    var separator: String {
         get { return Self.separator }
         nonmutating set { Self.separator = newValue }
     }
 
     /// The current working directory for the process
-    public static var cwd: DirectoryPath {
+    static var cwd: DirectoryPath {
         get { return (try? getCurrentWorkingDirectory()) ?? currentWorkingDirectory }
         set {
             try? changeCWD(to: newValue)
         }
     }
     /// The current working directory for the process
-    public var cwd: DirectoryPath {
+    var cwd: DirectoryPath {
         get { return Self.cwd }
         nonmutating set { Self.cwd = newValue }
     }
 
     /// The String representation of the path
-    public var string: String {
+    var string: String {
         return _path
     }
 
     /// The different elements that make up the path
-    public var components: [String] {
+    var components: [String] {
         var comps = string.components(separatedBy: Self.separator)
         if string.hasPrefix(Self.separator) {
             comps.insert(Self.separator, at: 0)
@@ -119,12 +119,12 @@ public extension Path {
         return comps.filter { !$0.isEmpty }
     }
     /// The last element of the path
-    public var lastComponent: String? {
+    var lastComponent: String? {
         return components.last
     }
 
     /// The last element of the path with the extension removed
-    public var lastComponentWithoutExtension: String? {
+    var lastComponentWithoutExtension: String? {
         guard let last = lastComponent else { return nil }
 
         let extensionLength: Int
@@ -137,7 +137,7 @@ public extension Path {
     }
 
     /// The extension of the path
-    public var `extension`: String? {
+    var `extension`: String? {
         guard let last = lastComponent else { return nil }
 
         let comps = last.components(separatedBy: ".")
@@ -147,7 +147,7 @@ public extension Path {
     }
 
     /// The directory one level above the current Self's location
-    public var parent: DirectoryPath {
+    var parent: DirectoryPath {
         get {
             // If we'd be removing the last component then return either the
             // processRoot or the currentWorkingDirectory, depending on whether
@@ -165,16 +165,16 @@ public extension Path {
     }
 
     /// The URL representation of the path
-    public var url: URL {
+    var url: URL {
         return URL(fileURLWithPath: _path, isDirectory: exists ? isDirectory : self is DirectoryPath)
     }
 
     /// A printable description of the current path
-    public var description: String {
+    var description: String {
         return "\(Swift.type(of: self))(\"\(string)\")"
     }
 
-    public func hash(into hasher: inout Hasher) {
+    func hash(into hasher: inout Hasher) {
         hasher.combine(_path)
     }
 
@@ -183,26 +183,26 @@ public extension Path {
 
     - Parameter  path: The path to copy
     */
-    public init(_ path: Self) {
+    init(_ path: Self) {
         self = path
     }
 
-    public init?(_ str: String) {
+    init?(_ str: String) {
         self.init(GenericPath(str))
     }
 
     /// Initialize from an array of path elements
-    public init?(_ components: [String]) {
+    init?(_ components: [String]) {
         self.init(GenericPath(components))
     }
 
     /// Initialize from a variadic array of path elements
-    public init?(_ components: String...) {
+    init?(_ components: String...) {
         self.init(components)
     }
 
     /// Initialize from a slice of an array of path elements
-    public init?(_ components: ArraySlice<String>) {
+    init?(_ components: ArraySlice<String>) {
         self.init(Array(components))
     }
 }

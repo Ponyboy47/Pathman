@@ -1,4 +1,4 @@
-extension Permissionable where Self: DirectoryEnumerable {
+public extension Permissionable where Self: DirectoryEnumerable {
     /**
     Recursively changes the permissions on all paths
 
@@ -27,8 +27,8 @@ extension Permissionable where Self: DirectoryEnumerable {
                This should only occur if your DirectoryPath object was created before the path existed and then the path
                was created as a non-directory path type
     */
-    public mutating func changeRecursive(permissions: FileMode,
-                                         options: DirectoryEnumerationOptions = .includeHidden) throws {
+    mutating func changeRecursive(permissions: FileMode,
+                                  options: DirectoryEnumerationOptions = .includeHidden) throws {
         let childPaths = try children(options: options)
 
         for var path in childPaths.notDirectories {
@@ -74,11 +74,11 @@ extension Permissionable where Self: DirectoryEnumerable {
                This should only occur if your DirectoryPath object was created before the path existed and then the path
                was created as a non-directory path type
     */
-    public mutating func changeRecursive(owner: FilePermissions? = nil,
-                                         group: FilePermissions? = nil,
-                                         others: FilePermissions? = nil,
-                                         bits: FileBits? = nil,
-                                         options: DirectoryEnumerationOptions = .includeHidden) throws {
+    mutating func changeRecursive(owner: FilePermissions? = nil,
+                                  group: FilePermissions? = nil,
+                                  others: FilePermissions? = nil,
+                                  bits: FileBits? = nil,
+                                  options: DirectoryEnumerationOptions = .includeHidden) throws {
         let current = permissions
         try changeRecursive(permissions: FileMode(owner: owner ?? current.owner,
                                                   group: group ?? current.group,
@@ -118,10 +118,10 @@ extension Permissionable where Self: DirectoryEnumerable {
                This should only occur if your DirectoryPath object was created before the path existed and then the path
                was created as a non-directory path type
     */
-    public mutating func changeRecursive(ownerGroup perms: FilePermissions,
-                                         others: FilePermissions? = nil,
-                                         bits: FileBits? = nil,
-                                         options: DirectoryEnumerationOptions = .includeHidden) throws {
+    mutating func changeRecursive(ownerGroup perms: FilePermissions,
+                                  others: FilePermissions? = nil,
+                                  bits: FileBits? = nil,
+                                  options: DirectoryEnumerationOptions = .includeHidden) throws {
         let current = permissions
         try changeRecursive(owner: perms,
                             group: perms,
@@ -161,10 +161,10 @@ extension Permissionable where Self: DirectoryEnumerable {
                This should only occur if your DirectoryPath object was created before the path existed and then the path
                was created as a non-directory path type
     */
-    public mutating func changeRecursive(ownerOthers perms: FilePermissions,
-                                         group: FilePermissions? = nil,
-                                         bits: FileBits? = nil,
-                                         options: DirectoryEnumerationOptions = .includeHidden) throws {
+    mutating func changeRecursive(ownerOthers perms: FilePermissions,
+                                  group: FilePermissions? = nil,
+                                  bits: FileBits? = nil,
+                                  options: DirectoryEnumerationOptions = .includeHidden) throws {
         let current = permissions
         try changeRecursive(owner: perms,
                             group: group ?? current.group,
@@ -204,10 +204,10 @@ extension Permissionable where Self: DirectoryEnumerable {
                This should only occur if your DirectoryPath object was created before the path existed and then the path
                was created as a non-directory path type
     */
-    public mutating func changeRecursive(groupOthers perms: FilePermissions,
-                                         owner: FilePermissions? = nil,
-                                         bits: FileBits? = nil,
-                                         options: DirectoryEnumerationOptions = .includeHidden) throws {
+    mutating func changeRecursive(groupOthers perms: FilePermissions,
+                                  owner: FilePermissions? = nil,
+                                  bits: FileBits? = nil,
+                                  options: DirectoryEnumerationOptions = .includeHidden) throws {
         let current = permissions
         try changeRecursive(owner: owner ?? current.owner,
                             group: perms,
@@ -246,9 +246,9 @@ extension Permissionable where Self: DirectoryEnumerable {
                This should only occur if your DirectoryPath object was created before the path existed and then the path
                was created as a non-directory path type
     */
-    public mutating func changeRecursive(ownerGroupOthers perms: FilePermissions,
-                                         bits: FileBits? = nil,
-                                         options: DirectoryEnumerationOptions = .includeHidden) throws {
+    mutating func changeRecursive(ownerGroupOthers perms: FilePermissions,
+                                  bits: FileBits? = nil,
+                                  options: DirectoryEnumerationOptions = .includeHidden) throws {
         try changeRecursive(owner: perms, group: perms, others: perms, bits: bits ?? permissions.bits, options: options)
     }
 }

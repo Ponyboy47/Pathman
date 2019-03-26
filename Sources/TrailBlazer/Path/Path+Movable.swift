@@ -6,7 +6,7 @@ import func Darwin.rename
 /// The C rename(2) API call for moving or renaming paths
 private let cRename = rename
 
-extension Path {
+public extension Path {
     /**
     Moves a path to a new location
 
@@ -40,7 +40,7 @@ extension Path {
     - Throws: `MoveError.readOnlyFileSystem` when the file system is in read-only mode
     - Throws: `MoveError.pathsOnDifferentFileSystems` when the current path and newPath are on separate file systems
     */
-    public mutating func move(to newPath: Self) throws {
+    mutating func move(to newPath: Self) throws {
         guard cRename(string, newPath.string) == 0 else {
             throw MoveError.getError()
         }

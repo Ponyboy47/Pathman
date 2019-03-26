@@ -1,6 +1,6 @@
 public extension Copyable where Self: Openable {
     @discardableResult
-    public func copy(into directory: DirectoryPath, options: CopyOptions = []) throws -> Open<CopyablePathType> {
+    func copy(into directory: DirectoryPath, options: CopyOptions = []) throws -> Open<CopyablePathType> {
         // swiftlint:disable identifier_name
         let _newPath = directory + lastComponent!
         // swiftlint:enable identifier_name
@@ -9,4 +9,3 @@ public extension Copyable where Self: Openable {
         return try copy(to: &newPath, options: options)
     }
 }
-

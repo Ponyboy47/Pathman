@@ -55,4 +55,3 @@ public struct Offset {
         self.bytes = bytes
     }
 }
-

@@ -5,7 +5,7 @@ import func Darwin.unlink
 #endif
 private let cUnlink = unlink
 
-extension Path {
+public extension Path {
     /**
     Deletes the path
 
@@ -29,7 +29,7 @@ extension Path {
     - Throws: `CloseFileError.interruptedBySignal` when a signal interrupts the API call
     - Throws: `CloseFileError.ioError` when an I/O error occurred during the API call
     */
-    public mutating func delete() throws {
+    mutating func delete() throws {
         // Deleting files means unlinking them
         guard cUnlink(string) != -1 else {
             throw DeleteFileError.getError()

@@ -14,8 +14,8 @@ public struct PathIterator: IteratorProtocol {
     }
 }
 
-extension Path {
-    public func makeIterator() -> PathIterator {
+public extension Path {
+    func makeIterator() -> PathIterator {
         return PathIterator(self)
     }
 }

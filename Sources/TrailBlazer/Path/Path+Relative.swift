@@ -1,4 +1,4 @@
-extension Path {
+public extension Path {
     /**
     A relative representation of the current path by replacing the home
     directory with ~ or by resolving the current working directory to .
@@ -7,7 +7,7 @@ extension Path {
     with a . and then the current working directory changes, then this path no
     longer points to the same place
     */
-    public var relative: Self {
+    var relative: Self {
         var str = _path
         if let home = home?.string, str.hasPrefix(home) {
             str.replaceSubrange(..<str.index(str.startIndex, offsetBy: home.count), with: "~")
@@ -19,7 +19,7 @@ extension Path {
     }
 
     /// Whether or not the current path contains relative items (., .., or ~)
-    public var isRelative: Bool {
+    var isRelative: Bool {
         let comps = components
         guard !comps.isEmpty else { return false }
         guard !comps.contains("..") else { return true }

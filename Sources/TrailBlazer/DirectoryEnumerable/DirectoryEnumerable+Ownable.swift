@@ -1,4 +1,4 @@
-extension Ownable where Self: DirectoryEnumerable {
+public extension Ownable where Self: DirectoryEnumerable {
     /**
     Recursively changes the owner and group of all files and subdirectories
 
@@ -28,9 +28,9 @@ extension Ownable where Self: DirectoryEnumerable {
                This should only occur if your DirectoryPath object was created before the path existed and then the path
                was created as a non-directory path type
     */
-    public mutating func changeRecursive(owner uid: UID = ~0,
-                                         group gid: GID = ~0,
-                                         options: DirectoryEnumerationOptions = .includeHidden) throws {
+    mutating func changeRecursive(owner uid: UID = ~0,
+                                  group gid: GID = ~0,
+                                  options: DirectoryEnumerationOptions = .includeHidden) throws {
         let childPaths = try children(options: options)
 
         for var path in childPaths.notDirectories {
@@ -85,9 +85,9 @@ extension Ownable where Self: DirectoryEnumerable {
                This should only occur if your DirectoryPath object was created before the path existed and then the path
                was created as a non-directory path type
     */
-    public mutating func changeRecursive(owner username: String? = nil,
-                                         group groupname: String? = nil,
-                                         options: DirectoryEnumerationOptions = .includeHidden) throws {
+    mutating func changeRecursive(owner username: String? = nil,
+                                  group groupname: String? = nil,
+                                  options: DirectoryEnumerationOptions = .includeHidden) throws {
         let uid: UID
         let gid: GID
 
@@ -106,4 +106,3 @@ extension Ownable where Self: DirectoryEnumerable {
         try changeRecursive(owner: uid, group: gid, options: options)
     }
 }
-

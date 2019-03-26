@@ -1,4 +1,4 @@
-extension Deletable where Self: DirectoryEnumerable {
+public extension Deletable where Self: DirectoryEnumerable {
     /**
     Recursively deletes every path inside and below self
 
@@ -50,7 +50,7 @@ extension Deletable where Self: DirectoryEnumerable {
     - Throws: `CloseFileError.interruptedBySignal` when a signal interrupts the API call
     - Throws: `CloseFileError.ioError` when an I/O error occurred during the API call
     */
-    public mutating func recursiveDelete() throws {
+    mutating func recursiveDelete() throws {
         let childPaths = try children(options: .includeHidden)
 
         // Delete everything except for directories
@@ -67,4 +67,3 @@ extension Deletable where Self: DirectoryEnumerable {
         try delete()
     }
 }
-

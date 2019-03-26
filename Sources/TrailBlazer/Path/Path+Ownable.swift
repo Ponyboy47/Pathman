@@ -4,7 +4,7 @@ import func Glibc.chown
 import func Darwin.chown
 #endif
 
-extension Path {
+public extension Path {
     /**
     Changes the owner and/or group of the path
 
@@ -23,7 +23,7 @@ extension Path {
     - Throws: `ChangeOwnershipError.readOnlyFileSystem` when the file system is in read-only mode
     - Throws: `ChangeOwnershipError.ioError` when an I/O error occurred during the API call
     */
-    public mutating func change(owner uid: UID = ~0, group gid: GID = ~0) throws {
+    mutating func change(owner uid: UID = ~0, group gid: GID = ~0) throws {
         guard chown(string, uid, gid) == 0 else {
             throw ChangeOwnershipError.getError()
         }

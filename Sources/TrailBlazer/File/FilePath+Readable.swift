@@ -60,7 +60,8 @@ extension FilePath: ReadableByOpened, DefaultReadByteCount {
               byteCount, or the offset are not suitably aligned
     - Throws: `ReadError.ioError` when an I/O error occured during the API call
     */
-    public static func read(bytes sizeToRead: ByteRepresentable = FilePath.defaultByteCount, from opened: Open<FilePath>) throws -> Data {
+    public static func read(bytes sizeToRead: ByteRepresentable = FilePath.defaultByteCount,
+                            from opened: Open<FilePath>) throws -> Data {
         guard opened.mayRead else {
             throw ReadError.cannotReadFileDescriptor
         }

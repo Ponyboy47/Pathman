@@ -32,7 +32,7 @@ public protocol Creatable: Openable {
     mutating func create(mode: FileMode?, options: CreateOptions) throws -> _OpenedType
 }
 
-extension Creatable {
+public extension Creatable {
     mutating func create(mode: FileMode? = nil,
                          options: CreateOptions = [],
                          closure: (_ opened: _OpenedType) throws -> Void) throws {
@@ -40,21 +40,21 @@ extension Creatable {
     }
 }
 
-extension Creatable where _OpenedType: Writable {
+public extension Creatable where _OpenedType: Writable {
     @discardableResult
-    public mutating func create(mode: FileMode? = nil,
-                                options: CreateOptions = [],
-                                contents: Data) throws -> _OpenedType {
+    mutating func create(mode: FileMode? = nil,
+                         options: CreateOptions = [],
+                         contents: Data) throws -> _OpenedType {
         let opened = try create(mode: mode, options: options)
         _ = try opened.write(contents)
         return opened
     }
 
     @discardableResult
-    public mutating func create(mode: FileMode? = nil,
-                                options: CreateOptions = [],
-                                contents: String,
-                                using encoding: String.Encoding = .utf8) throws -> _OpenedType {
+    mutating func create(mode: FileMode? = nil,
+                         options: CreateOptions = [],
+                         contents: String,
+                         using encoding: String.Encoding = .utf8) throws -> _OpenedType {
         let data = try contents.data(using: encoding) ?! StringError.notConvertibleToData(using: encoding)
         return try create(mode: mode, options: options, contents: data)
     }

@@ -4,8 +4,8 @@ extension Open: WritableReturnable where PathType: WritableReturnable {
     public typealias WriteReturnType = PathType.WriteReturnType
 }
 
-extension Open where PathType: WritableByOpened, PathType.WriteReturnType == Void {
-    public func write(_ buffer: Data) throws {
+public extension Open where PathType: WritableByOpened, PathType.WriteReturnType == Void {
+    func write(_ buffer: Data) throws {
         try PathType.write(buffer, to: self)
     }
 }
@@ -25,8 +25,8 @@ extension Open: WritableWithFlags, _WritesWithFlags where PathType: WritableByOp
     }
 }
 
-extension Open where PathType: WritableByOpenedWithFlags, PathType.WriteReturnType == Void {
-    public func write(_ buffer: Data, flags: WriteFlagsType) throws {
+public extension Open where PathType: WritableByOpenedWithFlags, PathType.WriteReturnType == Void {
+    func write(_ buffer: Data, flags: WriteFlagsType) throws {
         try PathType.write(buffer, flags: flags, to: self)
     }
 }

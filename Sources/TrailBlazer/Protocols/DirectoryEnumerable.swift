@@ -16,7 +16,7 @@ public protocol DirectoryEnumerable {
     func children(options: DirectoryEnumerationOptions) throws -> DirectoryChildren
 }
 
-extension DirectoryEnumerable {
+public extension DirectoryEnumerable {
     /**
      Recursively iterates through and retrives all children in all subdirectories
 
@@ -39,7 +39,7 @@ extension DirectoryEnumerable {
                This should only occur if your DirectoryPath object was created before the path existed and then the path
                was created as a non-directory path type
      */
-    public func recursiveChildren(depth: Int = -1, options: DirectoryEnumerationOptions = []) throws -> DirectoryChildren {
+    func recursiveChildren(depth: Int = -1, options: DirectoryEnumerationOptions = []) throws -> DirectoryChildren {
         // Make sure we're not below the specified depth
         guard depth != 0 else { return DirectoryChildren() }
 

@@ -4,7 +4,7 @@ import func Glibc.chmod
 import func Darwin.chmod
 #endif
 
-extension Path {
+public extension Path {
     /**
     Changes the permissions of the path
 
@@ -22,7 +22,7 @@ extension Path {
     - Throws: `ChangePermissionsError.pathComponentNotDirectory` when a component of the path is not a directory
     - Throws: `ChangePermissionsError.readOnlyFileSystem` when the file system is in read-only mode
     */
-    public mutating func change(permissions: FileMode) throws {
+    mutating func change(permissions: FileMode) throws {
         guard chmod(string, permissions.rawValue) == 0 else {
             throw ChangePermissionsError.getError()
         }

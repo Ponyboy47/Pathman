@@ -24,21 +24,21 @@ public enum LinkType {
 
 public var defaultLinkType: LinkType = .symbolic
 
-extension Path {
-    public func link(at linkedPath: Self, type: LinkType = defaultLinkType) throws -> LinkedPath<Self> {
+public extension Path {
+    func link(at linkedPath: Self, type: LinkType = defaultLinkType) throws -> LinkedPath<Self> {
         return try LinkedPath(linkedPath, linkedTo: self, type: type)
     }
 
-    public func link(at linkedString: String, type: LinkType = defaultLinkType) throws -> LinkedPath<Self> {
+    func link(at linkedString: String, type: LinkType = defaultLinkType) throws -> LinkedPath<Self> {
         guard let linkedPath = Self(linkedString) else { throw LinkError.pathTypeMismatch }
         return try self.link(at: linkedPath, type: type)
     }
 
-    public func link(from targetPath: Self, type: LinkType = defaultLinkType) throws -> LinkedPath<Self> {
+    func link(from targetPath: Self, type: LinkType = defaultLinkType) throws -> LinkedPath<Self> {
         return try LinkedPath(self, linkedTo: targetPath, type: type)
     }
 
-    public func link(from targetString: String, type: LinkType = defaultLinkType) throws -> LinkedPath<Self> {
+    func link(from targetString: String, type: LinkType = defaultLinkType) throws -> LinkedPath<Self> {
         guard let targetPath = Self(targetString) else { throw LinkError.pathTypeMismatch }
         return try link(from: targetPath, type: type)
     }
@@ -149,28 +149,28 @@ extension LinkedPath: DirectoryEnumerable where LinkedPathType: DirectoryEnumera
     }
 }
 
-extension LinkedPath where LinkedPathType: Openable {
-    public func open(options: LinkedPathType.OpenOptionsType) throws -> Open<LinkedPathType> {
+public extension LinkedPath where LinkedPathType: Openable {
+    func open(options: LinkedPathType.OpenOptionsType) throws -> Open<LinkedPathType> {
         return try __path.open(options: options)
     }
 
-    public func open(options: LinkedPathType.OpenOptionsType,
-                     closure: (_ opened: Open<LinkedPathType>) throws -> Void) throws {
+    func open(options: LinkedPathType.OpenOptionsType,
+              closure: (_ opened: Open<LinkedPathType>) throws -> Void) throws {
         try closure(open(options: options))
     }
 }
 
-extension LinkedPath where LinkedPathType: Openable, LinkedPathType.OpenOptionsType == Empty {
-    public func open() throws -> Open<LinkedPathType> {
+public extension LinkedPath where LinkedPathType: Openable, LinkedPathType.OpenOptionsType == Empty {
+    func open() throws -> Open<LinkedPathType> {
         return try open(options: .default)
     }
 
-    public func open(closure: (_ opened: Open<LinkedPathType>) throws -> Void) throws {
+    func open(closure: (_ opened: Open<LinkedPathType>) throws -> Void) throws {
         try closure(open())
     }
 }
 
-extension LinkedPath where LinkedPathType == FilePath {
+public extension LinkedPath where LinkedPathType == FilePath {
     /**
     Opens the file
 
@@ -218,9 +218,9 @@ extension LinkedPath where LinkedPathType == FilePath {
     - Throws: `CloseFileError.interruptedBySignal` when the call was interrupted by a signal handler
     - Throws: `CloseFileError.ioError` when an I/O error occurred
     */
-    public func open(permissions: OpenFilePermissions,
-                     flags: OpenFileFlags = [],
-                     mode: FileMode? = nil) throws -> Open<LinkedPathType> {
+    func open(permissions: OpenFilePermissions,
+              flags: OpenFileFlags = [],
+              mode: FileMode? = nil) throws -> Open<LinkedPathType> {
         return try open(options: FilePath.OpenOptions(permissions: permissions, flags: flags, mode: mode))
     }
 
@@ -271,10 +271,10 @@ extension LinkedPath where LinkedPathType == FilePath {
     - Throws: `CloseFileError.interruptedBySignal` when the call was interrupted by a signal handler
     - Throws: `CloseFileError.ioError` when an I/O error occurred
     */
-    public func open(permissions: OpenFilePermissions,
-                     flags: OpenFileFlags = [],
-                     mode: FileMode? = nil,
-                     closure: (_ opened: Open<LinkedPathType>) throws -> Void) throws {
+    func open(permissions: OpenFilePermissions,
+              flags: OpenFileFlags = [],
+              mode: FileMode? = nil,
+              closure: (_ opened: Open<LinkedPathType>) throws -> Void) throws {
         try open(options: FilePath.OpenOptions(permissions: permissions, flags: flags, mode: mode), closure: closure)
     }
 }

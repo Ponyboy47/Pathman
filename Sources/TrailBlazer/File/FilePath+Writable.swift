@@ -33,6 +33,8 @@ extension FilePath: WritableByOpened {
             throw WriteError.cannotWriteToFileDescriptor
         }
 
-        guard cWriteFile(opened.fileDescriptor, [UInt8](buffer), buffer.count) != -1 else { throw WriteError.getError() }
+        guard cWriteFile(opened.fileDescriptor, [UInt8](buffer), buffer.count) != -1 else {
+            throw WriteError.getError()
+        }
     }
 }

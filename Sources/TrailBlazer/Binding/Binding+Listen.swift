@@ -5,8 +5,8 @@ import func Darwin.listen
 #endif
 private let cListenToSocket = listen
 
-extension Binding {
-    public func listen(maxQueued: OptionInt) throws {
+public extension Binding {
+    func listen(maxQueued: OptionInt) throws {
         isListening = cListenToSocket(fileDescriptor, maxQueued) == 0
 
         guard isListening else {

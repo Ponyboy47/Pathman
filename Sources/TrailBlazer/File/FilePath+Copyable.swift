@@ -21,4 +21,3 @@ extension FilePath: Copyable {
         return newOpenPath
     }
 }
-

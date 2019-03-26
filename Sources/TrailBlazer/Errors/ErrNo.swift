@@ -16,54 +16,54 @@ extension ErrNo {
     static var EIRRELEVANT2: ErrNo { return ErrNo(rawValue: -1001) }
 }
 
-extension TrailBlazerError {
-    public static var accessDenied: Self { return Self(error: .EACCES) }
-    public static var permissionDenied: Self { return Self(error: .EPERM) }
-    public static var quotaReached: Self { return Self(error: .EDQUOT) }
-    public static var segFault: Self { return Self(error: .EFAULT) }
-    public static var interruptedBySignal: Self { return Self(error: .EINTR) }
-    public static var noProcessFileDescriptors: Self { return Self(error: .EMFILE) }
-    public static var noSystemFileDescriptors: Self { return Self(error: .ENFILE) }
-    public static var pathnameTooLong: Self { return Self(error: .ENAMETOOLONG) }
-    public static var noDevice: Self { return Self(error: .ENODEV) }
-    public static var noKernelMemory: Self { return Self(error: .ENOMEM) }
-    public static var deviceFull: Self { return Self(error: .ENOSPC) }
-    public static var pathComponentNotDirectory: Self { return Self(error: .ENOTDIR) }
-    public static var readOnlyFileSystem: Self { return Self(error: .EROFS) }
-    public static var wouldBlock: Self { return Self(errors: .EWOULDBLOCK, .EAGAIN) }
-    public static var ioError: Self { return Self(error: .EIO) }
-    public static var badFileDescriptor: Self { return Self(error: .EBADF) }
-    public static var tooManySymlinks: Self { return Self(error: .ELOOP) }
-    public static var noRouteToPath: Self { return Self(error: .ENOENT) }
-    public static var operationNotSupported: Self { return Self(error: .EOPNOTSUPP) }
-    public static var isDirectory: Self { return Self(error: .EISDIR) }
-    public static var notASocket: Self { return Self(error: .ENOTSOCK) }
-    public static var addressInUse: Self { return Self(error: .EADDRINUSE) }
+public extension TrailBlazerError {
+    static var accessDenied: Self { return Self(error: .EACCES) }
+    static var permissionDenied: Self { return Self(error: .EPERM) }
+    static var quotaReached: Self { return Self(error: .EDQUOT) }
+    static var segFault: Self { return Self(error: .EFAULT) }
+    static var interruptedBySignal: Self { return Self(error: .EINTR) }
+    static var noProcessFileDescriptors: Self { return Self(error: .EMFILE) }
+    static var noSystemFileDescriptors: Self { return Self(error: .ENFILE) }
+    static var pathnameTooLong: Self { return Self(error: .ENAMETOOLONG) }
+    static var noDevice: Self { return Self(error: .ENODEV) }
+    static var noKernelMemory: Self { return Self(error: .ENOMEM) }
+    static var deviceFull: Self { return Self(error: .ENOSPC) }
+    static var pathComponentNotDirectory: Self { return Self(error: .ENOTDIR) }
+    static var readOnlyFileSystem: Self { return Self(error: .EROFS) }
+    static var wouldBlock: Self { return Self(errors: .EWOULDBLOCK, .EAGAIN) }
+    static var ioError: Self { return Self(error: .EIO) }
+    static var badFileDescriptor: Self { return Self(error: .EBADF) }
+    static var tooManySymlinks: Self { return Self(error: .ELOOP) }
+    static var noRouteToPath: Self { return Self(error: .ENOENT) }
+    static var operationNotSupported: Self { return Self(error: .EOPNOTSUPP) }
+    static var isDirectory: Self { return Self(error: .EISDIR) }
+    static var notASocket: Self { return Self(error: .ENOTSOCK) }
+    static var addressInUse: Self { return Self(error: .EADDRINUSE) }
 
-    public static var unknown: Self { return Self(error: ErrNo(rawValue: -42)) }
+    static var unknown: Self { return Self(error: ErrNo(rawValue: -42)) }
 
-    public init(integerLiteral value: ErrNo.RawValue) {
+    init(integerLiteral value: ErrNo.RawValue) {
         let error = ErrNo(rawValue: value)
         self.init(error: error)
     }
 
-    public init(errors: [ErrNo]) {
+    init(errors: [ErrNo]) {
         self.init(error: errors.first)
         self.errors += errors.dropFirst()
     }
 
-    public init(errors: ErrNo...) {
+    init(errors: ErrNo...) {
         self.init(errors: errors)
     }
 
-    public func contains(_ error: ErrNo) -> Bool { return errors.contains(error) }
+    func contains(_ error: ErrNo) -> Bool { return errors.contains(error) }
 
     /// A function used to return the Error based on the ErrNo
-    public static func getError() -> Self {
+    static func getError() -> Self {
         return Self.allCases.filter({ $0.contains(ErrNo.lastError) }).first ?? .unknown
     }
 
-    public static func ~= (lhs: Self, rhs: Error) -> Bool {
+    static func ~= (lhs: Self, rhs: Error) -> Bool {
         guard let selfError = rhs as? Self else { return false }
         return selfError == lhs
     }

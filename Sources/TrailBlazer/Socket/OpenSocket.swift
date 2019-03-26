@@ -12,8 +12,8 @@ public typealias OpenSocket = Open<SocketPath>
 
 private let addressSize = SocketAddressSize(MemoryLayout<LocalSocketAddress>.size)
 
-extension Open where PathType == SocketPath {
-    public func connect() throws -> Connection {
+public extension Open where PathType == SocketPath {
+    func connect() throws -> Connection {
         let addr = try path.convertToCAddress()
 
         guard cConnectSocket(descriptor, addr, addressSize) == 0 else {
@@ -23,7 +23,7 @@ extension Open where PathType == SocketPath {
         return Connection(self)
     }
 
-    public func bind() throws -> Binding {
+    func bind() throws -> Binding {
         let addr = try path.convertToCAddress()
 
         guard cBindSocket(descriptor, addr, addressSize) == 0 else {

@@ -19,21 +19,21 @@ public struct Empty: OpenOptionable {
     public init() {}
 }
 
-extension Openable {
-    public var mayRead: Bool { return true }
-    public var mayWrite: Bool { return true }
+public extension Openable {
+    var mayRead: Bool { return true }
+    var mayWrite: Bool { return true }
 
-    public func open(options: OpenOptionsType, closure: (_ opened: Open<Self>) throws -> Void) throws {
+    func open(options: OpenOptionsType, closure: (_ opened: Open<Self>) throws -> Void) throws {
         try closure(open(options: options))
     }
 }
 
-extension Openable where OpenOptionsType == Empty {
-    public func open() throws -> Open<Self> {
+public extension Openable where OpenOptionsType == Empty {
+    func open() throws -> Open<Self> {
         return try open(options: .default)
     }
 
-    public func open(closure: (_ opened: Open<Self>) throws -> Void) throws {
+    func open(closure: (_ opened: Open<Self>) throws -> Void) throws {
         try closure(open())
     }
 }

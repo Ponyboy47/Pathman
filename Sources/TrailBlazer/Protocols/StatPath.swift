@@ -30,7 +30,7 @@ extension StatPath {
     - Throws: `StatError.fileTooLarge` when the path refers to a file whose size, inode number, or number of blocks
                cannot be represented in, respectively, the types off_t, ino_t, or blkcnt_t
     */
-    public static func update(_ path: String, options: StatOptions = [], _ buffer: inout stat) throws {
+    static func update(_ path: String, options: StatOptions = [], _ buffer: inout stat) throws {
         let statResponse: OptionInt
         if options.contains(.getLinkInfo) {
             statResponse = lstat(path, &buffer)
@@ -46,7 +46,7 @@ extension StatPath {
     - Parameter path: The path about which to retrieve information
     - Parameter options: The options to use for the stat API calls
     */
-    public init(_ path: String, options: StatOptions = []) {
+    init(_ path: String, options: StatOptions = []) {
         self.init()
         self._path = path
         self.options = options
@@ -58,7 +58,7 @@ extension StatPath {
     - Parameter path: The path about which to retrieve information
     - Parameter options: The options to use for the stat API calls
     */
-    public init<PathType: Path>(_ path: PathType, options: StatOptions = []) {
+    init<PathType: Path>(_ path: PathType, options: StatOptions = []) {
         self.init(path._path, options: options)
     }
 }

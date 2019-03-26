@@ -11,22 +11,22 @@ public protocol Movable {
 }
 
 public extension Movable {
-    public mutating func move(to newGenericPath: GenericPath) throws {
+    mutating func move(to newGenericPath: GenericPath) throws {
         let newPath = try Self(newGenericPath) ?! MoveError.moveToDifferentPathType
         try move(to: newPath)
     }
 
-    public mutating func move(to newPathString: String) throws {
+    mutating func move(to newPathString: String) throws {
         try move(to: GenericPath(newPathString))
     }
 
-    public mutating func move(into dir: DirectoryPath) throws {
+    mutating func move(into dir: DirectoryPath) throws {
         let last = try lastComponent ?! MoveError.noRouteToPath
         let newPath = dir + last
         try move(to: newPath.string)
     }
 
-    public mutating func rename(to newName: String) throws {
+    mutating func rename(to newName: String) throws {
         try move(to: (parent + newName).string)
     }
 }

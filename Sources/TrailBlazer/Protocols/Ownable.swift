@@ -13,7 +13,7 @@ public protocol Ownable {
 }
 
 public extension Ownable {
-    public var ownerName: String? {
+    var ownerName: String? {
         get {
             guard let username = (try? getUserInfo(uid: owner))?.pw_name else { return nil }
             return String(cString: username)
@@ -23,7 +23,7 @@ public extension Ownable {
             try? change(owner: username)
         }
     }
-    public var groupName: String? {
+    var groupName: String? {
         get {
             guard let groupname = (try? getGroupInfo(gid: group))?.gr_name else { return nil }
             return String(cString: groupname)
@@ -34,7 +34,7 @@ public extension Ownable {
         }
     }
 
-    public mutating func change(owner username: String? = nil, group groupname: String? = nil) throws {
+    mutating func change(owner username: String? = nil, group groupname: String? = nil) throws {
         let uid: UID
         let gid: GID
 

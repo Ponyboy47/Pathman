@@ -1,4 +1,4 @@
-extension Path {
+public extension Path {
     /**
     Determine if two paths are equivalent
 
@@ -7,7 +7,7 @@ extension Path {
 
     - Returns: Whether or not the paths are the same
     */
-    public static func == (lhs: Self, rhs: Self) -> Bool {
+    static func == (lhs: Self, rhs: Self) -> Bool {
         return lhs.string == rhs.string
     }
     /**
@@ -18,7 +18,7 @@ extension Path {
 
     - Returns: Whether or not the paths are the same
     */
-    public static func == <PathType: Path>(lhs: Self, rhs: PathType) -> Bool {
+    static func == <PathType: Path>(lhs: Self, rhs: PathType) -> Bool {
         return lhs.string == rhs.string
     }
 }

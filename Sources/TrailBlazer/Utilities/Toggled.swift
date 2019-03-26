@@ -1,3 +1,3 @@
 public extension Bool {
-    public func toggled() -> Bool { return !self }
+    func toggled() -> Bool { return !self }
 }

@@ -21,13 +21,13 @@ import func Darwin.geteuid
 public typealias Passwd = passwd
 public typealias Group = group
 
-extension Path {
+public extension Path {
     /// The home directory for the calling process's user
-    public var home: DirectoryPath? {
+    var home: DirectoryPath? {
         return try? getHome()
     }
     /// The home directory for the calling process's user
-    public static var home: DirectoryPath? {
+    static var home: DirectoryPath? {
         return try? getHome()
     }
 }

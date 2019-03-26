@@ -1,5 +1,5 @@
-extension Path {
-    public func commonAncestor<PathType: Path>(with path: PathType) -> DirectoryPath? {
+public extension Path {
+    func commonAncestor<PathType: Path>(with path: PathType) -> DirectoryPath? {
         let myComps = components
         let theirComps = path.components
 

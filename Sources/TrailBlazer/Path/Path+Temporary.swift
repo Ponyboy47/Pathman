@@ -1,4 +1,3 @@
-// swiftlint:disable identifier_name
 #if os(Linux)
 import let Glibc.P_tmpdir
 import func Glibc.mkstemp
@@ -9,7 +8,6 @@ import func Darwin.mkstemp
 import func Darwin.mkdtemp
 #endif
 private let _osTmpDir = P_tmpdir
-// swiftlint:enable identifier_name
 
 /// Protocol declaration for Paths that can generate and create a unique temporary path
 public protocol TemporaryGeneratable: Creatable {
@@ -142,12 +140,12 @@ public struct TemporaryOptions: OptionSet, ExpressibleByIntegerLiteral {
     public init(integerLiteral value: Int) { self.init(rawValue: value) }
 }
 
-extension TemporaryGeneratable {
+public extension TemporaryGeneratable {
     @discardableResult
-    public static func temporary(base tmpDir: DirectoryPath = temporaryDirectory,
-                                 prefix: String = "",
-                                 options: TemporaryOptions = [],
-                                 closure: (_ opened: Open<Self>) throws -> Void) throws -> Self {
+    static func temporary(base tmpDir: DirectoryPath = temporaryDirectory,
+                          prefix: String = "",
+                          options: TemporaryOptions = [],
+                          closure: (_ opened: Open<Self>) throws -> Void) throws -> Self {
         let opened = try Self.temporary(base: tmpDir, prefix: prefix)
 
         try closure(opened)

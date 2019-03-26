@@ -23,7 +23,7 @@ extension StatDescriptor {
     - Throws: `StatError.fileTooLarge` when the file descriptor refers to a file whose size, inode number, or number of
                blocks cannot be represented in, respectively, the types off_t, ino_t, or blkcnt_t
     */
-    public static func update(_ descriptor: Descriptor, _ buffer: inout stat) throws {
+    static func update(_ descriptor: Descriptor, _ buffer: inout stat) throws {
         guard fstat(descriptor.fileDescriptor, &buffer) == 0 else { throw StatError.getError() }
     }
 
@@ -32,7 +32,7 @@ extension StatDescriptor {
 
     - Parameter descriptor: The opened descriptor to the path
     */
-    public init(_ descriptor: Descriptor) {
+    init(_ descriptor: Descriptor) {
         self.init()
         self._descriptor = descriptor
     }

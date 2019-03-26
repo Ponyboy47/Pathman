@@ -41,14 +41,14 @@ public protocol Seekable {
 public extension Seekable {
     /// The location in the path from where reading and writing begin. Measured
     /// in bytes from the beginning of the path
-    public var offset: OSOffsetInt {
+    var offset: OSOffsetInt {
         get { return (try? seek(fromCurrent: 0)) ?? -1 }
         nonmutating set { _ = try? seek(fromStart: newValue) }
     }
 
     /// Seeks using the specified offset
     @discardableResult
-    public func seek(_ offset: Offset) throws -> OSOffsetInt {
+    func seek(_ offset: Offset) throws -> OSOffsetInt {
         let seekFunc: (OSOffsetInt) throws -> OSOffsetInt
 
         switch offset.type {
@@ -67,7 +67,7 @@ public extension Seekable {
 
     /// Moves the file offset back to the beginning of the file
     @discardableResult
-    public func rewind() throws -> OSOffsetInt {
+    func rewind() throws -> OSOffsetInt {
         return try seek(fromStart: 0)
     }
 }
@@ -75,7 +75,7 @@ public extension Seekable {
 public extension SeekableByOpened {
     /// Seeks using the specified offset
     @discardableResult
-    public static func seek(_ offset: Offset, in opened: Open<Self>) throws -> OSOffsetInt {
+    static func seek(_ offset: Offset, in opened: Open<Self>) throws -> OSOffsetInt {
         let seekFunc: (OSOffsetInt, Open<Self>) throws -> OSOffsetInt
 
         switch offset.type {
@@ -94,7 +94,7 @@ public extension SeekableByOpened {
 
     /// Moves the file offset back to the beginning of the file
     @discardableResult
-    public static func rewind(in opened: Open<Self>) throws -> OSOffsetInt {
+    static func rewind(in opened: Open<Self>) throws -> OSOffsetInt {
         return try Self.seek(fromStart: 0, in: opened)
     }
 }

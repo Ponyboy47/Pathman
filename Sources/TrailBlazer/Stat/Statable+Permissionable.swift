@@ -6,15 +6,15 @@ import func Darwin.geteuid
 import func Darwin.getegid
 #endif
 
-extension Permissionable where Self: Statable {
+public extension Permissionable where Self: Statable {
     /// The permissions for the path
-    public var permissions: FileMode {
+    var permissions: FileMode {
         get { return info.permissions }
         set { try? change(permissions: newValue) }
     }
 
     /// Whether or not the path may be read from by the calling process
-    public var isReadable: Bool {
+    var isReadable: Bool {
         if geteuid() == owner && permissions.owner.isReadable {
             return true
         } else if getegid() == group && permissions.group.isReadable {
@@ -25,7 +25,7 @@ extension Permissionable where Self: Statable {
     }
 
     /// Whether or not the path may be read from by the calling process
-    public var isWritable: Bool {
+    var isWritable: Bool {
         if geteuid() == owner && permissions.owner.isWritable {
             return true
         } else if getegid() == group && permissions.group.isWritable {
@@ -36,7 +36,7 @@ extension Permissionable where Self: Statable {
     }
 
     /// Whether or not the path may be read from by the calling process
-    public var isExecutable: Bool {
+    var isExecutable: Bool {
         if geteuid() == owner && permissions.owner.isExecutable {
             return true
         } else if getegid() == group && permissions.group.isExecutable {
@@ -46,4 +46,3 @@ extension Permissionable where Self: Statable {
         return permissions.others.isExecutable
     }
 }
-

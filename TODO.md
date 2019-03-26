@@ -3,6 +3,7 @@
   - [x] Create new files
     - [x] Create intermediate directories
     - [x] With specified contents
+  - [ ] Investigate if using file(3) operations instead of directly interacting with an open file descriptor would simplify usage
 - DirectoryPath
   - [x] Get directory contents
   - [x] Get directory contents recursively

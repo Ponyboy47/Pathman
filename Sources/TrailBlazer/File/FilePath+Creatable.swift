@@ -48,4 +48,3 @@ extension FilePath: Creatable {
         return opened
     }
 }
-

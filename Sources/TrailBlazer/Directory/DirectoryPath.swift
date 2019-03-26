@@ -1,4 +1,3 @@
-
 /// A Path to a directory
 public struct DirectoryPath: Path {
     public static let pathType: PathType = .directory

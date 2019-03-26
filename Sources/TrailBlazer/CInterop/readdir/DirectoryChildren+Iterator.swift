@@ -23,47 +23,47 @@ extension DirectoryChildren: Sequence {
     public var notOther: [GenericPath] { return files + sockets + directories }
 }
 
-extension Array where Element == FilePath {
-    public static func + (lhs: [Element], rhs: [GenericPath]) -> [GenericPath] {
+public extension Array where Element == FilePath {
+    static func + (lhs: [Element], rhs: [GenericPath]) -> [GenericPath] {
         return lhs.map(GenericPath.init) + rhs
     }
-    public static func + (lhs: [GenericPath], rhs: [Element]) -> [GenericPath] {
+    static func + (lhs: [GenericPath], rhs: [Element]) -> [GenericPath] {
         return lhs + rhs.map(GenericPath.init)
     }
-    public static func + (lhs: [Element], rhs: [DirectoryPath]) -> [GenericPath] {
+    static func + (lhs: [Element], rhs: [DirectoryPath]) -> [GenericPath] {
         return lhs.map(GenericPath.init) + rhs.map(GenericPath.init)
     }
-    public static func + (lhs: [Element], rhs: [SocketPath]) -> [GenericPath] {
+    static func + (lhs: [Element], rhs: [SocketPath]) -> [GenericPath] {
         return lhs.map(GenericPath.init) + rhs.map(GenericPath.init)
     }
 }
 
-extension Array where Element == DirectoryPath {
-    public static func + (lhs: [Element], rhs: [GenericPath]) -> [GenericPath] {
+public extension Array where Element == DirectoryPath {
+    static func + (lhs: [Element], rhs: [GenericPath]) -> [GenericPath] {
         return lhs.map(GenericPath.init) + rhs
     }
-    public static func + (lhs: [GenericPath], rhs: [Element]) -> [GenericPath] {
+    static func + (lhs: [GenericPath], rhs: [Element]) -> [GenericPath] {
         return lhs + rhs.map(GenericPath.init)
     }
-    public static func + (lhs: [Element], rhs: [FilePath]) -> [GenericPath] {
+    static func + (lhs: [Element], rhs: [FilePath]) -> [GenericPath] {
         return lhs.map(GenericPath.init) + rhs.map(GenericPath.init)
     }
-    public static func + (lhs: [Element], rhs: [SocketPath]) -> [GenericPath] {
+    static func + (lhs: [Element], rhs: [SocketPath]) -> [GenericPath] {
         return lhs.map(GenericPath.init) + rhs.map(GenericPath.init)
     }
 }
 
-extension Array where Element == SocketPath {
-    public static func + (lhs: [Element], rhs: [GenericPath]) -> [GenericPath] {
+public extension Array where Element == SocketPath {
+    static func + (lhs: [Element], rhs: [GenericPath]) -> [GenericPath] {
         return lhs.map(GenericPath.init) + rhs
     }
-    public static func + (lhs: [GenericPath], rhs: [Element]) -> [GenericPath] {
+    static func + (lhs: [GenericPath], rhs: [Element]) -> [GenericPath] {
         return lhs + rhs.map(GenericPath.init)
     }
-    public static func + (lhs: [Element], rhs: [DirectoryPath]) -> [GenericPath] {
+    static func + (lhs: [Element], rhs: [DirectoryPath]) -> [GenericPath] {
         return lhs.map(GenericPath.init) + rhs.map(GenericPath.init)
     }
-    public static func + (lhs: [Element], rhs: [FilePath]) -> [GenericPath] {
+    static func + (lhs: [Element], rhs: [FilePath]) -> [GenericPath] {
         return lhs.map(GenericPath.init) + rhs.map(GenericPath.init)
     }
 }
