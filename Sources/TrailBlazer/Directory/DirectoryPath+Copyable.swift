@@ -1,6 +1,6 @@
 extension DirectoryPath: Copyable {
     @discardableResult
-    public func copy(to newPath: inout DirectoryPath, options: CopyOptions) throws -> Open<CopyablePathType> {
+    public func copy(to newPath: inout DirectoryPath, options: CopyOptions) throws -> Open<DirectoryPath> {
         let childPaths = try children(options: .init(copyOptions: options))
 
         // The cp(1) utility skips directories unless the recursive option is
@@ -26,4 +26,3 @@ extension DirectoryPath: Copyable {
         return newOpenPath
     }
 }
-

@@ -1,6 +1,6 @@
 extension FilePath: Copyable {
     @discardableResult
-    public func copy(to newPath: inout FilePath, options: CopyOptions = []) throws -> Open<CopyablePathType> {
+    public func copy(to newPath: inout FilePath, options: CopyOptions = []) throws -> Open<FilePath> {
         // Open self with read permissions
         let openPath = try open(permissions: .read)
 
