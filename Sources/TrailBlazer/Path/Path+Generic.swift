@@ -9,7 +9,7 @@ public struct GenericPath: Path, ExpressibleByStringLiteral, ExpressibleByArrayL
     // swiftlint:enable identifier_name
 
     public init(_ str: String) {
-        if str.count > 1 && str.hasSuffix(GenericPath.separator) {
+        if str.count > 1, str.hasSuffix(GenericPath.separator) {
             _path = String(str.dropLast())
         } else {
             _path = str
@@ -20,9 +20,9 @@ public struct GenericPath: Path, ExpressibleByStringLiteral, ExpressibleByArrayL
 
     /// Initialize from an array of path elements
     public init(_ components: [String]) {
-        _path = components.filter({ comp in
-            return !comp.isEmpty && comp != GenericPath.separator
-        }).joined(separator: GenericPath.separator)
+        _path = components.filter { comp in
+            !comp.isEmpty && comp != GenericPath.separator
+        }.joined(separator: GenericPath.separator)
         if let first = components.first, first == GenericPath.separator {
             _path = first + _path
         }
@@ -89,5 +89,6 @@ public struct GenericPath: Path, ExpressibleByStringLiteral, ExpressibleByArrayL
     public static func += (lhs: inout GenericPath, rhs: String) {
         lhs = lhs + rhs
     }
+
     // swiftlint:enable shorthand_operator
 }

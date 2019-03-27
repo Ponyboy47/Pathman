@@ -1,15 +1,15 @@
 #if os(Linux)
-import let Glibc.PATH_MAX
 import func Glibc.link
+import let Glibc.PATH_MAX
+import func Glibc.readlink
 import func Glibc.symlink
 import func Glibc.unlink
-import func Glibc.readlink
 #else
-import let Darwin.PATH_MAX
 import func Darwin.link
+import let Darwin.PATH_MAX
+import func Darwin.readlink
 import func Darwin.symlink
 import func Darwin.unlink
-import func Darwin.readlink
 #endif
 private let cLink = link
 private let cSymlink = symlink
@@ -31,7 +31,7 @@ public extension Path {
 
     func link(at linkedString: String, type: LinkType = defaultLinkType) throws -> LinkedPath<Self> {
         guard let linkedPath = Self(linkedString) else { throw LinkError.pathTypeMismatch }
-        return try self.link(at: linkedPath, type: type)
+        return try link(at: linkedPath, type: type)
     }
 
     func link(from targetPath: Self, type: LinkType = defaultLinkType) throws -> LinkedPath<Self> {
@@ -52,6 +52,7 @@ public struct LinkedPath<LinkedPathType: Path>: Path {
         get { return __path._path }
         set { __path._path = newValue }
     }
+
     private var __path: LinkedPathType
 
     public let _info: StatInfo
@@ -71,20 +72,20 @@ public struct LinkedPath<LinkedPathType: Path>: Path {
     public init(_ path: String,
                 linkedTo linkPath: LinkedPathType,
                 type: LinkType = TrailBlazer.defaultLinkType) throws {
-        let pathLink = try LinkedPathType.init(path) ?! LinkError.pathTypeMismatch
+        let pathLink = try LinkedPathType(path) ?! LinkError.pathTypeMismatch
         try self.init(pathLink, linkedTo: linkPath, type: type)
     }
 
     public init(_ pathLink: LinkedPathType,
                 linkedTo link: String,
                 type: LinkType = TrailBlazer.defaultLinkType) throws {
-        let linkPath = try LinkedPathType.init(link) ?! LinkError.pathTypeMismatch
+        let linkPath = try LinkedPathType(link) ?! LinkError.pathTypeMismatch
         try self.init(pathLink, linkedTo: linkPath, type: type)
     }
 
     public init(_ path: String, linkedTo link: String, type: LinkType = TrailBlazer.defaultLinkType) throws {
-        let pathLink = try LinkedPathType.init(path) ?! LinkError.pathTypeMismatch
-        let linkPath = try LinkedPathType.init(link) ?! LinkError.pathTypeMismatch
+        let pathLink = try LinkedPathType(path) ?! LinkError.pathTypeMismatch
+        let linkPath = try LinkedPathType(link) ?! LinkError.pathTypeMismatch
         try self.init(pathLink, linkedTo: linkPath, type: type)
     }
 
@@ -95,7 +96,7 @@ public struct LinkedPath<LinkedPathType: Path>: Path {
         _info = StatInfo(pathLink.string)
 
         try createLink(from: pathLink, to: linkPath, type: type)
-        self.link = linkPath
+        link = linkPath
         linkType = type
     }
 
@@ -128,7 +129,7 @@ public struct LinkedPath<LinkedPathType: Path>: Path {
         // realink(2) does not null-terminate the string stored in the buffer,
         // Swift expects it to be null-terminated to convert a cString to a Swift String
         buffer[linkSize] = 0
-        guard let link = LinkedPathType.init(String(cString: buffer)) else { return nil }
+        guard let link = LinkedPathType(String(cString: buffer)) else { return nil }
 
         self.link = link
         linkType = .symbolic
@@ -172,52 +173,52 @@ public extension LinkedPath where LinkedPathType: Openable, LinkedPathType.OpenO
 
 public extension LinkedPath where LinkedPathType == FilePath {
     /**
-    Opens the file
+     Opens the file
 
-    - Parameters:
-        - permissions: The permissions to be used with the open file. (`.read`, `.write`, or `.readWrite`)
-        - flags: The flags with which to open the file
-        - mode: The permissions to use if creating a file
-    - Returns: The opened file
+     - Parameters:
+         - permissions: The permissions to be used with the open file. (`.read`, `.write`, or `.readWrite`)
+         - flags: The flags with which to open the file
+         - mode: The permissions to use if creating a file
+     - Returns: The opened file
 
-    - Throws: `OpenFileError.permissionDenied` when write access is not allowed to the path or if search permissions
-               were denied on one of the components of the path
-    - Throws: `OpenFileError.quotaReached` when the file does not exist and the user's quota of disk blocks or inodes on
-               the filesystem has been exhausted
-    - Throws: `OpenFileError.pathExists` when creating a path that already exists
-    - Throws: `OpenFileError.badAddress` when the path points to a location outside your accessible address space
-    - Throws: `OpenFileError.fileTooLarge` when the path is a file that is too large to be opened. Generally occurs on a
-               32-bit platform when opening a file whose size is larger than a 32-bit integer
-    - Throws: `OpenFileError.interruptedBySignal` when the call was interrupted by a signal handler
-    - Throws: `OpenFileError.invalidFlags` when an invalid value is specified in the `options`. May also mean the
-               `.direct` flag was used and this system does not support it
-    - Throws: `OpenFileError.shouldNotFollowSymlinks` when the `.noFollow` flag was used and a symlink was discovered to
-               be part of the path's components
-    - Throws: `OpenFileError.tooManySymlinks` when too many symlinks were encountered while resolving the path name
-    - Throws: `OpenFileError.noProcessFileDescriptors` when the calling process has no more available file descriptors
-    - Throws: `OpenFileError.noSystemFileDescriptors` when the entire system has no more available file descriptors
-    - Throws: `OpenFileError.pathnameTooLong` when the path exceeds `PATH_MAX` number of characters
-    - Throws: `OpenFileError.noDevice` when the path points to a special file and no corresponding device exists
-    - Throws: `OpenFileError.noRouteToPath` when the path cannot be resolved
-    - Throws: `OpenFileError.noKernelMemory` when there is no memory available
-    - Throws: `OpenFileError.fileSystemFull` when there is no available disk space
-    - Throws: `OpenFileError.pathComponentNotDirectory` when a component of the path is not a directory
-    - Throws: `OpenFileError.readOnlyFileSystem` when the filesystem is in read only mode
-    - Throws: `OpenFileError.pathBusy` when the path is an executable image which is currently being executed
-    - Throws: `OpenFileError.wouldBlock` when the `.nonBlock` flag was used and an incompatible lease is held on the
-               file (see fcntl(2))
-    - Throws: `OpenFileError.createWithoutMode` when creating a path and the mode is nil
-    - Throws: `OpenFileError.lockedDevice` when the device where path exists is locked from writing
-    - Throws: `OpenFileError.ioErrorCreatingPath` (macOS only) when an I/O error occurred while creating the inode for
-               the path
-    - Throws: `OpenFileError.operationNotSupported` (macOS only) when the `.sharedLock` or `.exclusiveLock` flags were
-               specified and the underlying filesystem doesn't support locking or the path is a socket and opening a
-               socket is not supported yet
-    - Throws: `CloseFileError.badFileDescriptor` when the underlying file descriptor being closed is already closed or
-               is not a valid file descriptor
-    - Throws: `CloseFileError.interruptedBySignal` when the call was interrupted by a signal handler
-    - Throws: `CloseFileError.ioError` when an I/O error occurred
-    */
+     - Throws: `OpenFileError.permissionDenied` when write access is not allowed to the path or if search permissions
+                were denied on one of the components of the path
+     - Throws: `OpenFileError.quotaReached` when the file does not exist and the user's quota of disk blocks or inodes on
+                the filesystem has been exhausted
+     - Throws: `OpenFileError.pathExists` when creating a path that already exists
+     - Throws: `OpenFileError.badAddress` when the path points to a location outside your accessible address space
+     - Throws: `OpenFileError.fileTooLarge` when the path is a file that is too large to be opened. Generally occurs on a
+                32-bit platform when opening a file whose size is larger than a 32-bit integer
+     - Throws: `OpenFileError.interruptedBySignal` when the call was interrupted by a signal handler
+     - Throws: `OpenFileError.invalidFlags` when an invalid value is specified in the `options`. May also mean the
+                `.direct` flag was used and this system does not support it
+     - Throws: `OpenFileError.shouldNotFollowSymlinks` when the `.noFollow` flag was used and a symlink was discovered to
+                be part of the path's components
+     - Throws: `OpenFileError.tooManySymlinks` when too many symlinks were encountered while resolving the path name
+     - Throws: `OpenFileError.noProcessFileDescriptors` when the calling process has no more available file descriptors
+     - Throws: `OpenFileError.noSystemFileDescriptors` when the entire system has no more available file descriptors
+     - Throws: `OpenFileError.pathnameTooLong` when the path exceeds `PATH_MAX` number of characters
+     - Throws: `OpenFileError.noDevice` when the path points to a special file and no corresponding device exists
+     - Throws: `OpenFileError.noRouteToPath` when the path cannot be resolved
+     - Throws: `OpenFileError.noKernelMemory` when there is no memory available
+     - Throws: `OpenFileError.fileSystemFull` when there is no available disk space
+     - Throws: `OpenFileError.pathComponentNotDirectory` when a component of the path is not a directory
+     - Throws: `OpenFileError.readOnlyFileSystem` when the filesystem is in read only mode
+     - Throws: `OpenFileError.pathBusy` when the path is an executable image which is currently being executed
+     - Throws: `OpenFileError.wouldBlock` when the `.nonBlock` flag was used and an incompatible lease is held on the
+                file (see fcntl(2))
+     - Throws: `OpenFileError.createWithoutMode` when creating a path and the mode is nil
+     - Throws: `OpenFileError.lockedDevice` when the device where path exists is locked from writing
+     - Throws: `OpenFileError.ioErrorCreatingPath` (macOS only) when an I/O error occurred while creating the inode for
+                the path
+     - Throws: `OpenFileError.operationNotSupported` (macOS only) when the `.sharedLock` or `.exclusiveLock` flags were
+                specified and the underlying filesystem doesn't support locking or the path is a socket and opening a
+                socket is not supported yet
+     - Throws: `CloseFileError.badFileDescriptor` when the underlying file descriptor being closed is already closed or
+                is not a valid file descriptor
+     - Throws: `CloseFileError.interruptedBySignal` when the call was interrupted by a signal handler
+     - Throws: `CloseFileError.ioError` when an I/O error occurred
+     */
     func open(permissions: OpenFilePermissions,
               flags: OpenFileFlags = [],
               mode: FileMode? = nil) throws -> Open<LinkedPathType> {
@@ -225,52 +226,52 @@ public extension LinkedPath where LinkedPathType == FilePath {
     }
 
     /**
-    Opens the file and runs the closure with the opened file
+     Opens the file and runs the closure with the opened file
 
-    - Parameters:
-        - permissions: The permissions to be used with the open file. (`.read`, `.write`, or `.readWrite`)
-        - flags: The flags with which to open the file
-        - mode: The permissions to use if creating a file
-        - closue: The closure to run with the opened file
+     - Parameters:
+         - permissions: The permissions to be used with the open file. (`.read`, `.write`, or `.readWrite`)
+         - flags: The flags with which to open the file
+         - mode: The permissions to use if creating a file
+         - closue: The closure to run with the opened file
 
-    - Throws: `OpenFileError.permissionDenied` when write access is not allowed to the path or if search permissions
-               were denied on one of the components of the path
-    - Throws: `OpenFileError.quotaReached` when the file does not exist and the user's quota of disk blocks or inodes on
-               the filesystem has been exhausted
-    - Throws: `OpenFileError.pathExists` when creating a path that already exists
-    - Throws: `OpenFileError.badAddress` when the path points to a location outside your accessible address space
-    - Throws: `OpenFileError.fileTooLarge` when the path is a file that is too large to be opened. Generally occurs on a
-               32-bit platform when opening a file whose size is larger than a 32-bit integer
-    - Throws: `OpenFileError.interruptedBySignal` when the call was interrupted by a signal handler
-    - Throws: `OpenFileError.invalidFlags` when an invalid value is specified in the `options`. May also mean the
-               `.direct` flag was used and this system does not support it
-    - Throws: `OpenFileError.shouldNotFollowSymlinks` when the `.noFollow` flag was used and a symlink was discovered to
-               be part of the path's components
-    - Throws: `OpenFileError.tooManySymlinks` when too many symlinks were encountered while resolving the path name
-    - Throws: `OpenFileError.noProcessFileDescriptors` when the calling process has no more available file descriptors
-    - Throws: `OpenFileError.noSystemFileDescriptors` when the entire system has no more available file descriptors
-    - Throws: `OpenFileError.pathnameTooLong` when the path exceeds `PATH_MAX` number of characters
-    - Throws: `OpenFileError.noDevice` when the path points to a special file and no corresponding device exists
-    - Throws: `OpenFileError.noRouteToPath` when the path cannot be resolved
-    - Throws: `OpenFileError.noKernelMemory` when there is no memory available
-    - Throws: `OpenFileError.fileSystemFull` when there is no available disk space
-    - Throws: `OpenFileError.pathComponentNotDirectory` when a component of the path is not a directory
-    - Throws: `OpenFileError.readOnlyFileSystem` when the filesystem is in read only mode
-    - Throws: `OpenFileError.pathBusy` when the path is an executable image which is currently being executed
-    - Throws: `OpenFileError.wouldBlock` when the `.nonBlock` flag was used and an incompatible lease is held on the
-               file (see fcntl(2))
-    - Throws: `OpenFileError.createWithoutMode` when creating a path and the mode is nil
-    - Throws: `OpenFileError.lockedDevice` when the device where path exists is locked from writing
-    - Throws: `OpenFileError.ioErrorCreatingPath` (macOS only) when an I/O error occurred while creating the inode for
-               the path
-    - Throws: `OpenFileError.operationNotSupported` (macOS only) when the `.sharedLock` or `.exclusiveLock` flags were
-               specified and the underlying filesystem doesn't support locking or the path is a socket and opening a
-               socket is not supported yet
-    - Throws: `CloseFileError.badFileDescriptor` when the underlying file descriptor being closed is already closed or
-               is not a valid file descriptor
-    - Throws: `CloseFileError.interruptedBySignal` when the call was interrupted by a signal handler
-    - Throws: `CloseFileError.ioError` when an I/O error occurred
-    */
+     - Throws: `OpenFileError.permissionDenied` when write access is not allowed to the path or if search permissions
+                were denied on one of the components of the path
+     - Throws: `OpenFileError.quotaReached` when the file does not exist and the user's quota of disk blocks or inodes on
+                the filesystem has been exhausted
+     - Throws: `OpenFileError.pathExists` when creating a path that already exists
+     - Throws: `OpenFileError.badAddress` when the path points to a location outside your accessible address space
+     - Throws: `OpenFileError.fileTooLarge` when the path is a file that is too large to be opened. Generally occurs on a
+                32-bit platform when opening a file whose size is larger than a 32-bit integer
+     - Throws: `OpenFileError.interruptedBySignal` when the call was interrupted by a signal handler
+     - Throws: `OpenFileError.invalidFlags` when an invalid value is specified in the `options`. May also mean the
+                `.direct` flag was used and this system does not support it
+     - Throws: `OpenFileError.shouldNotFollowSymlinks` when the `.noFollow` flag was used and a symlink was discovered to
+                be part of the path's components
+     - Throws: `OpenFileError.tooManySymlinks` when too many symlinks were encountered while resolving the path name
+     - Throws: `OpenFileError.noProcessFileDescriptors` when the calling process has no more available file descriptors
+     - Throws: `OpenFileError.noSystemFileDescriptors` when the entire system has no more available file descriptors
+     - Throws: `OpenFileError.pathnameTooLong` when the path exceeds `PATH_MAX` number of characters
+     - Throws: `OpenFileError.noDevice` when the path points to a special file and no corresponding device exists
+     - Throws: `OpenFileError.noRouteToPath` when the path cannot be resolved
+     - Throws: `OpenFileError.noKernelMemory` when there is no memory available
+     - Throws: `OpenFileError.fileSystemFull` when there is no available disk space
+     - Throws: `OpenFileError.pathComponentNotDirectory` when a component of the path is not a directory
+     - Throws: `OpenFileError.readOnlyFileSystem` when the filesystem is in read only mode
+     - Throws: `OpenFileError.pathBusy` when the path is an executable image which is currently being executed
+     - Throws: `OpenFileError.wouldBlock` when the `.nonBlock` flag was used and an incompatible lease is held on the
+                file (see fcntl(2))
+     - Throws: `OpenFileError.createWithoutMode` when creating a path and the mode is nil
+     - Throws: `OpenFileError.lockedDevice` when the device where path exists is locked from writing
+     - Throws: `OpenFileError.ioErrorCreatingPath` (macOS only) when an I/O error occurred while creating the inode for
+                the path
+     - Throws: `OpenFileError.operationNotSupported` (macOS only) when the `.sharedLock` or `.exclusiveLock` flags were
+                specified and the underlying filesystem doesn't support locking or the path is a socket and opening a
+                socket is not supported yet
+     - Throws: `CloseFileError.badFileDescriptor` when the underlying file descriptor being closed is already closed or
+                is not a valid file descriptor
+     - Throws: `CloseFileError.interruptedBySignal` when the call was interrupted by a signal handler
+     - Throws: `CloseFileError.ioError` when an I/O error occurred
+     */
     func open(permissions: OpenFilePermissions,
               flags: OpenFileFlags = [],
               mode: FileMode? = nil,

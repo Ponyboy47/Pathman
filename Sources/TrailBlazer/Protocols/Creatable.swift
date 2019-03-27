@@ -22,12 +22,12 @@ public protocol Creatable: Openable {
     associatedtype _OpenedType = Open<Self>
     // swiftlint:enable type_name
     /**
-    Creates a path
-    - Parameter mode: The FileMode (permissions) to use for the newly created path
-    - Parameter forceMode: Whether or not to try and change the process's umask to guarentee that the FileMode is what
-               you want (I've noticed that by default on Ubuntu, others' write access is disabled in the umask. Setting
-               this to true should allow you to overcome this limitation)
-    */
+     Creates a path
+     - Parameter mode: The FileMode (permissions) to use for the newly created path
+     - Parameter forceMode: Whether or not to try and change the process's umask to guarentee that the FileMode is what
+                you want (I've noticed that by default on Ubuntu, others' write access is disabled in the umask. Setting
+                this to true should allow you to overcome this limitation)
+     */
     @discardableResult
     mutating func create(mode: FileMode?, options: CreateOptions) throws -> _OpenedType
 }

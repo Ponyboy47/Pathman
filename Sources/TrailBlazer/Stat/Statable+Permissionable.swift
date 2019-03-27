@@ -1,9 +1,9 @@
 #if os(Linux)
-import func Glibc.geteuid
 import func Glibc.getegid
+import func Glibc.geteuid
 #else
-import func Darwin.geteuid
 import func Darwin.getegid
+import func Darwin.geteuid
 #endif
 
 public extension Permissionable where Self: Statable {
@@ -15,9 +15,9 @@ public extension Permissionable where Self: Statable {
 
     /// Whether or not the path may be read from by the calling process
     var isReadable: Bool {
-        if geteuid() == owner && permissions.owner.isReadable {
+        if geteuid() == owner, permissions.owner.isReadable {
             return true
-        } else if getegid() == group && permissions.group.isReadable {
+        } else if getegid() == group, permissions.group.isReadable {
             return true
         }
 
@@ -26,9 +26,9 @@ public extension Permissionable where Self: Statable {
 
     /// Whether or not the path may be read from by the calling process
     var isWritable: Bool {
-        if geteuid() == owner && permissions.owner.isWritable {
+        if geteuid() == owner, permissions.owner.isWritable {
             return true
-        } else if getegid() == group && permissions.group.isWritable {
+        } else if getegid() == group, permissions.group.isWritable {
             return true
         }
 
@@ -37,9 +37,9 @@ public extension Permissionable where Self: Statable {
 
     /// Whether or not the path may be read from by the calling process
     var isExecutable: Bool {
-        if geteuid() == owner && permissions.owner.isExecutable {
+        if geteuid() == owner, permissions.owner.isExecutable {
             return true
-        } else if getegid() == group && permissions.group.isExecutable {
+        } else if getegid() == group, permissions.group.isExecutable {
             return true
         }
 

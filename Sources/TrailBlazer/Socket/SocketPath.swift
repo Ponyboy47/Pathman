@@ -1,14 +1,14 @@
 #if os(Linux)
+import typealias Glibc.sa_family_t
 import struct Glibc.sockaddr
 import struct Glibc.sockaddr_un
 import typealias Glibc.socklen_t
-import typealias Glibc.sa_family_t
 import func Glibc.strncpy
 #else
+import typealias Darwin.sa_family_t
 import struct Darwin.sockaddr
 import struct Darwin.sockaddr_un
 import typealias Darwin.socklen_t
-import typealias Darwin.sa_family_t
 import func Darwin.strncpy
 #endif
 
@@ -36,10 +36,10 @@ public struct SocketPath: Path {
     // swiftlint:enable identifier_name
 
     /**
-    Initialize from another Path
+     Initialize from another Path
 
-    - Parameter path: The path to copy
-    */
+     - Parameter path: The path to copy
+     */
     public init?(_ path: GenericPath) {
         // Cannot initialize a directory from a non-directory type
         if path.exists {
@@ -76,7 +76,7 @@ public struct SocketPath: Path {
     }
 
     @available(*, unavailable, message: "Cannot append to a SocketPath")
-    public static func + <PathType: Path>(lhs: SocketPath, rhs: PathType) -> PathType {
+    public static func + <PathType: Path>(_: SocketPath, _: PathType) -> PathType {
         fatalError("Cannot append to a SocketPath")
     }
 }

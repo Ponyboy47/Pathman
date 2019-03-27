@@ -34,39 +34,48 @@ public extension Statable {
     var id: DeviceID {
         return info.id
     }
+
     // swiftlint:enable identifier_name
     /// inode number
     var inode: Inode {
         return info.inode
     }
+
     /// The type of the path
     var type: PathType {
         return info.type
     }
+
     /// The path permissions
     var permissions: FileMode {
         return info.permissions
     }
+
     /// user ID of owner
     var owner: UID {
         return info.owner
     }
+
     /// group ID of owner
     var group: GID {
         return info.group
     }
+
     /// device ID (if special file)
     var device: DeviceID {
         return info.device
     }
+
     /// total size, in bytes
     var size: OSOffsetInt {
         return info.size
     }
+
     /// blocksize for filesystem I/O
     var blockSize: BlockSize {
         return info.blockSize
     }
+
     /// number of 512B blocks allocated
     var blocks: OSOffsetInt {
         return info.blocks
@@ -76,14 +85,17 @@ public extension Statable {
     var lastAccess: Date {
         return info.lastAccess
     }
+
     /// time of last modification
     var lastModified: Date {
         return info.lastModified
     }
+
     /// time of last status change
     var lastAttributeChange: Date {
         return info.lastAttributeChange
     }
+
     #if os(macOS)
     /// time the path was created
     var creation: Date {

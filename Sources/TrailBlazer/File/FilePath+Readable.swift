@@ -45,21 +45,21 @@ extension FilePath: ReadableByOpened, DefaultReadByteCount {
     }
 
     /**
-    Read data from a descriptor
+     Read data from a descriptor
 
-    - Parameter sizeToRead: The number of bytes to read from the descriptor
-    - Returns: The Data read from the descriptor
+     - Parameter sizeToRead: The number of bytes to read from the descriptor
+     - Returns: The Data read from the descriptor
 
-    - Throws: `ReadError.wouldBlock` when the file was opened with the `.nonBlock` flag and the read operation would
-              block
-    - Throws: `ReadError.badFileDescriptor` when the underlying file descriptor is invalid or not opened
-    - Throws: `ReadError.badBufferAddress` when the buffer points to a location outside you accessible address space
-    - Throws: `ReadError.interruptedBySignal` when the API call was interrupted by a signal handler 
-    - Throws: `ReadError.cannotReadFileDescriptor` when the underlying file descriptor is attached to a path which is
-              unsuitable for reading or the file was opened with the `.direct` flag and either the buffer addres, the
-              byteCount, or the offset are not suitably aligned
-    - Throws: `ReadError.ioError` when an I/O error occured during the API call
-    */
+     - Throws: `ReadError.wouldBlock` when the file was opened with the `.nonBlock` flag and the read operation would
+               block
+     - Throws: `ReadError.badFileDescriptor` when the underlying file descriptor is invalid or not opened
+     - Throws: `ReadError.badBufferAddress` when the buffer points to a location outside you accessible address space
+     - Throws: `ReadError.interruptedBySignal` when the API call was interrupted by a signal handler
+     - Throws: `ReadError.cannotReadFileDescriptor` when the underlying file descriptor is attached to a path which is
+               unsuitable for reading or the file was opened with the `.direct` flag and either the buffer addres, the
+               byteCount, or the offset are not suitably aligned
+     - Throws: `ReadError.ioError` when an I/O error occured during the API call
+     */
     public static func read(bytes sizeToRead: ByteRepresentable = FilePath.defaultByteCount,
                             from opened: Open<FilePath>) throws -> Data {
         guard opened.mayRead else {
@@ -72,7 +72,7 @@ extension FilePath: ReadableByOpened, DefaultReadByteCount {
         // If we haven't allocated a buffer before, then allocate one now
         if opened.path.buffer == nil {
             opened.path.bufferSize = bytesToRead
-        // If the buffer size is less than bytes we're going to read then reallocate the buffer
+            // If the buffer size is less than bytes we're going to read then reallocate the buffer
         } else if let bSize = opened.path.bufferSize, bSize < bytesToRead {
             opened.path.bufferSize = bytesToRead
         }

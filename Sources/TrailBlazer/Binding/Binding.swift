@@ -49,6 +49,6 @@ extension Binding: CustomStringConvertible {
         data.append((key: "path", value: path))
         data.append((key: "options", value: String(describing: openOptions)))
 
-        return "\(Swift.type(of: self))(\(data.map({ return "\($0.key): \($0.value)" }).joined(separator: ", ")))"
+        return "\(Swift.type(of: self))(\(data.map { "\($0.key): \($0.value)" }.joined(separator: ", ")))"
     }
 }

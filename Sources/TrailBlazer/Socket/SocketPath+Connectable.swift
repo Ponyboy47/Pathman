@@ -1,9 +1,9 @@
 #if os(Linux)
-import func Glibc.shutdown
 import let Glibc.SHUT_RDWR
+import func Glibc.shutdown
 #else
-import func Darwin.shutdown
 import let Darwin.SHUT_RDWR
+import func Darwin.shutdown
 #endif
 private let cShutdown = shutdown
 

@@ -3,18 +3,18 @@ public struct FilePermissions: OptionSet, ExpressibleByStringLiteral, Expressibl
     public typealias StringLiteralType = String
     public typealias IntegerLiteralType = OSUInt
 
-    public private(set)var rawValue: IntegerLiteralType
+    public private(set) var rawValue: IntegerLiteralType
 
     /// Read, write, and execute permissions
     public static let all: FilePermissions = 0o7
     /// Read only permissions
-    public static let read: FilePermissions =  0o4
+    public static let read: FilePermissions = 0o4
     /// Write only permissions
-    public static let write: FilePermissions =  0o2
+    public static let write: FilePermissions = 0o2
     /// Execute only permissions
-    public static let execute: FilePermissions =  0o1
+    public static let execute: FilePermissions = 0o1
     /// No permissions
-    public static let none: FilePermissions =  0
+    public static let none: FilePermissions = 0
 
     /// Read and write permissions
     public static let readWrite: FilePermissions = [.read, .write]
@@ -39,12 +39,12 @@ public struct FilePermissions: OptionSet, ExpressibleByStringLiteral, Expressibl
     }
 
     public init(_ perms: FilePermissions...) {
-        rawValue = perms.reduce(0, { $0 | $1.rawValue })
+        rawValue = perms.reduce(0) { $0 | $1.rawValue }
     }
 
     /**
-        Initialize from a Unix permissions string (3 chars 'rwx' 'r--' '-w-' '--x')
-    */
+     Initialize from a Unix permissions string (3 chars 'rwx' 'r--' '-w-' '--x')
+     */
     public init(_ value: String) {
         self.init(rawValue: 0)
         guard value.count == 3 else { return }
@@ -78,6 +78,7 @@ public struct FilePermissions: OptionSet, ExpressibleByStringLiteral, Expressibl
     public static func | (lhs: FilePermissions, rhs: FilePermissions) -> FilePermissions {
         return FilePermissions(rawValue: lhs.rawValue | rhs.rawValue)
     }
+
     /// Returns a FilePermissions with the bits contained in either mode
     public static func | (lhs: FilePermissions, rhs: IntegerLiteralType) -> FilePermissions {
         return FilePermissions(rawValue: lhs.rawValue | rhs)
@@ -87,6 +88,7 @@ public struct FilePermissions: OptionSet, ExpressibleByStringLiteral, Expressibl
     public static func |= (lhs: inout FilePermissions, rhs: FilePermissions) {
         lhs.rawValue = lhs.rawValue | rhs.rawValue
     }
+
     /// Sets the FilePermissions with the bits contained in either mode
     public static func |= (lhs: inout FilePermissions, rhs: IntegerLiteralType) {
         lhs.rawValue = lhs.rawValue | rhs
@@ -96,6 +98,7 @@ public struct FilePermissions: OptionSet, ExpressibleByStringLiteral, Expressibl
     public static func & (lhs: FilePermissions, rhs: FilePermissions) -> FilePermissions {
         return FilePermissions(rawValue: lhs.rawValue & rhs.rawValue)
     }
+
     /// Returns a FilePermissions with only the bits contained in both modes
     public static func & (lhs: FilePermissions, rhs: IntegerLiteralType) -> FilePermissions {
         return FilePermissions(rawValue: lhs.rawValue & rhs)
@@ -105,6 +108,7 @@ public struct FilePermissions: OptionSet, ExpressibleByStringLiteral, Expressibl
     public static func &= (lhs: inout FilePermissions, rhs: FilePermissions) {
         lhs.rawValue = lhs.rawValue & rhs.rawValue
     }
+
     /// Sets the FilePermissions with only the bits contained in both modes
     public static func &= (lhs: inout FilePermissions, rhs: IntegerLiteralType) {
         lhs.rawValue = lhs.rawValue & rhs

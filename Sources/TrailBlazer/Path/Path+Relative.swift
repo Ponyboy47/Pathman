@@ -1,12 +1,12 @@
 public extension Path {
     /**
-    A relative representation of the current path by replacing the home
-    directory with ~ or by resolving the current working directory to .
+     A relative representation of the current path by replacing the home
+     directory with ~ or by resolving the current working directory to .
 
-    NOTE: Be careful with this. If the current working directory is replaced
-    with a . and then the current working directory changes, then this path no
-    longer points to the same place
-    */
+     NOTE: Be careful with this. If the current working directory is replaced
+     with a . and then the current working directory changes, then this path no
+     longer points to the same place
+     */
     var relative: Self {
         var str = _path
         if let home = home?.string, str.hasPrefix(home) {

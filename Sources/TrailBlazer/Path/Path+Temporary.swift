@@ -1,11 +1,11 @@
 #if os(Linux)
-import let Glibc.P_tmpdir
-import func Glibc.mkstemp
 import func Glibc.mkdtemp
+import func Glibc.mkstemp
+import let Glibc.P_tmpdir
 #else
-import let Darwin.P_tmpdir
-import func Darwin.mkstemp
 import func Darwin.mkdtemp
+import func Darwin.mkstemp
+import let Darwin.P_tmpdir
 #endif
 private let _osTmpDir = P_tmpdir
 
@@ -46,32 +46,33 @@ extension TemporaryGeneratable {
         var path = opened.path
         try path.delete()
     }
+
     // swiftlint:enable identifier_name
 }
 
 extension FilePath: TemporaryGeneratable {
     /**
-    Creates a unique FilePath with the specified prefix
+     Creates a unique FilePath with the specified prefix
 
-    - Parameter base: The base directory where the temporary path will be placed
-    - Parameter prefix: The file name's prefix (before the randomly generated part of the path)
-    - Returns: The opened temporary path
+     - Parameter base: The base directory where the temporary path will be placed
+     - Parameter prefix: The file name's prefix (before the randomly generated part of the path)
+     - Returns: The opened temporary path
 
-    - Throws: `MakeTemporaryError.alreadyExists` when the "unique" path that was generated already exists (hopefully
-               shouldn't occur)
-    - Throws: `CreateFileError.permissionDenied` when write access is not allowed to the path or if search permissions
-               were denied on one of the components of the path
-    - Throws: `CreateFileError.quotaReached` when the user's quota of disk blocks or inodes on the filesystem has been
-               exhausted
-    - Throws: `CreateFileError.interruptedBySignal` when the call was interrupted by a signal handler
-    - Throws: `CreateFileError.noProcessFileDescriptors` when the calling process has no more available file descriptors
-    - Throws: `CreateFileError.noSystemFileDescriptors` when the entire system has no more available file descriptors
-    - Throws: `CreateFileError.noKernelMemory` when there is no memory available for creating the path
-    - Throws: `CreateFileError.fileSystemFull` when there is no available disk space for creating the path
-    - Throws: `CreateFileError.readOnlyFileSystem` when the filesystem is in read only mode and cannot create the path
-    - Throws: `CreateFileError.lockedDevice` when the device where path exists is locked from writing
-    - Throws: `CreateFileError.ioErrorCreatingPath` when an I/O error occurred while creating the inode for the path
-    */
+     - Throws: `MakeTemporaryError.alreadyExists` when the "unique" path that was generated already exists (hopefully
+                shouldn't occur)
+     - Throws: `CreateFileError.permissionDenied` when write access is not allowed to the path or if search permissions
+                were denied on one of the components of the path
+     - Throws: `CreateFileError.quotaReached` when the user's quota of disk blocks or inodes on the filesystem has been
+                exhausted
+     - Throws: `CreateFileError.interruptedBySignal` when the call was interrupted by a signal handler
+     - Throws: `CreateFileError.noProcessFileDescriptors` when the calling process has no more available file descriptors
+     - Throws: `CreateFileError.noSystemFileDescriptors` when the entire system has no more available file descriptors
+     - Throws: `CreateFileError.noKernelMemory` when there is no memory available for creating the path
+     - Throws: `CreateFileError.fileSystemFull` when there is no available disk space for creating the path
+     - Throws: `CreateFileError.readOnlyFileSystem` when the filesystem is in read only mode and cannot create the path
+     - Throws: `CreateFileError.lockedDevice` when the device where path exists is locked from writing
+     - Throws: `CreateFileError.ioErrorCreatingPath` when an I/O error occurred while creating the inode for the path
+     */
     public static func temporary(base tmpDir: DirectoryPath = temporaryDirectory,
                                  prefix: String = "") throws -> Open<FilePath> {
         // swiftlint:disable line_length
@@ -97,34 +98,34 @@ extension FilePath: TemporaryGeneratable {
 
 extension DirectoryPath: TemporaryGeneratable {
     /**
-    Creates a unique DirectoryPath with the specified prefix
+     Creates a unique DirectoryPath with the specified prefix
 
-    - Parameter base: The base directory where the temporary path will be placed
-    - Parameter prefix: The directory name's prefix (before the randomly generated part of the path)
-    - Returns: The opened temporary path
+     - Parameter base: The base directory where the temporary path will be placed
+     - Parameter prefix: The directory name's prefix (before the randomly generated part of the path)
+     - Returns: The opened temporary path
 
-    - Throws: `CreateDirectoryError.permissionDenied` when the calling process does not have access to the path location
-    - Throws: `CreateDirectoryError.quotaReached` when the user's quota of disk blocks or inodes on the filesystem has
-               been exhausted
-    - Throws: `CreateDirectoryError.noKernelMemory` when there is no memory available for creating the path
-    - Throws: `CreateDirectoryError.fileSystemFull` when there is no available disk space for creating the path
-    - Throws: `CreateDirectoryError.readOnlyFileSystem` when the filesystem is in read only mode and cannot create the
-               path
-    - Throws: `CreateDirectoryError.ioError` when an I/O error occurred while creating the inode for the
-               pathIsRootDirectory
-    - Throws: `OpenDirectoryError.permissionDenied` when the calling process does not have access to the path
-    - Throws: `OpenDirectoryError.noProcessFileDescriptors` when the process has used all of its available file
-               descriptors
-    - Throws: `OpenDirectoryError.noSystemFileDescriptors` when the entire system has run out of available file
-               descriptors
-    - Throws: `OpenDirectoryError.outOfMemory` when there is not enough available memory to open the directory
-    */
+     - Throws: `CreateDirectoryError.permissionDenied` when the calling process does not have access to the path location
+     - Throws: `CreateDirectoryError.quotaReached` when the user's quota of disk blocks or inodes on the filesystem has
+                been exhausted
+     - Throws: `CreateDirectoryError.noKernelMemory` when there is no memory available for creating the path
+     - Throws: `CreateDirectoryError.fileSystemFull` when there is no available disk space for creating the path
+     - Throws: `CreateDirectoryError.readOnlyFileSystem` when the filesystem is in read only mode and cannot create the
+                path
+     - Throws: `CreateDirectoryError.ioError` when an I/O error occurred while creating the inode for the
+                pathIsRootDirectory
+     - Throws: `OpenDirectoryError.permissionDenied` when the calling process does not have access to the path
+     - Throws: `OpenDirectoryError.noProcessFileDescriptors` when the process has used all of its available file
+                descriptors
+     - Throws: `OpenDirectoryError.noSystemFileDescriptors` when the entire system has run out of available file
+                descriptors
+     - Throws: `OpenDirectoryError.outOfMemory` when there is not enough available memory to open the directory
+     */
     public static func temporary(base tmpDir: DirectoryPath = temporaryDirectory,
                                  prefix: String = "") throws -> Open<DirectoryPath> {
         // mkdtemp(s) require the last 6 characters to be X's in the template
-        let path = temporaryPathTemplate(tmpDir, prefix).withCString({
-            return String(cString: mkdtemp(UnsafeMutablePointer(mutating: $0)))
-        })
+        let path = temporaryPathTemplate(tmpDir, prefix).withCString {
+            String(cString: mkdtemp(UnsafeMutablePointer(mutating: $0)))
+        }
         guard !path.isEmpty else { throw CreateDirectoryError.getError() }
 
         return try DirectoryPath(path)!.open()
@@ -164,5 +165,6 @@ extension TemporaryGeneratable where Self: DirectoryEnumerable {
         var path = opened.path
         try path.recursiveDelete()
     }
+
     // swiftlint:enable identifier_name
 }

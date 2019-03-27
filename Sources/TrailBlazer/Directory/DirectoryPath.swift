@@ -9,10 +9,10 @@ public struct DirectoryPath: Path {
     // swiftlint:enable identifier_name
 
     /**
-    Initialize from another Path
+     Initialize from another Path
 
-    - Parameter path: The path to copy
-    */
+     - Parameter path: The path to copy
+     */
     public init?(_ path: GenericPath) {
         // Cannot initialize a directory from a non-directory type
         if path.exists {
@@ -25,25 +25,25 @@ public struct DirectoryPath: Path {
     }
 
     /**
-    Appends a String to a DirectoryPath
+     Appends a String to a DirectoryPath
 
-    - Parameter lhs: The DirectoryPath to append to
-    - Parameter rhs: The String to append
+     - Parameter lhs: The DirectoryPath to append to
+     - Parameter rhs: The String to append
 
-    - Returns: A GenericPath which is the combination of the lhs + Path.separator + rhs
-    */
+     - Returns: A GenericPath which is the combination of the lhs + Path.separator + rhs
+     */
     public static func + (lhs: DirectoryPath, rhs: String) -> GenericPath {
         return lhs + GenericPath(rhs)
     }
 
     /**
-    Appends a Path to a DirectoryPath
+     Appends a Path to a DirectoryPath
 
-    - Parameter lhs: The DirectoryPath to append to
-    - Parameter rhs: The Path to append
+     - Parameter lhs: The DirectoryPath to append to
+     - Parameter rhs: The Path to append
 
-    - Returns: A PathType which is the combination of the lhs + Path.separator + rhs
-    */
+     - Returns: A PathType which is the combination of the lhs + Path.separator + rhs
+     */
     public static func + <PathType: Path>(lhs: DirectoryPath, rhs: PathType) -> PathType {
         var newPath = lhs.string
         let right = rhs.string
@@ -62,11 +62,11 @@ public struct DirectoryPath: Path {
     }
 
     /**
-    Append a DirectoryPath to another
+     Append a DirectoryPath to another
 
-    - Parameter lhs: The DirectoryPath to modify
-    - Parameter rhs: The DirectoryPath to append
-    */
+     - Parameter lhs: The DirectoryPath to modify
+     - Parameter rhs: The DirectoryPath to append
+     */
     public static func += (lhs: inout DirectoryPath, rhs: DirectoryPath) {
         // swiftlint:disable shorthand_operator
         lhs = lhs + rhs
@@ -75,6 +75,6 @@ public struct DirectoryPath: Path {
 
     // swiftlint:disable line_length
     @available(*, unavailable, message: "Appending FilePath to DirectoryPath results in a FilePath, but it is impossible to change the type of the left-hand object from a DirectoryPath to a FilePath")
-    public static func += (lhs: inout DirectoryPath, rhs: FilePath) {}
+    public static func += (_: inout DirectoryPath, _: FilePath) {}
     // swiftlint:enable line_length
 }

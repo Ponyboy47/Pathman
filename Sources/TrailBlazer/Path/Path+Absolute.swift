@@ -8,7 +8,7 @@ let cRealpath = realpath
 public extension Path {
     /// The full canonicalized path
     var absolute: Self? {
-        return try? self.expanded()
+        return try? expanded()
     }
 
     /// Whether or not the current path is absolute
@@ -17,20 +17,20 @@ public extension Path {
     }
 
     /**
-    Mutates self and expands all symbolic links and resolves references to ~/, /./, /../ and extra
-    '/' characters to produce a canonicalized absolute pathname.
+     Mutates self and expands all symbolic links and resolves references to ~/, /./, /../ and extra
+     '/' characters to produce a canonicalized absolute pathname.
 
-    - Throws:
-        - RealPathError.permissionDenied: Read or search permission was denied for a component of the path prefix.
-        - RealPathError.emptyPath: path is NULL (AKA empty).
-        - RealPathError.ioError: An I/O error occurred while reading from the filesystem.
-        - RealPathError.tooManySymlinks: Too many symbolic links were encountered in translating the pathname.
-        - RealPathError.pathnameTooLong: The entire pathname exceeded PATH_MAX characters.
-        - RealPathError.pathComponentTooLong: A component of a pathname exceeded NAME_MAX characters
-        - RealPathError.outOfMemory: Out of memory.
-        - RealPathError.pathDoesNotExist: The named file does not exist.
-        - RealPathError.notADirectory: A component of the path prefix is not a directory.
-    */
+     - Throws:
+         - RealPathError.permissionDenied: Read or search permission was denied for a component of the path prefix.
+         - RealPathError.emptyPath: path is NULL (AKA empty).
+         - RealPathError.ioError: An I/O error occurred while reading from the filesystem.
+         - RealPathError.tooManySymlinks: Too many symbolic links were encountered in translating the pathname.
+         - RealPathError.pathnameTooLong: The entire pathname exceeded PATH_MAX characters.
+         - RealPathError.pathComponentTooLong: A component of a pathname exceeded NAME_MAX characters
+         - RealPathError.outOfMemory: Out of memory.
+         - RealPathError.pathDoesNotExist: The named file does not exist.
+         - RealPathError.notADirectory: A component of the path prefix is not a directory.
+     */
     mutating func expand() throws {
         // realpath(3) fails if the path is null
         guard !_path.isEmpty else { return }
@@ -62,21 +62,21 @@ public extension Path {
     }
 
     /**
-    Expands all symbolic links and resolves references to ~/, /./, /../ and extra
-    '/' characters to produce a canonicalized absolute pathname.
+     Expands all symbolic links and resolves references to ~/, /./, /../ and extra
+     '/' characters to produce a canonicalized absolute pathname.
 
-    - Returns: The expanded copy of self
-    - Throws:
-        - RealPathError.permissionDenied: Read or search permission was denied for a component of the path prefix.
-        - RealPathError.emptyPath: path is NULL (AKA empty).
-        - RealPathError.ioError: An I/O error occurred while reading from the filesystem.
-        - RealPathError.tooManySymlinks: Too many symbolic links were encountered in translating the pathname.
-        - RealPathError.pathnameTooLong: The entire pathname exceeded PATH_MAX characters.
-        - RealPathError.pathComponentTooLong: A component of a pathname exceeded NAME_MAX characters
-        - RealPathError.outOfMemory: Out of memory.
-        - RealPathError.pathDoesNotExist: The named file does not exist.
-        - RealPathError.notADirectory: A component of the path prefix is not a directory.
-    */
+     - Returns: The expanded copy of self
+     - Throws:
+         - RealPathError.permissionDenied: Read or search permission was denied for a component of the path prefix.
+         - RealPathError.emptyPath: path is NULL (AKA empty).
+         - RealPathError.ioError: An I/O error occurred while reading from the filesystem.
+         - RealPathError.tooManySymlinks: Too many symbolic links were encountered in translating the pathname.
+         - RealPathError.pathnameTooLong: The entire pathname exceeded PATH_MAX characters.
+         - RealPathError.pathComponentTooLong: A component of a pathname exceeded NAME_MAX characters
+         - RealPathError.outOfMemory: Out of memory.
+         - RealPathError.pathDoesNotExist: The named file does not exist.
+         - RealPathError.notADirectory: A component of the path prefix is not a directory.
+     */
     func expanded() throws -> Self {
         var toExpand = Self(_path) !! "The path '\(_path)' is not a \(Self.self)"
         try toExpand.expand()

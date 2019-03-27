@@ -4,8 +4,8 @@ public extension Path {
         let theirComps = path.components
 
         return myComps.count >= theirComps.count
-               ? findCommonAncestry(larger: myComps, smaller: theirComps)
-               : findCommonAncestry(larger: theirComps, smaller: myComps)
+            ? findCommonAncestry(larger: myComps, smaller: theirComps)
+            : findCommonAncestry(larger: theirComps, smaller: myComps)
     }
 }
 

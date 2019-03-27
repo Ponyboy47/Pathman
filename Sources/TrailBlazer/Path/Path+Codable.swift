@@ -1,9 +1,9 @@
 public extension Path {
     /**
-    Decodes a Path from an unkeyed String container
+     Decodes a Path from an unkeyed String container
 
-    - Throws: `CodingError.incorrectPathType` when a path exists that does not match the encoded type
-    */
+     - Throws: `CodingError.incorrectPathType` when a path exists that does not match the encoded type
+     */
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: PathType.self)
         guard let pathString = try container.decodeIfPresent(String.self, forKey: Self.pathType) else {

@@ -100,8 +100,8 @@ public extension WritableByOpened where Self: SeekableByOpened, WriteReturnType 
 }
 
 public extension WritableByOpened where OpenOptionsType: DefaultWritableOpenOption,
-                                        Self: SeekableByOpened,
-                                        WriteReturnType == Void {
+    Self: SeekableByOpened,
+    WriteReturnType == Void {
     func write(_ buffer: Data, at offset: Offset) throws {
         try open(options: OpenOptionsType.writableDefault).write(buffer, at: offset)
     }

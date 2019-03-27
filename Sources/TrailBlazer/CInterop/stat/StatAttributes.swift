@@ -1,9 +1,9 @@
 #if os(Linux)
-import struct Glibc.timespec
 import func Glibc.pow
+import struct Glibc.timespec
 #else
-import struct Darwin.timespec
 import func Darwin.pow
+import struct Darwin.timespec
 #endif
 
 import struct Foundation.Date
@@ -41,6 +41,7 @@ extension Stat {
         return Date(timeIntervalSince1970: Self.timespecToTimeInterval(_buffer.st_atimespec))
         #endif
     }
+
     /// time of last modification
     var lastModified: Date {
         #if os(Linux)
@@ -49,6 +50,7 @@ extension Stat {
         return Date(timeIntervalSince1970: Self.timespecToTimeInterval(_buffer.st_mtimespec))
         #endif
     }
+
     /// time of last status change
     var lastAttributeChange: Date {
         #if os(Linux)
@@ -57,6 +59,7 @@ extension Stat {
         return Date(timeIntervalSince1970: Self.timespecToTimeInterval(_buffer.st_ctimespec))
         #endif
     }
+
     /// time the path was created
     #if os(macOS)
     var creation: Date {

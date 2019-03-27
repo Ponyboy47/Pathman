@@ -16,11 +16,11 @@ public final class Glob {
     public var count: Int { return Int(_glob.pointee.gl_pathc) }
     /** The paths that matched the globbing pattern
 
-        NOTE: Since this is a computed variable, it would be more efficient to
-        store this into a variable for use in your program if you intend to use
-        it more than once. (Getting the files and then getting the directories
-        constitutes multiple accesses and therefore multiple computations)
-    */
+     NOTE: Since this is a computed variable, it would be more efficient to
+     store this into a variable for use in your program if you intend to use
+     it more than once. (Getting the files and then getting the directories
+     constitutes multiple accesses and therefore multiple computations)
+     */
     public var matches: DirectoryChildren {
         // Create the children collection
         var children = DirectoryChildren()
@@ -45,16 +45,17 @@ public final class Glob {
 
         return children
     }
+
     /** The number of reserved items at the beginning of the matches in the
-        underlying glob_t struct. Reserved items are ignored/skipped in the
-        matches variable of this Glob object.
-    */
+     underlying glob_t struct. Reserved items are ignored/skipped in the
+     matches variable of this Glob object.
+     */
     public var offset: Int { return Int(_glob.pointee.gl_offs) }
 
     #if os(macOS)
     /** The limit on the number of matches to return. Intended to prevent DoS
-      attacks. Only honored if the .limit GlobFlag is included.
-    */
+     attacks. Only honored if the .limit GlobFlag is included.
+     */
     public var limit: Int {
         get { return Int(_glob.pointee.gl_matchc) }
         set { _glob.pointee.gl_matchc = OptionInt(newValue) }
@@ -62,7 +63,7 @@ public final class Glob {
     #endif
 
     /// The C function to use to close directories (default is closedir(2))
-    public var closedir: (@convention(c) (UnsafeMutableRawPointer?) -> Void) {
+    public var closedir: @convention(c) (UnsafeMutableRawPointer?) -> Void {
         get { return _glob.pointee.gl_closedir }
         set {
             _glob.pointee.gl_closedir = newValue
@@ -75,14 +76,15 @@ public final class Glob {
     public typealias GlobReadDirectoryReturnType = UnsafeMutablePointer<dirent>
     #endif
     /// The C function used to read directories (default is readdir(2))
-    public var readdir: (@convention(c) (UnsafeMutableRawPointer?) -> GlobReadDirectoryReturnType?) {
+    public var readdir: @convention(c) (UnsafeMutableRawPointer?) -> GlobReadDirectoryReturnType? {
         get { return _glob.pointee.gl_readdir }
         set {
             _glob.pointee.gl_readdir = newValue
         }
     }
+
     /// The C function used to open directories (default is opendir(2))
-    public var opendir: (@convention(c) (UnsafePointer<CChar>?) -> UnsafeMutableRawPointer?) {
+    public var opendir: @convention(c) (UnsafePointer<CChar>?) -> UnsafeMutableRawPointer? {
         get { return _glob.pointee.gl_opendir }
         set {
             _glob.pointee.gl_opendir = newValue
@@ -95,19 +97,21 @@ public final class Glob {
     public typealias GlobStatType = UnsafeMutablePointer<stat>
     #endif
     /// The C function used to lstat directories (default is lstat(2))
-    public var lstat: (@convention(c) (UnsafePointer<CChar>?, GlobStatType?) -> FileDescriptor) {
+    public var lstat: @convention(c) (UnsafePointer<CChar>?, GlobStatType?) -> FileDescriptor {
         get { return _glob.pointee.gl_lstat }
         set {
             _glob.pointee.gl_lstat = newValue
         }
     }
+
     /// The C function used to stat directories (default is stat(2))
-    public var stat: (@convention(c) (UnsafePointer<CChar>?, GlobStatType?) -> FileDescriptor) {
+    public var stat: @convention(c) (UnsafePointer<CChar>?, GlobStatType?) -> FileDescriptor {
         get { return _glob.pointee.gl_stat }
         set {
             _glob.pointee.gl_stat = newValue
         }
     }
+
     /// The flags used by the glob (if it was previously used before)
     public var flags: GlobFlags { return GlobFlags(rawValue: _glob.pointee.gl_flags) }
 
@@ -122,10 +126,10 @@ public final class Glob {
     }
 
     /** Initializes with a pointer to the specified glob_t struct. Only use
-        this initializer if you have a specific reason to own the management of
-        your glob_t struct. You MUST call globfree(3) (or cGlobFree) with your
-        glob_t struct when you are done or it will be a memory leak
-    */
+     this initializer if you have a specific reason to own the management of
+     your glob_t struct. You MUST call globfree(3) (or cGlobFree) with your
+     glob_t struct when you are done or it will be a memory leak
+     */
     public init(glob: UnsafeMutablePointer<glob_t>) {
         _glob = glob
 

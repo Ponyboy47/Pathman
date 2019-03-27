@@ -25,6 +25,7 @@ public extension ByteRepresentable {
     /// Returns the number of bytes assuming self is petabytes
     var pb: Int { return petabytes }
 }
+
 // swiftlint:enable identifier_name
 
 extension Int: ByteRepresentable {

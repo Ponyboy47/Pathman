@@ -16,7 +16,7 @@ extension FilePath: Copyable {
         // If we're not buffering, this should really only run once
         repeat {
             try newOpenPath.write(openPath.read(bytes: bufferSize))
-        } while (newOpenPath.size != openPath.size) // Stop reading from the file once they're identically sized
+        } while newOpenPath.size != openPath.size // Stop reading from the file once they're identically sized
 
         return newOpenPath
     }

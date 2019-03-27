@@ -1,13 +1,13 @@
 #if os(Linux)
-import let Glibc.SEEK_SET
-import let Glibc.SEEK_END
 import let Glibc.SEEK_CUR
+import let Glibc.SEEK_END
+import let Glibc.SEEK_SET
 #else
-import let Darwin.SEEK_SET
-import let Darwin.SEEK_END
 import let Darwin.SEEK_CUR
 import let Darwin.SEEK_DATA
+import let Darwin.SEEK_END
 import let Darwin.SEEK_HOLE
+import let Darwin.SEEK_SET
 #endif
 
 /// Information needed for seeking within a path

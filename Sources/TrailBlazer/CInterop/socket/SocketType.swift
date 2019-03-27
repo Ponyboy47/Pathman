@@ -1,10 +1,10 @@
 #if os(Linux)
-import let Glibc.SOCK_STREAM
-import let Glibc.SOCK_DGRAM
 import struct Glibc.__socket_type
+import let Glibc.SOCK_DGRAM
+import let Glibc.SOCK_STREAM
 #else
-import let Darwin.SOCK_STREAM
 import let Darwin.SOCK_DGRAM
+import let Darwin.SOCK_STREAM
 #endif
 
 public struct SocketType: Hashable {

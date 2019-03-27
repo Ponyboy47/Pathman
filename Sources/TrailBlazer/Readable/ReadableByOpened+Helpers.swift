@@ -31,8 +31,8 @@ public extension ReadableByOpened where Self: SeekableByOpened, Self: DefaultRea
 
 // This extension mimicks the Readable & Seekable extension
 public extension ReadableByOpened where Self: SeekableByOpened,
-                                        OpenOptionsType: DefaultReadableOpenOption,
-                                        Self: DefaultReadByteCount {
+    OpenOptionsType: DefaultReadableOpenOption,
+    Self: DefaultReadByteCount {
     func read(from offset: Offset,
               bytes bytesToRead: ByteRepresentable = Self.defaultByteCount,
               encoding: String.Encoding = .utf8) throws -> String? {

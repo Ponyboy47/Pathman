@@ -1,9 +1,9 @@
 #if os(Linux)
-import func Glibc.socket
 import func Glibc.close
+import func Glibc.socket
 #else
-import func Darwin.socket
 import func Darwin.close
+import func Darwin.socket
 #endif
 private let cSocket = socket
 private let cCloseSocket = close

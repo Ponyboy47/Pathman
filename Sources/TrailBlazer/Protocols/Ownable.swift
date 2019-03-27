@@ -23,6 +23,7 @@ public extension Ownable {
             try? change(owner: username)
         }
     }
+
     var groupName: String? {
         get {
             guard let groupname = (try? getGroupInfo(gid: group))?.gr_name else { return nil }

@@ -33,6 +33,7 @@ extension SocketPath: ReadableByOpenedWithFlags {
             _buffers[self] = newBuffer
         }
     }
+
     /// The size of the buffer used to store read data
     var bufferSize: Int? {
         get { return _bufferSizes[self] }
@@ -48,14 +49,14 @@ extension SocketPath: ReadableByOpenedWithFlags {
     }
 
     public static func read(bytes sizeToRead: ByteRepresentable,
-                            flags: ReceiveFlags,
+                            flags _: ReceiveFlags,
                             from opened: Open<SocketPath>) throws -> Data {
         let bytesToRead = sizeToRead.bytes
 
         // If we haven't allocated a buffer before, then allocate one now
         if opened.path.buffer == nil {
             opened.path.bufferSize = bytesToRead
-        // If the buffer size is less than bytes we're going to read then reallocate the buffer
+            // If the buffer size is less than bytes we're going to read then reallocate the buffer
         } else if let bSize = opened.path.bufferSize, bSize < bytesToRead {
             opened.path.bufferSize = bytesToRead
         }

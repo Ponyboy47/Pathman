@@ -1,6 +1,6 @@
+import func Cdirent.closedir
 import func Cdirent.dirfd
 import func Cdirent.opendir
-import func Cdirent.closedir
 
 #if os(Linux)
 /// The directory stream type used for readding directory entries
@@ -9,6 +9,7 @@ public typealias DIRType = OpaquePointer
 extension DIRType: Descriptor {
     public var fileDescriptor: FileDescriptor { return dirfd(self) }
 }
+
 #else
 import struct Cdirent.DIR
 
@@ -24,21 +25,21 @@ extension DirectoryPath: Openable {
     public typealias DescriptorType = DIRType
 
     /**
-    Opens the directory
+     Opens the directory
 
-    - Returns: The opened directory
+     - Returns: The opened directory
 
-    - Throws: `OpenDirectoryError.permissionDenied` when the calling process does not have access to the path
-    - Throws: `OpenDirectoryError.noProcessFileDescriptors` when the process has used all of its available file
-               descriptors
-    - Throws: `OpenDirectoryError.noSystemFileDescriptors` when the entire system has run out of available file
-               descriptors
-    - Throws: `OpenDirectoryError.pathDoesNotExist` when the path does not exist
-    - Throws: `OpenDirectoryError.outOfMemory` when there is not enough available memory to open the directory
-    - Throws: `OpenDirectoryError.pathNotDirectory` when the path you're trying to open exists and is not a directory.
-               This should only occur if your DirectoryPath object was created before the path existed and then the path
-               was created as a non-directory path type
-    */
+     - Throws: `OpenDirectoryError.permissionDenied` when the calling process does not have access to the path
+     - Throws: `OpenDirectoryError.noProcessFileDescriptors` when the process has used all of its available file
+                descriptors
+     - Throws: `OpenDirectoryError.noSystemFileDescriptors` when the entire system has run out of available file
+                descriptors
+     - Throws: `OpenDirectoryError.pathDoesNotExist` when the path does not exist
+     - Throws: `OpenDirectoryError.outOfMemory` when there is not enough available memory to open the directory
+     - Throws: `OpenDirectoryError.pathNotDirectory` when the path you're trying to open exists and is not a directory.
+                This should only occur if your DirectoryPath object was created before the path existed and then the path
+                was created as a non-directory path type
+     */
     public func open(options: Empty) throws -> Open<DirectoryPath> {
         guard let dir = opendir(string) else {
             throw OpenDirectoryError.getError()
@@ -48,10 +49,10 @@ extension DirectoryPath: Openable {
     }
 
     /**
-    Closes the directory, if open
+     Closes the directory, if open
 
-    - Throws: Never
-    */
+     - Throws: Never
+     */
     public static func close(opened: Open<DirectoryPath>) throws {
         guard closedir(opened.descriptor) != -1 else {
             throw CloseDirectoryError.getError()

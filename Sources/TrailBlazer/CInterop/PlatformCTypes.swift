@@ -1,18 +1,18 @@
 #if os(Linux)
-import typealias Glibc.uid_t
-import typealias Glibc.gid_t
-import typealias Glibc.dev_t
-import typealias Glibc.ino_t
 import typealias Glibc.blksize_t
+import typealias Glibc.dev_t
+import typealias Glibc.gid_t
+import typealias Glibc.ino_t
+import typealias Glibc.uid_t
 
 public typealias OSOffsetInt = Int
 public typealias OSUInt = UInt32
 #else
-import typealias Darwin.uid_t
-import typealias Darwin.gid_t
-import typealias Darwin.dev_t
-import typealias Darwin.ino_t
 import typealias Darwin.blksize_t
+import typealias Darwin.dev_t
+import typealias Darwin.gid_t
+import typealias Darwin.ino_t
+import typealias Darwin.uid_t
 
 public typealias OSOffsetInt = Int64
 public typealias OSUInt = UInt16

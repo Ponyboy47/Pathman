@@ -9,9 +9,9 @@ private let cUmask = Darwin.umask
 #endif
 
 /**
-A UMask is basically just a FileMode, only the permissions contained in it are
-actually the permissions to be rejected when creating paths
-*/
+ A UMask is basically just a FileMode, only the permissions contained in it are
+ actually the permissions to be rejected when creating paths
+ */
 public typealias UMask = FileMode
 
 /// The process's current umask
@@ -38,11 +38,11 @@ public var umask: UMask {
 }
 
 /**
-Sets the process's umask and then returns it
+ Sets the process's umask and then returns it
 
-- Parameter mode: The permissions that should be allowed in the mask
-- Returns: The new umask
-*/
+ - Parameter mode: The permissions that should be allowed in the mask
+ - Returns: The new umask
+ */
 @discardableResult
 public func setUMask(for mode: FileMode) -> UMask {
     var newUMask = ~mode

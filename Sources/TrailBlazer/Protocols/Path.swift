@@ -29,11 +29,11 @@ private func getCurrentWorkingDirectory() throws -> DirectoryPath {
 }
 
 /**
-Whether or not a path exists
+ Whether or not a path exists
 
-- Parameter path: A String representation of the path to test
-- Returns: Whether or not the path exists
-*/
+ - Parameter path: A String representation of the path to test
+ - Returns: Whether or not the path exists
+ */
 public func pathExists(_ path: String) -> Bool {
     // swiftlint:disable identifier_name
     #if os(Linux)
@@ -63,7 +63,7 @@ public func changeCWD(to dir: DirectoryPath, closure: () throws -> Void) throws 
 
 /// A protocol that describes a Path type and the attributes available to it
 public protocol Path: Hashable, CustomStringConvertible, UpdatableStatable, Ownable, Permissionable, Movable,
-                      Deletable, Codable, Sequence {
+    Deletable, Codable, Sequence {
     // swiftlint:disable identifier_name
     /// The underlying path representation
     var _path: String { get set }
@@ -86,6 +86,7 @@ public extension Path {
         get { return pathSeparator }
         set { pathSeparator = newValue }
     }
+
     /// The character used to separate components of a path
     var separator: String {
         get { return Self.separator }
@@ -99,6 +100,7 @@ public extension Path {
             try? changeCWD(to: newValue)
         }
     }
+
     /// The current working directory for the process
     var cwd: DirectoryPath {
         get { return Self.cwd }
@@ -118,6 +120,7 @@ public extension Path {
         }
         return comps.filter { !$0.isEmpty }
     }
+
     /// The last element of the path
     var lastComponent: String? {
         return components.last
@@ -179,10 +182,10 @@ public extension Path {
     }
 
     /**
-    Initialize from another SocketPath (copy constructor)
+     Initialize from another SocketPath (copy constructor)
 
-    - Parameter  path: The path to copy
-    */
+     - Parameter  path: The path to copy
+     */
     init(_ path: Self) {
         self = path
     }

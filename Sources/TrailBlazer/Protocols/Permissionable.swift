@@ -25,7 +25,7 @@ public extension Permissionable {
     }
 
     mutating func change(ownerGroup perms: FilePermissions,
-                         others: FilePermissions? = nil,
+                         others _: FilePermissions? = nil,
                          bits: FileBits? = nil) throws {
         let current = permissions
         try change(owner: perms, group: perms, others: current.others, bits: bits ?? current.bits)

@@ -10,10 +10,10 @@ public struct FilePath: Path {
     // swiftlint:enable identifier_name
 
     /**
-    Initialize from another Path
+     Initialize from another Path
 
-    - Parameter path: The path to copy
-    */
+     - Parameter path: The path to copy
+     */
     public init?(_ path: GenericPath) {
         // Cannot initialize a directory from a non-directory type
         if path.exists {
@@ -26,7 +26,7 @@ public struct FilePath: Path {
     }
 
     @available(*, unavailable, message: "Cannot append to a FilePath")
-    public static func + <PathType: Path>(lhs: FilePath, rhs: PathType) -> PathType {
+    public static func + <PathType: Path>(_: FilePath, _: PathType) -> PathType {
         fatalError("Cannot append to a FilePath")
     }
 }

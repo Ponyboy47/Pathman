@@ -13,6 +13,7 @@ public struct FileMode: OptionSet, ExpressibleByIntegerLiteral, ExpressibleByStr
             rawValue |= newValue.rawValue << 9
         }
     }
+
     /// The permissions for the owner of the Path
     public var owner: FilePermissions {
         get { return FilePermissions(rawValue: (rawValue >> 6) & 0o7) }
@@ -21,6 +22,7 @@ public struct FileMode: OptionSet, ExpressibleByIntegerLiteral, ExpressibleByStr
             rawValue |= newValue.rawValue << 6
         }
     }
+
     /// The permissions for members of the group of the Path
     public var group: FilePermissions {
         get { return FilePermissions(rawValue: (rawValue >> 3) & 0o7) }
@@ -29,6 +31,7 @@ public struct FileMode: OptionSet, ExpressibleByIntegerLiteral, ExpressibleByStr
             rawValue |= newValue.rawValue << 3
         }
     }
+
     /// The permissions for others accessing the Path
     public var others: FilePermissions {
         get { return FilePermissions(rawValue: rawValue & 0o7) }
@@ -62,8 +65,8 @@ public struct FileMode: OptionSet, ExpressibleByIntegerLiteral, ExpressibleByStr
     }
 
     /**
-        Initialize from a Unix permissions string (-rwxrwxrwx)
-    */
+     Initialize from a Unix permissions string (-rwxrwxrwx)
+     */
     public init(_ value: String) {
         self.init(rawValue: 0)
         // 9 characters give us 3 sections of 3 (user, group, other)
@@ -122,15 +125,15 @@ public struct FileMode: OptionSet, ExpressibleByIntegerLiteral, ExpressibleByStr
     }
 
     /**
-        Initializes a FileMode with the specified permissions and bits
+     Initializes a FileMode with the specified permissions and bits
 
-        - Parameter owner: The permissions for the owner of the path
-        - Parameter group: The permissions for members of the group of the path
-        - Parameter others: The permissions for everyone else
-        - Parameter bits: The uid, gid, and sticky bits
+     - Parameter owner: The permissions for the owner of the path
+     - Parameter group: The permissions for members of the group of the path
+     - Parameter others: The permissions for everyone else
+     - Parameter bits: The uid, gid, and sticky bits
 
-        NOTE: The default for each parameter is .none
-    */
+     NOTE: The default for each parameter is .none
+     */
     public init(owner: FilePermissions = .none,
                 group: FilePermissions = .none,
                 others: FilePermissions = .none,
@@ -139,107 +142,113 @@ public struct FileMode: OptionSet, ExpressibleByIntegerLiteral, ExpressibleByStr
     }
 
     /**
-        Initializes a FileMode with the specified permissions and bits
+     Initializes a FileMode with the specified permissions and bits
 
-        - Parameter owner: The permissions for the owner of the path
-        - Parameter group: The permissions for members of the group of the path
-        - Parameter others: The permissions for everyone else
-        - Parameter bits: The uid, gid, and sticky bits
-    */
+     - Parameter owner: The permissions for the owner of the path
+     - Parameter group: The permissions for members of the group of the path
+     - Parameter others: The permissions for everyone else
+     - Parameter bits: The uid, gid, and sticky bits
+     */
     public static func owner(_ owner: FilePermissions,
                              group: FilePermissions = .none,
                              others: FilePermissions = .none,
                              bits: FileBits = .none) -> FileMode {
         return FileMode(owner: owner.rawValue, group: group.rawValue, others: others.rawValue, bits: bits.rawValue)
     }
-    /**
-        Initializes a FileMode with the specified permissions and bits
 
-        - Parameter group: The permissions for members of the group of the path
-        - Parameter owner: The permissions for the owner of the path
-        - Parameter others: The permissions for everyone else
-        - Parameter bits: The uid, gid, and sticky bits
-    */
+    /**
+     Initializes a FileMode with the specified permissions and bits
+
+     - Parameter group: The permissions for members of the group of the path
+     - Parameter owner: The permissions for the owner of the path
+     - Parameter others: The permissions for everyone else
+     - Parameter bits: The uid, gid, and sticky bits
+     */
     public static func group(_ group: FilePermissions,
                              owner: FilePermissions = .none,
                              others: FilePermissions = .none,
                              bits: FileBits = .none) -> FileMode {
         return FileMode(owner: owner.rawValue, group: group.rawValue, others: others.rawValue, bits: bits.rawValue)
     }
-    /**
-        Initializes a FileMode with the specified permissions and bits
 
-        - Parameter others: The permissions for everyone else
-        - Parameter owner: The permissions for the owner of the path
-        - Parameter group: The permissions for members of the group of the path
-        - Parameter bits: The uid, gid, and sticky bits
-    */
+    /**
+     Initializes a FileMode with the specified permissions and bits
+
+     - Parameter others: The permissions for everyone else
+     - Parameter owner: The permissions for the owner of the path
+     - Parameter group: The permissions for members of the group of the path
+     - Parameter bits: The uid, gid, and sticky bits
+     */
     public static func others(_ others: FilePermissions,
                               owner: FilePermissions = .none,
                               group: FilePermissions = .none,
                               bits: FileBits = .none) -> FileMode {
         return FileMode(owner: owner.rawValue, group: group.rawValue, others: others.rawValue, bits: bits.rawValue)
     }
-    /**
-        Initializes a FileMode with the specified permissions and bits
 
-        - Parameter perms: The permissions for the owner and members of the group of the path
-        - Parameter others: The permissions for everyone else
-        - Parameter bits: The uid, gid, and sticky bits
-    */
+    /**
+     Initializes a FileMode with the specified permissions and bits
+
+     - Parameter perms: The permissions for the owner and members of the group of the path
+     - Parameter others: The permissions for everyone else
+     - Parameter bits: The uid, gid, and sticky bits
+     */
     public static func ownerGroup(_ perms: FilePermissions,
                                   others: FilePermissions = .none,
                                   bits: FileBits = .none) -> FileMode {
         return FileMode(owner: perms.rawValue, group: perms.rawValue, others: others.rawValue, bits: bits.rawValue)
     }
-    /**
-        Initializes a FileMode with the specified permissions and bits
 
-        - Parameter perms: The permissions for the owner of the path and everyone else
-        - Parameter group: The permissions for members of the group of the path
-        - Parameter bits: The uid, gid, and sticky bits
-    */
+    /**
+     Initializes a FileMode with the specified permissions and bits
+
+     - Parameter perms: The permissions for the owner of the path and everyone else
+     - Parameter group: The permissions for members of the group of the path
+     - Parameter bits: The uid, gid, and sticky bits
+     */
     public static func ownerOthers(_ perms: FilePermissions,
                                    group: FilePermissions = .none,
                                    bits: FileBits = .none) -> FileMode {
         return FileMode(owner: perms.rawValue, group: group.rawValue, others: perms.rawValue, bits: bits.rawValue)
     }
-    /**
-        Initializes a FileMode with the specified permissions and bits
 
-        - Parameter group: The permissions for members of the group of the path and everyone else
-        - Parameter owner: The permissions for the owner of the path
-        - Parameter bits: The uid, gid, and sticky bits
-    */
+    /**
+     Initializes a FileMode with the specified permissions and bits
+
+     - Parameter group: The permissions for members of the group of the path and everyone else
+     - Parameter owner: The permissions for the owner of the path
+     - Parameter bits: The uid, gid, and sticky bits
+     */
     public static func groupOthers(_ perms: FilePermissions,
                                    owner: FilePermissions = .none,
                                    bits: FileBits = .none) -> FileMode {
         return FileMode(owner: owner.rawValue, group: perms.rawValue, others: perms.rawValue, bits: bits.rawValue)
     }
-    /**
-        Initializes a FileMode with the specified permissions and bits
 
-        - Parameter perms: The permissions for everyone who accesses the path
-        - Parameter bits: The uid, gid, and sticky bits
-    */
+    /**
+     Initializes a FileMode with the specified permissions and bits
+
+     - Parameter perms: The permissions for everyone who accesses the path
+     - Parameter bits: The uid, gid, and sticky bits
+     */
     public static func ownerGroupOthers(_ perms: FilePermissions, bits: FileBits = .none) -> FileMode {
         return FileMode(owner: perms.rawValue, group: perms.rawValue, others: perms.rawValue, bits: bits.rawValue)
     }
 
     /**
-    Determine if the current FileMode will be reduced by the process's umask
+     Determine if the current FileMode will be reduced by the process's umask
 
-    - Returns: true if the FileMode is permitted by the umask
-    */
+     - Returns: true if the FileMode is permitted by the umask
+     */
     public func checkAgainstUMask() -> Bool {
         return self == unmasked()
     }
 
     /**
-        Checks the FileMode against the umask (see umask(2))
+     Checks the FileMode against the umask (see umask(2))
 
-        - Returns: The FileMode after disabling bits from the umask
-    */
+     - Returns: The FileMode after disabling bits from the umask
+     */
     public func unmasked() -> FileMode {
         return ~TrailBlazer.umask & self
     }
@@ -260,6 +269,7 @@ public struct FileMode: OptionSet, ExpressibleByIntegerLiteral, ExpressibleByStr
     public static func | (lhs: FileMode, rhs: FileMode) -> FileMode {
         return FileMode(rawValue: lhs.rawValue | rhs.rawValue)
     }
+
     /// Returns a FileMode with the bits contained in either mode
     public static func | (lhs: FileMode, rhs: IntegerLiteralType) -> FileMode {
         return FileMode(rawValue: lhs.rawValue | rhs)
@@ -269,6 +279,7 @@ public struct FileMode: OptionSet, ExpressibleByIntegerLiteral, ExpressibleByStr
     public static func |= (lhs: inout FileMode, rhs: FileMode) {
         lhs.rawValue = lhs.rawValue | rhs.rawValue
     }
+
     /// Sets the FileMode with the bits contained in either mode
     public static func |= (lhs: inout FileMode, rhs: IntegerLiteralType) {
         lhs.rawValue = lhs.rawValue | rhs
@@ -278,6 +289,7 @@ public struct FileMode: OptionSet, ExpressibleByIntegerLiteral, ExpressibleByStr
     public static func & (lhs: FileMode, rhs: FileMode) -> FileMode {
         return FileMode(rawValue: lhs.rawValue & rhs.rawValue)
     }
+
     /// Returns a FileMode with only the bits contained in both modes
     public static func & (lhs: FileMode, rhs: IntegerLiteralType) -> FileMode {
         return FileMode(rawValue: lhs.rawValue & rhs)
@@ -287,6 +299,7 @@ public struct FileMode: OptionSet, ExpressibleByIntegerLiteral, ExpressibleByStr
     public static func &= (lhs: inout FileMode, rhs: FileMode) {
         lhs.rawValue = lhs.rawValue & rhs.rawValue
     }
+
     /// Sets the FileMode with only the bits contained in both modes
     public static func &= (lhs: inout FileMode, rhs: IntegerLiteralType) {
         lhs.rawValue = lhs.rawValue & rhs

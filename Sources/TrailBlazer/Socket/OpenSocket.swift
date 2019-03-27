@@ -1,9 +1,9 @@
 #if os(Linux)
-import func Glibc.connect
 import func Glibc.bind
+import func Glibc.connect
 #else
-import func Darwin.connect
 import func Darwin.bind
+import func Darwin.connect
 #endif
 private let cConnectSocket = connect
 private let cBindSocket = bind

@@ -1,11 +1,9 @@
-// swiftlint:disable file_length
-
 import ErrNo
 
 /// The Error type used by anything that throws in this library
 public protocol TrailBlazerError: Error, Equatable, CaseIterable, ExpressibleByIntegerLiteral
-                                  where AllCases == [Self],
-                                  IntegerLiteralType == ErrNo.RawValue {
+    where AllCases == [Self],
+    IntegerLiteralType == ErrNo.RawValue {
     var errors: [ErrNo] { get set }
 
     init(error: ErrNo?)
@@ -60,7 +58,7 @@ public extension TrailBlazerError {
 
     /// A function used to return the Error based on the ErrNo
     static func getError() -> Self {
-        return Self.allCases.filter({ $0.contains(ErrNo.lastError) }).first ?? .unknown
+        return Self.allCases.filter { $0.contains(ErrNo.lastError) }.first ?? .unknown
     }
 
     static func ~= (lhs: Self, rhs: Error) -> Bool {
@@ -108,7 +106,7 @@ public struct OpenFileError: TrailBlazerError {
         return cases
     }()
 
-    public init(error: ErrNo?) { self.errors = error == nil ? [] : [error!] }
+    public init(error: ErrNo?) { errors = error == nil ? [] : [error!] }
 }
 
 /// Errors thrown when a FilePath is closed (see close(2))
@@ -116,12 +114,12 @@ public struct CloseFileError: TrailBlazerError {
     public var errors: [ErrNo]
 
     public static let allCases: [CloseFileError] = {
-        return [
+        [
             .badFileDescriptor, .interruptedBySignal, .ioError
         ]
     }()
 
-    public init(error: ErrNo?) { self.errors = error == nil ? [] : [error!] }
+    public init(error: ErrNo?) { errors = error == nil ? [] : [error!] }
 }
 
 /// Errors thrown when a FilePath is deleted
@@ -139,7 +137,7 @@ public struct UnlinkError: TrailBlazerError {
         .pathComponentNotDirectory, .noKernelMemory, .readOnlyFileSystem
     ]
 
-    public init(error: ErrNo?) { self.errors = error == nil ? [] : [error!] }
+    public init(error: ErrNo?) { errors = error == nil ? [] : [error!] }
 }
 
 /// Errors thrown when a path is linked (see link(2))
@@ -158,7 +156,7 @@ public struct LinkError: TrailBlazerError {
         .operationNotSupported, .readOnlyFileSystem
     ]
 
-    public init(error: ErrNo?) { self.errors = error == nil ? [] : [error!] }
+    public init(error: ErrNo?) { errors = error == nil ? [] : [error!] }
 }
 
 /// Errors thrown when a path is symlinked (see symlink(2))
@@ -174,7 +172,7 @@ public struct SymlinkError: TrailBlazerError {
         .readOnlyFileSystem
     ]
 
-    public init(error: ErrNo?) { self.errors = error == nil ? [] : [error!] }
+    public init(error: ErrNo?) { errors = error == nil ? [] : [error!] }
 }
 
 /// Errors thrown when a DirectoryPath is opened (see opendir(3))
@@ -187,7 +185,7 @@ public struct OpenDirectoryError: TrailBlazerError {
         .noRouteToPath, .pathNotDirectory
     ]
 
-    public init(error: ErrNo?) { self.errors = error == nil ? [] : [error!] }
+    public init(error: ErrNo?) { errors = error == nil ? [] : [error!] }
 }
 
 /// Errors thrown when a DirectoryPath is closed (see closedir(3))
@@ -200,7 +198,7 @@ public struct CloseDirectoryError: TrailBlazerError {
         .invalidDirectoryStream
     ]
 
-    public init(error: ErrNo?) { self.errors = error == nil ? [] : [error!] }
+    public init(error: ErrNo?) { errors = error == nil ? [] : [error!] }
 }
 
 /// Errors thrown when a DirectoryPath is created (see mkdir(2))
@@ -228,7 +226,7 @@ public struct CreateDirectoryError: TrailBlazerError {
         return cases
     }()
 
-    public init(error: ErrNo?) { self.errors = error == nil ? [] : [error!] }
+    public init(error: ErrNo?) { errors = error == nil ? [] : [error!] }
 }
 
 /// Errors thrown when a DirectoryPath is deleted (see rmdir(2))
@@ -246,7 +244,7 @@ public struct DeleteDirectoryError: TrailBlazerError {
         .readOnlyFileSystem, .ioError
     ]
 
-    public init(error: ErrNo?) { self.errors = error == nil ? [] : [error!] }
+    public init(error: ErrNo?) { errors = error == nil ? [] : [error!] }
 }
 
 /// Errors thrown getting path information (see stat(2))
@@ -261,7 +259,7 @@ public struct StatError: TrailBlazerError {
         .pathComponentNotDirectory, .fileTooLarge, .ioError
     ]
 
-    public init(error: ErrNo?) { self.errors = error == nil ? [] : [error!] }
+    public init(error: ErrNo?) { errors = error == nil ? [] : [error!] }
 }
 
 /// Errors thrown while getting information about a user (see getpwnam(2) or getpwuid(2))
@@ -276,7 +274,7 @@ public struct UserInfoError: TrailBlazerError {
         .noSystemFileDescriptors, .noKernelMemory
     ]
 
-    public init(error: ErrNo?) { self.errors = error == nil ? [] : [error!] }
+    public init(error: ErrNo?) { errors = error == nil ? [] : [error!] }
 }
 
 /// Errors thrown while getting information about a group (see getgrnam(2) or getgrgid(2))
@@ -290,7 +288,7 @@ public struct GroupInfoError: TrailBlazerError {
         .noSystemFileDescriptors, .noKernelMemory
     ]
 
-    public init(error: ErrNo?) { self.errors = error == nil ? [] : [error!] }
+    public init(error: ErrNo?) { errors = error == nil ? [] : [error!] }
 }
 
 /// Errors thrown by trying to read a fileDescriptor (see read(2))
@@ -322,7 +320,7 @@ public struct ReadError: TrailBlazerError {
         return cases
     }()
 
-    public init(error: ErrNo?) { self.errors = error == nil ? [] : [error!] }
+    public init(error: ErrNo?) { errors = error == nil ? [] : [error!] }
 }
 
 /// Errors thrown by trying to seek to an offset for a fileDescriptor (see seek(2))
@@ -350,7 +348,7 @@ public struct SeekError: TrailBlazerError {
         return cases
     }()
 
-    public init(error: ErrNo?) { self.errors = error == nil ? [] : [error!] }
+    public init(error: ErrNo?) { errors = error == nil ? [] : [error!] }
 }
 
 /// Errors thrown while expanding relative paths or symlinks (see realpath(3))
@@ -365,7 +363,7 @@ public struct RealPathError: TrailBlazerError {
         .noKernelMemory, .noRouteToPath, .pathComponentNotDirectory
     ]
 
-    public init(error: ErrNo?) { self.errors = error == nil ? [] : [error!] }
+    public init(error: ErrNo?) { errors = error == nil ? [] : [error!] }
 }
 
 /// Errors thrown by trying to write to a fileDescriptor (see write(2))
@@ -399,7 +397,7 @@ public struct WriteError: TrailBlazerError {
         return cases
     }()
 
-    public init(error: ErrNo?) { self.errors = error == nil ? [] : [error!] }
+    public init(error: ErrNo?) { errors = error == nil ? [] : [error!] }
 }
 
 /// Errors thrown while changing Path ownership (see chown(2))
@@ -413,7 +411,7 @@ public struct ChangeOwnershipError: TrailBlazerError {
         .ioError
     ]
 
-    public init(error: ErrNo?) { self.errors = error == nil ? [] : [error!] }
+    public init(error: ErrNo?) { errors = error == nil ? [] : [error!] }
 }
 
 /// Errors thrown while changing the permissions on a Path (see chmod(2))
@@ -426,7 +424,7 @@ public struct ChangePermissionsError: TrailBlazerError {
         .pathComponentNotDirectory, .readOnlyFileSystem, .badFileDescriptor
     ]
 
-    public init(error: ErrNo?) { self.errors = error == nil ? [] : [error!] }
+    public init(error: ErrNo?) { errors = error == nil ? [] : [error!] }
 }
 
 /// Errors thrown by moving or renaming a Path (see rename(2))
@@ -449,7 +447,7 @@ public struct MoveError: TrailBlazerError {
         .readOnlyFileSystem, .pathsOnDifferentDevices
     ]
 
-    public init(error: ErrNo?) { self.errors = error == nil ? [] : [error!] }
+    public init(error: ErrNo?) { errors = error == nil ? [] : [error!] }
 }
 
 /// Errors thrown by creating/opening a temporary file/directory (see mkstemp(3)/mkdtemp(3))
@@ -463,7 +461,7 @@ public struct ChDirError: TrailBlazerError {
         .noRouteToPath, .noKernelMemory, .pathComponentNotDirectory
     ]
 
-    public init(error: ErrNo?) { self.errors = error == nil ? [] : [error!] }
+    public init(error: ErrNo?) { errors = error == nil ? [] : [error!] }
 }
 
 public struct CWDError: TrailBlazerError {
@@ -475,7 +473,7 @@ public struct CWDError: TrailBlazerError {
         .accessDenied, .segFault, .pathnameTooLong, .noKernelMemory, .unlinkedCWD
     ]
 
-    public init(error: ErrNo?) { self.errors = error == nil ? [] : [error!] }
+    public init(error: ErrNo?) { errors = error == nil ? [] : [error!] }
 }
 
 public struct SocketError: TrailBlazerError {
@@ -502,7 +500,7 @@ public struct SocketError: TrailBlazerError {
         return cases
     }()
 
-    public init(error: ErrNo?) { self.errors = error == nil ? [] : [error!] }
+    public init(error: ErrNo?) { errors = error == nil ? [] : [error!] }
 }
 
 public typealias CloseSocketError = CloseFileError
@@ -516,7 +514,7 @@ public struct ShutdownError: TrailBlazerError {
         .badFileDescriptor, .notConnected, .notASocket
     ]
 
-    public init(error: ErrNo?) { self.errors = error == nil ? [] : [error!] }
+    public init(error: ErrNo?) { errors = error == nil ? [] : [error!] }
 }
 
 public struct ConnectionError: TrailBlazerError {
@@ -541,7 +539,7 @@ public struct ConnectionError: TrailBlazerError {
         .networkUnreachable, .notASocket, .invalidTypeForDomain, .timedOut
     ]
 
-    public init(error: ErrNo?) { self.errors = error == nil ? [] : [error!] }
+    public init(error: ErrNo?) { errors = error == nil ? [] : [error!] }
 }
 
 public struct BindError: TrailBlazerError {
@@ -557,7 +555,7 @@ public struct BindError: TrailBlazerError {
         .pathComponentNotDirectory, .readOnlyFileSystem
     ]
 
-    public init(error: ErrNo?) { self.errors = error == nil ? [] : [error!] }
+    public init(error: ErrNo?) { errors = error == nil ? [] : [error!] }
 }
 
 public struct ListenError: TrailBlazerError {
@@ -569,7 +567,7 @@ public struct ListenError: TrailBlazerError {
         .addressInUse, .badFileDescriptor, .notASocket, .socketCannotListen
     ]
 
-    public init(error: ErrNo?) { self.errors = error == nil ? [] : [error!] }
+    public init(error: ErrNo?) { errors = error == nil ? [] : [error!] }
 }
 
 public struct AcceptError: TrailBlazerError {
@@ -588,7 +586,7 @@ public struct AcceptError: TrailBlazerError {
         .invalidSocketType, .protocolError, .permissionDenied
     ]
 
-    public init(error: ErrNo?) { self.errors = error == nil ? [] : [error!] }
+    public init(error: ErrNo?) { errors = error == nil ? [] : [error!] }
 }
 
 public struct SendError: TrailBlazerError {
@@ -609,5 +607,5 @@ public struct SendError: TrailBlazerError {
         .notASocket, .connectionShutdown
     ]
 
-    public init(error: ErrNo?) { self.errors = error == nil ? [] : [error!] }
+    public init(error: ErrNo?) { errors = error == nil ? [] : [error!] }
 }

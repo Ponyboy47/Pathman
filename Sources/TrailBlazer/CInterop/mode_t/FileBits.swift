@@ -8,10 +8,12 @@ public struct FileBits: OptionSet, ExpressibleByIntegerLiteral, Hashable {
     public var uid: Bool {
         return contains(.uid)
     }
+
     /// Whether or not the gid bit is set
     public var gid: Bool {
         return contains(.gid)
     }
+
     /// Whether or not the sticky bit is set
     public var sticky: Bool {
         return contains(.sticky)
@@ -36,7 +38,7 @@ public struct FileBits: OptionSet, ExpressibleByIntegerLiteral, Hashable {
     }
 
     public init(_ bits: FileBits...) {
-        self.init(rawValue: bits.reduce(0, { $0 | $1.rawValue }))
+        self.init(rawValue: bits.reduce(0) { $0 | $1.rawValue })
     }
 
     public init(uid: Bool = false, gid: Bool = false, sticky: Bool = false) {
@@ -58,6 +60,7 @@ public struct FileBits: OptionSet, ExpressibleByIntegerLiteral, Hashable {
     public static func | (lhs: FileBits, rhs: FileBits) -> FileBits {
         return FileBits(rawValue: lhs.rawValue | rhs.rawValue)
     }
+
     /// Returns a FileBits with the bits contained in either mode
     public static func | (lhs: FileBits, rhs: IntegerLiteralType) -> FileBits {
         return FileBits(rawValue: lhs.rawValue | rhs)
@@ -67,6 +70,7 @@ public struct FileBits: OptionSet, ExpressibleByIntegerLiteral, Hashable {
     public static func |= (lhs: inout FileBits, rhs: FileBits) {
         lhs.rawValue = lhs.rawValue | rhs.rawValue
     }
+
     /// Sets the FileBits with the bits contained in either mode
     public static func |= (lhs: inout FileBits, rhs: IntegerLiteralType) {
         lhs.rawValue = lhs.rawValue | rhs
@@ -76,6 +80,7 @@ public struct FileBits: OptionSet, ExpressibleByIntegerLiteral, Hashable {
     public static func & (lhs: FileBits, rhs: FileBits) -> FileBits {
         return FileBits(rawValue: lhs.rawValue & rhs.rawValue)
     }
+
     /// Returns a FileBits with only the bits contained in both modes
     public static func & (lhs: FileBits, rhs: IntegerLiteralType) -> FileBits {
         return FileBits(rawValue: lhs.rawValue & rhs)
@@ -85,6 +90,7 @@ public struct FileBits: OptionSet, ExpressibleByIntegerLiteral, Hashable {
     public static func &= (lhs: inout FileBits, rhs: FileBits) {
         lhs.rawValue = lhs.rawValue & rhs.rawValue
     }
+
     /// Sets the FileBits with only the bits contained in both modes
     public static func &= (lhs: inout FileBits, rhs: IntegerLiteralType) {
         lhs.rawValue = lhs.rawValue & rhs

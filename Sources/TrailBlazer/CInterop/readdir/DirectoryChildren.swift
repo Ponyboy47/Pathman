@@ -1,10 +1,10 @@
-import func Cdirent.readdir
 import struct Cdirent.dirent
+import func Cdirent.readdir
 
 /** An object containing a collection of files, directories, and other paths
-    from some kind of traversal or enumeration (ie: globbing or getting
-    directory children)
-*/
+ from some kind of traversal or enumeration (ie: globbing or getting
+ directory children)
+ */
 public struct DirectoryChildren: Equatable, CustomStringConvertible {
     /// The file paths
     public private(set) var files: [FilePath]
@@ -25,10 +25,10 @@ public struct DirectoryChildren: Equatable, CustomStringConvertible {
     }
 
     /** Initializer
-        - Parameter files: The FilePaths to begin with as a part of this collection
-        - Parameter directories: The DirectoryPaths to begin with as a part of this collection
-        - Parameter other: The remaining Paths to begin with as a part of this collection
-    */
+     - Parameter files: The FilePaths to begin with as a part of this collection
+     - Parameter directories: The DirectoryPaths to begin with as a part of this collection
+     - Parameter other: The remaining Paths to begin with as a part of this collection
+     */
     public init(files: [FilePath] = [],
                 directories: [DirectoryPath] = [],
                 sockets: [SocketPath] = [],
@@ -71,7 +71,7 @@ public struct DirectoryChildren: Equatable, CustomStringConvertible {
     }
 
     public mutating func append<PathType: Path>(_ element: PathType) {
-        //swiftlint:disable force_cast
+        // swiftlint:disable force_cast
         if element is GenericPath {
             self.append(element._path)
         } else if element is FilePath {
@@ -83,15 +83,15 @@ public struct DirectoryChildren: Equatable, CustomStringConvertible {
         } else {
             fatalError("Unimplemented PathType => \(PathType.self)")
         }
-        //swiftlint:enable force_cast
+        // swiftlint:enable force_cast
     }
 
     /// Combine two DirectoryChildrens into a single new DirectoryChildren
     public static func + (lhs: DirectoryChildren, rhs: DirectoryChildren) -> DirectoryChildren {
         return DirectoryChildren(files: lhs.files + rhs.files,
-                              directories: lhs.directories + rhs.directories,
-                              sockets: lhs.sockets + rhs.sockets,
-                              other: lhs.other + rhs.other)
+                                 directories: lhs.directories + rhs.directories,
+                                 sockets: lhs.sockets + rhs.sockets,
+                                 other: lhs.other + rhs.other)
     }
 
     /// Combines the items from one DirectoryChildren into this DirectoryChildren
@@ -105,9 +105,9 @@ public struct DirectoryChildren: Equatable, CustomStringConvertible {
     /// Whether or not two DirectoryChildrens are equivalent
     public static func == (lhs: DirectoryChildren, rhs: DirectoryChildren) -> Bool {
         return lhs.files == rhs.files
-               && lhs.directories == rhs.directories
-               && lhs.sockets == rhs.sockets
-               && lhs.other == rhs.other
+            && lhs.directories == rhs.directories
+            && lhs.sockets == rhs.sockets
+            && lhs.other == rhs.other
     }
 }
 
@@ -122,10 +122,10 @@ private struct DirectoryIterator: IteratorProtocol {
     }
 
     /**
-    Iterates through self
+     Iterates through self
 
-    - Returns: The next path in the directory or nil if all paths have been returned
-    */
+     - Returns: The next path in the directory or nil if all paths have been returned
+     */
     func next() -> GenericPath? {
         // Read the next entry in the directory. This C API call should never fail
         guard let entry = readdir(dir) else { return nil }
@@ -135,18 +135,18 @@ private struct DirectoryIterator: IteratorProtocol {
     }
 
     /**
-    Generates a GenericPath from the given dirent pointer
+     Generates a GenericPath from the given dirent pointer
 
-    - Parameter ent: A pointer to the C dirent struct containing the path to generate
-    - Returns: A GenericPath to the item pointed to in the dirent struct
-    */
+     - Parameter ent: A pointer to the C dirent struct containing the path to generate
+     - Returns: A GenericPath to the item pointed to in the dirent struct
+     */
     private func genPath(_ ent: UnsafeMutablePointer<dirent>) -> GenericPath {
         // Get the path name (last path component) from the C dirent struct.
         // char[256] in C is converted to a 256 item tuple in Swift. This
         // block converts that to an char * array that can be used to
         // initialize a Swift String using the cString initializer
         let name = withUnsafePointer(to: &ent.pointee.d_name) { (ptr) -> String in
-            return ptr.withMemoryRebound(to: CChar.self, capacity: MemoryLayout.size(ofValue: ent.pointee.d_name)) {
+            ptr.withMemoryRebound(to: CChar.self, capacity: MemoryLayout.size(ofValue: ent.pointee.d_name)) {
                 return String(cString: $0)
             }
         }

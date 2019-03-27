@@ -7,4 +7,3 @@ extension Open: Copyable where PathType: Copyable {
         return try path.copy(to: &newPath, options: options)
     }
 }
-

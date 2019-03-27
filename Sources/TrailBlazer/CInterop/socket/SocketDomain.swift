@@ -1,9 +1,9 @@
 #if os(Linux)
-import let Glibc.AF_UNIX
 import let Glibc.AF_LOCAL
+import let Glibc.AF_UNIX
 #else
-import let Darwin.PF_UNIX
 import let Darwin.PF_LOCAL
+import let Darwin.PF_UNIX
 #endif
 
 public struct SocketDomain: Hashable {
