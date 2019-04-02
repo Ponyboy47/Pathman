@@ -1,6 +1,6 @@
 import Foundation
-import XCTest
 @testable import TrailBlazer
+import XCTest
 
 class LinkTests: XCTestCase {
     func testRelativeSoftLink() {
@@ -176,7 +176,7 @@ class LinkTests: XCTestCase {
             var _linked = FilePath("\(link.path.lastComponent!).link")!
             let target = FilePath("\(link.path.lastComponent!)")!
             let symlink = try target.link(at: "\(link.path.lastComponent!).link")
-            XCTAssertNoThrow(try symlink.open(permissions: .readWrite))
+            XCTAssertNoThrow(try symlink.open(mode: .readPlus))
             var file = link.path
             try? file.delete()
             try? _linked.delete()
@@ -210,7 +210,7 @@ class LinkTests: XCTestCase {
             var _linked = FilePath("\(link.path.lastComponent!).link")!
             let target = FilePath("\(link.path.lastComponent!)")!
             let symlink = try target.link(at: "\(link.path.lastComponent!).link")
-            XCTAssertNoThrow(try symlink.open(permissions: .readWrite) { _ in })
+            XCTAssertNoThrow(try symlink.open(mode: .readPlus) { _ in })
             var file = link.path
             try? file.delete()
             try? _linked.delete()

@@ -1,4 +1,5 @@
 import ErrNo
+// swiftlint:disable file_length
 
 /// The Error type used by anything that throws in this library
 public protocol TrailBlazerError: Error, Equatable, CaseIterable, ExpressibleByIntegerLiteral
@@ -80,7 +81,7 @@ public struct OpenFileError: TrailBlazerError {
     public static let improperUseOfDirectory = OpenFileError(error: .EISDIR)
     public static let invalidPermissions = OpenFileError(error: .EIRRELEVANT)
     public static let createWithoutMode = OpenFileError(error: .EIRRELEVANT2)
-    public static let invalidFlags = OpenFileError(error: .EINVAL)
+    public static let invalidMode = OpenFileError(error: .EINVAL)
     public static let deviceNotOpened = OpenFileError(error: .ENXIO)
     public static let pathBusy = OpenFileError(error: .ETXTBSY)
     public static let pathExists = OpenFileError(error: .EEXIST)
@@ -91,7 +92,7 @@ public struct OpenFileError: TrailBlazerError {
     public static let allCases: [OpenFileError] = {
         var cases: [OpenFileError] = [
             .accessDenied, .quotaReached, .pathExists, .segFault, .fileTooLarge,
-            .interruptedBySignal, .invalidFlags, .improperUseOfDirectory,
+            .interruptedBySignal, .invalidMode, .improperUseOfDirectory,
             .tooManySymlinks, .noProcessFileDescriptors, .pathnameTooLong,
             .noSystemFileDescriptors, .noDevice, .noRouteToPath, .noKernelMemory,
             .deviceFull, .pathComponentNotDirectory, .deviceNotOpened,

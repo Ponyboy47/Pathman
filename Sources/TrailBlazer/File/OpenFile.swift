@@ -2,12 +2,10 @@ public typealias OpenFile = Open<FilePath>
 
 public extension Open where PathType == FilePath {
     /// Whether or not the path was opened with read permissions
-    var mayRead: Bool { return openPermissions.mayRead }
+    var mayRead: Bool { return openMode.mayRead }
 
     /// Whether or not the path was opened with write permissions
-    var mayWrite: Bool { return openPermissions.mayWrite }
+    var mayWrite: Bool { return openMode.mayWrite }
 
-    var openPermissions: OpenFilePermissions { return openOptions.permissions }
-    var openFlags: OpenFileFlags { return openOptions.flags }
-    var createMode: FileMode? { return openOptions.mode }
+    var openMode: OpenFileMode { return openOptions.mode }
 }

@@ -1,36 +1,39 @@
 #if os(Linux)
 import Glibc
-/// The C function that opens a file
-private let cOpenFile = Glibc.open(_:_:)
-/// The C function that opens a file with the mode argument
-private let cOpenFileWithMode = Glibc.open(_:_:_:)
-/// The C function that closes an open file descriptor
-private let cCloseFile = Glibc.close
+/// The C function that opens a file given a path
+private let cOpenFile = Glibc.fopen
+/// The C function that opens a file given a file descriptor
+private let cOpenFileByDescriptor = Glibc.fdopen
+/// The C function that closes an open file stream
+private let cCloseFile = Glibc.fclose
 #else
 import Darwin
-/// The C function that opens a file
-private let cOpenFile = Darwin.open(_:_:)
-/// The C function that opens a file with the mode argument
-private let cOpenFileWithMode = Darwin.open(_:_:_:)
-/// The C function that closes an open file descriptor
-private let cCloseFile = Darwin.close
+/// The C function that opens a file given a path
+private let cOpenFile = Darwin.fopen
+/// The C function that opens a file given a file descriptor
+private let cOpenFileByDescriptor = Darwin.fdopen
+/// The C function that closes an open file stream
+private let cCloseFile = Darwin.fclose
 #endif
+
+public typealias FILEType = UnsafeMutablePointer<FILE>
+extension UnsafeMutablePointer: Descriptor where Pointee == FILE {
+    public var fileDescriptor: FileDescriptor { return fileno(self) }
+}
 
 extension FilePath: Openable {
     public typealias OpenOptionsType = OpenOptions
+    public typealias DescriptorType = FILEType
 
     public struct OpenOptions: DefaultReadableWritableOpenOption {
-        public let permissions: OpenFilePermissions
-        public let flags: OpenFileFlags
-        public let mode: FileMode?
+        public let mode: OpenFileMode
+        fileprivate var rawValue: String { return mode.rawValue }
 
-        public static let readableDefault = OpenOptions(permissions: .read)
-        public static let writableDefault = OpenOptions(permissions: .write)
-        public static let readableWritableDefault = OpenOptions(permissions: .readWrite)
+        public static let readableDefault = OpenOptions(mode: .read)
+        public static let writableDefault = OpenOptions(mode: .append)
+        public static let readableWritableDefault = OpenOptions(mode: .readPlus)
 
-        public init(permissions: OpenFilePermissions, flags: OpenFileFlags = [], mode: FileMode? = nil) {
-            self.permissions = permissions
-            self.flags = flags
+        public init(mode: OpenFileMode) {
             self.mode = mode
         }
     }
@@ -42,17 +45,17 @@ extension FilePath: Openable {
 
      - Throws: `OpenFileError.permissionDenied` when write access is not allowed to the path or if search permissions
                 were denied on one of the components of the path
-     - Throws: `OpenFileError.quotaReached` when the file does not exist and the user's quota of disk blocks or inodes on
-                the filesystem has been exhausted
+     - Throws: `OpenFileError.quotaReached` when the file does not exist and the user's quota of disk blocks or inodes
+                on the filesystem has been exhausted
      - Throws: `OpenFileError.pathExists` when creating a path that already exists
      - Throws: `OpenFileError.badAddress` when the path points to a location outside your accessible address space
-     - Throws: `OpenFileError.fileTooLarge` when the path is a file that is too large to be opened. Generally occurs on a
-                32-bit platform when opening a file whose size is larger than a 32-bit integer
+     - Throws: `OpenFileError.fileTooLarge` when the path is a file that is too large to be opened. Generally occurs on
+                a 32-bit platform when opening a file whose size is larger than a 32-bit integer
      - Throws: `OpenFileError.interruptedBySignal` when the call was interrupted by a signal handler
      - Throws: `OpenFileError.invalidFlags` when an invalid value is specified in the `options`. May also mean the
                 `.direct` flag was used and this system does not support it
-     - Throws: `OpenFileError.shouldNotFollowSymlinks` when the `.noFollow` flag was used and a symlink was discovered to
-                be part of the path's components
+     - Throws: `OpenFileError.shouldNotFollowSymlinks` when the `.noFollow` flag was used and a symlink was discovered
+                to be part of the path's components
      - Throws: `OpenFileError.tooManySymlinks` when too many symlinks were encountered while resolving the path name
      - Throws: `OpenFileError.noProcessFileDescriptors` when the calling process has no more available file descriptors
      - Throws: `OpenFileError.noSystemFileDescriptors` when the entire system has no more available file descriptors
@@ -79,22 +82,11 @@ extension FilePath: Openable {
      - Throws: `CloseFileError.ioError` when an I/O error occurred
      */
     public func open(options: OpenOptions) throws -> Open<FilePath> {
-        guard options.permissions != .none else { throw OpenFileError.invalidPermissions }
+        guard options.mode != .none else { throw OpenFileError.invalidPermissions }
 
-        let rawOptions = options.permissions.rawValue | options.flags.rawValue
+        guard let file = cOpenFile(string, options.rawValue) else { throw OpenFileError.getError() }
 
-        let fileDescriptor: FileDescriptor
-        if let mode = options.mode {
-            fileDescriptor = cOpenFileWithMode(string, rawOptions, mode.rawValue)
-        } else if options.flags.contains(.create) {
-            throw CreateFileError.createWithoutMode
-        } else {
-            fileDescriptor = cOpenFile(string, rawOptions)
-        }
-
-        guard fileDescriptor != -1 else { throw OpenFileError.getError() }
-
-        return OpenFile(self, descriptor: fileDescriptor, options: options) !! "Failed to set the opened file object"
+        return OpenFile(self, descriptor: file, options: options) !! "Failed to set the opened file object"
     }
 
     /**
@@ -108,17 +100,17 @@ extension FilePath: Openable {
 
      - Throws: `OpenFileError.permissionDenied` when write access is not allowed to the path or if search permissions
                 were denied on one of the components of the path
-     - Throws: `OpenFileError.quotaReached` when the file does not exist and the user's quota of disk blocks or inodes on
-                the filesystem has been exhausted
+     - Throws: `OpenFileError.quotaReached` when the file does not exist and the user's quota of disk blocks or inodes
+                on the filesystem has been exhausted
      - Throws: `OpenFileError.pathExists` when creating a path that already exists
      - Throws: `OpenFileError.badAddress` when the path points to a location outside your accessible address space
-     - Throws: `OpenFileError.fileTooLarge` when the path is a file that is too large to be opened. Generally occurs on a
-                32-bit platform when opening a file whose size is larger than a 32-bit integer
+     - Throws: `OpenFileError.fileTooLarge` when the path is a file that is too large to be opened. Generally occurs on
+                a 32-bit platform when opening a file whose size is larger than a 32-bit integer
      - Throws: `OpenFileError.interruptedBySignal` when the call was interrupted by a signal handler
      - Throws: `OpenFileError.invalidFlags` when an invalid value is specified in the `options`. May also mean the
                 `.direct` flag was used and this system does not support it
-     - Throws: `OpenFileError.shouldNotFollowSymlinks` when the `.noFollow` flag was used and a symlink was discovered to
-                be part of the path's components
+     - Throws: `OpenFileError.shouldNotFollowSymlinks` when the `.noFollow` flag was used and a symlink was discovered
+                to be part of the path's components
      - Throws: `OpenFileError.tooManySymlinks` when too many symlinks were encountered while resolving the path name
      - Throws: `OpenFileError.noProcessFileDescriptors` when the calling process has no more available file descriptors
      - Throws: `OpenFileError.noSystemFileDescriptors` when the entire system has no more available file descriptors
@@ -144,34 +136,30 @@ extension FilePath: Openable {
      - Throws: `CloseFileError.interruptedBySignal` when the call was interrupted by a signal handler
      - Throws: `CloseFileError.ioError` when an I/O error occurred
      */
-    public func open(permissions: OpenFilePermissions,
-                     flags: OpenFileFlags = [],
-                     mode: FileMode? = nil) throws -> Open<FilePath> {
-        return try open(options: OpenOptions(permissions: permissions, flags: flags, mode: mode))
+    public func open(mode: OpenFileMode) throws -> Open<FilePath> {
+        return try open(options: OpenOptions(mode: mode))
     }
 
     /**
      Opens the file and runs the closure with the opened file
 
      - Parameters:
-         - permissions: The permissions to be used with the open file. (`.read`, `.write`, or `.readWrite`)
-         - flags: The flags with which to open the file
-         - mode: The permissions to use if creating a file
-         - closue: The closure to run with the opened file
+         - mode: The permissions to use when opening the file
+         - closure: The closure to run with the opened file
 
      - Throws: `OpenFileError.permissionDenied` when write access is not allowed to the path or if search permissions
                 were denied on one of the components of the path
-     - Throws: `OpenFileError.quotaReached` when the file does not exist and the user's quota of disk blocks or inodes on
-                the filesystem has been exhausted
+     - Throws: `OpenFileError.quotaReached` when the file does not exist and the user's quota of disk blocks or inodes
+                on the filesystem has been exhausted
      - Throws: `OpenFileError.pathExists` when creating a path that already exists
      - Throws: `OpenFileError.badAddress` when the path points to a location outside your accessible address space
-     - Throws: `OpenFileError.fileTooLarge` when the path is a file that is too large to be opened. Generally occurs on a
-                32-bit platform when opening a file whose size is larger than a 32-bit integer
+     - Throws: `OpenFileError.fileTooLarge` when the path is a file that is too large to be opened. Generally occurs on
+                a 32-bit platform when opening a file whose size is larger than a 32-bit integer
      - Throws: `OpenFileError.interruptedBySignal` when the call was interrupted by a signal handler
      - Throws: `OpenFileError.invalidFlags` when an invalid value is specified in the `options`. May also mean the
                 `.direct` flag was used and this system does not support it
-     - Throws: `OpenFileError.shouldNotFollowSymlinks` when the `.noFollow` flag was used and a symlink was discovered to
-                be part of the path's components
+     - Throws: `OpenFileError.shouldNotFollowSymlinks` when the `.noFollow` flag was used and a symlink was discovered
+                to be part of the path's components
      - Throws: `OpenFileError.tooManySymlinks` when too many symlinks were encountered while resolving the path name
      - Throws: `OpenFileError.noProcessFileDescriptors` when the calling process has no more available file descriptors
      - Throws: `OpenFileError.noSystemFileDescriptors` when the entire system has no more available file descriptors
@@ -197,11 +185,19 @@ extension FilePath: Openable {
      - Throws: `CloseFileError.interruptedBySignal` when the call was interrupted by a signal handler
      - Throws: `CloseFileError.ioError` when an I/O error occurred
      */
-    public func open(permissions: OpenFilePermissions,
-                     flags: OpenFileFlags = [],
-                     mode: FileMode? = nil,
+    public func open(mode: OpenFileMode,
                      closure: (_ opened: Open<FilePath>) throws -> Void) throws {
-        try open(options: OpenOptions(permissions: permissions, flags: flags, mode: mode), closure: closure)
+        try open(options: OpenOptions(mode: mode), closure: closure)
+    }
+
+    func open(descriptor: FileDescriptor, options: OpenOptions) throws -> Open<FilePath> {
+        guard let file = cOpenFileByDescriptor(descriptor, options.rawValue) else { throw OpenFileError.getError() }
+
+        return OpenFile(self, descriptor: file, options: options) !! "Failed to set the opened file object"
+    }
+
+    func open(descriptor: FileDescriptor, mode: OpenFileMode) throws -> Open<FilePath> {
+        return try open(descriptor: descriptor, options: OpenOptions(mode: mode))
     }
 
     /**
@@ -213,9 +209,6 @@ extension FilePath: Openable {
      - Throws: `CloseFileError.ioError` when an I/O error occurred
      */
     public static func close(opened: Open<FilePath>) throws {
-        // File is not open
-        guard opened.descriptor != -1 else { return }
-
         guard cCloseFile(opened.descriptor) == 0 else {
             throw CloseFileError.getError()
         }

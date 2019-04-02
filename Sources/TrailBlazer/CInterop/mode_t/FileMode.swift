@@ -51,7 +51,7 @@ public struct FileMode: OptionSet, ExpressibleByIntegerLiteral, ExpressibleByStr
     public static let none: FileMode = 0
 
     public init(rawValue: IntegerLiteralType) {
-        self.rawValue = rawValue
+        self.rawValue = rawValue & 0o7777
     }
 
     public init(integerLiteral value: IntegerLiteralType) {

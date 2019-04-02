@@ -1,6 +1,6 @@
-import XCTest
 import Foundation
 @testable import TrailBlazer
+import XCTest
 
 #if os(Linux)
 import Glibc
@@ -361,12 +361,12 @@ class ChmodTests: XCTestCase {
             do {
                 openFile = try file.create(mode: .ownerGroupOthers(.readWriteExecute))
             } catch {
-                XCTFail("Failed to create test path => \(file)")
+                XCTFail("Failed to create test path => \(file)\n\(error)")
                 return
             }
         } else {
             do {
-                openFile = try file.open(permissions: .readWrite)
+                openFile = try file.open(mode: .readPlus)
             } catch {
                 XCTFail("Failed to open test path => \(file)")
                 return

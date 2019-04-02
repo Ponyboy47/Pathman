@@ -230,11 +230,7 @@ class PathTests: XCTestCase {
             return
         }
 
-        guard let pathType = PathType(mode: dir.permissions) else {
-            XCTFail("pathType was nil for \(dir.permissions)")
-            return
-        }
-        XCTAssertEqual(pathType, .directory)
+        XCTAssertEqual(dir.type, .directory)
     }
 
     func testPathTypeInits() {

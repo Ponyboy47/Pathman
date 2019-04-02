@@ -2,7 +2,7 @@ extension FilePath: Copyable {
     @discardableResult
     public func copy(to newPath: inout FilePath, options: CopyOptions = []) throws -> Open<FilePath> {
         // Open self with read permissions
-        let openPath = try open(permissions: .read)
+        let openPath = try open(mode: .read)
 
         // Create the path we're going to copy
         let newOpenPath = try newPath.create(mode: permissions)

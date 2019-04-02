@@ -38,7 +38,7 @@ extension FilePath: Creatable {
             try parent.create(mode: mode, options: options)
         }
 
-        let opened = try open(permissions: .readWrite, flags: [.create, .exclusive], mode: mode ?? .allPermissions)
+        let opened = try open(mode: [.writePlus, .exclusive])
 
         // If the mode is not allowed by the umask, then we'll have to force it
         if let mode = mode {

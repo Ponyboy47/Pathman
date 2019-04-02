@@ -183,17 +183,17 @@ public extension LinkedPath where LinkedPathType == FilePath {
 
      - Throws: `OpenFileError.permissionDenied` when write access is not allowed to the path or if search permissions
                 were denied on one of the components of the path
-     - Throws: `OpenFileError.quotaReached` when the file does not exist and the user's quota of disk blocks or inodes on
-                the filesystem has been exhausted
+     - Throws: `OpenFileError.quotaReached` when the file does not exist and the user's quota of disk blocks or inodes
+                on the filesystem has been exhausted
      - Throws: `OpenFileError.pathExists` when creating a path that already exists
      - Throws: `OpenFileError.badAddress` when the path points to a location outside your accessible address space
-     - Throws: `OpenFileError.fileTooLarge` when the path is a file that is too large to be opened. Generally occurs on a
-                32-bit platform when opening a file whose size is larger than a 32-bit integer
+     - Throws: `OpenFileError.fileTooLarge` when the path is a file that is too large to be opened. Generally occurs on
+                a 32-bit platform when opening a file whose size is larger than a 32-bit integer
      - Throws: `OpenFileError.interruptedBySignal` when the call was interrupted by a signal handler
      - Throws: `OpenFileError.invalidFlags` when an invalid value is specified in the `options`. May also mean the
                 `.direct` flag was used and this system does not support it
-     - Throws: `OpenFileError.shouldNotFollowSymlinks` when the `.noFollow` flag was used and a symlink was discovered to
-                be part of the path's components
+     - Throws: `OpenFileError.shouldNotFollowSymlinks` when the `.noFollow` flag was used and a symlink was discovered
+                to be part of the path's components
      - Throws: `OpenFileError.tooManySymlinks` when too many symlinks were encountered while resolving the path name
      - Throws: `OpenFileError.noProcessFileDescriptors` when the calling process has no more available file descriptors
      - Throws: `OpenFileError.noSystemFileDescriptors` when the entire system has no more available file descriptors
@@ -219,10 +219,8 @@ public extension LinkedPath where LinkedPathType == FilePath {
      - Throws: `CloseFileError.interruptedBySignal` when the call was interrupted by a signal handler
      - Throws: `CloseFileError.ioError` when an I/O error occurred
      */
-    func open(permissions: OpenFilePermissions,
-              flags: OpenFileFlags = [],
-              mode: FileMode? = nil) throws -> Open<LinkedPathType> {
-        return try open(options: FilePath.OpenOptions(permissions: permissions, flags: flags, mode: mode))
+    func open(mode: OpenFileMode) throws -> Open<LinkedPathType> {
+        return try open(options: FilePath.OpenOptions(mode: mode))
     }
 
     /**
@@ -236,17 +234,17 @@ public extension LinkedPath where LinkedPathType == FilePath {
 
      - Throws: `OpenFileError.permissionDenied` when write access is not allowed to the path or if search permissions
                 were denied on one of the components of the path
-     - Throws: `OpenFileError.quotaReached` when the file does not exist and the user's quota of disk blocks or inodes on
-                the filesystem has been exhausted
+     - Throws: `OpenFileError.quotaReached` when the file does not exist and the user's quota of disk blocks or inodes
+                on the filesystem has been exhausted
      - Throws: `OpenFileError.pathExists` when creating a path that already exists
      - Throws: `OpenFileError.badAddress` when the path points to a location outside your accessible address space
-     - Throws: `OpenFileError.fileTooLarge` when the path is a file that is too large to be opened. Generally occurs on a
-                32-bit platform when opening a file whose size is larger than a 32-bit integer
+     - Throws: `OpenFileError.fileTooLarge` when the path is a file that is too large to be opened. Generally occurs on
+                a 32-bit platform when opening a file whose size is larger than a 32-bit integer
      - Throws: `OpenFileError.interruptedBySignal` when the call was interrupted by a signal handler
      - Throws: `OpenFileError.invalidFlags` when an invalid value is specified in the `options`. May also mean the
                 `.direct` flag was used and this system does not support it
-     - Throws: `OpenFileError.shouldNotFollowSymlinks` when the `.noFollow` flag was used and a symlink was discovered to
-                be part of the path's components
+     - Throws: `OpenFileError.shouldNotFollowSymlinks` when the `.noFollow` flag was used and a symlink was discovered
+     to be part of the path's components
      - Throws: `OpenFileError.tooManySymlinks` when too many symlinks were encountered while resolving the path name
      - Throws: `OpenFileError.noProcessFileDescriptors` when the calling process has no more available file descriptors
      - Throws: `OpenFileError.noSystemFileDescriptors` when the entire system has no more available file descriptors
@@ -272,11 +270,9 @@ public extension LinkedPath where LinkedPathType == FilePath {
      - Throws: `CloseFileError.interruptedBySignal` when the call was interrupted by a signal handler
      - Throws: `CloseFileError.ioError` when an I/O error occurred
      */
-    func open(permissions: OpenFilePermissions,
-              flags: OpenFileFlags = [],
-              mode: FileMode? = nil,
+    func open(mode: OpenFileMode,
               closure: (_ opened: Open<LinkedPathType>) throws -> Void) throws {
-        try open(options: FilePath.OpenOptions(permissions: permissions, flags: flags, mode: mode), closure: closure)
+        try open(options: FilePath.OpenOptions(mode: mode), closure: closure)
     }
 }
 
