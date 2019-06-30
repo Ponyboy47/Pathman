@@ -1,9 +1,12 @@
 #if os(Linux)
+import func Glibc.clearerr
 import func Glibc.fwrite
 #else
+import func Darwin.clearerr
 import func Darwin.fwrite
 #endif
 private let cWriteFile = fwrite
+private let cClearError = clearerr
 
 import struct Foundation.Data
 
@@ -35,6 +38,9 @@ extension FilePath: WritableByOpened {
 
         guard !buffer.isEmpty else { return }
 
-        guard cWriteFile([UInt8](buffer), buffer.count, 1, opened.descriptor) == 1 else { throw WriteError() }
+        guard cWriteFile([UInt8](buffer), buffer.count, 1, opened.descriptor) == 1 else {
+            cClearError(opened.descriptor)
+            throw WriteError()
+        }
     }
 }
