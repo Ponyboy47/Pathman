@@ -356,7 +356,7 @@ class ChmodTests: XCTestCase {
             return
         }
 
-        let openFile: OpenFile
+        let openFile: FileStream
         if !file.exists {
             do {
                 openFile = try file.create(mode: .ownerGroupOthers(.readWriteExecute))

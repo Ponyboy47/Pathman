@@ -1,10 +1,10 @@
 import Foundation
-import XCTest
 @testable import TrailBlazer
+import XCTest
 
 class CopyTests: XCTestCase {
     func testCopyFile() {
-        let tmpFile: OpenFile
+        let tmpFile: FileStream
         do {
             tmpFile = try FilePath.temporary(prefix: "com.trailblazer.copy.")
         } catch {
@@ -17,7 +17,7 @@ class CopyTests: XCTestCase {
 
         var newPath = FilePath(tmpFile.path.parent + "com.trailblazer.copied.\(UUID())")!
 
-        let newOpenPath: OpenFile
+        let newOpenPath: FileStream
         do {
             XCTAssertFalse(newPath.exists)
             newOpenPath = try tmpFile.copy(to: &newPath)
@@ -69,7 +69,7 @@ class CopyTests: XCTestCase {
             return
         }
 
-        let tmpFile: OpenFile
+        let tmpFile: FileStream
         do {
             tmpFile = try FilePath.temporary()
             var path = tmpFile.path
@@ -83,8 +83,7 @@ class CopyTests: XCTestCase {
         do {
             try tmpDirectory.copy(to: &newPath)
             XCTFail("Should not be able to copy non empty directory without the .recursive option")
-        } catch CopyError.nonEmptyDirectory {
-        } catch {
+        } catch CopyError.nonEmptyDirectory {} catch {
             XCTFail("Expected CopyError.nonEmptyDirectory received \(type(of: error)).\(error)")
         }
 
