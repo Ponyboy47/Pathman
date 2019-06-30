@@ -79,7 +79,7 @@ extension FilePath: ReadableByOpened, DefaultReadByteCount {
         }
         // Reading the file returns the number of bytes read (or 0 if there was an error or the eof was encountered)
         let bytesRead = cReadFile(opened.path.buffer!, 1, bytesToRead, opened.descriptor)
-        guard bytesRead != 0 || feof(opened.descriptor) != 0 else { throw ReadError.getError() }
+        guard bytesRead != 0 || feof(opened.descriptor) != 0 else { throw ReadError() }
 
         // Return the Data read from the descriptor
         return Data(bytes: opened.path.buffer!, count: bytesRead)

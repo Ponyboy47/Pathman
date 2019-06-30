@@ -35,6 +35,6 @@ extension FilePath: WritableByOpened {
 
         guard !buffer.isEmpty else { return }
 
-        guard cWriteFile([UInt8](buffer), buffer.count, 1, opened.descriptor) == 1 else { throw WriteError.getError() }
+        guard cWriteFile([UInt8](buffer), buffer.count, 1, opened.descriptor) == 1 else { throw WriteError() }
     }
 }

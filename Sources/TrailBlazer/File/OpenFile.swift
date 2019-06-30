@@ -1,4 +1,4 @@
-public typealias OpenFile = Open<FilePath>
+public typealias FileStream = Open<FilePath>
 
 public extension Open where PathType == FilePath {
     /// Whether or not the path was opened with read permissions

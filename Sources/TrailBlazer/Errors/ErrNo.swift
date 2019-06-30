@@ -322,6 +322,8 @@ public struct ReadError: TrailBlazerError {
     }()
 
     public init(error: ErrNo?) { errors = error == nil ? [] : [error!] }
+
+    public init() { errors = [] }
 }
 
 /// Errors thrown by trying to seek to an offset for a fileDescriptor (see seek(2))
@@ -399,6 +401,8 @@ public struct WriteError: TrailBlazerError {
     }()
 
     public init(error: ErrNo?) { errors = error == nil ? [] : [error!] }
+
+    public init() { errors = [] }
 }
 
 /// Errors thrown while changing Path ownership (see chown(2))
