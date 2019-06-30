@@ -68,7 +68,7 @@ extension FilePath: ReadableByOpened, DefaultReadByteCount {
     public static func read(bytes sizeToRead: ByteRepresentable = FilePath.defaultByteCount,
                             from opened: Open<FilePath>) throws -> Data {
         guard opened.mayRead else {
-            throw ReadError.cannotReadFileDescriptor
+            throw ReadError.cannotReadFileStream
         }
         let bytes = sizeToRead.bytes
 

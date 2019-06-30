@@ -33,7 +33,7 @@ extension FilePath: WritableByOpened {
     public static func write(_ buffer: Data, to opened: Open<FilePath>) throws {
         // If the path has not been opened for writing
         guard opened.mayWrite else {
-            throw WriteError.cannotWriteToFileDescriptor
+            throw WriteError.cannotWriteToFileStream
         }
 
         guard !buffer.isEmpty else { return }

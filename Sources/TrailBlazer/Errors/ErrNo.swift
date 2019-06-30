@@ -297,6 +297,7 @@ public struct ReadError: TrailBlazerError {
     public var errors: [ErrNo]
 
     public static let cannotReadFileDescriptor = ReadError(error: .EINVAL)
+    public static let cannotReadFileStream = ReadError(error: .EINVAL)
     #if os(macOS)
     public static let bufferAllocationFailed = ReadError(error: .ENOBUFS)
     public static let deviceError = ReadError(error: .ENXIO)
@@ -376,6 +377,7 @@ public struct WriteError: TrailBlazerError {
     public static let unconnectedSocket = WriteError(error: .EDESTADDRREQ)
     public static let fileTooLarge = WriteError(error: .EFBIG)
     public static let cannotWriteToFileDescriptor = WriteError(error: .EINVAL)
+    public static let cannotWriteToFileStream = WriteError(error: .EINVAL)
     public static let pipeOrSocketClosed = WriteError(error: .EPIPE)
     #if os(macOS)
     public static let notConnected = WriteError(error: .ECONNRESET)
