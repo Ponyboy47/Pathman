@@ -7,6 +7,9 @@ private let cAcceptConnection = accept
 
 public extension Binding {
     func accept() throws -> Connection {
+        guard let fileDescriptor = self.fileDescriptor else {
+            throw ClosedDescriptorError.alreadyClosed
+        }
         // No sense storing/casting the accepted connection. We know exactly
         // which path it's connected to and which protocol and there are no ports
         let connectionFileDescriptor = cAcceptConnection(fileDescriptor, nil, nil)

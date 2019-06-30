@@ -113,11 +113,11 @@ public struct DirectoryChildren: Equatable, CustomStringConvertible {
 
 private struct DirectoryIterator: IteratorProtocol {
     let openDirectory: OpenDirectory
-    var dir: DIRType { return openDirectory.descriptor }
-    var path: DirectoryPath { return openDirectory.path }
+    let path: DirectoryPath
 
     init(_ openDirectory: OpenDirectory) {
         self.openDirectory = openDirectory
+        self.path = openDirectory.path
         self.openDirectory.rewind()
     }
 
@@ -127,6 +127,7 @@ private struct DirectoryIterator: IteratorProtocol {
      - Returns: The next path in the directory or nil if all paths have been returned
      */
     func next() -> GenericPath? {
+        guard let dir = openDirectory.descriptor else { return nil }
         // Read the next entry in the directory. This C API call should never fail
         guard let entry = readdir(dir) else { return nil }
 

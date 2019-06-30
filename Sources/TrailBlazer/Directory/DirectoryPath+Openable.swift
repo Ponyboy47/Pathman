@@ -54,7 +54,10 @@ extension DirectoryPath: Openable {
      - Throws: Never
      */
     public static func close(opened: Open<DirectoryPath>) throws {
-        guard closedir(opened.descriptor) != -1 else {
+        guard let descriptor = opened.descriptor else {
+            throw ClosedDescriptorError.alreadyClosed
+        }
+        guard closedir(descriptor) != -1 else {
             throw CloseDirectoryError.getError()
         }
     }

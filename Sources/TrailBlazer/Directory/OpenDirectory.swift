@@ -8,6 +8,9 @@ public typealias OpenDirectory = Open<DirectoryPath>
 
 extension Open: DirectoryEnumerable where PathType == DirectoryPath {
     func rewind() {
+        guard let descriptor = self.descriptor else {
+            fatalError("Cannot rewind closed directory")
+        }
         rewinddir(descriptor)
     }
 

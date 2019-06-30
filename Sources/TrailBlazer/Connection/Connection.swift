@@ -2,8 +2,8 @@ import struct Foundation.URL
 
 public final class Connection {
     public let path: SocketPath
-    public let descriptor: SocketPath.DescriptorType
-    public let fileDescriptor: FileDescriptor
+    public private(set) var descriptor: SocketPath.DescriptorType?
+    public let fileDescriptor: FileDescriptor?
     public let openOptions: SocketPath.OpenOptionsType
 
     public static var defaultByteCount: ByteRepresentable = 32.kb
@@ -22,6 +22,7 @@ public final class Connection {
     }
 
     deinit {
+        guard descriptor != nil else { return }
         try? SocketPath.shutdown(connected: self)
         // No need to close the opened object. It should become deinitialized
         // (and therefore closed) now since this connection object holds the

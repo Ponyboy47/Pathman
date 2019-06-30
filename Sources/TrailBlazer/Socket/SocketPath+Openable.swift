@@ -38,7 +38,11 @@ extension SocketPath: Openable {
     }
 
     public static func close(opened: Open<SocketPath>) throws {
-        guard cCloseSocket(opened.descriptor) != -1 else { throw CloseSocketError.getError() }
+        guard let descriptor = opened.descriptor else {
+            throw ClosedDescriptorError.doubleClose
+        }
+
+        guard cCloseSocket(descriptor) != -1 else { throw CloseSocketError.getError() }
 
         opened.path.buffer = nil
         opened.path.bufferSize = nil

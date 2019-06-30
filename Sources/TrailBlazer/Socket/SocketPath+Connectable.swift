@@ -49,6 +49,9 @@ public extension SocketPath {
     }
 
     static func shutdown(connected: Connection) throws {
-        guard cShutdown(connected.descriptor, OptionInt(SHUT_RDWR)) != -1 else { throw ShutdownError.getError() }
+        guard let descriptor = connected.descriptor else {
+            throw ClosedDescriptorError.alreadyClosed
+        }
+        guard cShutdown(descriptor, OptionInt(SHUT_RDWR)) != -1 else { throw ShutdownError.getError() }
     }
 }

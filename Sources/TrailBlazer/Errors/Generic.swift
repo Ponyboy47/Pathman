@@ -50,3 +50,8 @@ public enum LocalAddressError: Error {
 public enum SocketTypeError: Error {
     case connectionTypeRequired
 }
+
+public enum ClosedDescriptorError: Error {
+    case doubleClose
+    case alreadyClosed
+}

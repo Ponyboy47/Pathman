@@ -2,8 +2,8 @@ import struct Foundation.URL
 
 public final class Binding {
     public let path: SocketPath
-    public let descriptor: SocketPath.DescriptorType
-    public let fileDescriptor: FileDescriptor
+    public var descriptor: SocketPath.DescriptorType? { return opened.descriptor }
+    public var fileDescriptor: FileDescriptor? { return descriptor?.fileDescriptor }
     public let openOptions: SocketPath.OpenOptionsType
 
     public var isListening = false
@@ -14,8 +14,6 @@ public final class Binding {
         self.opened = opened
 
         path = opened.path
-        descriptor = opened.descriptor
-        fileDescriptor = opened.fileDescriptor
         openOptions = opened.openOptions
     }
 

@@ -51,6 +51,10 @@ extension SocketPath: ReadableByOpenedWithFlags {
     public static func read(bytes sizeToRead: ByteRepresentable,
                             flags _: ReceiveFlags,
                             from opened: Open<SocketPath>) throws -> Data {
+        guard let fileDescriptor = opened.fileDescriptor else {
+            throw ClosedDescriptorError.alreadyClosed
+        }
+
         let bytesToRead = sizeToRead.bytes
 
         // If we haven't allocated a buffer before, then allocate one now
@@ -61,7 +65,7 @@ extension SocketPath: ReadableByOpenedWithFlags {
             opened.path.bufferSize = bytesToRead
         }
         // Reading the file returns the number of bytes read (or -1 if there was an error)
-        let bytesRead = cReceiveData(opened.fileDescriptor, opened.path.buffer!, bytesToRead, 0)
+        let bytesRead = cReceiveData(fileDescriptor, opened.path.buffer!, bytesToRead, 0)
         guard bytesRead != -1 else { throw ReadError.getError() }
 
         // Return the Data read from the descriptor

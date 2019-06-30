@@ -10,8 +10,8 @@ import func Darwin.fchown
 
 public final class Open<PathType: Openable>: UpdatableStatable, Ownable, Permissionable {
     public let path: PathType
-    public let descriptor: PathType.DescriptorType
-    public lazy var fileDescriptor: FileDescriptor = { descriptor.fileDescriptor }()
+    public private(set) var descriptor: PathType.DescriptorType?
+    public lazy var fileDescriptor: FileDescriptor? = { descriptor?.fileDescriptor }()
     public let openOptions: PathType.OpenOptionsType
 
     // swiftlint:disable identifier_name
@@ -58,6 +58,9 @@ public final class Open<PathType: Openable>: UpdatableStatable, Ownable, Permiss
      - Throws: `ChangeOwnershipError.ioError` when an I/O error occurred during the API call
      */
     public func change(owner uid: UID = ~0, group gid: GID = ~0) throws {
+        guard let fileDescriptor = self.fileDescriptor else {
+            throw ClosedDescriptorError.alreadyClosed
+        }
         guard fchown(fileDescriptor, uid, gid) == 0 else {
             throw ChangeOwnershipError.getError()
         }
@@ -82,6 +85,9 @@ public final class Open<PathType: Openable>: UpdatableStatable, Ownable, Permiss
      - Throws: `ChangePermissionsError.badFileDescriptor` when the file descriptor is invalid or not open
      */
     public func change(permissions: FileMode) throws {
+        guard let fileDescriptor = self.fileDescriptor else {
+            throw ClosedDescriptorError.alreadyClosed
+        }
         guard fchmod(fileDescriptor, permissions.rawValue) == 0 else {
             throw ChangePermissionsError.getError()
         }
@@ -89,9 +95,11 @@ public final class Open<PathType: Openable>: UpdatableStatable, Ownable, Permiss
 
     public func close() throws {
         try PathType.close(opened: self)
+        descriptor = nil
     }
 
     deinit {
+        guard descriptor != nil else { return }
         try? close()
     }
 }

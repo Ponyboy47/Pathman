@@ -14,6 +14,10 @@ private let addressSize = SocketAddressSize(MemoryLayout<LocalSocketAddress>.siz
 
 public extension Open where PathType == SocketPath {
     func connect() throws -> Connection {
+        guard let descriptor = self.descriptor else {
+            throw ClosedDescriptorError.alreadyClosed
+        }
+
         let addr = try path.convertToCAddress()
 
         guard cConnectSocket(descriptor, addr, addressSize) == 0 else {
@@ -24,6 +28,10 @@ public extension Open where PathType == SocketPath {
     }
 
     func bind() throws -> Binding {
+        guard let descriptor = self.descriptor else {
+            throw ClosedDescriptorError.alreadyClosed
+        }
+
         let addr = try path.convertToCAddress()
 
         guard cBindSocket(descriptor, addr, addressSize) == 0 else {

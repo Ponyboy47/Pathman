@@ -13,7 +13,11 @@ extension SocketPath: WritableByOpenedWithFlags {
     public typealias WriteReturnType = Data?
 
     public static func write(_ buffer: Data, flags: SendFlags, to opened: Open<SocketPath>) throws -> Data? {
-        let bytesSent = cSendData(opened.fileDescriptor, [UInt8](buffer), buffer.count, flags.rawValue)
+        guard let fileDescriptor = opened.fileDescriptor else {
+            throw ClosedDescriptorError.alreadyClosed
+        }
+
+        let bytesSent = cSendData(fileDescriptor, [UInt8](buffer), buffer.count, flags.rawValue)
         guard bytesSent != -1 else {
             throw SendError.getError()
         }

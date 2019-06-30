@@ -18,7 +18,7 @@ public extension Openable {
     func open(options: OpenOptionsType, closure: (_ opened: Open<Self>) throws -> Void) throws {
         let opened = try open(options: options)
         try closure(opened)
-        try Self.close(opened: opened)
+        try opened.close()
     }
 }
 
@@ -30,7 +30,7 @@ public extension Openable where OpenOptionsType == Empty {
     func open(closure: (_ opened: Open<Self>) throws -> Void) throws {
         let opened = try open()
         try closure(opened)
-        try Self.close(opened: opened)
+        try opened.close()
     }
 }
 
