@@ -1,24 +1,25 @@
 #if os(Linux)
-import func Glibc.read
+import func Glibc.feof
+import func Glibc.fread
 #else
-import func Darwin.read
+import func Darwin.feof
+import func Darwin.fread
 #endif
 /// The C function used to read from an opened file descriptor
-private let cReadFile = read
+private let cReadFile = fread
 
 import struct Foundation.Data
 
-private var _buffers: [FilePath: UnsafeMutablePointer<CChar>] = [:]
+private var _buffers: [FilePath: UnsafeMutableRawPointer] = [:]
 private var _bufferSizes: [FilePath: Int] = [:]
+
+private var alignment = MemoryLayout<CChar>.alignment
 
 extension FilePath: ReadableByOpened, DefaultReadByteCount {
     /// The buffer used to store data read from a path
-    var buffer: UnsafeMutablePointer<CChar>? {
+    var buffer: UnsafeMutableRawPointer? {
         get { return _buffers[self] }
         nonmutating set {
-            if let bSize = bufferSize {
-                buffer?.deinitialize(count: bSize)
-            }
             buffer?.deallocate()
 
             guard let newBuffer = newValue else {
@@ -39,7 +40,7 @@ extension FilePath: ReadableByOpened, DefaultReadByteCount {
                 return
             }
 
-            buffer = UnsafeMutablePointer<CChar>.allocate(capacity: newSize)
+            buffer = UnsafeMutableRawPointer.allocate(byteCount: newSize, alignment: alignment)
             _bufferSizes[self] = newSize
         }
     }
@@ -76,9 +77,9 @@ extension FilePath: ReadableByOpened, DefaultReadByteCount {
         } else if let bSize = opened.path.bufferSize, bSize < bytesToRead {
             opened.path.bufferSize = bytesToRead
         }
-        // Reading the file returns the number of bytes read (or -1 if there was an error)
-        let bytesRead = cReadFile(opened.fileDescriptor, opened.path.buffer!, bytesToRead)
-        guard bytesRead != -1 else { throw ReadError.getError() }
+        // Reading the file returns the number of bytes read (or 0 if there was an error or the eof was encountered)
+        let bytesRead = cReadFile(opened.path.buffer!, 1, bytesToRead, opened.descriptor)
+        guard bytesRead != 0 || feof(opened.descriptor) != 0 else { throw ReadError.getError() }
 
         // Return the Data read from the descriptor
         return Data(bytes: opened.path.buffer!, count: bytesRead)

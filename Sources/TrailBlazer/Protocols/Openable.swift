@@ -3,11 +3,6 @@ public protocol Openable: Path {
     associatedtype OpenOptionsType: OpenOptionable = Empty
     associatedtype DescriptorType: Descriptor = FileDescriptor
 
-    /// Whether the opened path may be read from
-    var mayRead: Bool { get }
-    /// Whether the opened path may be written to
-    var mayWrite: Bool { get }
-
     /// Opens the path, sets the `fileDescriptor`, and returns the newly opened path
     func open(options: OpenOptionsType) throws -> Open<Self>
     /// Closes the opened `fileDescriptor` and sets it to nil
@@ -20,9 +15,6 @@ public struct Empty: OpenOptionable {
 }
 
 public extension Openable {
-    var mayRead: Bool { return true }
-    var mayWrite: Bool { return true }
-
     func open(options: OpenOptionsType, closure: (_ opened: Open<Self>) throws -> Void) throws {
         try closure(open(options: options))
     }

@@ -1,5 +1,5 @@
-import XCTest
 @testable import TrailBlazer
+import XCTest
 
 class TemporaryTests: XCTestCase {
     func testTemporaryFile() {
@@ -35,7 +35,7 @@ class TemporaryTests: XCTestCase {
             let tmpFile = try FilePath.temporary(prefix: "com.trailblazer.test.", options: .deleteOnCompletion) { openFile in
                 XCTAssertTrue(openFile.path.exists)
                 XCTAssertNoThrow(try openFile.write("Hello world"))
-                XCTAssertEqual(try! openFile.path.read(), "Hello world")
+                XCTAssertEqual(try! openFile.read(from: .beginning), "Hello world")
             }
             XCTAssertFalse(tmpFile.exists)
 

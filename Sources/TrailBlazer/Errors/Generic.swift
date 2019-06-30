@@ -36,6 +36,7 @@ public enum CodingError: Error {
 public enum CopyError: Error {
     case uncopyablePath(GenericPath)
     case nonEmptyDirectory
+    case pathDoesNotExist
 }
 
 public enum AddressError: Error {

@@ -1,9 +1,9 @@
 #if os(Linux)
-import func Glibc.write
+import func Glibc.fwrite
 #else
-import func Darwin.write
+import func Darwin.fwrite
 #endif
-private let cWriteFile = write
+private let cWriteFile = fwrite
 
 import struct Foundation.Data
 
@@ -18,8 +18,8 @@ extension FilePath: WritableByOpened {
      - Throws: `WriteError.quotaReached` when the user's quota of disk blocks for the path have been exhausted
      - Throws: `WriteError.fileTooLarge` when an ettempt was made to write a file that exceeds the maximum defined file
                 size for either the system or the process, or to write at a position past the maximum allowed offset
-     - Throws: `WriteError.interruptedBySignal` when the API call was interrupted by a signal handler before any data was
-                written
+     - Throws: `WriteError.interruptedBySignal` when the API call was interrupted by a signal handler before any data
+                was written
      - Throws: `WriteError.cannotWriteToFileDescriptor` when the underlying file descriptor is attached to a path which
                 is unsuitable for writing or the file was opened with the `.direct` flag and either the buffer address,
                 the byteCount, or the offset are not suitably aligned
@@ -33,8 +33,8 @@ extension FilePath: WritableByOpened {
             throw WriteError.cannotWriteToFileDescriptor
         }
 
-        guard cWriteFile(opened.fileDescriptor, [UInt8](buffer), buffer.count) != -1 else {
-            throw WriteError.getError()
-        }
+        guard !buffer.isEmpty else { return }
+
+        guard cWriteFile([UInt8](buffer), buffer.count, 1, opened.descriptor) == 1 else { throw WriteError.getError() }
     }
 }

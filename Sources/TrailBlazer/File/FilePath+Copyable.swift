@@ -1,6 +1,8 @@
 extension FilePath: Copyable {
     @discardableResult
     public func copy(to newPath: inout FilePath, options: CopyOptions = []) throws -> Open<FilePath> {
+        guard exists else { throw CopyError.pathDoesNotExist }
+
         // Open self with read permissions
         let openPath = try open(mode: .read)
 
@@ -14,9 +16,12 @@ extension FilePath: Copyable {
         let bufferSize: Int = options.contains(.noBuffer) ? Int(size) : 32.kb
 
         // If we're not buffering, this should really only run once
-        repeat {
-            try newOpenPath.write(openPath.read(bytes: bufferSize))
-        } while newOpenPath.size != openPath.size // Stop reading from the file once they're identically sized
+
+        // Stop reading from the file once they're identically sized
+        while newOpenPath.size != openPath.size {
+            let contents = try openPath.read(bytes: bufferSize)
+            try newOpenPath.write(contents)
+        }
 
         return newOpenPath
     }

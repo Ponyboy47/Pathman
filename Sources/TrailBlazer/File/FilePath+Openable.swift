@@ -2,16 +2,12 @@
 import Glibc
 /// The C function that opens a file given a path
 private let cOpenFile = Glibc.fopen
-/// The C function that opens a file given a file descriptor
-private let cOpenFileByDescriptor = Glibc.fdopen
 /// The C function that closes an open file stream
 private let cCloseFile = Glibc.fclose
 #else
 import Darwin
 /// The C function that opens a file given a path
 private let cOpenFile = Darwin.fopen
-/// The C function that opens a file given a file descriptor
-private let cOpenFileByDescriptor = Darwin.fdopen
 /// The C function that closes an open file stream
 private let cCloseFile = Darwin.fclose
 #endif
@@ -188,16 +184,6 @@ extension FilePath: Openable {
     public func open(mode: OpenFileMode,
                      closure: (_ opened: Open<FilePath>) throws -> Void) throws {
         try open(options: OpenOptions(mode: mode), closure: closure)
-    }
-
-    func open(descriptor: FileDescriptor, options: OpenOptions) throws -> Open<FilePath> {
-        guard let file = cOpenFileByDescriptor(descriptor, options.rawValue) else { throw OpenFileError.getError() }
-
-        return OpenFile(self, descriptor: file, options: options) !! "Failed to set the opened file object"
-    }
-
-    func open(descriptor: FileDescriptor, mode: OpenFileMode) throws -> Open<FilePath> {
-        return try open(descriptor: descriptor, options: OpenOptions(mode: mode))
     }
 
     /**

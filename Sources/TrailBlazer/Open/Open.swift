@@ -22,12 +22,12 @@ public final class Open<PathType: Openable>: UpdatableStatable, Ownable, Permiss
 
     /// Whether or not the path may be read
     public var isReadable: Bool {
-        return path.mayRead && path.isReadable
+        return path.isReadable
     }
 
     /// Whether or not the path may be written to
     public var isWritable: Bool {
-        return path.mayWrite && path.isWritable
+        return path.isWritable
     }
 
     init(_ path: PathType, descriptor: PathType.DescriptorType, options: PathType.OpenOptionsType) {
@@ -68,8 +68,8 @@ public final class Open<PathType: Openable>: UpdatableStatable, Ownable, Permiss
 
      - Parameter permissions: The new permissions to use on the path
 
-     - Throws: `ChangePermissionsError.permissionDenied` when the calling process does not have the proper permissions to
-                modify path permissions
+     - Throws: `ChangePermissionsError.permissionDenied` when the calling process does not have the proper permissions
+                to modify path permissions
      - Throws: `ChangePermissionsError.badAddress` when the path points to a location outside your accessible address
                 space
      - Throws: `ChangePermissionsError.ioError` when an I/O error occurred during the API call
@@ -87,8 +87,12 @@ public final class Open<PathType: Openable>: UpdatableStatable, Ownable, Permiss
         }
     }
 
+    public func close() throws {
+        try PathType.close(opened: self)
+    }
+
     deinit {
-        try? PathType.close(opened: self)
+        try? close()
     }
 }
 

@@ -7,6 +7,8 @@
 - DirectoryPath
   - [x] Get directory contents
   - [x] Get directory contents recursively
+    - [x] Eagily
+    - [ ] Lazily
   - [x] Create new directories
     - [x] Create intermediate directories
   - [x] Delete directories
