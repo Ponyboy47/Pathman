@@ -319,6 +319,28 @@ try file.write("Goodbye", at: Offset(from: .end, bytes: 0), using: .ascii)
 ```
 NOTE: You can also pass a `Data` instance to the write function instead of a `String` with an encoding.
 
+### Buffered File Writing
+
+```
+// Writing files is buffered by default. If you expect to use a file
+// immediately after writing to it then be sure to flush the buffer
+guard let file = FilePath("/tmp/test") else {
+    fatalError("Path is not a file")
+}
+
+let openFile = try file.open(mode: "w+")
+try openFile.write("Hello world!")
+try openFile.flush()
+try openFile.rewind()
+let contents = openFile.read()
+
+// You may also change the buffering mode for the file
+try openFile.setBuffer(mode: .line) // Flushes after each newline
+try openFile.setBuffer(mode: .none) // Flushes immediately
+try openFile.setBuffer(mode: .full(size: 1024)) // Flushes after 1024 bytes are written
+```
+NOTE: The default buffering is full buffering based on your OS's `BUFSIZ` variable
+
 
 ### Getting Directory Contents:
 
