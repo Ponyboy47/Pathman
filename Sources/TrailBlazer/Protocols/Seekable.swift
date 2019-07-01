@@ -13,6 +13,7 @@ public protocol SeekableByOpened: Openable {
     static func seek(fromEnd bytes: OSOffsetInt, in opened: Open<Self>) throws
     static func seek(fromCurrent bytes: OSOffsetInt, in opened: Open<Self>) throws
     static func getCurrentOffset(in opened: Open<Self>) throws -> OSOffsetInt
+    static func rewind(in opened: Open<Self>) throws
 }
 
 /// Protocol declaration for types that contain an offset which points to a
@@ -22,6 +23,7 @@ public protocol Seekable {
     func seek(fromEnd bytes: OSOffsetInt) throws
     func seek(fromCurrent bytes: OSOffsetInt) throws
     func getCurrentOffset() throws -> OSOffsetInt
+    func rewind() throws
 }
 
 public extension Seekable {

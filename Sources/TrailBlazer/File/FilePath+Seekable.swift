@@ -1,10 +1,12 @@
 #if os(Linux)
+import func Glibc.clearerr
 import func Glibc.fseek
 import func Glibc.ftell
 import let Glibc.SEEK_CUR
 import let Glibc.SEEK_END
 import let Glibc.SEEK_SET
 #else
+import func Darwin.clearerr
 import func Darwin.fseek
 import func Darwin.ftell
 import let Darwin.SEEK_CUR
@@ -14,8 +16,13 @@ import let Darwin.SEEK_SET
 
 extension FilePath: SeekableByOpened {
     public static func getCurrentOffset(in opened: Open<FilePath>) throws -> OSOffsetInt {
-        let offset: OSOffsetInt = ftell(opened.descriptor)
+        guard let descriptor = opened.descriptor else {
+            throw ClosedDescriptorError.alreadyClosed
+        }
+
+        let offset: OSOffsetInt = ftell(descriptor)
         guard offset != -1 else {
+            defer { clearerr(descriptor) }
             throw SeekError.getError()
         }
 
@@ -32,7 +39,12 @@ extension FilePath: SeekableByOpened {
      - Throws: `SeekError.offsetTooLarge` when the resulting file offset cannot be represented in an off_t
      */
     public static func seek(fromStart bytes: OSOffsetInt, in opened: Open<FilePath>) throws {
-        guard fseek(opened.descriptor, bytes, SEEK_SET) != -1 else {
+        guard let descriptor = opened.descriptor else {
+            throw ClosedDescriptorError.alreadyClosed
+        }
+
+        guard fseek(descriptor, bytes, SEEK_SET) != -1 else {
+            defer { clearerr(descriptor) }
             throw SeekError.getError()
         }
     }
@@ -47,7 +59,12 @@ extension FilePath: SeekableByOpened {
      - Throws: `SeekError.offsetTooLarge` when the resulting file offset cannot be represented in an off_t
      */
     public static func seek(fromEnd bytes: OSOffsetInt, in opened: Open<FilePath>) throws {
-        guard fseek(opened.descriptor, bytes, SEEK_END) != -1 else {
+        guard let descriptor = opened.descriptor else {
+            throw ClosedDescriptorError.alreadyClosed
+        }
+
+        guard fseek(descriptor, bytes, SEEK_END) != -1 else {
+            defer { clearerr(descriptor) }
             throw SeekError.getError()
         }
     }
@@ -62,7 +79,12 @@ extension FilePath: SeekableByOpened {
      - Throws: `SeekError.offsetTooLarge` when the resulting file offset cannot be represented in an off_t
      */
     public static func seek(fromCurrent bytes: OSOffsetInt, in opened: Open<FilePath>) throws {
-        guard fseek(opened.descriptor, bytes, SEEK_CUR) != -1 else {
+        guard let descriptor = opened.descriptor else {
+            throw ClosedDescriptorError.alreadyClosed
+        }
+
+        guard fseek(descriptor, bytes, SEEK_CUR) != -1 else {
+            defer { clearerr(descriptor) }
             throw SeekError.getError()
         }
     }
