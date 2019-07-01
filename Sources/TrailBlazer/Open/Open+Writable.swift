@@ -1,32 +1,19 @@
 import struct Foundation.Data
 
-extension Open: WritableReturnable where PathType: WritableReturnable {
-    public typealias WriteReturnType = PathType.WriteReturnType
-}
-
-public extension Open where PathType: WritableByOpened, PathType.WriteReturnType == Void {
-    func write(_ buffer: Data) throws {
-        try PathType.write(buffer, to: self)
-    }
-}
-
 extension Open: Writable where PathType: WritableByOpened {
-    public func write(_ buffer: Data) throws -> WriteReturnType {
+    @discardableResult
+    public func write(_ buffer: Data) throws -> Int {
         return try PathType.write(buffer, to: self)
     }
 }
 
 extension Open: WritableWithFlags, _WritesWithFlags where PathType: WritableByOpenedWithFlags {
     public typealias WriteFlagsType = PathType.WriteFlagsType
+
     public static var emptyWriteFlags: WriteFlagsType { return PathType.emptyWriteFlags }
 
-    public func write(_ buffer: Data, flags: WriteFlagsType) throws -> WriteReturnType {
+    @discardableResult
+    public func write(_ buffer: Data, flags: WriteFlagsType) throws -> Int {
         return try PathType.write(buffer, flags: flags, to: self)
-    }
-}
-
-public extension Open where PathType: WritableByOpenedWithFlags, PathType.WriteReturnType == Void {
-    func write(_ buffer: Data, flags: WriteFlagsType) throws {
-        try PathType.write(buffer, flags: flags, to: self)
     }
 }

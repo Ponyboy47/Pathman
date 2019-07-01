@@ -1,6 +1,6 @@
-import XCTest
 import Foundation
 @testable import TrailBlazer
+import XCTest
 
 class CreateDeleteTests: XCTestCase {
     private lazy var base: DirectoryPath = {
@@ -21,7 +21,7 @@ class CreateDeleteTests: XCTestCase {
             let open = try file.create()
             XCTAssertTrue(file.exists)
             XCTAssertTrue(file.isFile)
-            try? open.write("Hello World")
+            try! open.write("Hello World")
         } catch {
             XCTFail("Failed to create test file with error \(error)")
         }

@@ -30,17 +30,20 @@ extension FilePath: WritableByOpened {
      - Throws: `WriteError.fileSystemFull` when the file system is full
      - Throws: `WriteError.permissionDenied` when the operation was prevented because of a file seal (see fcntl(2))
      */
-    public static func write(_ buffer: Data, to opened: Open<FilePath>) throws {
+    @discardableResult
+    public static func write(_ buffer: Data, to opened: Open<FilePath>) throws -> Int {
         // If the path has not been opened for writing
         guard opened.mayWrite else {
             throw WriteError.cannotWriteToFileStream
         }
 
-        guard !buffer.isEmpty else { return }
+        guard !buffer.isEmpty else { return 0 }
 
         guard cWriteFile([UInt8](buffer), buffer.count, 1, opened.descriptor) == 1 else {
             cClearError(opened.descriptor)
             throw WriteError()
         }
+
+        return buffer.count
     }
 }

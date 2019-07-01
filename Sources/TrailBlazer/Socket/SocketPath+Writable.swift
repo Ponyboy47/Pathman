@@ -10,9 +10,9 @@ import struct Foundation.Data
 
 extension SocketPath: WritableByOpenedWithFlags {
     public typealias WriteFlagsType = SendFlags
-    public typealias WriteReturnType = Data?
 
-    public static func write(_ buffer: Data, flags: SendFlags, to opened: Open<SocketPath>) throws -> Data? {
+    @discardableResult
+    public static func write(_ buffer: Data, flags: SendFlags, to opened: Open<SocketPath>) throws -> Int {
         guard let fileDescriptor = opened.fileDescriptor else {
             throw ClosedDescriptorError.alreadyClosed
         }
@@ -22,6 +22,6 @@ extension SocketPath: WritableByOpenedWithFlags {
             throw SendError.getError()
         }
 
-        return bytesSent == buffer.count ? nil : buffer[bytesSent...]
+        return bytesSent
     }
 }
