@@ -41,3 +41,24 @@ public extension ReadableByOpened where Self: SeekableByOpened,
                           encoding: encoding)
     }
 }
+
+public extension CharacterReadableByOpened where OpenOptionsType: DefaultReadableOpenOption {
+    func nextCharacter() throws -> Character {
+        return try open(options: OpenOptionsType.readableDefault).nextCharacter()
+    }
+}
+
+public extension CharacterReadableByOpened where Self: SeekableByOpened {
+    static func nextCharacter(from offset: Offset,
+                              from opened: Open<Self>) throws -> Character {
+        try Self.seek(offset, in: opened)
+        return try Self.nextCharacter(from: opened)
+    }
+}
+
+public extension CharacterReadableByOpened where Self: SeekableByOpened,
+    OpenOptionsType: DefaultReadableOpenOption {
+    func nextCharacter(from offset: Offset) throws -> Character {
+        return try open(options: OpenOptionsType.readableDefault).nextCharacter(from: offset)
+    }
+}

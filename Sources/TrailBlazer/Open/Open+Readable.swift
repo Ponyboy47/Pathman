@@ -22,3 +22,13 @@ extension Open: ReadableWithFlags, _ReadsWithFlags where PathType: ReadableByOpe
         return try PathType.read(bytes: bytesToRead, flags: flags, from: self)
     }
 }
+
+extension Open: CharacterReadable where PathType: CharacterReadableByOpened {
+    public func nextCharacter() throws -> Character {
+        return try PathType.nextCharacter(from: self)
+    }
+
+    public func ungetCharacter(_ character: Character) throws {
+        try PathType.ungetCharacter(character, to: self)
+    }
+}

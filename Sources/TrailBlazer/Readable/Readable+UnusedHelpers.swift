@@ -262,3 +262,10 @@ public extension ReadableByOpened where Self: SeekableByOpened,
         return try open(options: OpenOptionsType.readableDefault).read(from: offset, bytes: bytesToRead)
     }
 }
+
+public extension CharacterReadable where Self: Seekable {
+    func nextCharacter(from offset: Offset) throws -> Character {
+        try seek(offset)
+        return try nextCharacter()
+    }
+}

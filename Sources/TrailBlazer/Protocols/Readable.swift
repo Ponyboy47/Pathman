@@ -24,3 +24,13 @@ public protocol ReadableByOpened: Openable {
 public protocol ReadableByOpenedWithFlags: ReadableByOpened, _ReadsWithFlags {
     static func read(bytes bytesToRead: ByteRepresentable, flags: ReadFlagsType, from opened: Open<Self>) throws -> Data
 }
+
+public protocol CharacterReadable: Readable {
+    func nextCharacter() throws -> Character
+    func ungetCharacter(_ character: Character) throws
+}
+
+public protocol CharacterReadableByOpened: ReadableByOpened {
+    static func nextCharacter(from opened: Open<Self>) throws -> Character
+    static func ungetCharacter(_ character: Character, to opened: Open<Self>) throws
+}

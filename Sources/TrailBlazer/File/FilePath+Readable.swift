@@ -1,16 +1,24 @@
 #if os(Linux)
 import func Glibc.clearerr
+import let Glibc.EOF
 import func Glibc.feof
+import func Glibc.fgetc
 import func Glibc.fread
+import func Glibc.ungetc
 #else
 import func Darwin.clearerr
+import let Darwin.EOF
 import func Darwin.feof
+import func Darwin.fgetc
 import func Darwin.fread
+import func Darwin.ungetc
 #endif
 /// The C function used to read from an opened file descriptor
 private let cReadFile = fread
 private let cIsEOF = feof
 private let cClearError = clearerr
+private let cGetCharacter = fgetc
+private let cUngetCharacter = ungetc
 
 import struct Foundation.Data
 
@@ -19,7 +27,7 @@ private var _bufferSizes: [FilePath: Int] = [:]
 
 private var alignment = MemoryLayout<CChar>.alignment
 
-extension FilePath: ReadableByOpened, DefaultReadByteCount {
+extension FilePath: CharacterReadableByOpened, DefaultReadByteCount {
     /// The buffer used to store data read from a path
     var buffer: UnsafeMutableRawPointer? {
         get { return _buffers[self] }
@@ -99,5 +107,46 @@ extension FilePath: ReadableByOpened, DefaultReadByteCount {
 
         // Return the Data read from the descriptor
         return Data(bytes: opened.path.buffer!, count: bytesRead)
+    }
+
+    public static func nextCharacter(from opened: Open<FilePath>) throws -> Character {
+        guard let descriptor = opened.descriptor else {
+            throw ClosedDescriptorError.alreadyClosed
+        }
+
+        // If we don't have permissions to read then throw
+        guard opened.mayRead else {
+            throw ReadError.cannotReadFileStream
+        }
+
+        let char = cGetCharacter(descriptor)
+
+        guard char != EOF else {
+            throw ReadError()
+        }
+
+        guard let scalar = Unicode.Scalar(Int(char)) else {
+            throw CharacterError.invalidUnicodeScalar(char)
+        }
+
+        return Character(scalar)
+    }
+
+    public static func ungetCharacter(_ character: Character, to opened: Open<FilePath>) throws {
+        guard let descriptor = opened.descriptor else {
+            throw ClosedDescriptorError.alreadyClosed
+        }
+
+        // If we don't have permissions to write then throw
+        guard opened.mayWrite else {
+            throw WriteError.cannotWriteToFileStream
+        }
+
+        for char in character.unicodeScalars {
+            let intValue = Int32(char.value)
+            guard cUngetCharacter(intValue, descriptor) == intValue else {
+                throw WriteError()
+            }
+        }
     }
 }

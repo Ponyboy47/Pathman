@@ -28,6 +28,10 @@ public enum StringError: Error {
     case notConvertibleToData(using: String.Encoding)
 }
 
+public enum CharacterError: Error {
+    case invalidUnicodeScalar(OptionInt)
+}
+
 public enum CodingError: Error {
     case incorrectPathType
     case unknownPathType

@@ -200,6 +200,7 @@ extension MoveTests {
 extension OpenTests {
     static let __allTests = [
         ("testCustomStringConvertible", testCustomStringConvertible),
+        ("testGetCharacter", testGetCharacter),
         ("testGetDirectoryChildren", testGetDirectoryChildren),
         ("testHashable", testHashable),
         ("testOpenDirectory", testOpenDirectory),
@@ -216,6 +217,7 @@ extension OpenTests {
         ("testSeekReadWrite", testSeekReadWrite),
         ("testSeekStatic", testSeekStatic),
         ("testSeekStaticReadWrite", testSeekStaticReadWrite),
+        ("testUngetCharacter", testUngetCharacter),
         ("testURL", testURL),
         ("testWriteFile", testWriteFile),
         ("testWriteThenRead", testWriteThenRead)
