@@ -1,16 +1,26 @@
 #if os(Linux)
 import func Glibc.clearerr
+import func Glibc.fflush
+import func Glibc.fsync
 import func Glibc.fwrite
+import func Glibc.setvbuf
 #else
 import func Darwin.clearerr
+import func Darwin.fflush
+import func Darwin.fsync
 import func Darwin.fwrite
+import func Darwin.setvbuf
 #endif
 private let cWriteFile = fwrite
 private let cClearError = clearerr
+private let cSetBuffer = setvbuf
+private let cFlushStream = fflush
+private let cSyncFile = fsync
 
+import ErrNo
 import struct Foundation.Data
 
-extension FilePath: WritableByOpened {
+extension FilePath: BufferedWritableByOpened {
     /**
      Seeks to the specified offset and writes the data
 
@@ -32,18 +42,63 @@ extension FilePath: WritableByOpened {
      */
     @discardableResult
     public static func write(_ buffer: Data, to opened: Open<FilePath>) throws -> Int {
+        guard let descriptor = opened.descriptor else {
+            throw ClosedDescriptorError.alreadyClosed
+        }
+
         // If the path has not been opened for writing
         guard opened.mayWrite else {
             throw WriteError.cannotWriteToFileStream
         }
 
+        // If there's nothing to write
         guard !buffer.isEmpty else { return 0 }
 
-        guard cWriteFile([UInt8](buffer), buffer.count, 1, opened.descriptor) == 1 else {
-            cClearError(opened.descriptor)
+        let countWritten = cWriteFile([UInt8](buffer), buffer.count, 1, descriptor)
+        guard countWritten == 1 else {
+            cClearError(descriptor)
             throw WriteError()
         }
 
         return buffer.count
+    }
+
+    public static func setBuffer(mode: BufferMode, to opened: Open<FilePath>) throws {
+        guard let descriptor = opened.descriptor else {
+            throw ClosedDescriptorError.alreadyClosed
+        }
+
+        let success: OptionInt
+        if let buffer = mode.buffer {
+            success = cSetBuffer(descriptor, buffer, mode.rawValue, mode.size)
+        } else {
+            success = cSetBuffer(descriptor, nil, mode.rawValue, mode.size)
+        }
+
+        guard success == 0 else {
+            throw ErrNo.lastError
+        }
+    }
+
+    public static func flush(stream opened: Open<FilePath>) throws {
+        guard let descriptor = opened.descriptor else {
+            throw ClosedDescriptorError.alreadyClosed
+        }
+
+        guard cFlushStream(descriptor) == 0 else { throw WriteError.getError() }
+    }
+
+    public static func sync(from opened: Open<FilePath>) throws {
+        guard let descriptor = opened.descriptor else {
+            throw ClosedDescriptorError.alreadyClosed
+        }
+
+        guard cSyncFile(descriptor.fileDescriptor) != -1 else {
+            throw SyncError.getError()
+        }
+    }
+
+    public static func flush() throws {
+        guard cFlushStream(nil) == 0 else { throw WriteError.getError() }
     }
 }

@@ -67,9 +67,18 @@ extension FilePath: ReadableByOpened, DefaultReadByteCount {
      */
     public static func read(bytes sizeToRead: ByteRepresentable = FilePath.defaultByteCount,
                             from opened: Open<FilePath>) throws -> Data {
+        guard let descriptor = opened.descriptor else {
+            throw ClosedDescriptorError.alreadyClosed
+        }
+
+        // If we don't have permissions to read then throw
         guard opened.mayRead else {
             throw ReadError.cannotReadFileStream
         }
+
+        // If there's nothing to read, just return
+        guard opened.size > 0 else { return Data() }
+
         let bytes = sizeToRead.bytes
 
         let bytesToRead = bytes > opened.size ? Int(opened.size) : bytes
@@ -82,9 +91,9 @@ extension FilePath: ReadableByOpened, DefaultReadByteCount {
             opened.path.bufferSize = bytesToRead
         }
         // Reading the file returns the number of bytes read (or 0 if there was an error or the eof was encountered)
-        let bytesRead = cReadFile(opened.path.buffer!, 1, bytesToRead, opened.descriptor)
-        guard bytesRead != 0 || cIsEOF(opened.descriptor) != 0 else {
-            cClearError(opened.descriptor)
+        let bytesRead = cReadFile(opened.path.buffer!, 1, bytesToRead, descriptor)
+        guard bytesRead != 0 || cIsEOF(descriptor) != 0 else {
+            cClearError(descriptor)
             throw ReadError()
         }
 

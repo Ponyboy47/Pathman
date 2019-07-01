@@ -14,6 +14,7 @@ class CopyTests: XCTestCase {
         var tmpPath = tmpFile.path
 
         XCTAssertNoThrow(try tmpFile.write("Hello world"))
+        XCTAssertNoThrow(try tmpFile.flush())
 
         var newPath = FilePath(tmpFile.path.parent + "com.trailblazer.copied.\(UUID())")!
 
@@ -21,7 +22,9 @@ class CopyTests: XCTestCase {
         do {
             XCTAssertFalse(newPath.exists)
             newOpenPath = try tmpFile.copy(to: &newPath)
+            XCTAssertNoThrow(try newOpenPath.flush())
             XCTAssertTrue(newPath.exists)
+            XCTAssertEqual(newPath.size, tmpFile.size)
         } catch {
             XCTFail("Failed to copy the path: \(type(of: error)).\(error)")
             try? tmpPath.delete()

@@ -16,12 +16,10 @@ extension FilePath: Copyable {
         let bufferSize: Int = options.contains(.noBuffer) ? Int(size) : 32.kb
 
         // If we're not buffering, this should really only run once
-
-        // Stop reading from the file once they're identically sized
-        while newOpenPath.size != openPath.size {
-            let contents = try openPath.read(bytes: bufferSize)
-            try newOpenPath.write(contents)
-        }
+        var totalWritten = 0
+        repeat {
+            totalWritten += try newOpenPath.write(openPath.read(bytes: bufferSize))
+        } while totalWritten != openPath.size // Stop reading from the file once they're identically sized
 
         return newOpenPath
     }

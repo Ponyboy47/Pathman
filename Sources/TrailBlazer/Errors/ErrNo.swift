@@ -616,3 +616,16 @@ public struct SendError: TrailBlazerError {
 
     public init(error: ErrNo?) { errors = error == nil ? [] : [error!] }
 }
+
+public struct SyncError: TrailBlazerError {
+    public var errors: [ErrNo]
+
+    public static let cannotSyncSpecialFile = SyncError(errors: .EROFS, .EINVAL)
+    public static let noSpace = SyncError(errors: .ENOSPC, .EDQUOT)
+
+    public static let allCases: [SyncError] = [
+        .badFileDescriptor, .ioError, .cannotSyncSpecialFile, .noSpace
+    ]
+
+    public init(error: ErrNo?) { errors = error == nil ? [] : [error!] }
+}
