@@ -4,6 +4,7 @@ import let Glibc.EOF
 import func Glibc.feof
 import func Glibc.fgetc
 import func Glibc.fread
+import func Glibc.getline
 import func Glibc.ungetc
 #else
 import func Darwin.clearerr
@@ -11,6 +12,7 @@ import let Darwin.EOF
 import func Darwin.feof
 import func Darwin.fgetc
 import func Darwin.fread
+import func Darwin.getline
 import func Darwin.ungetc
 #endif
 /// The C function used to read from an opened file descriptor
@@ -19,6 +21,7 @@ private let cIsEOF = feof
 private let cClearError = clearerr
 private let cGetCharacter = fgetc
 private let cUngetCharacter = ungetc
+private let cGetLine = getline
 
 import struct Foundation.Data
 
@@ -27,7 +30,7 @@ private var _bufferSizes: [FilePath: Int] = [:]
 
 private var alignment = MemoryLayout<CChar>.alignment
 
-extension FilePath: CharacterReadableByOpened, DefaultReadByteCount {
+extension FilePath: CharacterReadableByOpened, LineReadableByOpened, DefaultReadByteCount {
     /// The buffer used to store data read from a path
     var buffer: UnsafeMutableRawPointer? {
         get { return _buffers[self] }
@@ -107,6 +110,19 @@ extension FilePath: CharacterReadableByOpened, DefaultReadByteCount {
 
         // Return the Data read from the descriptor
         return Data(bytes: opened.path.buffer!, count: bytesRead)
+    }
+
+    public static func nextLine(strippingNewline: Bool = true, from opened: Open<FilePath>) throws -> Data {
+        guard let descriptor = opened.descriptor else {
+            throw ClosedDescriptorError.alreadyClosed
+        }
+
+        let buffer: UnsafeMutablePointer<UnsafeMutablePointer<CChar>?> = .allocate(capacity: 1)
+        var size = 0
+        let bytesRead = cGetLine(buffer, &size, descriptor)
+
+        guard let bytes = buffer.pointee else { return Data() }
+        return Data(bytes: bytes, count: strippingNewline ? bytesRead - 1 : bytesRead)
     }
 
     public static func nextCharacter(from opened: Open<FilePath>) throws -> Character {

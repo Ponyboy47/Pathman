@@ -202,6 +202,7 @@ extension OpenTests {
         ("testCustomStringConvertible", testCustomStringConvertible),
         ("testGetCharacter", testGetCharacter),
         ("testGetDirectoryChildren", testGetDirectoryChildren),
+        ("testGetLine", testGetLine),
         ("testHashable", testHashable),
         ("testOpenDirectory", testOpenDirectory),
         ("testOpenDirectoryClosure", testOpenDirectoryClosure),

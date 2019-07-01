@@ -34,3 +34,11 @@ public protocol CharacterReadableByOpened: ReadableByOpened {
     static func nextCharacter(from opened: Open<Self>) throws -> Character
     static func ungetCharacter(_ character: Character, to opened: Open<Self>) throws
 }
+
+public protocol LineReadable: Readable {
+    func nextLine(strippingNewline: Bool) throws -> Data
+}
+
+public protocol LineReadableByOpened: ReadableByOpened {
+    static func nextLine(strippingNewline: Bool, from opened: Open<Self>) throws -> Data
+}

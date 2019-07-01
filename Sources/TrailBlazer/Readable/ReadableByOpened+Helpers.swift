@@ -36,9 +36,7 @@ public extension ReadableByOpened where Self: SeekableByOpened,
     func read(from offset: Offset,
               bytes bytesToRead: ByteRepresentable = Self.defaultByteCount,
               encoding: String.Encoding = .utf8) throws -> String? {
-        return try String(data: open(options: OpenOptionsType.readableDefault).read(from: offset,
-                                                                                    bytes: bytesToRead),
-                          encoding: encoding)
+        return try String(data: read(from: offset, bytes: bytesToRead), encoding: encoding)
     }
 }
 
@@ -60,5 +58,48 @@ public extension CharacterReadableByOpened where Self: SeekableByOpened,
     OpenOptionsType: DefaultReadableOpenOption {
     func nextCharacter(from offset: Offset) throws -> Character {
         return try open(options: OpenOptionsType.readableDefault).nextCharacter(from: offset)
+    }
+}
+
+public extension LineReadableByOpened where OpenOptionsType: DefaultReadableOpenOption {
+    func nextLine(strippingNewline: Bool = true) throws -> Data {
+        return try open(options: OpenOptionsType.readableDefault).nextLine(strippingNewline: strippingNewline)
+    }
+
+    func nextLine(strippingNewline: Bool = true,
+                  encoding: String.Encoding = .utf8) throws -> String? {
+        return try String(data: nextLine(strippingNewline: strippingNewline), encoding: encoding)
+    }
+}
+
+public extension LineReadableByOpened where Self: SeekableByOpened {
+    static func nextLine(from offset: Offset,
+                         strippingNewline: Bool = true,
+                         from opened: Open<Self>) throws -> Data {
+        try Self.seek(offset, in: opened)
+        return try Self.nextLine(strippingNewline: strippingNewline, from: opened)
+    }
+
+    static func nextLine(from offset: Offset,
+                         strippingNewline: Bool = true,
+                         encoding: String.Encoding = .utf8,
+                         from opened: Open<Self>) throws -> String? {
+        return try String(data: Self.nextLine(from: offset, strippingNewline: strippingNewline, from: opened),
+                          encoding: encoding)
+    }
+}
+
+public extension LineReadableByOpened where Self: SeekableByOpened,
+    OpenOptionsType: DefaultReadableOpenOption {
+    func nextLine(from offset: Offset,
+                  strippingNewline: Bool = true) throws -> Data {
+        return try open(options: OpenOptionsType.readableDefault).nextLine(from: offset,
+                                                                           strippingNewline: strippingNewline)
+    }
+
+    func nextLine(from offset: Offset,
+                  strippingNewline: Bool = true,
+                  encoding: String.Encoding = .utf8) throws -> String? {
+        return try String(data: nextLine(from: offset, strippingNewline: strippingNewline), encoding: encoding)
     }
 }

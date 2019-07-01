@@ -32,3 +32,9 @@ extension Open: CharacterReadable where PathType: CharacterReadableByOpened {
         try PathType.ungetCharacter(character, to: self)
     }
 }
+
+extension Open: LineReadable where PathType: LineReadableByOpened {
+    public func nextLine(strippingNewline: Bool = true) throws -> Data {
+        return try PathType.nextLine(strippingNewline: strippingNewline, from: self)
+    }
+}

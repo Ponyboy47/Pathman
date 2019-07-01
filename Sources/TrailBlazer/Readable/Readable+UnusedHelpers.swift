@@ -269,3 +269,34 @@ public extension CharacterReadable where Self: Seekable {
         return try nextCharacter()
     }
 }
+
+// Extends Readable to be able to conveniently return a string when reading a path
+public extension LineReadable {
+    func nextLine(strippingNewline: Bool = true,
+                  encoding: String.Encoding = .utf8) throws -> String? {
+        return try String(data: nextLine(strippingNewline: strippingNewline), encoding: encoding)
+    }
+}
+
+// Extends Readable to be able to seek in a path before reading from it
+public extension LineReadable where Self: Seekable {
+    func nextLine(from offset: Offset, strippingNewline: Bool = true) throws -> Data {
+        try seek(offset)
+        return try nextLine(strippingNewline: strippingNewline)
+    }
+
+    func nextLine(from offset: Offset,
+                  strippingNewline: Bool = true,
+                  encoding: String.Encoding = .utf8) throws -> String? {
+        return try String(data: nextLine(from: offset, strippingNewline: strippingNewline), encoding: encoding)
+    }
+}
+
+// This extension allows reading a string from a path
+public extension LineReadableByOpened {
+    static func nextLine(strippingNewline: Bool = true,
+                         encoding: String.Encoding = .utf8,
+                         from opened: Open<Self>) throws -> String? {
+        return try String(data: Self.nextLine(strippingNewline: strippingNewline, from: opened), encoding: encoding)
+    }
+}
