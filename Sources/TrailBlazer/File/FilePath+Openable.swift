@@ -81,7 +81,10 @@ extension FilePath: Openable {
 
         guard let file = cOpenFile(string, options.rawValue) else { throw OpenFileError.getError() }
 
-        return FileStream(self, descriptor: file, fileDescriptor: fileno(file), options: options) !! "Failed to set the opened file object"
+        return FileStream(self,
+                          descriptor: file,
+                          fileDescriptor: fileno(file),
+                          options: options) !! "Failed to set the opened file object"
     }
 
     /**

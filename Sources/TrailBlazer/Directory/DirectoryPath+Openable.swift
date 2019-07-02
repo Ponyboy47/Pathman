@@ -36,7 +36,10 @@ extension DirectoryPath: Openable {
             throw OpenDirectoryError.getError()
         }
 
-        return Open(self, descriptor: dir, fileDescriptor: dirfd(dir), options: options) !! "Failed to set the opened directory"
+        return Open(self,
+                    descriptor: dir,
+                    fileDescriptor: dirfd(dir),
+                    options: options) !! "Failed to set the opened directory"
     }
 
     /**
