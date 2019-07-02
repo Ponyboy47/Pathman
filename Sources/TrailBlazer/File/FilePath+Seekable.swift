@@ -1,14 +1,14 @@
 #if os(Linux)
 import func Glibc.clearerr
-import func Glibc.fseek
-import func Glibc.ftell
+import func Glibc.fseeko
+import func Glibc.ftello
 import let Glibc.SEEK_CUR
 import let Glibc.SEEK_END
 import let Glibc.SEEK_SET
 #else
 import func Darwin.clearerr
-import func Darwin.fseek
-import func Darwin.ftell
+import func Darwin.fseeko
+import func Darwin.ftello
 import let Darwin.SEEK_CUR
 import let Darwin.SEEK_END
 import let Darwin.SEEK_SET
@@ -20,7 +20,7 @@ extension FilePath: SeekableByOpened {
             throw ClosedDescriptorError.alreadyClosed
         }
 
-        let offset: OSOffsetInt = ftell(descriptor)
+        let offset: OSOffsetInt = ftello(descriptor)
         guard offset != -1 else {
             defer { clearerr(descriptor) }
             throw SeekError.getError()
@@ -43,7 +43,7 @@ extension FilePath: SeekableByOpened {
             throw ClosedDescriptorError.alreadyClosed
         }
 
-        guard fseek(descriptor, bytes, SEEK_SET) != -1 else {
+        guard fseeko(descriptor, bytes, SEEK_SET) != -1 else {
             defer { clearerr(descriptor) }
             throw SeekError.getError()
         }
@@ -63,7 +63,7 @@ extension FilePath: SeekableByOpened {
             throw ClosedDescriptorError.alreadyClosed
         }
 
-        guard fseek(descriptor, bytes, SEEK_END) != -1 else {
+        guard fseeko(descriptor, bytes, SEEK_END) != -1 else {
             defer { clearerr(descriptor) }
             throw SeekError.getError()
         }
@@ -83,7 +83,7 @@ extension FilePath: SeekableByOpened {
             throw ClosedDescriptorError.alreadyClosed
         }
 
-        guard fseek(descriptor, bytes, SEEK_CUR) != -1 else {
+        guard fseeko(descriptor, bytes, SEEK_CUR) != -1 else {
             defer { clearerr(descriptor) }
             throw SeekError.getError()
         }
