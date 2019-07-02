@@ -12,14 +12,18 @@ private let cOpenFile = Darwin.fopen
 private let cCloseFile = Darwin.fclose
 #endif
 
-public typealias FILEType = UnsafeMutablePointer<FILE>
-extension UnsafeMutablePointer: Descriptor where Pointee == FILE {
-    public var fileDescriptor: FileDescriptor { return fileno(self) }
+extension FILE: Descriptor {
+    public var fileDescriptor: FileDescriptor {
+        var this = self
+        return withUnsafeMutablePointer(to: &this) { ptr in
+            return fileno(ptr)
+        }
+    }
 }
 
 extension FilePath: Openable {
     public typealias OpenOptionsType = OpenOptions
-    public typealias DescriptorType = FILEType
+    public typealias DescriptorType = FILE
 
     public struct OpenOptions: DefaultReadableWritableOpenOption {
         public let mode: OpenFileMode
@@ -82,7 +86,7 @@ extension FilePath: Openable {
 
         guard let file = cOpenFile(string, options.rawValue) else { throw OpenFileError.getError() }
 
-        return FileStream(self, descriptor: file, options: options) !! "Failed to set the opened file object"
+        return FileStream(self, descriptor: file.pointee, options: options) !! "Failed to set the opened file object"
     }
 
     /**
@@ -195,7 +199,12 @@ extension FilePath: Openable {
      - Throws: `CloseFileError.ioError` when an I/O error occurred
      */
     public static func close(opened: Open<FilePath>) throws {
-        guard cCloseFile(opened.descriptor) == 0 else {
+        guard var descriptor = opened.descriptor else {
+            throw ClosedDescriptorError.doubleClose
+        }
+
+        let closed = withUnsafeMutablePointer(to: &descriptor) { cCloseFile($0) }
+        guard closed == 0 else {
             throw CloseFileError.getError()
         }
 

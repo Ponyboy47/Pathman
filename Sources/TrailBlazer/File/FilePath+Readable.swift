@@ -78,7 +78,7 @@ extension FilePath: CharacterReadableByOpened, LineReadableByOpened, DefaultRead
      */
     public static func read(bytes sizeToRead: ByteRepresentable = FilePath.defaultByteCount,
                             from opened: Open<FilePath>) throws -> Data {
-        guard let descriptor = opened.descriptor else {
+        guard var descriptor = opened.descriptor else {
             throw ClosedDescriptorError.alreadyClosed
         }
 
@@ -101,32 +101,37 @@ extension FilePath: CharacterReadableByOpened, LineReadableByOpened, DefaultRead
         } else if let bSize = opened.path.bufferSize, bSize < bytesToRead {
             opened.path.bufferSize = bytesToRead
         }
-        // Reading the file returns the number of bytes read (or 0 if there was an error or the eof was encountered)
-        let bytesRead = cReadFile(opened.path.buffer!, 1, bytesToRead, descriptor)
-        guard bytesRead != 0 || cIsEOF(descriptor) != 0 else {
-            cClearError(descriptor)
-            throw ReadError()
-        }
 
-        // Return the Data read from the descriptor
-        return Data(bytes: opened.path.buffer!, count: bytesRead)
+        // Reading the file returns the number of bytes read (or 0 if there was an error or the eof was encountered)
+        return try withUnsafeMutablePointer(to: &descriptor) { ptr in
+            let bytesRead = cReadFile(opened.path.buffer!, 1, bytesToRead, ptr)
+            guard bytesRead != 0 || cIsEOF(ptr) != 0 else {
+                cClearError(ptr)
+                throw ReadError()
+            }
+
+            // Return the Data read from the descriptor
+            return Data(bytes: opened.path.buffer!, count: bytesRead)
+        }
     }
 
     public static func nextLine(strippingNewline: Bool = true, from opened: Open<FilePath>) throws -> Data {
-        guard let descriptor = opened.descriptor else {
+        guard var descriptor = opened.descriptor else {
             throw ClosedDescriptorError.alreadyClosed
         }
 
-        let buffer: UnsafeMutablePointer<UnsafeMutablePointer<CChar>?> = .allocate(capacity: 1)
-        var size = 0
-        let bytesRead = cGetLine(buffer, &size, descriptor)
+        return withUnsafeMutablePointer(to: &descriptor) { ptr in
+            let buffer: UnsafeMutablePointer<UnsafeMutablePointer<CChar>?> = .allocate(capacity: 1)
+            var size = 0
+            let bytesRead = cGetLine(buffer, &size, ptr)
 
-        guard let bytes = buffer.pointee else { return Data() }
-        return Data(bytes: bytes, count: strippingNewline ? bytesRead - 1 : bytesRead)
+            guard let bytes = buffer.pointee else { return Data() }
+            return Data(bytes: bytes, count: strippingNewline ? bytesRead - 1 : bytesRead)
+        }
     }
 
     public static func nextCharacter(from opened: Open<FilePath>) throws -> Character {
-        guard let descriptor = opened.descriptor else {
+        guard var descriptor = opened.descriptor else {
             throw ClosedDescriptorError.alreadyClosed
         }
 
@@ -135,7 +140,7 @@ extension FilePath: CharacterReadableByOpened, LineReadableByOpened, DefaultRead
             throw ReadError.cannotReadFileStream
         }
 
-        let char = cGetCharacter(descriptor)
+        let char = withUnsafeMutablePointer(to: &descriptor) { return cGetCharacter($0) }
 
         guard char != EOF else {
             throw ReadError()
@@ -149,7 +154,7 @@ extension FilePath: CharacterReadableByOpened, LineReadableByOpened, DefaultRead
     }
 
     public static func ungetCharacter(_ character: Character, to opened: Open<FilePath>) throws {
-        guard let descriptor = opened.descriptor else {
+        guard var descriptor = opened.descriptor else {
             throw ClosedDescriptorError.alreadyClosed
         }
 
@@ -158,10 +163,12 @@ extension FilePath: CharacterReadableByOpened, LineReadableByOpened, DefaultRead
             throw WriteError.cannotWriteToFileStream
         }
 
-        for char in character.unicodeScalars {
-            let intValue = Int32(char.value)
-            guard cUngetCharacter(intValue, descriptor) == intValue else {
-                throw WriteError()
+        try withUnsafeMutablePointer(to: &descriptor) { ptr in
+            for char in character.unicodeScalars {
+                let intValue = Int32(char.value)
+                guard cUngetCharacter(intValue, ptr) == intValue else {
+                    throw WriteError()
+                }
             }
         }
     }

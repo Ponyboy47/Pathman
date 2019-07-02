@@ -16,13 +16,13 @@ import let Darwin.SEEK_SET
 
 extension FilePath: SeekableByOpened {
     public static func getCurrentOffset(in opened: Open<FilePath>) throws -> OSOffsetInt {
-        guard let descriptor = opened.descriptor else {
+        guard var descriptor = opened.descriptor else {
             throw ClosedDescriptorError.alreadyClosed
         }
 
-        let offset: OSOffsetInt = ftello(descriptor)
+        let offset = withUnsafeMutablePointer(to: &descriptor) { ftello($0) }
         guard offset != -1 else {
-            defer { clearerr(descriptor) }
+            defer { withUnsafeMutablePointer(to: &descriptor) { clearerr($0) } }
             throw SeekError.getError()
         }
 
@@ -39,12 +39,13 @@ extension FilePath: SeekableByOpened {
      - Throws: `SeekError.offsetTooLarge` when the resulting file offset cannot be represented in an off_t
      */
     public static func seek(fromStart bytes: OSOffsetInt, in opened: Open<FilePath>) throws {
-        guard let descriptor = opened.descriptor else {
+        guard var descriptor = opened.descriptor else {
             throw ClosedDescriptorError.alreadyClosed
         }
 
-        guard fseeko(descriptor, bytes, SEEK_SET) != -1 else {
-            defer { clearerr(descriptor) }
+        let offset = withUnsafeMutablePointer(to: &descriptor) { fseeko($0, bytes, SEEK_SET) }
+        guard offset != -1 else {
+            defer { withUnsafeMutablePointer(to: &descriptor) { clearerr($0) } }
             throw SeekError.getError()
         }
     }
@@ -59,12 +60,13 @@ extension FilePath: SeekableByOpened {
      - Throws: `SeekError.offsetTooLarge` when the resulting file offset cannot be represented in an off_t
      */
     public static func seek(fromEnd bytes: OSOffsetInt, in opened: Open<FilePath>) throws {
-        guard let descriptor = opened.descriptor else {
+        guard var descriptor = opened.descriptor else {
             throw ClosedDescriptorError.alreadyClosed
         }
 
-        guard fseeko(descriptor, bytes, SEEK_END) != -1 else {
-            defer { clearerr(descriptor) }
+        let offset = withUnsafeMutablePointer(to: &descriptor) { fseeko($0, bytes, SEEK_END) }
+        guard offset != -1 else {
+            defer { withUnsafeMutablePointer(to: &descriptor) { clearerr($0) } }
             throw SeekError.getError()
         }
     }
@@ -79,12 +81,13 @@ extension FilePath: SeekableByOpened {
      - Throws: `SeekError.offsetTooLarge` when the resulting file offset cannot be represented in an off_t
      */
     public static func seek(fromCurrent bytes: OSOffsetInt, in opened: Open<FilePath>) throws {
-        guard let descriptor = opened.descriptor else {
+        guard var descriptor = opened.descriptor else {
             throw ClosedDescriptorError.alreadyClosed
         }
 
-        guard fseeko(descriptor, bytes, SEEK_CUR) != -1 else {
-            defer { clearerr(descriptor) }
+        let offset = withUnsafeMutablePointer(to: &descriptor) { fseeko($0, bytes, SEEK_CUR) }
+        guard offset != -1 else {
+            defer { withUnsafeMutablePointer(to: &descriptor) { clearerr($0) } }
             throw SeekError.getError()
         }
     }
