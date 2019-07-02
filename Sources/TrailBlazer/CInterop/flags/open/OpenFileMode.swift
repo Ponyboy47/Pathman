@@ -51,6 +51,16 @@ public struct OpenFileMode: Equatable, ExpressibleByStringLiteral, Hashable {
      you do I/O to a binary file and expect that your program may be ported to non-UNIX environments.
      */
     public static let binary: OpenFileMode = "b"
+    /**
+     Open the file with the O_CLOEXEC flag.
+     See open(2) for more information.
+     */
+    public static let closeOnExecute: OpenFileMode = "e"
+    /**
+     Open the file exclusively (like the O_EXCL flag of open(2)).
+     If the file already exists, fopen() fails.
+     */
+    public static let exclusive: OpenFileMode = "x"
 
     public static let none: OpenFileMode = ""
 
@@ -58,20 +68,10 @@ public struct OpenFileMode: Equatable, ExpressibleByStringLiteral, Hashable {
     /// Do not make the open operation, or subsequent read and write operations, thread cancellation points.
     public static let noCancel: OpenFileMode = "c"
     /**
-     Open the file with the O_CLOEXEC flag.
-     See open(2) for more information.
-     */
-    public static let closeOnExecute: OpenFileMode = "e"
-    /**
      Attempt to access the file using mmap(2), rather than I/O system calls (read(2), write(2)).
      Currently, use of mmap(2) is attempted only for a file opened for reading.
      */
     public static let mMap: OpenFileMode = "m"
-    /**
-     Open the file exclusively (like the O_EXCL flag of open(2)).
-     If the file already exists, fopen() fails.
-     */
-    public static let exclusive: OpenFileMode = "x"
     /**
      The given string is taken as the name of a coded character set and the stream is marked as wide-oriented.
      Thereafter, internal conversion functions convert I/O to and from the character set string.
