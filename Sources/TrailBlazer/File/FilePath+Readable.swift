@@ -118,11 +118,13 @@ extension FilePath: CharacterReadableByOpened, LineReadableByOpened, DefaultRead
             throw ClosedDescriptorError.alreadyClosed
         }
 
-        let buffer: UnsafeMutablePointer<UnsafeMutablePointer<CChar>?> = .allocate(capacity: 1)
+        var buffer: [UnsafeMutablePointer<CChar>?] = [nil]
         var size = 0
-        let bytesRead = cGetLine(buffer, &size, descriptor)
+        let bytesRead = cGetLine(&buffer, &size, descriptor)
 
-        guard let bytes = buffer.pointee else { return Data() }
+        // swiftlint:disable identifier_name
+        guard let _bytes = buffer.first, let bytes = _bytes else { return Data() }
+        // swiftlint:enable identifier_name
         return Data(bytes: bytes, count: strippingNewline ? bytesRead - 1 : bytesRead)
     }
 
