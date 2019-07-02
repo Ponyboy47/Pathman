@@ -3,7 +3,6 @@ import struct Foundation.URL
 public final class Connection {
     public let path: SocketPath
     public private(set) var descriptor: SocketPath.DescriptorType?
-    public let fileDescriptor: FileDescriptor?
     public let openOptions: SocketPath.OpenOptionsType
 
     public static var defaultByteCount: ByteRepresentable = 32.kb
@@ -17,7 +16,6 @@ public final class Connection {
 
         path = opened.path
         descriptor = opened.descriptor
-        fileDescriptor = opened.fileDescriptor
         openOptions = opened.openOptions
     }
 
@@ -32,14 +30,14 @@ public final class Connection {
 
 extension Connection: Equatable {
     public static func == (lhs: Connection, rhs: Connection) -> Bool {
-        return lhs.path == rhs.path && lhs.fileDescriptor == rhs.fileDescriptor
+        return lhs.path == rhs.path && lhs.descriptor == rhs.descriptor
     }
 }
 
 extension Connection: Hashable {
     public func hash(into hasher: inout Hasher) {
         hasher.combine(path)
-        hasher.combine(fileDescriptor)
+        hasher.combine(descriptor)
         hasher.combine(openOptions)
     }
 }

@@ -1,7 +1,7 @@
 /// Protocol declaration for types that can be opened
 public protocol Openable: Path {
     associatedtype OpenOptionsType: OpenOptionable = Empty
-    associatedtype DescriptorType: Descriptor
+    associatedtype DescriptorType
 
     /// Opens the path, sets the `fileDescriptor`, and returns the newly opened path
     func open(options: OpenOptionsType) throws -> Open<Self>

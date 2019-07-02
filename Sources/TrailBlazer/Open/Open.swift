@@ -11,7 +11,7 @@ import func Darwin.fchown
 public final class Open<PathType: Openable>: UpdatableStatable, Ownable, Permissionable {
     public let path: PathType
     public private(set) var descriptor: PathType.DescriptorType?
-    public lazy var fileDescriptor: FileDescriptor? = { descriptor?.fileDescriptor }()
+    public private(set) var fileDescriptor: FileDescriptor?
     public let openOptions: PathType.OpenOptionsType
 
     // swiftlint:disable identifier_name
@@ -30,12 +30,16 @@ public final class Open<PathType: Openable>: UpdatableStatable, Ownable, Permiss
         return path.isWritable
     }
 
-    init(_ path: PathType, descriptor: PathType.DescriptorType, options: PathType.OpenOptionsType) {
+    init(_ path: PathType,
+         descriptor: PathType.DescriptorType,
+         fileDescriptor: FileDescriptor,
+         options: PathType.OpenOptionsType) {
         self.path = PathType(path)
         self.descriptor = descriptor
+        self.fileDescriptor = fileDescriptor
         openOptions = options
 
-        _info = StatInfo(descriptor)
+        _info = StatInfo(fileDescriptor)
     }
 
     /**
@@ -96,6 +100,7 @@ public final class Open<PathType: Openable>: UpdatableStatable, Ownable, Permiss
     public func close() throws {
         try PathType.close(opened: self)
         descriptor = nil
+        fileDescriptor = nil
     }
 
     deinit {

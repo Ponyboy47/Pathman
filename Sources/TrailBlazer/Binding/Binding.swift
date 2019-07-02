@@ -3,7 +3,6 @@ import struct Foundation.URL
 public final class Binding {
     public let path: SocketPath
     public var descriptor: SocketPath.DescriptorType? { return opened.descriptor }
-    public var fileDescriptor: FileDescriptor? { return descriptor?.fileDescriptor }
     public let openOptions: SocketPath.OpenOptionsType
 
     public var isListening = false
@@ -28,14 +27,14 @@ public final class Binding {
 
 extension Binding: Equatable {
     public static func == (lhs: Binding, rhs: Binding) -> Bool {
-        return lhs.path == rhs.path && lhs.fileDescriptor == rhs.fileDescriptor
+        return lhs.path == rhs.path && lhs.descriptor == rhs.descriptor
     }
 }
 
 extension Binding: Hashable {
     public func hash(into hasher: inout Hasher) {
         hasher.combine(path)
-        hasher.combine(fileDescriptor)
+        hasher.combine(descriptor)
         hasher.combine(openOptions)
     }
 }

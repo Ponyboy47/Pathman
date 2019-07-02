@@ -12,8 +12,7 @@ public final class StatInfo: StatDescriptor, StatPath {
     /// The stat options for the stat(2) C API calls
     var options: StatOptions
     /// The descriptor to use for the underlying fstat(2) C API calls
-    var _descriptor: Descriptor?
-    var fileDescriptor: FileDescriptor? { return _descriptor?.fileDescriptor }
+    var _descriptor: FileDescriptor?
     /// The underlying stat struct that stores the information from the stat(2) C API calls
     var _buffer: stat
     // swiftlint:enable identifier_name
@@ -36,7 +35,7 @@ public final class StatInfo: StatDescriptor, StatPath {
     /// Makes a stat(2) C API call with the specified options
     func getInfo(options: StatOptions = []) throws {
         // swiftlint:disable identifier_name
-        if let fd = fileDescriptor {
+        if let fd = _descriptor {
             try StatInfo.update(fd, &_buffer)
         } else if let path = _path {
             try StatInfo.update(path, options: options, &_buffer)
@@ -48,7 +47,7 @@ public final class StatInfo: StatDescriptor, StatPath {
 extension StatInfo: CustomStringConvertible {
     public var description: String {
         // swiftlint:disable line_length
-        return "\(Swift.type(of: self))(path: \(String(describing: _path)), fileDescriptor: \(String(describing: fileDescriptor)), options: \(options))"
+        return "\(Swift.type(of: self))(path: \(String(describing: _path)), fileDescriptor: \(String(describing: _descriptor)), options: \(options))"
         // swiftlint:enable line_length
     }
 }

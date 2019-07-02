@@ -8,7 +8,7 @@ import Darwin
 protocol StatDescriptor: Stat {
     // swiftlint:disable identifier_name
     /// The descriptor to use for the underlying fstat(2) C API calls
-    var _descriptor: Descriptor? { get set }
+    var _descriptor: FileDescriptor? { get set }
     // swiftlint:enable identifier_name
 }
 
@@ -23,8 +23,8 @@ extension StatDescriptor {
      - Throws: `StatError.fileTooLarge` when the file descriptor refers to a file whose size, inode number, or number of
                 blocks cannot be represented in, respectively, the types off_t, ino_t, or blkcnt_t
      */
-    static func update(_ descriptor: Descriptor, _ buffer: inout stat) throws {
-        guard fstat(descriptor.fileDescriptor, &buffer) == 0 else { throw StatError.getError() }
+    static func update(_ descriptor: FileDescriptor, _ buffer: inout stat) throws {
+        guard fstat(descriptor, &buffer) == 0 else { throw StatError.getError() }
     }
 
     /**
@@ -32,7 +32,7 @@ extension StatDescriptor {
 
      - Parameter descriptor: The opened descriptor to the path
      */
-    init(_ descriptor: Descriptor) {
+    init(_ descriptor: FileDescriptor) {
         self.init()
         _descriptor = descriptor
     }

@@ -5,20 +5,11 @@ import func Cdirent.opendir
 #if os(Linux)
 /// The directory stream type used for readding directory entries
 public typealias DIRType = OpaquePointer
-
-extension DIRType: Descriptor {
-    public var fileDescriptor: FileDescriptor { return dirfd(self) }
-}
-
 #else
 import struct Cdirent.DIR
 
 /// The directory stream type used for readding directory entries
 public typealias DIRType = UnsafeMutablePointer<DIR>
-
-extension UnsafeMutablePointer: Descriptor where Pointee == DIR {
-    public var fileDescriptor: FileDescriptor { return dirfd(self) }
-}
 #endif
 
 extension DirectoryPath: Openable {
@@ -45,7 +36,7 @@ extension DirectoryPath: Openable {
             throw OpenDirectoryError.getError()
         }
 
-        return Open(self, descriptor: dir, options: options) !! "Failed to set the opened directory"
+        return Open(self, descriptor: dir, fileDescriptor: dirfd(dir), options: options) !! "Failed to set the opened directory"
     }
 
     /**

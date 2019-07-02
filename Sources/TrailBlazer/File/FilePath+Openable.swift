@@ -1,29 +1,24 @@
 #if os(Linux)
-import Glibc
-/// The C function that opens a file given a path
-private let cOpenFile = Glibc.fopen
-/// The C function that closes an open file stream
-private let cCloseFile = Glibc.fclose
+import func Glibc.fopen
+import func Glibc.fclose
+import func Glibc.fileno
+import struct Glibc.FILE
 #else
-import Darwin
-/// The C function that opens a file given a path
-private let cOpenFile = Darwin.fopen
-/// The C function that closes an open file stream
-private let cCloseFile = Darwin.fclose
+import func Darwin.fopen
+import func Darwin.fclose
+import func Darwin.fileno
+import struct Darwin.FILE
 #endif
+/// The C function that opens a file given a path
+private let cOpenFile = fopen
+/// The C function that closes an open file stream
+private let cCloseFile = fclose
 
-extension FILE: Descriptor {
-    public var fileDescriptor: FileDescriptor {
-        var this = self
-        return withUnsafeMutablePointer(to: &this) { ptr in
-            return fileno(ptr)
-        }
-    }
-}
+public typealias FILEType = UnsafeMutablePointer<FILE>
 
 extension FilePath: Openable {
     public typealias OpenOptionsType = OpenOptions
-    public typealias DescriptorType = FILE
+    public typealias DescriptorType = FILEType
 
     public struct OpenOptions: DefaultReadableWritableOpenOption {
         public let mode: OpenFileMode
@@ -86,7 +81,7 @@ extension FilePath: Openable {
 
         guard let file = cOpenFile(string, options.rawValue) else { throw OpenFileError.getError() }
 
-        return FileStream(self, descriptor: file.pointee, options: options) !! "Failed to set the opened file object"
+        return FileStream(self, descriptor: file, fileDescriptor: fileno(file), options: options) !! "Failed to set the opened file object"
     }
 
     /**
@@ -199,12 +194,11 @@ extension FilePath: Openable {
      - Throws: `CloseFileError.ioError` when an I/O error occurred
      */
     public static func close(opened: Open<FilePath>) throws {
-        guard var descriptor = opened.descriptor else {
+        guard let descriptor = opened.descriptor else {
             throw ClosedDescriptorError.doubleClose
         }
 
-        let closed = withUnsafeMutablePointer(to: &descriptor) { cCloseFile($0) }
-        guard closed == 0 else {
+        guard cCloseFile(descriptor) == 0 else {
             throw CloseFileError.getError()
         }
 

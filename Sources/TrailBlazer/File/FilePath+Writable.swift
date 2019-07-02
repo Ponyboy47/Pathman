@@ -4,13 +4,16 @@ import func Glibc.fflush
 import func Glibc.fsync
 import func Glibc.fwrite
 import func Glibc.setvbuf
+import func Glibc.fileno
 #else
 import func Darwin.clearerr
 import func Darwin.fflush
 import func Darwin.fsync
 import func Darwin.fwrite
 import func Darwin.setvbuf
+import func Darwin.fileno
 #endif
+
 private let cWriteFile = fwrite
 private let cClearError = clearerr
 private let cSetBuffer = setvbuf
@@ -42,7 +45,7 @@ extension FilePath: BufferedWritableByOpened {
      */
     @discardableResult
     public static func write(_ buffer: Data, to opened: Open<FilePath>) throws -> Int {
-        guard var descriptor = opened.descriptor else {
+        guard let descriptor = opened.descriptor else {
             throw ClosedDescriptorError.alreadyClosed
         }
 
@@ -54,44 +57,38 @@ extension FilePath: BufferedWritableByOpened {
         // If there's nothing to write
         guard !buffer.isEmpty else { return 0 }
 
-        try withUnsafeMutablePointer(to: &descriptor) { ptr in
-            let countWritten = cWriteFile([UInt8](buffer), buffer.count, 1, ptr)
-            guard countWritten == 1 else {
-                cClearError(ptr)
-                throw WriteError()
-            }
+        let countWritten = cWriteFile([UInt8](buffer), buffer.count, 1, descriptor)
+        guard countWritten == 1 else {
+            cClearError(descriptor)
+            throw WriteError()
         }
 
         return buffer.count
     }
 
     public static func setBuffer(mode: BufferMode, to opened: Open<FilePath>) throws {
-        guard var descriptor = opened.descriptor else {
+        guard let descriptor = opened.descriptor else {
             throw ClosedDescriptorError.alreadyClosed
         }
 
-        try withUnsafeMutablePointer(to: &descriptor) { ptr in
-            let success: OptionInt
-            if let buffer = mode.buffer {
-                success = cSetBuffer(ptr, buffer, mode.rawValue, mode.size)
-            } else {
-                success = cSetBuffer(ptr, nil, mode.rawValue, mode.size)
-            }
+        let success: OptionInt
+        if let buffer = mode.buffer {
+            success = cSetBuffer(descriptor, buffer, mode.rawValue, mode.size)
+        } else {
+            success = cSetBuffer(descriptor, nil, mode.rawValue, mode.size)
+        }
 
-            guard success == 0 else {
-                throw ErrNo.lastError
-            }
+        guard success == 0 else {
+            throw ErrNo.lastError
         }
     }
 
     public static func flush(stream opened: Open<FilePath>) throws {
-        guard var descriptor = opened.descriptor else {
+        guard let descriptor = opened.descriptor else {
             throw ClosedDescriptorError.alreadyClosed
         }
 
-        try withUnsafeMutablePointer(to: &descriptor) { ptr in
-            guard cFlushStream(ptr) == 0 else { throw WriteError.getError() }
-        }
+        guard cFlushStream(descriptor) == 0 else { throw WriteError.getError() }
     }
 
     public static func sync(from opened: Open<FilePath>) throws {
@@ -99,7 +96,7 @@ extension FilePath: BufferedWritableByOpened {
             throw ClosedDescriptorError.alreadyClosed
         }
 
-        guard cSyncFile(descriptor.fileDescriptor) != -1 else {
+        guard cSyncFile(fileno(descriptor)) != -1 else {
             throw SyncError.getError()
         }
     }

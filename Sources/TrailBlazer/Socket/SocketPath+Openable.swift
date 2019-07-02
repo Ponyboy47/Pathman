@@ -34,7 +34,7 @@ extension SocketPath: Openable {
             throw SocketError.getError()
         }
 
-        return Open<SocketPath>(self, descriptor: fileDescriptor, options: options)
+        return Open<SocketPath>(self, descriptor: fileDescriptor, fileDescriptor: fileDescriptor, options: options)
     }
 
     public static func close(opened: Open<SocketPath>) throws {
