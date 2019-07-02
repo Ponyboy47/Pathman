@@ -15,9 +15,7 @@ public struct DirectoryPath: Path {
      */
     public init?(_ path: GenericPath) {
         // Cannot initialize a directory from a non-directory type
-        if path.exists {
-            guard path._info.type == .directory else { return nil }
-        }
+        guard DirectoryPath.validatePathType(path) else { return nil }
 
         _path = path._path
         _info = StatInfo(path)

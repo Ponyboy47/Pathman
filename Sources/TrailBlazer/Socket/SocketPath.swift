@@ -41,10 +41,8 @@ public struct SocketPath: Path {
      - Parameter path: The path to copy
      */
     public init?(_ path: GenericPath) {
-        // Cannot initialize a directory from a non-directory type
-        if path.exists {
-            guard path._info.type == .socket else { return nil }
-        }
+        // Cannot initialize a socket from a non-socket type
+        guard SocketPath.validatePathType(path) else { return nil }
 
         _path = path._path
         _info = StatInfo(path)

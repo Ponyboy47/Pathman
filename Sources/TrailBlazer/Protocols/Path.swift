@@ -208,4 +208,12 @@ public extension Path {
     init?(_ components: ArraySlice<String>) {
         self.init(Array(components))
     }
+
+    static func validatePathType(_ path: GenericPath) -> Bool {
+        if path.exists {
+            guard path._info.type == Self.pathType else { return false }
+        }
+
+        return true
+    }
 }
