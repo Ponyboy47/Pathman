@@ -1,13 +1,13 @@
 #if os(Linux)
-import func Glibc.fopen
 import func Glibc.fclose
-import func Glibc.fileno
 import struct Glibc.FILE
+import func Glibc.fileno
+import func Glibc.fopen
 #else
-import func Darwin.fopen
 import func Darwin.fclose
-import func Darwin.fileno
 import struct Darwin.FILE
+import func Darwin.fileno
+import func Darwin.fopen
 #endif
 /// The C function that opens a file given a path
 private let cOpenFile = fopen
@@ -202,6 +202,7 @@ extension FilePath: Openable {
             throw CloseFileError.getError()
         }
 
+        // Upon file closure we should delete the buffer which may have been created for reading from the file
         opened.path.buffer = nil
         opened.path.bufferSize = nil
     }

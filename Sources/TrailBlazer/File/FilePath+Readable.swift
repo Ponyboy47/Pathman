@@ -91,7 +91,6 @@ extension FilePath: CharacterReadableByOpened, LineReadableByOpened, DefaultRead
         guard opened.size > 0 else { return Data() }
 
         let bytes = sizeToRead.bytes
-
         let bytesToRead = bytes > opened.size ? Int(opened.size) : bytes
 
         // If we haven't allocated a buffer before, then allocate one now

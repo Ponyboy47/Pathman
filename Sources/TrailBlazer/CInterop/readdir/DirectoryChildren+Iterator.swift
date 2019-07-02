@@ -23,56 +23,21 @@ extension DirectoryChildren: Sequence {
     public var notOther: [GenericPath] { return files + sockets + directories }
 }
 
-public extension Array where Element == FilePath {
-    static func + (lhs: [Element], rhs: [GenericPath]) -> [GenericPath] {
-        return lhs.map(GenericPath.init) + rhs
-    }
+public extension Array where Element: Path {
+    static func + <PathType: Path>(lhs: [Element], rhs: [PathType]) -> [GenericPath] {
+        var new: [GenericPath]
+        if let lhs = lhs as? [GenericPath] {
+            new = lhs
+        } else {
+            new = lhs.map(GenericPath.init)
+        }
 
-    static func + (lhs: [GenericPath], rhs: [Element]) -> [GenericPath] {
-        return lhs + rhs.map(GenericPath.init)
-    }
+        if let rhs = rhs as? [GenericPath] {
+            new.append(contentsOf: rhs)
+        } else {
+            new.append(contentsOf: rhs.map(GenericPath.init))
+        }
 
-    static func + (lhs: [Element], rhs: [DirectoryPath]) -> [GenericPath] {
-        return lhs.map(GenericPath.init) + rhs.map(GenericPath.init)
-    }
-
-    static func + (lhs: [Element], rhs: [SocketPath]) -> [GenericPath] {
-        return lhs.map(GenericPath.init) + rhs.map(GenericPath.init)
-    }
-}
-
-public extension Array where Element == DirectoryPath {
-    static func + (lhs: [Element], rhs: [GenericPath]) -> [GenericPath] {
-        return lhs.map(GenericPath.init) + rhs
-    }
-
-    static func + (lhs: [GenericPath], rhs: [Element]) -> [GenericPath] {
-        return lhs + rhs.map(GenericPath.init)
-    }
-
-    static func + (lhs: [Element], rhs: [FilePath]) -> [GenericPath] {
-        return lhs.map(GenericPath.init) + rhs.map(GenericPath.init)
-    }
-
-    static func + (lhs: [Element], rhs: [SocketPath]) -> [GenericPath] {
-        return lhs.map(GenericPath.init) + rhs.map(GenericPath.init)
-    }
-}
-
-public extension Array where Element == SocketPath {
-    static func + (lhs: [Element], rhs: [GenericPath]) -> [GenericPath] {
-        return lhs.map(GenericPath.init) + rhs
-    }
-
-    static func + (lhs: [GenericPath], rhs: [Element]) -> [GenericPath] {
-        return lhs + rhs.map(GenericPath.init)
-    }
-
-    static func + (lhs: [Element], rhs: [DirectoryPath]) -> [GenericPath] {
-        return lhs.map(GenericPath.init) + rhs.map(GenericPath.init)
-    }
-
-    static func + (lhs: [Element], rhs: [FilePath]) -> [GenericPath] {
-        return lhs.map(GenericPath.init) + rhs.map(GenericPath.init)
+        return new
     }
 }
