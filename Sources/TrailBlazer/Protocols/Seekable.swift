@@ -63,10 +63,6 @@ public extension SeekableByOpened {
         case .beginning: seekFunc = Self.seek(fromStart:in:)
         case .end: seekFunc = Self.seek(fromEnd:in:)
         case .current: seekFunc = Self.seek(fromCurrent:in:)
-        #if os(macOS)
-        case .hole: seekFunc = Self.seek(toNextHoleAfter:in:)
-        case .data: seekFunc = Self.seek(toNextDataAfter:in:)
-        #endif
         default: throw SeekError.unknownOffsetType
         }
 
