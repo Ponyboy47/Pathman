@@ -19,7 +19,9 @@ import let Darwin.S_IFSOCK
 #endif
 
 /// A swift enum that wraps the C stat mode_t into a path type (see stat(2))
-public struct PathType: RawRepresentable, Hashable, ExpressibleByIntegerLiteral, ExpressibleByStringLiteral, CodingKey {
+public struct PathType: RawRepresentable, Hashable, ExpressibleByIntegerLiteral, ExpressibleByStringLiteral, CodingKey, CaseIterable {
+    public typealias AllCases = Set<PathType>
+
     public let rawValue: OSUInt
     public var intValue: Int? { return Int(rawValue) }
     public var stringValue: String {
@@ -34,6 +36,8 @@ public struct PathType: RawRepresentable, Hashable, ExpressibleByIntegerLiteral,
         default: return "unknown"
         }
     }
+
+    public static let allCases: Set<PathType> = [.socket, .link, .regular, .block, .directory, .character, .fifo]
 
     /// Socket path
     public static let socket = PathType(integerLiteral: S_IFSOCK)
