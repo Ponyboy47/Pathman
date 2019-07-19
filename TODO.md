@@ -22,6 +22,7 @@
   - [x] URL conversion
   - [x] Get/generate temporary files/directories
   - [x] Copy paths
+  - [ ] Initialize from URLs
 - TemporaryPaths
   - [x] Temporary path in closure (deleted afterwards)
   - [x] Base: Whether to generate or supply the root temporary directory
@@ -82,3 +83,4 @@
     - [ ] Support relevant standards and common manipulations
 - [ ] Validate code meets possible optimization points:
   - https://github.com/apple/swift/blob/master/docs/OptimizationTips.rst
+- [ ] Use more C-standard APIs to move away from only POSIX specific APIs (in preparation for Windows support)
