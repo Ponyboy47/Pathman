@@ -218,6 +218,7 @@ extension OpenTests {
         ("testSeekReadWrite", testSeekReadWrite),
         ("testSeekStatic", testSeekStatic),
         ("testSeekStaticReadWrite", testSeekStaticReadWrite),
+        ("testStandardStreams", testStandardStreams),
         ("testUngetCharacter", testUngetCharacter),
         ("testURL", testURL),
         ("testWriteFile", testWriteFile),
