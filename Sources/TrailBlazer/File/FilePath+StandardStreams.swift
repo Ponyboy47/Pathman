@@ -13,9 +13,9 @@ import func Darwin.fileno
 import let Darwin.stderr
 import let Darwin.stdin
 import let Darwin.stdout
-let cStdout = Glibc.stdout
-let cStderr = Glibc.stderr
-let cStdin = Glibc.stdin
+let cStdout = Darwin.stdout
+let cStderr = Darwin.stderr
+let cStdin = Darwin.stdin
 #endif
 
 public let stdout: FileStream = {
