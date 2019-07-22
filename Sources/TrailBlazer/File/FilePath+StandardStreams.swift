@@ -37,13 +37,13 @@ public let stdin: FileStream = {
 }()
 
 extension Open where PathType == FilePath {
-    static var stdout: FileStream { return TrailBlazer.stdout }
-    static var stderr: FileStream { return TrailBlazer.stderr }
-    static var stdin: FileStream { return TrailBlazer.stdin }
+    public static var stdout: FileStream { return TrailBlazer.stdout }
+    public static var stderr: FileStream { return TrailBlazer.stderr }
+    public static var stdin: FileStream { return TrailBlazer.stdin }
 }
 
 extension FilePath {
-    static var stdout: FileStream { return TrailBlazer.stdout }
-    static var stderr: FileStream { return TrailBlazer.stderr }
-    static var stdin: FileStream { return TrailBlazer.stdin }
+    public static var stdout: FileStream { return TrailBlazer.stdout }
+    public static var stderr: FileStream { return TrailBlazer.stderr }
+    public static var stdin: FileStream { return TrailBlazer.stdin }
 }
