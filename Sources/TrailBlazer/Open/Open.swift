@@ -13,6 +13,7 @@ public final class Open<PathType: Openable>: UpdatableStatable, Ownable, Permiss
     public private(set) var descriptor: PathType.DescriptorType?
     public private(set) var fileDescriptor: FileDescriptor?
     public let openOptions: PathType.OpenOptionsType
+    private let closable: Bool
 
     // swiftlint:disable identifier_name
     public let _info: StatInfo
@@ -38,6 +39,19 @@ public final class Open<PathType: Openable>: UpdatableStatable, Ownable, Permiss
         self.descriptor = descriptor
         self.fileDescriptor = fileDescriptor
         openOptions = options
+        closable = true
+
+        _info = StatInfo(fileDescriptor)
+    }
+
+    init(descriptor: PathType.DescriptorType,
+         fileDescriptor: FileDescriptor,
+         options: PathType.OpenOptionsType) {
+        self.path = PathType()!
+        self.descriptor = descriptor
+        self.fileDescriptor = fileDescriptor
+        openOptions = options
+        closable = false
 
         _info = StatInfo(fileDescriptor)
     }
@@ -98,6 +112,7 @@ public final class Open<PathType: Openable>: UpdatableStatable, Ownable, Permiss
     }
 
     public func close() throws {
+        guard closable else { return }
         try PathType.close(opened: self)
         descriptor = nil
         fileDescriptor = nil
