@@ -1,6 +1,6 @@
 /// A Path to a file
 public struct CharacterPath: Path {
-    public static let pathType: PathType = .file
+    public static let pathType: PathType = .character
     public static var defaultByteCount: ByteRepresentable = Int.max
 
     // swiftlint:disable identifier_name
