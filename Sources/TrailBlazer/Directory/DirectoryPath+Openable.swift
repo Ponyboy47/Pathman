@@ -13,7 +13,7 @@ public typealias DIRType = UnsafeMutablePointer<DIR>
 #endif
 
 extension DirectoryPath: Openable {
-    public typealias DescriptorType = DIRType
+    public typealias Descriptor = DIRType
 
     /**
      Opens the directory

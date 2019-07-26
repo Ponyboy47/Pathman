@@ -9,8 +9,8 @@ private let cSocket = socket
 private let cCloseSocket = close
 
 extension SocketPath: Openable {
-    public typealias OpenOptionsType = SocketOptions
-    public typealias DescriptorType = FileDescriptor
+    public typealias OpenOptions = SocketOptions
+    public typealias Descriptor = FileDescriptor
 
     public struct SocketOptions: OpenOptionable {
         public let domain: SocketDomain = .local

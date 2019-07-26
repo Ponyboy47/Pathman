@@ -1,10 +1,10 @@
 /// Protocol declaration for types that can be opened
 public protocol Openable: Path {
-    associatedtype OpenOptionsType: OpenOptionable = Empty
-    associatedtype DescriptorType
+    associatedtype OpenOptions: OpenOptionable = Empty
+    associatedtype Descriptor
 
     /// Opens the path, sets the `fileDescriptor`, and returns the newly opened path
-    func open(options: OpenOptionsType) throws -> Open<Self>
+    func open(options: OpenOptions) throws -> Open<Self>
     /// Closes the opened `fileDescriptor` and sets it to nil
     static func close(opened: Open<Self>) throws
 }
@@ -15,14 +15,14 @@ public struct Empty: OpenOptionable {
 }
 
 public extension Openable {
-    func open(options: OpenOptionsType, closure: (_ opened: Open<Self>) throws -> Void) throws {
+    func open(options: OpenOptions, closure: (_ opened: Open<Self>) throws -> Void) throws {
         let opened = try open(options: options)
         try closure(opened)
         try opened.close()
     }
 }
 
-public extension Openable where OpenOptionsType == Empty {
+public extension Openable where OpenOptions == Empty {
     func open() throws -> Open<Self> {
         return try open(options: .default)
     }

@@ -10,10 +10,10 @@ public extension WritableByOpened {
     }
 }
 
-public extension WritableByOpened where OpenOptionsType: DefaultWritableOpenOption {
+public extension WritableByOpened where OpenOptions: DefaultWritableOpenOption {
     @discardableResult
     func write(_ buffer: Data) throws -> Int {
-        return try open(options: OpenOptionsType.writableDefault).write(buffer)
+        return try open(options: OpenOptions.writableDefault).write(buffer)
     }
 
     @discardableResult
@@ -42,10 +42,10 @@ public extension WritableByOpened where Self: SeekableByOpened {
     }
 }
 
-public extension WritableByOpened where OpenOptionsType: DefaultWritableOpenOption, Self: SeekableByOpened {
+public extension WritableByOpened where OpenOptions: DefaultWritableOpenOption, Self: SeekableByOpened {
     @discardableResult
     func write(_ buffer: Data, at offset: Offset) throws -> Int {
-        return try open(options: OpenOptionsType.writableDefault).write(buffer, at: offset)
+        return try open(options: OpenOptions.writableDefault).write(buffer, at: offset)
     }
 
     @discardableResult

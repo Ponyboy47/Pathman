@@ -151,17 +151,17 @@ extension LinkedPath: DirectoryEnumerable where LinkedPathType: DirectoryEnumera
 }
 
 public extension LinkedPath where LinkedPathType: Openable {
-    func open(options: LinkedPathType.OpenOptionsType) throws -> Open<LinkedPathType> {
+    func open(options: LinkedPathType.OpenOptions) throws -> Open<LinkedPathType> {
         return try __path.open(options: options)
     }
 
-    func open(options: LinkedPathType.OpenOptionsType,
+    func open(options: LinkedPathType.OpenOptions,
               closure: (_ opened: Open<LinkedPathType>) throws -> Void) throws {
         try closure(open(options: options))
     }
 }
 
-public extension LinkedPath where LinkedPathType: Openable, LinkedPathType.OpenOptionsType == Empty {
+public extension LinkedPath where LinkedPathType: Openable, LinkedPathType.OpenOptions == Empty {
     func open() throws -> Open<LinkedPathType> {
         return try open(options: .default)
     }

@@ -17,12 +17,11 @@ private let cCloseFile = fclose
 public typealias FILEType = UnsafeMutablePointer<FILE>
 
 extension FilePath: Openable {
-    public typealias OpenOptionsType = OpenOptions
-    public typealias DescriptorType = FILEType
+    public typealias Descriptor = FILEType
 
     public struct OpenOptions: DefaultReadableWritableOpenOption {
         public let mode: OpenFileMode
-        fileprivate var rawValue: String { return mode.rawValue }
+        var rawValue: String { return mode.rawValue }
 
         public static let readableDefault = OpenOptions(mode: .read)
         public static let writableDefault = OpenOptions(mode: .append)

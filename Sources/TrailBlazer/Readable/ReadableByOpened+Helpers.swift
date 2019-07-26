@@ -1,9 +1,9 @@
 import struct Foundation.Data
 
 // Also mimicks some of the Readable conformance, but uses the defaultByteCount.
-public extension ReadableByOpened where OpenOptionsType: DefaultReadableOpenOption, Self: DefaultReadByteCount {
+public extension ReadableByOpened where OpenOptions: DefaultReadableOpenOption, Self: DefaultReadByteCount {
     func read(bytes bytesToRead: ByteRepresentable = Self.defaultByteCount) throws -> Data {
-        return try open(options: OpenOptionsType.readableDefault).read(bytes: bytesToRead)
+        return try open(options: OpenOptions.readableDefault).read(bytes: bytesToRead)
     }
 
     func read(bytes bytesToRead: ByteRepresentable = Self.defaultByteCount,
@@ -31,7 +31,7 @@ public extension ReadableByOpened where Self: SeekableByOpened, Self: DefaultRea
 
 // This extension mimicks the Readable & Seekable extension
 public extension ReadableByOpened where Self: SeekableByOpened,
-    OpenOptionsType: DefaultReadableOpenOption,
+    OpenOptions: DefaultReadableOpenOption,
     Self: DefaultReadByteCount {
     func read(from offset: Offset,
               bytes bytesToRead: ByteRepresentable = Self.defaultByteCount,
@@ -40,9 +40,9 @@ public extension ReadableByOpened where Self: SeekableByOpened,
     }
 }
 
-public extension CharacterReadableByOpened where OpenOptionsType: DefaultReadableOpenOption {
+public extension CharacterReadableByOpened where OpenOptions: DefaultReadableOpenOption {
     func nextCharacter() throws -> Character {
-        return try open(options: OpenOptionsType.readableDefault).nextCharacter()
+        return try open(options: OpenOptions.readableDefault).nextCharacter()
     }
 }
 
@@ -55,15 +55,15 @@ public extension CharacterReadableByOpened where Self: SeekableByOpened {
 }
 
 public extension CharacterReadableByOpened where Self: SeekableByOpened,
-    OpenOptionsType: DefaultReadableOpenOption {
+    OpenOptions: DefaultReadableOpenOption {
     func nextCharacter(from offset: Offset) throws -> Character {
-        return try open(options: OpenOptionsType.readableDefault).nextCharacter(from: offset)
+        return try open(options: OpenOptions.readableDefault).nextCharacter(from: offset)
     }
 }
 
-public extension LineReadableByOpened where OpenOptionsType: DefaultReadableOpenOption {
+public extension LineReadableByOpened where OpenOptions: DefaultReadableOpenOption {
     func nextLine(strippingNewline: Bool = true) throws -> Data {
-        return try open(options: OpenOptionsType.readableDefault).nextLine(strippingNewline: strippingNewline)
+        return try open(options: OpenOptions.readableDefault).nextLine(strippingNewline: strippingNewline)
     }
 
     func nextLine(strippingNewline: Bool = true,
@@ -90,11 +90,11 @@ public extension LineReadableByOpened where Self: SeekableByOpened {
 }
 
 public extension LineReadableByOpened where Self: SeekableByOpened,
-    OpenOptionsType: DefaultReadableOpenOption {
+    OpenOptions: DefaultReadableOpenOption {
     func nextLine(from offset: Offset,
                   strippingNewline: Bool = true) throws -> Data {
-        return try open(options: OpenOptionsType.readableDefault).nextLine(from: offset,
-                                                                           strippingNewline: strippingNewline)
+        return try open(options: OpenOptions.readableDefault).nextLine(from: offset,
+                                                                       strippingNewline: strippingNewline)
     }
 
     func nextLine(from offset: Offset,

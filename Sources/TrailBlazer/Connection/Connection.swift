@@ -2,8 +2,8 @@ import struct Foundation.URL
 
 public final class Connection {
     public let path: SocketPath
-    public private(set) var descriptor: SocketPath.DescriptorType?
-    public let openOptions: SocketPath.OpenOptionsType
+    public private(set) var descriptor: SocketPath.Descriptor?
+    public let openOptions: SocketPath.OpenOptions
 
     public static var defaultByteCount: ByteRepresentable = 32.kb
     public static let emptyReadFlags: ReceiveFlags = .none

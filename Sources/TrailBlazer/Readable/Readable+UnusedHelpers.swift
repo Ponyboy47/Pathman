@@ -89,9 +89,9 @@ public extension ReadableByOpened {
 // This gets you the same functionality as if your type conformed to Readable.
 // Warning: If you do conform to Readable then you will have ambiguity issues
 // when calling these functions
-public extension ReadableByOpened where OpenOptionsType: DefaultReadableOpenOption {
+public extension ReadableByOpened where OpenOptions: DefaultReadableOpenOption {
     func read(bytes bytesToRead: ByteRepresentable) throws -> Data {
-        return try open(options: OpenOptionsType.readableDefault).read(bytes: bytesToRead)
+        return try open(options: OpenOptions.readableDefault).read(bytes: bytesToRead)
     }
 
     func read(bytes bytesToRead: ByteRepresentable,
@@ -118,16 +118,16 @@ public extension ReadableByOpened where Self: SeekableByOpened {
 }
 
 // This extension mimicks the Readable & Seekable extension
-public extension ReadableByOpened where Self: SeekableByOpened, OpenOptionsType: DefaultReadableOpenOption {
+public extension ReadableByOpened where Self: SeekableByOpened, OpenOptions: DefaultReadableOpenOption {
     func read(from offset: Offset, bytes bytesToRead: ByteRepresentable) throws -> Data {
-        return try open(options: OpenOptionsType.readableDefault).read(from: offset, bytes: bytesToRead)
+        return try open(options: OpenOptions.readableDefault).read(from: offset, bytes: bytesToRead)
     }
 
     func read(from offset: Offset,
               bytes bytesToRead: ByteRepresentable,
               encoding: String.Encoding = .utf8) throws -> String? {
-        return try String(data: open(options: OpenOptionsType.readableDefault).read(from: offset,
-                                                                                    bytes: bytesToRead),
+        return try String(data: open(options: OpenOptions.readableDefault).read(from: offset,
+                                                                                bytes: bytesToRead),
                           encoding: encoding)
     }
 }
@@ -148,9 +148,9 @@ public extension ReadableByOpenedWithFlags {
 
 // This allows for automatic ReadableWithFlags conformance. Must still be
 // explicitly stated in the type
-public extension ReadableByOpenedWithFlags where OpenOptionsType: DefaultReadableOpenOption {
+public extension ReadableByOpenedWithFlags where OpenOptions: DefaultReadableOpenOption {
     func read(bytes bytesToRead: ByteRepresentable, flags: ReadFlagsType) throws -> Data {
-        return try open(options: OpenOptionsType.readableDefault).read(bytes: bytesToRead, flags: flags)
+        return try open(options: OpenOptions.readableDefault).read(bytes: bytesToRead, flags: flags)
     }
 
     func read(bytes bytesToRead: ByteRepresentable,
@@ -178,11 +178,11 @@ public extension ReadableByOpenedWithFlags where Self: SeekableByOpened {
     }
 }
 
-public extension ReadableByOpenedWithFlags where OpenOptionsType: DefaultReadableOpenOption, Self: SeekableByOpened {
+public extension ReadableByOpenedWithFlags where OpenOptions: DefaultReadableOpenOption, Self: SeekableByOpened {
     func read(from offset: Offset,
               bytes bytesToRead: ByteRepresentable,
               flags: ReadFlagsType) throws -> Data {
-        return try open(options: OpenOptionsType.readableDefault).read(from: offset, bytes: bytesToRead, flags: flags)
+        return try open(options: OpenOptions.readableDefault).read(from: offset, bytes: bytesToRead, flags: flags)
     }
 
     func read(from offset: Offset,
@@ -202,11 +202,11 @@ public extension ReadableByOpenedWithFlags where Self: DefaultReadByteCount {
     }
 }
 
-public extension ReadableByOpenedWithFlags where OpenOptionsType: DefaultReadableOpenOption,
+public extension ReadableByOpenedWithFlags where OpenOptions: DefaultReadableOpenOption,
     Self: DefaultReadByteCount {
     func read(bytes bytesToRead: ByteRepresentable = Self.defaultByteCount,
               flags: ReadFlagsType) throws -> Data {
-        return try open(options: OpenOptionsType.readableDefault).read(bytes: bytesToRead, flags: flags)
+        return try open(options: OpenOptions.readableDefault).read(bytes: bytesToRead, flags: flags)
     }
 
     func read(bytes bytesToRead: ByteRepresentable = Self.defaultByteCount,
@@ -235,7 +235,7 @@ public extension ReadableByOpenedWithFlags where Self: SeekableByOpened & Defaul
     }
 }
 
-public extension ReadableByOpenedWithFlags where OpenOptionsType: DefaultReadableOpenOption,
+public extension ReadableByOpenedWithFlags where OpenOptions: DefaultReadableOpenOption,
     Self: SeekableByOpened & DefaultReadByteCount {
     func read(from offset: Offset,
               bytes bytesToRead: ByteRepresentable = Self.defaultByteCount,
@@ -255,11 +255,11 @@ public extension ReadableByOpenedWithFlags where OpenOptionsType: DefaultReadabl
 
 // This extension mimicks the Readable & Seekable extension
 public extension ReadableByOpened where Self: SeekableByOpened,
-    OpenOptionsType: DefaultReadableOpenOption,
+    OpenOptions: DefaultReadableOpenOption,
     Self: DefaultReadByteCount {
     func read(from offset: Offset,
               bytes bytesToRead: ByteRepresentable = Self.defaultByteCount) throws -> Data {
-        return try open(options: OpenOptionsType.readableDefault).read(from: offset, bytes: bytesToRead)
+        return try open(options: OpenOptions.readableDefault).read(from: offset, bytes: bytesToRead)
     }
 }
 
