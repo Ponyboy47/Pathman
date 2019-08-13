@@ -4,14 +4,11 @@
 import PackageDescription
 
 let package = Package(
-    name: "TrailBlazer",
-    platforms: [
-        .macOS(.v10_14)
-    ],
+    name: "PathMan",
     products: [
         .library(
-            name: "TrailBlazer",
-            targets: ["TrailBlazer"])
+            name: "PathMan",
+            targets: ["PathMan"])
     ],
     dependencies: [
         .package(url: "https://github.com/Ponyboy47/ErrNo", from: "0.5.1"),
@@ -21,12 +18,11 @@ let package = Package(
     ],
     targets: [
         .target(
-            name: "TrailBlazer",
-            dependencies: ["ErrNo", "Cdirent", "Cglob"],
-            exclude: ["Utilities/Autoclose"]),
+            name: "PathMan",
+            dependencies: ["ErrNo", "Cdirent", "Cglob"]),
         .testTarget(
-            name: "TrailBlazerTests",
-            dependencies: ["TrailBlazer", "SwiftShell"])
+            name: "PathManTests",
+            dependencies: ["PathMan", "SwiftShell"])
     ],
     swiftLanguageVersions: [.v5]
 )

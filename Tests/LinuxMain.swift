@@ -1,8 +1,8 @@
 import XCTest
 
-import TrailBlazerTests
+import PathManTests
 
 var tests = [XCTestCaseEntry]()
-tests += TrailBlazerTests.__allTests()
+tests += PathManTests.__allTests()
 
 XCTMain(tests)
