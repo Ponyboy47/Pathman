@@ -4,10 +4,14 @@
     - [x] Create intermediate directories
     - [x] With specified contents
   - [x] Investigate if using stdio(3) operations instead of directly interacting with an open file descriptor would simplify usage
+  - [ ] Scanning and delimitting reads
+    - [ ] fscanf(3)
+      - [ ] FileScanner?
+    - [ ] getdelim(3)
 - DirectoryPath
   - [x] Get directory contents
   - [x] Get directory contents recursively
-    - [x] Eagily
+    - [x] Eagerly
     - [ ] Lazily
   - [x] Create new directories
     - [x] Create intermediate directories
@@ -38,7 +42,7 @@
   - [x] SocketPath
   - [ ] FIFOPath?
   - [ ] BlockPath?
-  - [ ] CharacterPath?
+  - [x] CharacterPath
   - [ ] Place deleted items in trash (instead of deleting directly)
   - [x] Change CWD for closure only
   - [ ] Pattern matching (~=)
@@ -76,6 +80,7 @@
 - Investigate Common Search Paths
   - https://developer.apple.com/documentation/foundation/filemanager/searchpathdirectory
 - [ ] Awesome logo/icon
+  - [ ] Rebrand as PathMan
 - Crazy Stuff
   - [ ] `URLPath`
     - [ ] Separate current `Path` protocol into a `FileSystemPath` sub-protocol (only keeping relevant stuff in `Path`)
