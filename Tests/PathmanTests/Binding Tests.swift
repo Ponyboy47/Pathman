@@ -1,5 +1,5 @@
 import Dispatch
-@testable import PathMan
+@testable import Pathman
 import XCTest
 
 class BindingTests: XCTestCase {

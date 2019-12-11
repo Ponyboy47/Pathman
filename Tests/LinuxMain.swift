@@ -1,8 +1,8 @@
 import XCTest
 
-import PathManTests
+import PathmanTests
 
 var tests = [XCTestCaseEntry]()
-tests += PathManTests.__allTests()
+tests += PathmanTests.__allTests()
 
 XCTMain(tests)

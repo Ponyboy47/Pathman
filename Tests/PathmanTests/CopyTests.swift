@@ -1,5 +1,5 @@
 import Foundation
-@testable import PathMan
+@testable import Pathman
 import XCTest
 
 class CopyTests: XCTestCase {

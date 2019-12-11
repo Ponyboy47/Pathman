@@ -1,4 +1,4 @@
-@testable import PathMan
+@testable import Pathman
 import XCTest
 
 class MoveTests: XCTestCase {

@@ -1,10 +1,10 @@
-@testable import PathMan
+@testable import Pathman
 import XCTest
 
 class GlobTests: XCTestCase {
     func testGlob() {
         do {
-            let glob = try PathMan.glob(pattern: "/tmp/*")
+            let glob = try Pathman.glob(pattern: "/tmp/*")
             XCTAssertFalse(glob.matches.isEmpty)
         } catch {
             XCTFail("Glob threw an error: \(error)")

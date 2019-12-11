@@ -4,7 +4,7 @@ import Glibc
 #else
 import Darwin
 #endif
-@testable import PathMan
+@testable import Pathman
 
 class PathTests: XCTestCase {
     func testStringInit() {
