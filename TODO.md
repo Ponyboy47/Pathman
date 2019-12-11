@@ -79,8 +79,8 @@
     - [ ] All
 - Investigate Common Search Paths
   - https://developer.apple.com/documentation/foundation/filemanager/searchpathdirectory
-- [ ] Awesome logo/icon
-  - [ ] Rebrand as PathMan
+- [x] Rebrand as PathMan
+  - [ ] Awesome logo/icon
 - Crazy Stuff
   - [ ] `URLPath`
     - [ ] Separate current `Path` protocol into a `FileSystemPath` sub-protocol (only keeping relevant stuff in `Path`)
