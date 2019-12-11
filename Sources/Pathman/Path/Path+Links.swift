@@ -71,19 +71,19 @@ public struct LinkedPath<LinkedPathType: Path>: Path {
 
     public init(_ path: String,
                 linkedTo linkPath: LinkedPathType,
-                type: LinkType = PathMan.defaultLinkType) throws {
+                type: LinkType = Pathman.defaultLinkType) throws {
         let pathLink = try LinkedPathType(path) ?! LinkError.pathTypeMismatch
         try self.init(pathLink, linkedTo: linkPath, type: type)
     }
 
     public init(_ pathLink: LinkedPathType,
                 linkedTo link: String,
-                type: LinkType = PathMan.defaultLinkType) throws {
+                type: LinkType = Pathman.defaultLinkType) throws {
         let linkPath = try LinkedPathType(link) ?! LinkError.pathTypeMismatch
         try self.init(pathLink, linkedTo: linkPath, type: type)
     }
 
-    public init(_ path: String, linkedTo link: String, type: LinkType = PathMan.defaultLinkType) throws {
+    public init(_ path: String, linkedTo link: String, type: LinkType = Pathman.defaultLinkType) throws {
         let pathLink = try LinkedPathType(path) ?! LinkError.pathTypeMismatch
         let linkPath = try LinkedPathType(link) ?! LinkError.pathTypeMismatch
         try self.init(pathLink, linkedTo: linkPath, type: type)
@@ -91,7 +91,7 @@ public struct LinkedPath<LinkedPathType: Path>: Path {
 
     public init(_ pathLink: LinkedPathType,
                 linkedTo linkPath: LinkedPathType,
-                type: LinkType = PathMan.defaultLinkType) throws {
+                type: LinkType = Pathman.defaultLinkType) throws {
         __path = LinkedPathType(pathLink)
         _info = StatInfo(pathLink.string)
 

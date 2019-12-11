@@ -2,7 +2,7 @@ import ErrNo
 // swiftlint:disable file_length
 
 /// The Error type used by anything that throws in this library
-public protocol PathManError: Error, Equatable, CaseIterable, ExpressibleByIntegerLiteral
+public protocol PathmanError: Error, Equatable, CaseIterable, ExpressibleByIntegerLiteral
     where AllCases == [Self],
     IntegerLiteralType == ErrNo.RawValue {
     var errors: [ErrNo] { get set }
@@ -15,7 +15,7 @@ extension ErrNo {
     static var EIRRELEVANT2: ErrNo { return ErrNo(rawValue: -1001) }
 }
 
-public extension PathManError {
+public extension PathmanError {
     static var accessDenied: Self { return Self(error: .EACCES) }
     static var permissionDenied: Self { return Self(error: .EPERM) }
     static var quotaReached: Self { return Self(error: .EDQUOT) }
@@ -73,7 +73,7 @@ public extension PathManError {
 public typealias CreateFileError = OpenFileError
 
 /// Errors thrown when a FilePath is opened (see open(2))
-public struct OpenFileError: PathManError {
+public struct OpenFileError: PathmanError {
     public var errors: [ErrNo]
 
     public static let wouldBlock = OpenFileError(error: .EWOULDBLOCK)
@@ -111,7 +111,7 @@ public struct OpenFileError: PathManError {
 }
 
 /// Errors thrown when a FilePath is closed (see close(2))
-public struct CloseFileError: PathManError {
+public struct CloseFileError: PathmanError {
     public var errors: [ErrNo]
 
     public static let allCases: [CloseFileError] = {
@@ -127,7 +127,7 @@ public struct CloseFileError: PathManError {
 public typealias DeleteFileError = UnlinkError
 
 /// Errors thrown when a path is unlinked (see unlink(2))
-public struct UnlinkError: PathManError {
+public struct UnlinkError: PathmanError {
     public var errors: [ErrNo]
 
     public static let pathInUse = UnlinkError(error: .EBUSY)
@@ -142,7 +142,7 @@ public struct UnlinkError: PathManError {
 }
 
 /// Errors thrown when a path is linked (see link(2))
-public struct LinkError: PathManError {
+public struct LinkError: PathmanError {
     public var errors: [ErrNo]
 
     public static let alreadyExists = LinkError(error: .EEXIST)
@@ -161,7 +161,7 @@ public struct LinkError: PathManError {
 }
 
 /// Errors thrown when a path is symlinked (see symlink(2))
-public struct SymlinkError: PathManError {
+public struct SymlinkError: PathmanError {
     public var errors: [ErrNo]
 
     public static let alreadyExists = SymlinkError(error: .EEXIST)
@@ -177,7 +177,7 @@ public struct SymlinkError: PathManError {
 }
 
 /// Errors thrown when a DirectoryPath is opened (see opendir(3))
-public struct OpenDirectoryError: PathManError {
+public struct OpenDirectoryError: PathmanError {
     public var errors: [ErrNo]
 
     public static let pathNotDirectory = OpenDirectoryError(error: .ENOTDIR)
@@ -190,7 +190,7 @@ public struct OpenDirectoryError: PathManError {
 }
 
 /// Errors thrown when a DirectoryPath is closed (see closedir(3))
-public struct CloseDirectoryError: PathManError {
+public struct CloseDirectoryError: PathmanError {
     public var errors: [ErrNo]
 
     public static let invalidDirectoryStream = CloseDirectoryError(error: .EBADF)
@@ -203,7 +203,7 @@ public struct CloseDirectoryError: PathManError {
 }
 
 /// Errors thrown when a DirectoryPath is created (see mkdir(2))
-public struct CreateDirectoryError: PathManError {
+public struct CreateDirectoryError: PathmanError {
     public var errors: [ErrNo]
 
     public static let tooManySymlinks = CreateDirectoryError(error: .ELOOP)
@@ -231,7 +231,7 @@ public struct CreateDirectoryError: PathManError {
 }
 
 /// Errors thrown when a DirectoryPath is deleted (see rmdir(2))
-public struct DeleteDirectoryError: PathManError {
+public struct DeleteDirectoryError: PathmanError {
     public var errors: [ErrNo]
 
     public static let directoryInUse = DeleteDirectoryError(error: .EBUSY)
@@ -249,7 +249,7 @@ public struct DeleteDirectoryError: PathManError {
 }
 
 /// Errors thrown getting path information (see stat(2))
-public struct StatError: PathManError {
+public struct StatError: PathmanError {
     public var errors: [ErrNo]
 
     public static let fileTooLarge = StatError(error: .EOVERFLOW)
@@ -264,7 +264,7 @@ public struct StatError: PathManError {
 }
 
 /// Errors thrown while getting information about a user (see getpwnam(2) or getpwuid(2))
-public struct UserInfoError: PathManError {
+public struct UserInfoError: PathmanError {
     public var errors: [ErrNo]
 
     public static let userDoesNotExist = UserInfoError(errors: ErrNo(rawValue: 0), .ENOENT, .ESRCH, .EBADF, .EPERM)
@@ -279,7 +279,7 @@ public struct UserInfoError: PathManError {
 }
 
 /// Errors thrown while getting information about a group (see getgrnam(2) or getgrgid(2))
-public struct GroupInfoError: PathManError {
+public struct GroupInfoError: PathmanError {
     public var errors: [ErrNo]
 
     public static let groupDoesNotExist = GroupInfoError(errors: ErrNo(rawValue: 0), .ENOENT, .ESRCH, .EBADF, .EPERM)
@@ -293,7 +293,7 @@ public struct GroupInfoError: PathManError {
 }
 
 /// Errors thrown by trying to read a fileDescriptor (see read(2))
-public struct ReadError: PathManError {
+public struct ReadError: PathmanError {
     public var errors: [ErrNo]
 
     public static let cannotReadFileDescriptor = ReadError(error: .EINVAL)
@@ -328,7 +328,7 @@ public struct ReadError: PathManError {
 }
 
 /// Errors thrown by trying to seek to an offset for a fileDescriptor (see seek(2))
-public struct SeekError: PathManError {
+public struct SeekError: PathmanError {
     public var errors: [ErrNo]
 
     public static let unknownOffsetType = SeekError(error: .EIRRELEVANT)
@@ -356,7 +356,7 @@ public struct SeekError: PathManError {
 }
 
 /// Errors thrown while expanding relative paths or symlinks (see realpath(3))
-public struct RealPathError: PathManError {
+public struct RealPathError: PathmanError {
     public var errors: [ErrNo]
 
     public static let emptyPath = RealPathError(error: .EINVAL)
@@ -371,7 +371,7 @@ public struct RealPathError: PathManError {
 }
 
 /// Errors thrown by trying to write to a fileDescriptor (see write(2))
-public struct WriteError: PathManError {
+public struct WriteError: PathmanError {
     public var errors: [ErrNo]
 
     public static let unconnectedSocket = WriteError(error: .EDESTADDRREQ)
@@ -408,7 +408,7 @@ public struct WriteError: PathManError {
 }
 
 /// Errors thrown while changing Path ownership (see chown(2))
-public struct ChangeOwnershipError: PathManError {
+public struct ChangeOwnershipError: PathmanError {
     public var errors: [ErrNo]
 
     public static let allCases: [ChangeOwnershipError] = [
@@ -422,7 +422,7 @@ public struct ChangeOwnershipError: PathManError {
 }
 
 /// Errors thrown while changing the permissions on a Path (see chmod(2))
-public struct ChangePermissionsError: PathManError {
+public struct ChangePermissionsError: PathmanError {
     public var errors: [ErrNo]
 
     public static let allCases: [ChangePermissionsError] = [
@@ -435,7 +435,7 @@ public struct ChangePermissionsError: PathManError {
 }
 
 /// Errors thrown by moving or renaming a Path (see rename(2))
-public struct MoveError: PathManError {
+public struct MoveError: PathmanError {
     public var errors: [ErrNo]
 
     public static let pathInUse = MoveError(error: .EBUSY)
@@ -460,7 +460,7 @@ public struct MoveError: PathManError {
 /// Errors thrown by creating/opening a temporary file/directory (see mkstemp(3)/mkdtemp(3))
 public typealias MakeTemporaryError = CreateFileError
 
-public struct ChDirError: PathManError {
+public struct ChDirError: PathmanError {
     public var errors: [ErrNo]
 
     public static let allCases: [ChDirError] = [
@@ -471,7 +471,7 @@ public struct ChDirError: PathManError {
     public init(error: ErrNo?) { errors = error == nil ? [] : [error!] }
 }
 
-public struct CWDError: PathManError {
+public struct CWDError: PathmanError {
     public var errors: [ErrNo]
 
     public static let unlinkedCWD = CWDError(error: .ENOENT)
@@ -483,7 +483,7 @@ public struct CWDError: PathManError {
     public init(error: ErrNo?) { errors = error == nil ? [] : [error!] }
 }
 
-public struct SocketError: PathManError {
+public struct SocketError: PathmanError {
     public var errors: [ErrNo]
 
     public static let unsupportedDomain = SocketError(error: .EAFNOSUPPORT)
@@ -512,7 +512,7 @@ public struct SocketError: PathManError {
 
 public typealias CloseSocketError = CloseFileError
 
-public struct ShutdownError: PathManError {
+public struct ShutdownError: PathmanError {
     public var errors: [ErrNo]
 
     public static let notConnected = ShutdownError(error: .ENOTCONN)
@@ -524,7 +524,7 @@ public struct ShutdownError: PathManError {
     public init(error: ErrNo?) { errors = error == nil ? [] : [error!] }
 }
 
-public struct ConnectionError: PathManError {
+public struct ConnectionError: PathmanError {
     public var errors: [ErrNo]
 
     public static let addressUnavailable = ConnectionError(error: .EADDRNOTAVAIL)
@@ -549,7 +549,7 @@ public struct ConnectionError: PathManError {
     public init(error: ErrNo?) { errors = error == nil ? [] : [error!] }
 }
 
-public struct BindError: PathManError {
+public struct BindError: PathmanError {
     public var errors: [ErrNo]
 
     public static let socketAlreadyBound = BindError(error: .EINVAL)
@@ -565,7 +565,7 @@ public struct BindError: PathManError {
     public init(error: ErrNo?) { errors = error == nil ? [] : [error!] }
 }
 
-public struct ListenError: PathManError {
+public struct ListenError: PathmanError {
     public var errors: [ErrNo]
 
     public static let socketCannotListen = ListenError(error: .EOPNOTSUPP)
@@ -577,7 +577,7 @@ public struct ListenError: PathManError {
     public init(error: ErrNo?) { errors = error == nil ? [] : [error!] }
 }
 
-public struct AcceptError: PathManError {
+public struct AcceptError: PathmanError {
     public var errors: [ErrNo]
 
     public static let connectionAborted = AcceptError(error: .ECONNABORTED)
@@ -596,7 +596,7 @@ public struct AcceptError: PathManError {
     public init(error: ErrNo?) { errors = error == nil ? [] : [error!] }
 }
 
-public struct SendError: PathManError {
+public struct SendError: PathmanError {
     public var errors: [ErrNo]
 
     public static let connectionReset = SendError(error: .ECONNRESET)
@@ -617,7 +617,7 @@ public struct SendError: PathManError {
     public init(error: ErrNo?) { errors = error == nil ? [] : [error!] }
 }
 
-public struct SyncError: PathManError {
+public struct SyncError: PathmanError {
     public var errors: [ErrNo]
 
     public static let cannotSyncSpecialFile = SyncError(errors: .EROFS, .EINVAL)

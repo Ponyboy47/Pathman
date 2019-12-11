@@ -37,13 +37,13 @@ public let stdin: FileStream = {
 }()
 
 extension Open where PathType == FilePath {
-    public static var stdout: FileStream { return PathMan.stdout }
-    public static var stderr: FileStream { return PathMan.stderr }
-    public static var stdin: FileStream { return PathMan.stdin }
+    public static var stdout: FileStream { return Pathman.stdout }
+    public static var stderr: FileStream { return Pathman.stderr }
+    public static var stdin: FileStream { return Pathman.stdin }
 }
 
 extension FilePath {
-    public static var stdout: FileStream { return PathMan.stdout }
-    public static var stderr: FileStream { return PathMan.stderr }
-    public static var stdin: FileStream { return PathMan.stdin }
+    public static var stdout: FileStream { return Pathman.stdout }
+    public static var stderr: FileStream { return Pathman.stderr }
+    public static var stdin: FileStream { return Pathman.stdin }
 }

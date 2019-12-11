@@ -7,22 +7,22 @@ let package = Package(
     name: "PathMan",
     products: [
         .library(
-            name: "PathMan",
-            targets: ["PathMan"])
+            name: "Pathman",
+            targets: ["Pathman"])
     ],
     dependencies: [
         .package(url: "https://github.com/Ponyboy47/ErrNo", from: "0.5.1"),
         .package(url: "https://github.com/Ponyboy47/Cdirent", from: "0.1.0"),
         .package(url: "https://github.com/Ponyboy47/Cglob", from: "0.1.0"),
-        .package(url: "https://github.com/kareman/SwiftShell", from: "5.0.0")
+        .package(url: "https://github.com/kareman/SwiftShell", from: "5.0.1")
     ],
     targets: [
         .target(
-            name: "PathMan",
+            name: "Pathman",
             dependencies: ["ErrNo", "Cdirent", "Cglob"]),
         .testTarget(
-            name: "PathManTests",
-            dependencies: ["PathMan", "SwiftShell"])
+            name: "PathmanTests",
+            dependencies: ["Pathman", "SwiftShell"])
     ],
     swiftLanguageVersions: [.v5]
 )

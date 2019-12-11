@@ -11,6 +11,6 @@ install:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then swift package generate-xcodeproj --enable-code-coverage; fi
 script:
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then travis_wait swift test; fi
-  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then xcodebuild -project PathMan.xcodeproj -scheme PathMan-Package build test; fi
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then xcodebuild -project Pathman.xcodeproj -scheme Pathman-Package build test; fi
 after_script:
-- if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then bash <(curl -s https://codecov.io/bash) -J 'PathMan'; fi
+- if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then bash <(curl -s https://codecov.io/bash) -J 'Pathman'; fi

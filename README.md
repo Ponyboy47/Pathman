@@ -1,12 +1,12 @@
-# PathMan
+# Pathman
 
-[![Build Status](https://travis-ci.org/Ponyboy47/PathMan.svg?branch=master)](https://travis-ci.org/Ponyboy47/PathMan) [![codecov](https://codecov.io/gh/Ponyboy47/PathMan/branch/master/graph/badge.svg)](https://codecov.io/gh/Ponyboy47/PathMan) [![Maintainability](https://api.codeclimate.com/v1/badges/4bafeb6b0d65f0c57fa6/maintainability)](https://codeclimate.com/github/Ponyboy47/PathMan/maintainability) [![Current Version](https://img.shields.io/badge/version-0.18.0-blue.svg)](https://github.com/Ponyboy47/PathMan/releases/tag/0.18.0) ![Supported Platforms](https://img.shields.io/badge/platform-macOS%20%7C%20linux-lightgrey.svg) [![Language](https://img.shields.io/badge/language-swift-orange.svg)](https://swift.org) [![Language Version](https://img.shields.io/badge/swift%20version-5.0-blue.svg)](https://swift.org/download/) [![License](https://img.shields.io/badge/license-MIT-black.svg)](https://github.com/Ponyboy47/PathMan/blob/master/LICENSE)<br>
+[![Build Status](https://travis-ci.org/Ponyboy47/Pathman.svg?branch=master)](https://travis-ci.org/Ponyboy47/Pathman) [![codecov](https://codecov.io/gh/Ponyboy47/Pathman/branch/master/graph/badge.svg)](https://codecov.io/gh/Ponyboy47/Pathman) [![Maintainability](https://api.codeclimate.com/v1/badges/4bafeb6b0d65f0c57fa6/maintainability)](https://codeclimate.com/github/Ponyboy47/Pathman/maintainability) [![Current Version](https://img.shields.io/badge/version-0.18.0-blue.svg)](https://github.com/Ponyboy47/Pathman/releases/tag/0.18.0) ![Supported Platforms](https://img.shields.io/badge/platform-macOS%20%7C%20linux-lightgrey.svg) [![Language](https://img.shields.io/badge/language-swift-orange.svg)](https://swift.org) [![Language Version](https://img.shields.io/badge/swift%20version-5.0-blue.svg)](https://swift.org/download/) [![License](https://img.shields.io/badge/license-MIT-black.svg)](https://github.com/Ponyboy47/Pathman/blob/master/LICENSE)<br>
 A type-safe path library for Apple's Swift language.
 
 ## Motivation
 I have never been a big fan of Foundation's `FileManager`. Foundation in general has inconsistent results when used cross-platform (Linux support/stability is important for most of the things for which I use Swift) and `FileManager` itself lacks the type-safety and ease-of-use that most Swift API's are expected to have (`FileAttributeKey` anyone?).
 
-So I built PathMan! The first type-safe swift path library built around the lower level C API's (everything else out there is just a wrapper around `FileManager` to make it nicer to use in Swift).
+So I built Pathman! The first type-safe swift path library built around the lower level C API's (everything else out there is just a wrapper around `FileManager` to make it nicer to use in Swift).
 
 ## Goals
 - Type safety
@@ -33,7 +33,7 @@ So I built PathMan! The first type-safe swift path library built around the lowe
 ### Swift Package Manager:
 Add this to your Package.swift dependencies:
 ```swift
-.package(url: "https://github.com/Ponyboy47/PathMan.git", from: "0.18.0")
+.package(url: "https://github.com/Ponyboy47/Pathman.git", from: "0.18.0")
 ```
 
 ## Usage
@@ -562,9 +562,9 @@ let link = try linkedFile.link(from: "/path/to/link/target", type: .hard)
 
 #### Changing the Default Link Type:
 
-PathMan uses .symbolic/.soft links as the default, but this may be changed.
+Pathman uses .symbolic/.soft links as the default, but this may be changed.
 ```swift
-PathMan.defaultLinkType = .hard
+Pathman.defaultLinkType = .hard
 ```
 
 ### Copy Paths:

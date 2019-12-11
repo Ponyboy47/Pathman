@@ -250,12 +250,12 @@ public struct FileMode: OptionSet, ExpressibleByIntegerLiteral, ExpressibleByStr
      - Returns: The FileMode after disabling bits from the umask
      */
     public func unmasked() -> FileMode {
-        return ~PathMan.umask & self
+        return ~Pathman.umask & self
     }
 
     /// Mutates self to be the FileMode after disabling bits from the umask
     public mutating func unmask() {
-        self &= ~PathMan.umask
+        self &= ~Pathman.umask
     }
 
     /// Returns the inverse FileMode with all bits flipped

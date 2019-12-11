@@ -98,7 +98,7 @@ public extension DirectoryPath {
     func glob(pattern: String,
               flags: GlobFlags = [],
               errorClosure: GlobError.ErrorHandler? = nil) throws -> Glob {
-        return try PathMan.glob(pattern: (self + pattern).string, flags: flags, errorClosure: errorClosure)
+        return try Pathman.glob(pattern: (self + pattern).string, flags: flags, errorClosure: errorClosure)
     }
 
     /** Locates all paths matching the pattern specified using this DirectoryPath as the base directory for the glob
@@ -128,6 +128,6 @@ public extension DirectoryPath {
               flags: GlobFlags = [],
               errorClosure: GlobError.ErrorHandler? = nil,
               glob: inout Glob) throws {
-        try PathMan.glob(pattern: (self + pattern).string, flags: flags, errorClosure: errorClosure, glob: &glob)
+        try Pathman.glob(pattern: (self + pattern).string, flags: flags, errorClosure: errorClosure, glob: &glob)
     }
 }

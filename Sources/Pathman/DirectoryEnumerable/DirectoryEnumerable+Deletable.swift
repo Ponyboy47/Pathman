@@ -46,7 +46,7 @@ public extension Deletable where Self: DirectoryEnumerable {
      - Throws: `DeleteFileError.readOnlyFileSystem` when the file system is in read-only mode and so the file cannot be
                deleted
      - Throws: `CloseFileError.badFileDescriptor` when the file descriptor isn't open or valid (should only occur if
-               you're manually closing it outside of the normal PathMan API)
+               you're manually closing it outside of the normal Pathman API)
      - Throws: `CloseFileError.interruptedBySignal` when a signal interrupts the API call
      - Throws: `CloseFileError.ioError` when an I/O error occurred during the API call
      */

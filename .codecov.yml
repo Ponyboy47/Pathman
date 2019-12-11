@@ -1,5 +1,5 @@
 ignore:
-    - "Sources/PathMan/Utilities"
-    - "Sources/PathMan/Errors"
-    - "Sources/PathMan/Readable/Readable+UnusedHelpers.swift$"
+    - "Sources/Pathman/Utilities"
+    - "Sources/Pathman/Errors"
+    - "Sources/Pathman/Readable/Readable+UnusedHelpers.swift$"
     - "Tests"
