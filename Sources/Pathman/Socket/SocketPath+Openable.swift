@@ -43,8 +43,5 @@ extension SocketPath: Openable {
         }
 
         guard cCloseSocket(descriptor) != -1 else { throw CloseSocketError.getError() }
-
-        opened.path.buffer = nil
-        opened.path.bufferSize = nil
     }
 }
