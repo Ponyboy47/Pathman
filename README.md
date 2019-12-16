@@ -1,6 +1,6 @@
 # Pathman
 
-[![Build Status](https://travis-ci.org/Ponyboy47/Pathman.svg?branch=master)](https://travis-ci.org/Ponyboy47/Pathman) [![codecov](https://codecov.io/gh/Ponyboy47/Pathman/branch/master/graph/badge.svg)](https://codecov.io/gh/Ponyboy47/Pathman) [![Maintainability](https://api.codeclimate.com/v1/badges/4bafeb6b0d65f0c57fa6/maintainability)](https://codeclimate.com/github/Ponyboy47/Pathman/maintainability) [![Current Version](https://img.shields.io/badge/version-0.18.0-blue.svg)](https://github.com/Ponyboy47/Pathman/releases/tag/0.18.0) ![Supported Platforms](https://img.shields.io/badge/platform-macOS%20%7C%20linux-lightgrey.svg) [![Language](https://img.shields.io/badge/language-swift-orange.svg)](https://swift.org) [![Language Version](https://img.shields.io/badge/swift%20version-5.0-blue.svg)](https://swift.org/download/) [![License](https://img.shields.io/badge/license-MIT-black.svg)](https://github.com/Ponyboy47/Pathman/blob/master/LICENSE)<br>
+[![Build Status](https://travis-ci.org/Ponyboy47/Pathman.svg?branch=master)](https://travis-ci.org/Ponyboy47/Pathman) [![codecov](https://codecov.io/gh/Ponyboy47/Pathman/branch/master/graph/badge.svg)](https://codecov.io/gh/Ponyboy47/Pathman) [![Maintainability](https://api.codeclimate.com/v1/badges/4bafeb6b0d65f0c57fa6/maintainability)](https://codeclimate.com/github/Ponyboy47/Pathman/maintainability) [![Current Version](https://img.shields.io/badge/version-0.19.0-blue.svg)](https://github.com/Ponyboy47/Pathman/releases/tag/0.19.0) ![Supported Platforms](https://img.shields.io/badge/platform-macOS%20%7C%20linux-lightgrey.svg) [![Language](https://img.shields.io/badge/language-swift-orange.svg)](https://swift.org) [![Language Version](https://img.shields.io/badge/swift%20version-5.0-blue.svg)](https://swift.org/download/) [![License](https://img.shields.io/badge/license-MIT-black.svg)](https://github.com/Ponyboy47/Pathman/blob/master/LICENSE)<br>
 A type-safe path library for Apple's Swift language.
 
 ## Motivation
@@ -33,7 +33,7 @@ So I built Pathman! The first type-safe swift path library built around the lowe
 ### Swift Package Manager:
 Add this to your Package.swift dependencies:
 ```swift
-.package(url: "https://github.com/Ponyboy47/Pathman.git", from: "0.18.0")
+.package(url: "https://github.com/Ponyboy47/Pathman.git", from: "0.19.0")
 ```
 
 ## Usage
@@ -47,22 +47,13 @@ let genericString = GenericPath("/tmp")
 let genericArray = GenericPath(["/", "tmp"])
 let genericSlice = GenericPath(["/", "tmp", "test"].dropLast())
 
-// FilePaths and DirectoryPaths can be initialized the same as a GenericPath,
-// but their initializers are failable.
+// FilePaths and DirectoryPaths can be initialized the same as a GenericPath
 
-// The initializers will fail if the path exists and does not match the
-// expected type. If the path does not exist, then the object will be created
-// successfully
+// Beware that you do your own validation that the path matches it's type.
+// Things like this are possible and will lead to errors:
+let file = FilePath("/tmp/")
 
-// fails
-guard let file = FilePath("/tmp") else {
-    fatalError("Path is not a file")
-}
-
-// succeeds
-guard let directory = DirectoryPath("/tmp") else {
-    fatalError("Path is not a directory")
-}
+let directory = DirectoryPath("/tmp/")
 ```
 
 ### Path Information
@@ -159,10 +150,7 @@ var creation: Date
 
 #### FilePath:
 ```swift
-guard let file = FilePath("/tmp/test") else {
-    fatalError("Path is not a file")
-}
-
+let file = FilePath("/tmp/test")
 let openFile: OpenFile = try file.open(mode: "r+")
 
 // Open files can be written to or read from (depending on the permissions used above)
@@ -172,10 +160,7 @@ try openFile.write(content)
 
 #### DirectoryPath:
 ```swift
-guard let dir = DirectoryPath("/tmp") else {
-    fatalError("Path is not a directory")
-}
-
+let dir = DirectoryPath("/tmp")
 let openDir: OpenDirectory = try dir.open()
 
 // Open directories can be traversed
@@ -189,9 +174,7 @@ let recursiveChildren = try openDir.recursiveChildren()
 
 Paths may also be opened for the duration of a provided closure:
 ```swift
-guard let dir = DirectoryPath("/tmp") else {
-    fatalError("Path is not a directory")
-}
+let dir = DirectoryPath("/tmp")
 
 try dir.open() { openDirectory in
     let children = openDirectory.children()
@@ -203,9 +186,7 @@ try dir.open() { openDirectory in
 
 #### Any Path conforming to Openable:
 ```swift
-guard var file = FilePath("/tmp/test") else {
-    fatalError("Path is not a file")
-}
+var file = FilePath("/tmp/test")
 
 // Creates a file with the write permissions and returns the opened file
 let openFile: OpenFile = try file.create(mode: FileMode(owner: .readWriteExecute, group: .readWrite, other: .none))
@@ -215,9 +196,7 @@ let openFile: OpenFile = try file.create(mode: FileMode(owner: .readWriteExecute
 
 In the event you need to create the intermediate paths as well:
 ```swift
-guard var file = FilePath("/tmp/testdir/test") else {
-    fatalError("Path is not a file")
-}
+var file = FilePath("/tmp/testdir/test")
 
 let openFile: OpenFile = try file.create(options: .createIntermediates)
 ```
@@ -226,9 +205,7 @@ let openFile: OpenFile = try file.create(options: .createIntermediates)
 
 Paths whose Open<...> variation conforms to Writable can be created with predetermined contents:
 ```swift
-guard var file = FilePath("/tmp/test") else {
-    fatalError("Path is not a file")
-}
+var file = FilePath("/tmp/test")
 
 try file.create(contents: "Hello World")
 print(try file.read()) // "Hello World"
@@ -238,9 +215,7 @@ print(try file.read()) // "Hello World"
 
 Paths may also be opened for the duration of a provided closure:
 ```swift
-guard var file = FilePath("/tmp/test") else {
-    fatalError("Path already exists and is not a file")
-}
+var file = FilePath("/tmp/test")
 
 try file.create() { openFile in
     try openFile.write("Hello world")
@@ -254,18 +229,14 @@ try file.create() { openFile in
 #### The current path only:
 This is the same for all paths
 ```swift
-guard var file = FilePath("/tmp/test") else {
-    fatalError("Path is not a file")
-}
+var file = FilePath("/tmp/test")
 
 try file.delete()
 ```
 
 #### Recursively delete directories:
 ```swift
-guard var dir = DirectoryPath("/tmp/test") else {
-    fatalError("Path is not a directory")
-}
+var dir = DirectoryPath("/tmp/test")
 
 try dir.recursiveDelete()
 ```
@@ -274,9 +245,7 @@ NOTE: Be VERY cautious with this as it cannot be undone (just like `rm -rf`).
 ### Reading Files
 
 ```swift
-guard let file = FilePath("/tmp/test") else {
-    fatalError("Path is not a file")
-}
+let file = FilePath("/tmp/test")
 
 // All of the following operations are available on both a FilePath and an OpenFile
 
@@ -305,9 +274,7 @@ Each of the read operations may either return `String` or  `Data`, so be sure th
 ### Writing Files
 
 ```swift
-guard let file = FilePath("/tmp/test") else {
-    fatalError("Path is not a file")
-}
+let file = FilePath("/tmp/test")
 
 // All of the following operations are available on both a FilePath and an OpenFile
 
@@ -324,9 +291,7 @@ NOTE: You can also pass a `Data` instance to the write function instead of a `St
 ```
 // Writing files is buffered by default. If you expect to use a file
 // immediately after writing to it then be sure to flush the buffer
-guard let file = FilePath("/tmp/test") else {
-    fatalError("Path is not a file")
-}
+let file = FilePath("/tmp/test")
 
 let openFile = try file.open(mode: "w+")
 try openFile.write("Hello world!")
@@ -346,9 +311,7 @@ NOTE: The default buffering is full buffering based on your OS's `BUFSIZ` variab
 
 #### Immediate children:
 ```swift
-guard let dir = DirectoryPath("/tmp") else {
-    fatalError("Path is not a directory")
-}
+let dir = DirectoryPath("/tmp")
 
 let children = try dir.children()
 
@@ -363,9 +326,7 @@ print(children.other)
 
 #### Recursive children:
 ```swift
-guard let dir = DirectoryPath("/tmp") else {
-    fatalError("Path is not a directory")
-}
+let dir = DirectoryPath("/tmp")
 
 let children = try dir.recursiveChildren()
 
@@ -410,9 +371,7 @@ path.ownerName = "root"
 path.groupName = "wheel"
 
 // If you have a DirectoryPath, then changes can be made recursively:
-guard var dir = DirectoryPath(path) else {
-    fatalError("Path is not a directory")
-}
+var dir = DirectoryPath(path)
 
 try dir.recursiveChange(owner: "ponyboy47")
 ```
@@ -448,9 +407,7 @@ path.permissions.others = .read
 path.permissions.bits = .none
 
 // If you have a DirectoryPath, then changes can be made recursively:
-guard var dir = DirectoryPath(path) else {
-    fatalError("Path is not a directory")
-}
+var dir = DirectoryPath(path)
 
 try dir.recursiveChange(owner: .readWriteExecute, group: .readWrite, others: .read)
 ```
@@ -479,9 +436,7 @@ print(globData.directories)
 print(globData.other)
 
 // You can also glob from a DirectoryPath
-guard let home = DirectoryPath.home else {
-    fatalError("Failed to get home directory")
-}
+let home = DirectoryPath.home
 
 let globData = try home.glob("*.swift")
 
@@ -530,9 +485,7 @@ try FilePath.temporary(options: .deleteOnCompletion) { openFile in
 #### Target to Destination:
 ```swift
 // You can link to an existing path
-guard let dir = DirectoryPath("/tmp") else {
-    fatalError("Path not a directory")
-}
+let dir = DirectoryPath("/tmp")
 
 // Creates a soft/symbolic link to dir at the specified path
 // All 3 of the following lines produce the same type of link
@@ -546,9 +499,7 @@ let link = try dir.link(at: "~/tmpDir.hard", type: .hard)
 
 #### Destination from Target:
 ```swift
-guard let linkedFile = FilePath("/path/to/link/location") else {
-    fatalError("Path is not a file")
-}
+let linkedFile = FilePath("/path/to/link/location")
 
 // Creates a soft/symbolic link to dir at the specified path
 // All 3 of the following lines produce the same type of link
@@ -571,13 +522,9 @@ Pathman.defaultLinkType = .hard
 
 #### FilePath:
 ```swift
-guard let file = FilePath("/path/to/file") else {
-    fatalError("Path is not a file")
-}
+let file = FilePath("/path/to/file")
 
-guard let copyPath = FilePath("/path/to/copy") else {
-    fatalError("Path already exists and is not a file")
-}
+let copyPath = FilePath("/path/to/copy")
 
 // Both these lines would result in the same thing
 try file.copy(to: copyPath)
@@ -586,13 +533,9 @@ try file.copy(to: "/path/to/copy")
 
 #### DirectoryPath:
 ```swift
-guard let dir = DirectoryPath("/path/to/directory") else {
-    fatalError("Path is not a file")
-}
+let dir = DirectoryPath("/path/to/directory")
 
-guard let copyPath = DirectoryPath("/path/to/copy") else {
-    fatalError("Path already exists and is not a directory")
-}
+let copyPath = DirectoryPath("/path/to/copy")
 
 // Both these lines would result in the same thing
 try dir.copy(to: copyPath)

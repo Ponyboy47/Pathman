@@ -14,10 +14,7 @@ public struct CharacterPath: Path {
 
      - Parameter path: The path to copy
      */
-    public init?(_ path: GenericPath) {
-        // Cannot initialize a file from a non-file type
-        guard CharacterPath.validatePathType(path) else { return nil }
-
+    public init(_ path: GenericPath) {
         _path = path._path
         _info = StatInfo(path)
         try? _info.getInfo()

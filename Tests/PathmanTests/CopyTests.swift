@@ -16,7 +16,7 @@ class CopyTests: XCTestCase {
         XCTAssertNoThrow(try tmpFile.write("Hello world"))
         XCTAssertNoThrow(try tmpFile.flush())
 
-        var newPath = FilePath(tmpFile.path.parent + "com.trailblazer.copied.\(UUID())")!
+        var newPath = FilePath(tmpFile.path.parent + "com.trailblazer.copied.\(UUID())")
 
         let newOpenPath: FileStream
         do {
@@ -53,7 +53,7 @@ class CopyTests: XCTestCase {
             return
         }
 
-        var newPath = DirectoryPath(tmpDirectory.path.parent + "com.trailblazer.copied.\(UUID())")!
+        var newPath = DirectoryPath(tmpDirectory.path.parent + "com.trailblazer.copied.\(UUID())")
         XCTAssertFalse(newPath.exists)
         XCTAssertNoThrow(try tmpDirectory.copy(to: &newPath))
         XCTAssertTrue(newPath.exists)
@@ -82,7 +82,7 @@ class CopyTests: XCTestCase {
             return
         }
 
-        var newPath = DirectoryPath(tmpDirectory.path.parent + "com.trailblazer.copied.\(UUID())")!
+        var newPath = DirectoryPath(tmpDirectory.path.parent + "com.trailblazer.copied.\(UUID())")
         do {
             try tmpDirectory.copy(to: &newPath)
             XCTFail("Should not be able to copy non empty directory without the .recursive option")
@@ -114,7 +114,7 @@ class CopyTests: XCTestCase {
             return
         }
 
-        var newPath = DirectoryPath(tmpDirectory.path.parent + "com.trailblazer.copied.\(UUID())")!
+        var newPath = DirectoryPath(tmpDirectory.path.parent + "com.trailblazer.copied.\(UUID())")
         XCTAssertNoThrow(try tmpDirectory.copy(to: &newPath, options: .recursive))
 
         var dir = tmpDirectory.path

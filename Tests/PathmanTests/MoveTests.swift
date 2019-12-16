@@ -3,12 +3,8 @@ import XCTest
 
 class MoveTests: XCTestCase {
     func testMove() {
-        guard let home: DirectoryPath = .home else {
-            return XCTFail("Failed to get the home directory")
-        }
-        guard var file = FilePath(home + "\(UUID()).test") else {
-            return XCTFail("Path is not a file")
-        }
+        let home: DirectoryPath! = .home
+        var file = FilePath(home + "\(UUID()).test")
 
         do {
             try file.create(mode: .ownerGroupOthers(.readWriteExecute))
@@ -27,12 +23,8 @@ class MoveTests: XCTestCase {
     }
 
     func testRename() {
-        guard let home: DirectoryPath = .home else {
-            return XCTFail("Failed to get the home directory")
-        }
-        guard var file = FilePath(home + "\(UUID()).test") else {
-            return XCTFail("Path is not a file")
-        }
+        let home: DirectoryPath! = .home
+        var file = FilePath(home + "\(UUID()).test")
 
         do {
             try file.create(mode: .ownerGroupOthers(.readWriteExecute))
@@ -51,15 +43,9 @@ class MoveTests: XCTestCase {
     }
 
     func testMoveInto() {
-        guard let home: DirectoryPath = .home else {
-            return XCTFail("Failed to get the home directory")
-        }
-        guard var file = FilePath(home + "\(UUID()).test") else {
-            return XCTFail("Path is not a file")
-        }
-        guard var newDir = DirectoryPath(home + "\(UUID()).testdir") else {
-            return XCTFail("Path is not a directory")
-        }
+        let home: DirectoryPath! = .home
+        var file = FilePath(home + "\(UUID()).test")
+        var newDir = DirectoryPath(home + "\(UUID()).testdir")
 
         do {
             try file.create(mode: .ownerGroupOthers(.readWriteExecute))

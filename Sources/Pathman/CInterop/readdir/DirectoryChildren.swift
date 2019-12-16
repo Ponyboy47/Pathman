@@ -12,6 +12,8 @@ public struct DirectoryChildren: Equatable, CustomStringConvertible {
     public private(set) var directories: [DirectoryPath]
     /// The socket paths
     public private(set) var sockets: [SocketPath]
+    /// The character paths
+    public private(set) var characters: [CharacterPath]
     /// Other paths
     public private(set) var other: [GenericPath]
 
@@ -32,10 +34,12 @@ public struct DirectoryChildren: Equatable, CustomStringConvertible {
     public init(files: [FilePath] = [],
                 directories: [DirectoryPath] = [],
                 sockets: [SocketPath] = [],
+                characters: [CharacterPath] = [],
                 other: [GenericPath] = []) {
         self.files = files
         self.directories = directories
         self.sockets = sockets
+        self.characters = characters
         self.other = other
     }
 
@@ -47,6 +51,7 @@ public struct DirectoryChildren: Equatable, CustomStringConvertible {
         files = []
         directories = []
         sockets = []
+        characters = []
         other = []
 
         while let path = iterator.next() {
@@ -59,14 +64,17 @@ public struct DirectoryChildren: Equatable, CustomStringConvertible {
     }
 
     public mutating func append(_ element: String) {
-        if let file = FilePath(element) {
-            files.append(file)
-        } else if let dir = DirectoryPath(element) {
-            directories.append(dir)
-        } else if let socket = SocketPath(element) {
-            sockets.append(socket)
+        let generic = GenericPath(element)
+        if FilePath.validatePathType(generic) {
+            files.append(FilePath(generic))
+        } else if DirectoryPath.validatePathType(generic) {
+            directories.append(DirectoryPath(generic))
+        } else if SocketPath.validatePathType(generic) {
+            sockets.append(SocketPath(generic))
+        } else if CharacterPath.validatePathType(generic) {
+            characters.append(CharacterPath(generic))
         } else {
-            other.append(GenericPath(element))
+            other.append(generic)
         }
     }
 
@@ -80,6 +88,8 @@ public struct DirectoryChildren: Equatable, CustomStringConvertible {
             directories.append(element as! DirectoryPath)
         } else if element is SocketPath {
             sockets.append(element as! SocketPath)
+        } else if element is CharacterPath {
+            characters.append(element as! CharacterPath)
         } else {
             fatalError("Unimplemented PathType => \(PathType.self)")
         }
@@ -91,6 +101,7 @@ public struct DirectoryChildren: Equatable, CustomStringConvertible {
         return DirectoryChildren(files: lhs.files + rhs.files,
                                  directories: lhs.directories + rhs.directories,
                                  sockets: lhs.sockets + rhs.sockets,
+                                 characters: lhs.characters + rhs.characters,
                                  other: lhs.other + rhs.other)
     }
 
@@ -99,6 +110,7 @@ public struct DirectoryChildren: Equatable, CustomStringConvertible {
         lhs.files += rhs.files
         lhs.directories += rhs.directories
         lhs.sockets += rhs.sockets
+        lhs.characters += rhs.characters
         lhs.other += rhs.other
     }
 
@@ -107,6 +119,7 @@ public struct DirectoryChildren: Equatable, CustomStringConvertible {
         return lhs.files == rhs.files
             && lhs.directories == rhs.directories
             && lhs.sockets == rhs.sockets
+            && lhs.characters == rhs.characters
             && lhs.other == rhs.other
     }
 }

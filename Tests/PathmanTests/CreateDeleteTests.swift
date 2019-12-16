@@ -12,10 +12,7 @@ class CreateDeleteTests: XCTestCase {
     }()
 
     func testCreateFile() {
-        guard var file = FilePath(base + "\(UUID()).test") else {
-            XCTFail("Test path exists and is not a file")
-            return
-        }
+        var file = FilePath(base + "\(UUID()).test")
 
         do {
             let open = try file.create()
@@ -30,10 +27,7 @@ class CreateDeleteTests: XCTestCase {
     }
 
     func testDeleteFile() {
-        guard var file = FilePath(base + "\(UUID()).test") else {
-            XCTFail("Test path exists and is not a file")
-            return
-        }
+        var file = FilePath(base + "\(UUID()).test")
 
         do {
             try file.create()
@@ -46,10 +40,7 @@ class CreateDeleteTests: XCTestCase {
     }
 
     func testCreateDirectory() {
-        guard var dir = DirectoryPath(base + "\(UUID())") else {
-            XCTFail("Test path exists and is not a directory")
-            return
-        }
+        var dir = DirectoryPath(base + "\(UUID())")
 
         XCTAssertNoThrow(try dir.create())
         XCTAssertTrue(dir.exists)
@@ -59,10 +50,7 @@ class CreateDeleteTests: XCTestCase {
     }
 
     func testDeleteDirectory() {
-        guard var dir = DirectoryPath(base + "\(UUID())") else {
-            XCTFail("Test path exists and is not a directory")
-            return
-        }
+        var dir = DirectoryPath(base + "\(UUID())")
 
         do {
             try dir.create()
@@ -75,10 +63,7 @@ class CreateDeleteTests: XCTestCase {
     }
 
     func testDeleteNonEmptyDirectory() {
-        guard var dir = DirectoryPath(base + "\(UUID())") else {
-            XCTFail("Test path exists and is not a directory")
-            return
-        }
+        var dir = DirectoryPath(base + "\(UUID())")
 
         do {
             try dir.create()
@@ -88,10 +73,7 @@ class CreateDeleteTests: XCTestCase {
         }
 
         for num in 1...10 {
-            guard var file = FilePath(dir + "\(num).test") else {
-                XCTFail("Test path exists and is not a file")
-                return
-            }
+            var file = FilePath(dir + "\(num).test")
 
             do {
                 try file.create()
@@ -112,10 +94,7 @@ class CreateDeleteTests: XCTestCase {
     }
 
     func testDeleteDirectoryRecursive() {
-        guard var dir = DirectoryPath(base + "\(UUID())") else {
-            XCTFail("Test path exists and is not a directory")
-            return
-        }
+        var dir = DirectoryPath(base + "\(UUID())")
 
         do {
             try dir.create()
@@ -125,10 +104,7 @@ class CreateDeleteTests: XCTestCase {
         }
 
         for num in 1...10 {
-            guard var file = FilePath(dir + "\(num).test") else {
-                XCTFail("Test path exists and is not a file")
-                return
-            }
+            var file = FilePath(dir + "\(num).test")
 
             do {
                 try file.create()
@@ -144,16 +120,11 @@ class CreateDeleteTests: XCTestCase {
     }
 
     func testCreateIntermediates() {
-        guard var dir = DirectoryPath(base + "\(UUID())") else {
-            XCTFail("Test path exists and is not a directory")
-            return
-        }
+        var dir = DirectoryPath(base + "\(UUID())")
         XCTAssertFalse(dir.exists)
 
-        guard let parent = DirectoryPath(dir + "\(UUID())"), var file = FilePath(parent + "\(UUID()).test") else {
-            XCTFail("Test path exists and is not a file")
-            return
-        }
+        let parent = DirectoryPath(dir + "\(UUID())")
+        var file = FilePath(parent + "\(UUID()).test")
 
         do {
             let open = try file.create(options: .createIntermediates)
@@ -168,10 +139,7 @@ class CreateDeleteTests: XCTestCase {
     }
 
     func testCreateWithContents() {
-        guard var file = FilePath(base + "\(UUID()).test") else {
-            XCTFail("Test path exists and is not a file")
-            return
-        }
+        var file = FilePath(base + "\(UUID()).test")
 
         do {
             try file.create(contents: "Hello World")
@@ -186,10 +154,7 @@ class CreateDeleteTests: XCTestCase {
     }
 
     func testCreateWithClosure() {
-        guard var file = FilePath(base + "\(UUID()).test") else {
-            XCTFail("Test path exists and is not a file")
-            return
-        }
+        var file = FilePath(base + "\(UUID()).test")
 
         do {
             try file.create { openFile in

@@ -3,8 +3,8 @@ import XCTest
 
 class DirectoryChildrenTests: XCTestCase {
     let emptyChildren = DirectoryChildren()
-    let children1 = DirectoryChildren(files: [FilePath("com.trailblazer.test.f1")!], directories: [DirectoryPath("com.trailblazer.test.d1")!], other: [GenericPath(FilePath("com.trailblazer.test.f2")!), GenericPath(DirectoryPath("com.trailblazer.test.d2")!)])
-    let children2 = DirectoryChildren(files: [FilePath("com.trailblazer.test.f3")!], directories: [DirectoryPath("com.trailblazer.test.d3")!], other: [GenericPath(FilePath("com.trailblazer.test.f2")!), GenericPath(DirectoryPath("com.trailblazer.test.d2")!)])
+    let children1 = DirectoryChildren(files: [FilePath("com.trailblazer.test.f1")], directories: [DirectoryPath("com.trailblazer.test.d1")], other: [GenericPath(FilePath("com.trailblazer.test.f2")), GenericPath(DirectoryPath("com.trailblazer.test.d2"))])
+    let children2 = DirectoryChildren(files: [FilePath("com.trailblazer.test.f3")], directories: [DirectoryPath("com.trailblazer.test.d3")], other: [GenericPath(FilePath("com.trailblazer.test.f2")), GenericPath(DirectoryPath("com.trailblazer.test.d2"))])
 
     func testEmpty() {
         XCTAssertTrue(emptyChildren.isEmpty)

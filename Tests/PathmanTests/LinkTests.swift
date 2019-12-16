@@ -7,8 +7,8 @@ class LinkTests: XCTestCase {
         do {
             let link = try FilePath.temporary(prefix: "com.trailblazer.tests.softlink.")
             DirectoryPath.cwd = link.path.parent
-            var _linked = FilePath("\(link.path.lastComponent!).link")!
-            let target = FilePath("\(link.path.lastComponent!)")!
+            var _linked = FilePath("\(link.path.lastComponent!).link")
+            let target = FilePath("\(link.path.lastComponent!)")
             let symlink = try target.link(at: "\(link.path.lastComponent!).link")
             XCTAssertTrue(symlink.isLink)
             XCTAssertTrue(symlink.exists)
@@ -29,7 +29,7 @@ class LinkTests: XCTestCase {
         do {
             let file = try FilePath.temporary(prefix: "com.trailblazer.tests.softlink.")
 
-            var symlink = try file.path.link(at: FilePath("\(file.path.string).link")!)
+            var symlink = try file.path.link(at: FilePath("\(file.path.string).link"))
             XCTAssertTrue(symlink.isLink)
             XCTAssertTrue(symlink.exists)
             XCTAssertEqual(symlink.linkType, .symbolic)
@@ -48,8 +48,8 @@ class LinkTests: XCTestCase {
         do {
             let link = try FilePath.temporary(prefix: "com.trailblazer.tests.hardlink.")
             DirectoryPath.cwd = link.path.parent
-            var _linked = FilePath("\(link.path.lastComponent!).link")!
-            let target = FilePath("\(link.path.lastComponent!)")!
+            var _linked = FilePath("\(link.path.lastComponent!).link")
+            let target = FilePath("\(link.path.lastComponent!)")
             var symlink = try target.link(at: _linked, type: .hard)
             XCTAssertTrue(symlink.isLink)
             XCTAssertTrue(symlink.exists)
@@ -71,7 +71,7 @@ class LinkTests: XCTestCase {
         do {
             let file = try FilePath.temporary(prefix: "com.trailblazer.tests.hardlink.")
 
-            var symlink = try file.path.link(at: FilePath("\(file.path.string).link")!, type: .hard)
+            var symlink = try file.path.link(at: FilePath("\(file.path.string).link"), type: .hard)
             XCTAssertTrue(symlink.isLink)
             XCTAssertTrue(symlink.exists)
             XCTAssertEqual(symlink.linkType, .hard)
@@ -121,12 +121,12 @@ class LinkTests: XCTestCase {
             let file = try FilePath.temporary(prefix: "com.trailblazer.tests.softlink.")
             var symlink1 = try LinkedPath("\(file.path.string).link", linkedTo: file.path)
             try? symlink1.delete()
-            var symlink2 = try LinkedPath(FilePath("\(file.path.string).link")!, linkedTo: file.path.string)
+            var symlink2 = try LinkedPath(FilePath("\(file.path.string).link"), linkedTo: file.path.string)
             try? symlink2.delete()
             var symlink3 = try LinkedPath<FilePath>("\(file.path.string).link", linkedTo: file.path.string)
             let symlink4 = LinkedPath<FilePath>("\(file.path.string).link")
             let symlink5 = LinkedPath<FilePath>(GenericPath("\(file.path.string).link").components)
-            let symlink6 = LinkedPath(symlink5!)
+            let symlink6 = LinkedPath(symlink5)
             let symlink7 = LinkedPath<FilePath>(GenericPath("\(file.path.string).link"))
 
             XCTAssertEqual(symlink1, symlink2)
@@ -139,10 +139,10 @@ class LinkTests: XCTestCase {
             XCTAssertTrue(symlink1.exists)
             XCTAssertTrue(symlink2.exists)
             XCTAssertTrue(symlink3.exists)
-            XCTAssertTrue(symlink4!.exists)
-            XCTAssertTrue(symlink5!.exists)
+            XCTAssertTrue(symlink4.exists)
+            XCTAssertTrue(symlink5.exists)
             XCTAssertTrue(symlink6.exists)
-            XCTAssertTrue(symlink7!.exists)
+            XCTAssertTrue(symlink7.exists)
 
             var _file = file.path
             try? _file.delete()
@@ -156,8 +156,8 @@ class LinkTests: XCTestCase {
         do {
             let link = try DirectoryPath.temporary(prefix: "com.trailblazer.tests.softlink.")
             DirectoryPath.cwd = link.path.parent
-            var _linked = DirectoryPath("\(link.path.lastComponent!).link")!
-            let target = DirectoryPath("\(link.path.lastComponent!)")!
+            var _linked = DirectoryPath("\(link.path.lastComponent!).link")
+            let target = DirectoryPath("\(link.path.lastComponent!)")
             let symlink = try target.link(at: "\(link.path.lastComponent!).link")
             XCTAssertNoThrow(try symlink.children())
             var file = link.path
@@ -173,8 +173,8 @@ class LinkTests: XCTestCase {
         do {
             let link = try FilePath.temporary(prefix: "com.trailblazer.tests.softlink.")
             DirectoryPath.cwd = link.path.parent
-            var _linked = FilePath("\(link.path.lastComponent!).link")!
-            let target = FilePath("\(link.path.lastComponent!)")!
+            var _linked = FilePath("\(link.path.lastComponent!).link")
+            let target = FilePath("\(link.path.lastComponent!)")
             let symlink = try target.link(at: "\(link.path.lastComponent!).link")
             XCTAssertNoThrow(try symlink.open(mode: .readPlus))
             var file = link.path
@@ -190,8 +190,8 @@ class LinkTests: XCTestCase {
         do {
             let link = try DirectoryPath.temporary(prefix: "com.trailblazer.tests.softlink.")
             DirectoryPath.cwd = link.path.parent
-            var _linked = DirectoryPath("\(link.path.lastComponent!).link")!
-            let target = DirectoryPath("\(link.path.lastComponent!)")!
+            var _linked = DirectoryPath("\(link.path.lastComponent!).link")
+            let target = DirectoryPath("\(link.path.lastComponent!)")
             let symlink = try target.link(at: "\(link.path.lastComponent!).link")
             XCTAssertNoThrow(try symlink.open())
             var file = link.path
@@ -207,8 +207,8 @@ class LinkTests: XCTestCase {
         do {
             let link = try FilePath.temporary(prefix: "com.trailblazer.tests.softlink.")
             DirectoryPath.cwd = link.path.parent
-            var _linked = FilePath("\(link.path.lastComponent!).link")!
-            let target = FilePath("\(link.path.lastComponent!)")!
+            var _linked = FilePath("\(link.path.lastComponent!).link")
+            let target = FilePath("\(link.path.lastComponent!)")
             let symlink = try target.link(at: "\(link.path.lastComponent!).link")
             XCTAssertNoThrow(try symlink.open(mode: .readPlus) { _ in })
             var file = link.path
@@ -222,8 +222,8 @@ class LinkTests: XCTestCase {
         do {
             let link = try DirectoryPath.temporary(prefix: "com.trailblazer.tests.softlink.")
             DirectoryPath.cwd = link.path.parent
-            var _linked = DirectoryPath("\(link.path.lastComponent!).link")!
-            let target = DirectoryPath("\(link.path.lastComponent!)")!
+            var _linked = DirectoryPath("\(link.path.lastComponent!).link")
+            let target = DirectoryPath("\(link.path.lastComponent!)")
             let symlink = try target.link(at: "\(link.path.lastComponent!).link")
             XCTAssertNoThrow(try symlink.open { _ in })
             var file = link.path

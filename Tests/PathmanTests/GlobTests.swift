@@ -12,10 +12,7 @@ class GlobTests: XCTestCase {
     }
 
     func testGlobDirectory() {
-        guard let tmp = DirectoryPath("/tmp") else {
-            return XCTFail("Failed to get the home directory")
-        }
-
+        let tmp = DirectoryPath("/tmp")
         do {
             let glob = try tmp.glob(pattern: "*")
             XCTAssertFalse(glob.matches.isEmpty)

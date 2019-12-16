@@ -18,21 +18,17 @@ public protocol TemporaryGeneratable: Creatable {
 public let temporaryDirectory: DirectoryPath = getTemporaryDirectory()
 
 private func getTemporaryDirectory() -> DirectoryPath {
-    let tmpDir: DirectoryPath!
-
     if #available(iOS 10.0, macOS 10.12, tvOS 10.0, watchOS 3.0, *) {
-        tmpDir = DirectoryPath(FileManager.default.temporaryDirectory.path)
+        return DirectoryPath(FileManager.default.temporaryDirectory.path)
     } else {
         // Linux has support for getting the temp directory from file manager,
         // but the other OS versions not captured by the #available will not
         #if os(Linux)
-        tmpDir = DirectoryPath(FileManager.default.temporaryDirectory.path)
+        return DirectoryPath(FileManager.default.temporaryDirectory.path)
         #else
-        tmpDir = DirectoryPath("\(GenericPath.separator)tmp")
+        return DirectoryPath("\(GenericPath.separator)tmp")
         #endif
     }
-
-    return tmpDir
 }
 
 extension TemporaryGeneratable {
@@ -92,7 +88,7 @@ extension FilePath: TemporaryGeneratable {
         // .create/.exclusive flags (to ensure this process is the only
         // owner/creator of the uniquely generated tmp file), and a mode of
         // 0o0600
-        return try FilePath(path)!.open(mode: .readPlus)
+        return try FilePath(path).open(mode: .readPlus)
     }
 }
 
@@ -128,7 +124,7 @@ extension DirectoryPath: TemporaryGeneratable {
         }
         guard !path.isEmpty else { throw CreateDirectoryError.getError() }
 
-        return try DirectoryPath(path)!.open()
+        return try DirectoryPath(path).open()
     }
 }
 

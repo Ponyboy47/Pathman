@@ -47,7 +47,7 @@ public final class Open<PathType: Openable>: UpdatableStatable, Ownable, Permiss
     init(descriptor: PathType.Descriptor,
          fileDescriptor: FileDescriptor,
          options: PathType.OpenOptions) {
-        self.path = PathType()!
+        self.path = PathType()
         self.descriptor = descriptor
         self.fileDescriptor = fileDescriptor
         openOptions = options

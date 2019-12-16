@@ -92,7 +92,7 @@ class StatTests: XCTestCase {
     }
 
     func testDelegate() {
-        let dir = DirectoryPath("/tmp")!
+        let dir = DirectoryPath("/tmp")
 
         _ = dir.id
         _ = dir.inode

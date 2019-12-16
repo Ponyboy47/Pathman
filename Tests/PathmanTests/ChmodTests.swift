@@ -10,14 +10,8 @@ import Darwin
 
 class ChmodTests: XCTestCase {
     func testSetOwner() {
-        guard let home: DirectoryPath = .home else {
-            XCTFail("Failed to get the home directory")
-            return
-        }
-        guard var directory = DirectoryPath(home + "\(UUID()).test") else {
-            XCTFail("Path is not a directory")
-            return
-        }
+        let home: DirectoryPath! = .home
+        var directory = DirectoryPath(home + "\(UUID()).test")
 
         if !directory.exists {
             do {
@@ -52,14 +46,8 @@ class ChmodTests: XCTestCase {
     }
 
     func testSetGroup() {
-        guard let home: DirectoryPath = .home else {
-            XCTFail("Failed to get the home directory")
-            return
-        }
-        guard var directory = DirectoryPath(home + "\(UUID()).test") else {
-            XCTFail("Path is not a directory")
-            return
-        }
+        let home: DirectoryPath! = .home
+        var directory = DirectoryPath(home + "\(UUID()).test")
 
         if !directory.exists {
             do {
@@ -94,14 +82,8 @@ class ChmodTests: XCTestCase {
     }
 
     func testSetOthers() {
-        guard let home: DirectoryPath = .home else {
-            XCTFail("Failed to get the home directory")
-            return
-        }
-        guard var directory = DirectoryPath(home + "\(UUID()).test") else {
-            XCTFail("Path is not a directory")
-            return
-        }
+        let home: DirectoryPath! = .home
+        var directory = DirectoryPath(home + "\(UUID()).test")
 
         if !directory.exists {
             do {
@@ -136,14 +118,8 @@ class ChmodTests: XCTestCase {
     }
 
     func testSetOwnerGroup() {
-        guard let home: DirectoryPath = .home else {
-            XCTFail("Failed to get the home directory")
-            return
-        }
-        guard var directory = DirectoryPath(home + "\(UUID()).test") else {
-            XCTFail("Path is not a directory")
-            return
-        }
+        let home: DirectoryPath! = .home
+        var directory = DirectoryPath(home + "\(UUID()).test")
 
         if !directory.exists {
             do {
@@ -178,14 +154,8 @@ class ChmodTests: XCTestCase {
     }
 
     func testSetOwnerOthers() {
-        guard let home: DirectoryPath = .home else {
-            XCTFail("Failed to get the home directory")
-            return
-        }
-        guard var directory = DirectoryPath(home + "\(UUID()).test") else {
-            XCTFail("Path is not a directory")
-            return
-        }
+        let home: DirectoryPath! = .home
+        var directory = DirectoryPath(home + "\(UUID()).test")
 
         if !directory.exists {
             do {
@@ -220,14 +190,8 @@ class ChmodTests: XCTestCase {
     }
 
     func testSetGroupOthers() {
-        guard let home: DirectoryPath = .home else {
-            XCTFail("Failed to get the home directory")
-            return
-        }
-        guard var directory = DirectoryPath(home + "\(UUID()).test") else {
-            XCTFail("Path is not a directory")
-            return
-        }
+        let home: DirectoryPath! = .home
+        var directory = DirectoryPath(home + "\(UUID()).test")
 
         if !directory.exists {
             do {
@@ -262,14 +226,8 @@ class ChmodTests: XCTestCase {
     }
 
     func testSetOwnerGroupOthers() {
-        guard let home: DirectoryPath = .home else {
-            XCTFail("Failed to get the home directory")
-            return
-        }
-        guard var directory = DirectoryPath(home + "\(UUID()).test") else {
-            XCTFail("Path is not a directory")
-            return
-        }
+        let home: DirectoryPath! = .home
+        var directory = DirectoryPath(home + "\(UUID()).test")
 
         if !directory.exists {
             do {
@@ -304,14 +262,8 @@ class ChmodTests: XCTestCase {
     }
 
     func testSetProperties() {
-        guard let home: DirectoryPath = .home else {
-            XCTFail("Failed to get the home directory")
-            return
-        }
-        guard var directory = DirectoryPath(home + "\(UUID()).test") else {
-            XCTFail("Path is not a directory")
-            return
-        }
+        let home: DirectoryPath! = .home
+        var directory = DirectoryPath(home + "\(UUID()).test")
 
         if !directory.exists {
             do {
@@ -347,14 +299,8 @@ class ChmodTests: XCTestCase {
     }
 
     func testOpenFile() {
-        guard let home: DirectoryPath = .home else {
-            XCTFail("Failed to get the home directory")
-            return
-        }
-        guard var file = FilePath(home + "\(UUID()).test") else {
-            XCTFail("Path is not a directory")
-            return
-        }
+        let home: DirectoryPath! = .home
+        var file = FilePath(home + "\(UUID()).test")
 
         let openFile: FileStream
         if !file.exists {
@@ -384,19 +330,14 @@ class ChmodTests: XCTestCase {
         #if os(Linux)
         let base: DirectoryPath = DirectoryPath.home!
         #else
-        let base: DirectoryPath = DirectoryPath("/tmp")!
+        let base: DirectoryPath = DirectoryPath("/tmp")
         #endif
 
-        guard var dir = DirectoryPath(base + "\(UUID())") else {
-            XCTFail("Test path exists and is not a directory")
-            return
-        }
+        var dir = DirectoryPath(base + "\(UUID())")
         XCTAssertFalse(dir.exists)
 
-        guard let parent = DirectoryPath(dir + "\(UUID())"), var file = FilePath(parent + "\(UUID()).test") else {
-            XCTFail("Test path exists and is not a file")
-            return
-        }
+        let parent = DirectoryPath(dir + "\(UUID())")
+        var file = FilePath(parent + "\(UUID()).test")
 
         _ = try? file.create(options: .createIntermediates)
 

@@ -30,8 +30,7 @@ public extension Path {
     }
 
     func link(at linkedString: String, type: LinkType = defaultLinkType) throws -> LinkedPath<Self> {
-        guard let linkedPath = Self(linkedString) else { throw LinkError.pathTypeMismatch }
-        return try link(at: linkedPath, type: type)
+        return try link(at: Self(linkedString), type: type)
     }
 
     func link(from targetPath: Self, type: LinkType = defaultLinkType) throws -> LinkedPath<Self> {
@@ -39,8 +38,7 @@ public extension Path {
     }
 
     func link(from targetString: String, type: LinkType = defaultLinkType) throws -> LinkedPath<Self> {
-        guard let targetPath = Self(targetString) else { throw LinkError.pathTypeMismatch }
-        return try link(from: targetPath, type: type)
+        return try link(from: Self(targetString), type: type)
     }
 }
 
@@ -109,9 +107,9 @@ public struct LinkedPath<LinkedPathType: Path>: Path {
     }
 
     /// Initialize a symbolic link from an array of Path components
-    public init?(_ path: GenericPath) {
+    public init(_ path: GenericPath) {
         // swiftlint:disable identifier_name
-        guard let _path = LinkedPathType(path) else { return nil }
+        let _path = LinkedPathType(path)
         // swiftlint:enable identifier_name
         __path = _path
         _info = StatInfo(_path.string)
@@ -124,14 +122,12 @@ public struct LinkedPath<LinkedPathType: Path>: Path {
         }
 
         let linkSize = cReadlink(_path.string, buffer, Int(PATH_MAX))
-        guard linkSize != -1 else { return nil }
+        guard linkSize != -1 else { fatalError("Failed to get link size") }
 
         // realink(2) does not null-terminate the string stored in the buffer,
         // Swift expects it to be null-terminated to convert a cString to a Swift String
         buffer[linkSize] = 0
-        guard let link = LinkedPathType(String(cString: buffer)) else { return nil }
-
-        self.link = link
+        link = LinkedPathType(String(cString: buffer))
         linkType = .symbolic
     }
 

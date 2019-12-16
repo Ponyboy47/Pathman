@@ -15,7 +15,7 @@ public extension Path {
             str.replaceSubrange(..<str.index(str.startIndex, offsetBy: Self.cwd.string.count), with: ".")
         }
 
-        return Self(str)!
+        return Self(str)
     }
 
     /// Whether or not the current path contains relative items (., .., or ~)

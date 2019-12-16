@@ -32,6 +32,7 @@
   - [x] Base: Whether to generate or supply the root temporary directory
 - OpenPaths
   - [x] Open only for closure
+  - [ ] Allow passing explicit buffer to avoid creating one on every `read` operation
 - Misc. Additions
   - [x] Globbing
   - [x] LinkedPath (symlinks and hard links)

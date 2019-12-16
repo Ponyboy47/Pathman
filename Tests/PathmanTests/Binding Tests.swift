@@ -4,7 +4,7 @@ import XCTest
 
 class BindingTests: XCTestCase {
     func testAccepting() {
-        var socket = SocketPath("/tmp/com.trailblazer.sock")!
+        var socket = SocketPath("/tmp/com.trailblazer.sock")
 
         defer { try? socket.delete() }
 
@@ -51,8 +51,8 @@ class BindingTests: XCTestCase {
     }
 
     func testEquatable() {
-        let socket1 = SocketPath("/tmp/com.trailblazer.sock1")!
-        let socket2 = SocketPath("/tmp/com.trailblazer.sock2")!
+        let socket1 = SocketPath("/tmp/com.trailblazer.sock1")
+        let socket2 = SocketPath("/tmp/com.trailblazer.sock2")
 
         do {
             let bind1 = try socket1.bind()
@@ -65,8 +65,8 @@ class BindingTests: XCTestCase {
     }
 
     func testHashable() {
-        let socket1 = SocketPath("/tmp/com.trailblazer.sock1")!
-        let socket2 = SocketPath("/tmp/com.trailblazer.sock2")!
+        let socket1 = SocketPath("/tmp/com.trailblazer.sock1")
+        let socket2 = SocketPath("/tmp/com.trailblazer.sock2")
 
         do {
             let bind1 = try socket1.bind()
@@ -79,7 +79,7 @@ class BindingTests: XCTestCase {
     }
 
     func testCustomStringConvertible() {
-        let socket = SocketPath("/tmp/com.trailblazer.sock1")!
+        let socket = SocketPath("/tmp/com.trailblazer.sock1")
 
         let binding: Binding
         do {

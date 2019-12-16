@@ -9,11 +9,8 @@ public extension Path {
         guard let pathString = try container.decodeIfPresent(String.self, forKey: Self.pathType) else {
             throw CodingError.incorrectPathType
         }
-        guard let path = Self(pathString) else {
-            throw CodingError.incorrectPathType
-        }
 
-        self.init(path)
+        self.init(pathString)
     }
 
     /// Encodes a Path to an unkeyed String container

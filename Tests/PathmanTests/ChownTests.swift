@@ -123,19 +123,14 @@ class ChownTests: XCTestCase {
         #if os(Linux)
         let base: DirectoryPath = DirectoryPath.home!
         #else
-        let base: DirectoryPath = DirectoryPath("/tmp")!
+        let base: DirectoryPath = DirectoryPath("/tmp")
         #endif
 
-        guard var dir = DirectoryPath(base + "\(UUID())") else {
-            XCTFail("Test path exists and is not a directory")
-            return
-        }
+        var dir = DirectoryPath(base + "\(UUID())")
         XCTAssertFalse(dir.exists)
 
-        guard let parent = DirectoryPath(dir + "\(UUID())"), var file = FilePath(parent + "\(UUID()).test") else {
-            XCTFail("Test path exists and is not a file")
-            return
-        }
+        let parent = DirectoryPath(dir + "\(UUID())")
+        var file = FilePath(parent + "\(UUID()).test")
 
         _ = try? file.create(options: .createIntermediates)
 

@@ -11,8 +11,12 @@ private let cStat = Darwin.lstat
 #endif
 
 /// The separator between components of a path
+#if os(Windows)
+public var pathSeparator: String = "\\"
+#else
 public var pathSeparator: String = "/"
-private let processRoot: DirectoryPath = DirectoryPath(pathSeparator)!
+#endif
+private let processRoot: DirectoryPath = DirectoryPath(pathSeparator)
 
 // swiftlint:disable line_length
 /// The working directory of the current process
@@ -25,7 +29,7 @@ private func getCurrentWorkingDirectory() throws -> DirectoryPath {
     // getcwd(3) states that the pointer returned by the C call needs to be freed
     defer { buffer.deallocate() }
 
-    return DirectoryPath(String(cString: buffer))!
+    return DirectoryPath(String(cString: buffer))
 }
 
 /**
@@ -77,7 +81,7 @@ public protocol Path: Hashable, CustomStringConvertible, UpdatableStatable, Owna
     static var pathType: PathType { get }
 
     init(_ path: Self)
-    init?(_ path: GenericPath)
+    init(_ path: GenericPath)
 }
 
 public extension Path {
@@ -160,7 +164,7 @@ public extension Path {
             }
 
             // Drop the lastComponent and rebuild the path
-            return DirectoryPath(components.dropLast())!
+            return DirectoryPath(components.dropLast())
         }
         set {
             try? move(into: newValue)
@@ -190,26 +194,26 @@ public extension Path {
         self = path
     }
 
-    init?(_ url: URL) {
+    init(_ url: URL) {
         self.init(url.path)
     }
 
-    init?(_ str: String) {
+    init(_ str: String) {
         self.init(GenericPath(str))
     }
 
     /// Initialize from an array of path elements
-    init?(_ components: [String]) {
+    init(_ components: [String]) {
         self.init(GenericPath(components))
     }
 
     /// Initialize from a variadic array of path elements
-    init?(_ components: String...) {
+    init(_ components: String...) {
         self.init(components)
     }
 
     /// Initialize from a slice of an array of path elements
-    init?(_ components: ArraySlice<String>) {
+    init(_ components: ArraySlice<String>) {
         self.init(Array(components))
     }
 

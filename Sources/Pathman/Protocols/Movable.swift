@@ -5,15 +5,18 @@ public protocol Movable {
     /// The last element of the path
     var lastComponent: String? { get }
     mutating func move(to newPath: Self) throws
+    static var pathType: PathType { get }
 
-    init?(_ str: String)
-    init?(_ path: GenericPath)
+    init(_ str: String)
+    init(_ path: GenericPath)
 }
 
 public extension Movable {
     mutating func move(to newGenericPath: GenericPath) throws {
-        let newPath = try Self(newGenericPath) ?! MoveError.moveToDifferentPathType
-        try move(to: newPath)
+        guard Self.validatePathType(newGenericPath) else {
+            throw MoveError.moveToDifferentPathType
+        }
+        try move(to: Self(newGenericPath))
     }
 
     mutating func move(to newPathString: String) throws {
@@ -28,5 +31,12 @@ public extension Movable {
 
     mutating func rename(to newName: String) throws {
         try move(to: (parent + newName).string)
+    }
+
+    static func validatePathType(_ path: GenericPath) -> Bool {
+        if path.exists {
+            guard path._info.type == Self.pathType else { return false }
+        }
+        return true
     }
 }
