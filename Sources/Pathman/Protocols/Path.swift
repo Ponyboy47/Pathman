@@ -190,6 +190,10 @@ public extension Path {
         self = path
     }
 
+    init?(_ url: URL) {
+        self.init(url.path)
+    }
+
     init?(_ str: String) {
         self.init(GenericPath(str))
     }
