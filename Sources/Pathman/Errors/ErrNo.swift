@@ -59,12 +59,26 @@ public extension PathmanError {
 
     /// A function used to return the Error based on the ErrNo
     static func getError() -> Self {
-        return Self.allCases.filter { $0.contains(ErrNo.lastError) }.first ?? .unknown
+        return (Self.allCases + Self.knownErrors()).filter { $0.contains(ErrNo.lastError) }.first ?? .unknown
     }
 
     static func ~= (lhs: Self, rhs: Error) -> Bool {
         guard let selfError = rhs as? Self else { return false }
         return selfError == lhs
+    }
+
+    static func knownErrors() -> [Self] {
+        return [
+            Self.accessDenied, Self.permissionDenied, Self.quotaReached,
+            Self.segFault, Self.interruptedBySignal,
+            Self.noProcessFileDescriptors, Self.noSystemFileDescriptors,
+            Self.pathnameTooLong, Self.noDevice, Self.noKernelMemory,
+            Self.deviceFull, Self.pathComponentNotDirectory,
+            Self.readOnlyFileSystem, Self.wouldBlock, Self.ioError,
+            Self.badFileDescriptor, Self.tooManySymlinks, Self.noRouteToPath,
+            Self.operationNotSupported, Self.isDirectory, Self.notASocket,
+            Self.addressInUse
+        ]
     }
 }
 
