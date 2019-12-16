@@ -7,7 +7,7 @@ class CreateDeleteTests: XCTestCase {
         #if os(Linux)
         return DirectoryPath.home!
         #else
-        return DirectoryPath("/tmp")!
+        return DirectoryPath("/tmp")
         #endif
     }()
 
