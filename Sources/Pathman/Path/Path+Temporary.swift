@@ -1,13 +1,11 @@
 #if os(Linux)
 import func Glibc.mkdtemp
 import func Glibc.mkstemp
-import let Glibc.P_tmpdir
 #else
 import func Darwin.mkdtemp
 import func Darwin.mkstemp
-import let Darwin.P_tmpdir
 #endif
-private let _osTmpDir = P_tmpdir
+import class Foundation.FileManager
 
 /// Protocol declaration for Paths that can generate and create a unique temporary path
 public protocol TemporaryGeneratable: Creatable {
@@ -22,10 +20,16 @@ public let temporaryDirectory: DirectoryPath = getTemporaryDirectory()
 private func getTemporaryDirectory() -> DirectoryPath {
     let tmpDir: DirectoryPath!
 
-    if _osTmpDir.isEmpty {
-        tmpDir = DirectoryPath("\(GenericPath.separator)tmp")
+    if #available(iOS 10.0, macOS 10.12, tvOS 10.0, watchOS 3.0, *) {
+        tmpDir = DirectoryPath(FileManager.default.temporaryDirectory.path)
     } else {
-        tmpDir = DirectoryPath(_osTmpDir)
+        // Linux has support for getting the temp directory from file manager,
+        // but the other OS versions not captured by the #available will not
+        #if os(Linux)
+        tmpDir = DirectoryPath(FileManager.default.temporaryDirectory.path)
+        #else
+        tmpDir = DirectoryPath("\(GenericPath.separator)tmp")
+        #endif
     }
 
     return tmpDir
