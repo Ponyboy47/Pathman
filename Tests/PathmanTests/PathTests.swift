@@ -347,4 +347,12 @@ class PathTests: XCTestCase {
             XCTFail("Failed to open and read path from offset")
         }
     }
+
+    func testComparable() {
+        let path1 = try! FilePath.temporary(prefix: "com.pathman.test").path
+        let path2 = try! FilePath.temporary(prefix: "com.pathman.test").path
+
+        let val = path1 < path2
+        XCTAssertEqual(val, path1 < path2)
+    }
 }

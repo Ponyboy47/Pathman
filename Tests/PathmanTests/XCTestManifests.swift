@@ -238,6 +238,7 @@ extension PathTests {
         ("testChangeSeparator", testChangeSeparator),
         ("testChCWD", testChCWD),
         ("testCodable", testCodable),
+        ("testComparable", testComparable),
         ("testComponents", testComponents),
         ("testCustomStringConvertible", testCustomStringConvertible),
         ("testEquatable", testEquatable),
