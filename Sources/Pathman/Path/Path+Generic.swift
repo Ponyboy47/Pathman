@@ -1,5 +1,5 @@
 /// A type used to express filesystem paths
-public struct GenericPath: Path, ExpressibleByStringLiteral, ExpressibleByArrayLiteral {
+public struct GenericPath: Path, ExpressibleByStringLiteral, ExpressibleByArrayLiteral, Comparable {
     public static let pathType: PathType = .unknown
 
     // swiftlint:disable identifier_name

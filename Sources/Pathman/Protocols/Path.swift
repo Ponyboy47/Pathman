@@ -67,7 +67,7 @@ public func changeCWD(to dir: DirectoryPath, closure: () throws -> Void) throws 
 
 /// A protocol that describes a Path type and the attributes available to it
 public protocol Path: Hashable, CustomStringConvertible, UpdatableStatable, Ownable, Permissionable, Movable,
-    Deletable, Codable, Sequence {
+    Deletable, Codable, Sequence, Comparable {
     // swiftlint:disable identifier_name
     /// The underlying path representation
     var _path: String { get set }
