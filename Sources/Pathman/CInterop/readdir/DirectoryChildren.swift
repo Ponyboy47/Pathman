@@ -7,15 +7,15 @@ import func Cdirent.readdir
  */
 public struct DirectoryChildren: Equatable, CustomStringConvertible {
     /// The file paths
-    public private(set) var files: [FilePath]
+    public internal(set) var files: [FilePath]
     /// The directory paths
-    public private(set) var directories: [DirectoryPath]
+    public internal(set) var directories: [DirectoryPath]
     /// The socket paths
-    public private(set) var sockets: [SocketPath]
+    public internal(set) var sockets: [SocketPath]
     /// The character paths
-    public private(set) var characters: [CharacterPath]
+    public internal(set) var characters: [CharacterPath]
     /// Other paths
-    public private(set) var other: [GenericPath]
+    public internal(set) var other: [GenericPath]
 
     /// Whether or not this collection is empty
     public var isEmpty: Bool { return files.isEmpty && directories.isEmpty && other.isEmpty }
